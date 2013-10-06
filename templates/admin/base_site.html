@@ -1,0 +1,102 @@
+{% extends "admin/base.html" %}
+{% load i18n grp_tags %}
+
+{% block title %}{{ title }} | {% trans 'Django site admin' %}{% endblock %}
+
+{% block branding %}
+    <h1 id="site-name">{% trans 'Django administration' %}</h1>
+{% endblock %}
+
+<!-- LOGO AND BRANDING -->
+{% block logo-brand %}
+<div id="grp-branding">
+    <div id="logo">
+        <img src="{{ STATIC_URL }}/img/logov2.png">
+    </div>
+    <div id="brand">
+        <h1 id="grp-admin-title">{% if grappelli_admin_title %}{{ grappelli_admin_title }}{% else %}{% get_admin_title %}{% endif %}</h1>
+    </div>
+</div>
+{% endblock %}
+
+<!-- Username & links area-->
+
+{% block userlinks %}
+
+{% if user.is_active and user.is_staff%}
+    <ul id="grp-user-tools">
+    <div id="user-tools">
+        {% trans 'Welcome,' %}
+        <strong>{% filter force_escape %}{% firstof user.first_name user.username %}{% endfilter %}</strong>.
+         <div></div>
+            {%if user.username != 'guest' %}
+            {% if password_change_url %}
+                <a href="{{ password_change_url }}">
+            {% else %}
+                <a href="{{ root_path }}password_change/">
+            {% endif %}
+                {% trans 'Change password' %}</a> /
+                	{% url 'admin:logout' as logout_url %}
+                	{% if logout_url %}
+                    		<a href="{{ logout_url }}">
+                	{% else %}
+                    		<a href="{{ root_path }}logout/">
+                	{% endif %}
+                	{% trans 'Log out' %}</a>
+               {%else%}
+              		<a href="/admin/">{% trans 'Log In' %}</a>
+               {%endif%}
+
+        <!-- contact/about us -->
+        <div id="general-links">
+            <a href="/">{% trans 'Home' %}<B>|</B>
+            <a href="/aboutus">About Us</a><B>|</B>
+            <a href="/contactus">Contact Us</a><B>|</B
+            <a href="https://jira.sbri.org/browse/NGS-279">Log Issues</a>
+        </div>
+        <!-- Admin links -->
+        <div id="admin-links">    <P>
+            <B> Add New</B>
+            <a href="http://ngsdb:8000/admin/request/order/">Orders</a><B>|</B>
+            <a href="http://ngsdb:8000/admin/auth/user/">Users </a><B>|</B>
+            <a href="http://ngsdb:8000/admin/">Admin</a>
+        </div>
+        <div id="admin-docs">
+        {% if docsroot %}
+            <a href="{{ docsroot }}">{% trans 'Documentation' %}</a>
+        {% endif %}
+        </div>
+    </div>
+    </ul>
+{% endif %}
+{% endblock userlinks %}
+
+<!-- content title -->
+{% block content_title %}
+    {% if title %}
+        <header><h1>{{ title }}</h1></header>
+    {% endif %}
+{% endblock %}
+
+<!-- Links for naviation -->
+{% block nav-global %}
+<div id='cssmenu'>
+<ul>
+   <li class='active'><a href='index.html'><span>Home</span></a></li>
+   <li class='has-sub'><a href='#'><span>Products</span></a>
+      <ul>
+         <li><a href='#'><span>Widgets</span></a></li>
+         <li><a href='#'><span>Menus</span></a></li>
+         <li class='last'><a href='#'><span>Products</span></a></li>
+      </ul>
+   </li>
+   <li class='has-sub'><a href='#'><span>Company</span></a>
+      <ul>
+         <li><a href='#'><span>About</span></a></li>
+         <li class='last'><a href='#'><span>Location</span></a></li>
+      </ul>
+   </li>
+   <li class='last'><a href='#'><span>Contact</span></a></li>
+</ul>
+</div>
+{% endblock nav-global %}
