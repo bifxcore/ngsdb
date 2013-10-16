@@ -90,6 +90,7 @@ STATICFILES_FINDERS = (
 #read via env variable in host specific settings file eg ngsdb.settings.ngsdb
 #SECRET_KEY = ''
 
+
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
@@ -133,6 +134,7 @@ INSTALLED_APPS = (
     'django.contrib.admindocs',
     'south',
     'ngsdbview',
+    'samples',
 )
 
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'
