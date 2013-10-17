@@ -1,0 +1,29 @@
+{%extends "admin/base_site.html"%}
+
+{%block content %}
+
+<script type="text/javascript" src="/media/js/plugins/jqplot.barRenderer.min.js"></script>
+<script type="text/javascript" src="/media/js/plugins/jqplot.categoryAxisRenderer.min.js"></script>
+<script type="text/javascript" src="/media/js/plugins/jqplot.pointLabels.min.js"></script>
+
+<script type="text/javascript">
+
+$(document).ready(function(){
+{%autoescape off%}
+{{bargraph}}
+{% endautoescape %}
+});
+
+</script>
+
+
+
+{%autoescape off%}
+{{menu}}
+{% endautoescape %}
+
+<div id='bargraph'></div>
+
+{%endblock%}
+
+

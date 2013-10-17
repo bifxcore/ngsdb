@@ -1,0 +1,109 @@
+{% extends "admin/base_site.html" %}
+
+{%block content%}
+<link rel="stylesheet" type="text/css" href="/media/css/style.css" >
+<link rel="stylesheet" type="text/css" href="/media/css/tabstyle.css" >
+
+{% block body %}
+
+<!-- for autocompletion -->
+<link href="/media/css/jquery-ui-1.8.18.custom.css" rel="stylesheet" type="text/css"/>
+<script language="javascript" type="text/javascript" src="/media/js/jquery.min.js"></script>
+<script language="javascript" type="text/javascript" src="/media/js/jquery-ui-1.8.18.custom.min.js"></script>
+<script type="text/javascript">
+    $(document).ready(function() {
+        /*$("input#id_resultidfield").autocomplete({source: ["c++", "java", "php", "coldfusion", "javascript", "asp", "ruby"]});*/
+        {% autoescape off %}
+            {{ autoclibcodes }}
+        {% endautoescape %}
+    });
+</script>
+<!-- end for autocompletion -->
+
+
+<FORM action="." method="post">
+{% csrf_token %}
+
+{% if alignstatdics %}
+    <FORM action="." method="post">
+    {% csrf_token %}
+    {% load ngsdbview_extras %}
+    {% load humanize %}
+
+    <TABLE><TR>
+        <TD>
+            <TABLE id="viewtable">
+                <TR><TH nowrap="nowrap">Library Code</TH></TR>
+                <TR><TH nowrap="nowrap">Original Library size</TH></TR>
+                <TR><TH nowrap="nowrap">Considered for Alignment</TH></TR>
+                <TR><TH nowrap="nowrap">Uniquely aligned</TH></TR>
+                <TR><TH nowrap="nowrap">Non-Uniquely aligned</TH></TR>
+                <TR><TH nowrap="nowrap">Total Aligned Reads</TH></TR>
+                <TR><TH nowrap="nowrap">Aligned Percentage</TH></TR>
+                <TR><TH nowrap="nowrap">Unaligned</TH></TR>
+            </TR></TABLE>
+        </TD>
+        {% for libcode, alignstat in alignstatdics.items %}
+        <TD>
+            <TABLE >
+            <TR><TH>{{ libcode }}</TH></TR>
+            <TR><TD>{{ alignstat|hash:'Original library size'|intcomma }}</TD></TR>
+            <TR><TH>{{ alignstat|hash:'Considered for Alignment'|intcomma }}</TH></TR>
+            <TR><TD>{{ alignstat|hash:'Uniquely aligned'|intcomma }}</TD></TR>
+            <TR><TD>{{ alignstat|hash:'Non-Uniquely aligned'|intcomma }}</TD></TR>
+            <TR><TH>{{ alignstat|hash:'totalaligned_readcount'|intcomma }}</TH></TR>
+            <TR><TH nowrap="nowrap">{{ alignstat|hash:'totalalignedperc' }}({{ alignstat|hash:'uniqalignedperc' }} + {{ alignstat|hash:'nonuniqalignedperc' }})</TH></TR>
+            <TR><TD>{{ alignstat|hash:'Unaligned '|intcomma }}({{ alignstat|hash:'unalignedperc' }})</TD></TR>
+
+            </TABLE>
+        </TD>
+    {% endfor %}
+    </TR>
+    </TABLE>
+
+    {% if alignstatpics %}
+    {# display common vertically stacked bar chart #}
+    <TABLE id="viewtable"><TR>
+        <TD><img src="{{ alignstatpics }}" /></TD>
+    </TR></TABLE>
+     {% endif %}
+
+{% else %}
+<TABLE>
+    <TR>
+        <TD>
+            {{ form.as_table }}
+        </TD>
+    </TR>
+
+    <TR>
+        <TD>Library codes:</TD>
+        <TD>
+            <TABLE><TR>Genome and Version:
+            {% for genome_version, libcodes in genomelibcodemap.items %}
+                <TD>
+                    <TABLE>
+                        <TR><TH>
+                            {{ genome_version }}
+                        </TH></TR>
+                        {% for libcode in libcodes %}
+                            <TR><TD>
+                                <input type="checkbox" name="libcode_genome_version" value = {{ libcode|add:'_'|add:genome_version }} > {{ libcode }}
+                            </TD></TR>
+                        {% endfor %}
+                    </TABLE>
+                </TD>
+            {% endfor %}
+            </TR></TABLE>
+        </TD>
+    </TR>
+    <TR>
+        <TD>
+            <input type="submit"  name="level1" value="Submit" />
+        </TD>
+    </TR>
+</TABLE>
+</FORM>
+{% endif %}
+{% endblock %}
+{% endblock %}

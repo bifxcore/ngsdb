@@ -9,7 +9,7 @@ urlpatterns = patterns('',
     # Examples:
     # url(r'^$', 'ngsdb03.views.home', name='home'),
     # url(r'^ngsdb03/', include('ngsdb03.foo.urls')),
-    #url(r'^ngsdb03/', include('ngsdb03.ngsdbview.urls')),
+    url(r'^ngsdb03/', include('ngsdbview.urls')),
 
     # Uncomment the admin/doc line below to enable admin documentation:
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),

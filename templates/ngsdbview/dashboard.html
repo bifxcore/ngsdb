@@ -1,0 +1,80 @@
+{% extends "admin/base_site.html" %}
+
+{%block content%}
+<link rel="stylesheet" type="text/css" href="/media/css/style.css" >
+<link rel="stylesheet" type="text/css" href="/media/css/tabstyle.css" >
+{% block body %}
+{% load ngsdbview_extras %}
+
+
+<!-- Master table for the page layout-->
+<TABLE>
+    <TR>
+        <TD>
+            <TABLE id="viewtable">
+                <TR><TH>Collaborator Name</TH><TH>Lib. Count</TH></TR>
+                {% for name in collaborators %}
+                    <TR><TD>{{ name }}</TD><TD> {{ collaborators|hash:name }}</TD></TR>
+                {% endfor %}
+                <TR><TD><img src="{{ collaboratorschart }}" /></TD></TR>
+            </TABLE>
+        </TD>
+        <TD>
+            <TABLE id="viewtable">
+                <TR><TH>Organism</TH><TH>Library count</TH></TR>
+                {% for org in liborg %}
+                    <TR><TD>{{ org }}</TD><TD> {{ liborg|hash:org }}</TD></TR>
+                {% endfor %}
+                <TR><TD><img src="{{ liborgchart }}" /></TD></TR>
+            </TABLE>
+        </TD>
+    </TR>
+    <TR>
+        <TD>
+            <TABLE id="viewtable">
+                <TR><TH>Library Type</TH><TH>Count</TH></TR>
+                {% for type in libtype %}
+                <TR><TD>{{ type }}</TD><TD> {{ libtype|hash:type }}</TD></TR>
+                {% endfor %}
+                <TR><TD><img src="{{ libtypechart }}" /></TD></TR>
+            </TABLE>
+        </TD>
+        <TD>
+            <TABLE id="viewtable">
+                <TR><TH>Library Author</TH><TH>Count</TH></TR>
+                {% for auth in libauth %}
+                <TR><TD>{{ auth }}</TD><TD> {{ libauth|hash:auth }}</TD></TR>
+                {% endfor %}
+                <TR><TD><img src="{{ libauthchart }}" /></TD></TR>
+            </TABLE>
+        </TD>
+    </TR>
+    <TR>
+        <TD>
+            <TABLE id="viewtable">
+                <TR><TH>Category</TH><TH>Count</TH></TR>
+                <TR><TD>No. Of Libraries Loaded</TD><TD>{{ libcount }}</TD></TR>
+                <TR><TD>No. Of Analyis Loaded</TD><TD>{{ anacount }}</TD></TR>
+                <TR><TD><img src="{{ analysedlibschart }}" /></TD></TR>
+            </TABLE>
+        </TD>
+        <TD>
+            <TABLE id="viewtable">
+                <TR><TH>Analysis Author</TH><TH>Count</TH></TR>
+                {% for auth in anaauth %}
+                <TR><TD>{{ auth }}</TD><TD> {{ anaauth|hash:auth }}</TD></TR>
+                {% endfor %}
+                <TR><TD><img src="{{ anaauthchart }}" /></TD></TR>
+        </TD>
+    </TR>
+<!--
+    <TR>
+        <TD></TD>
+        <TD></TD>
+    </TR>
+-->
+</TABLE>
+
+
+{% endblock %}
+{% endblock %}

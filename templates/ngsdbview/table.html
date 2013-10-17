@@ -1,0 +1,75 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+<link rel="stylesheet" type="text/css" href="/media/css/style.css" >
+<link rel="stylesheet" type="text/css" href="/media/css/tabstyle.css" >
+
+{% block content-main %}
+<link href="/media/css/jquery-ui-1.8.18.custom.css" rel="stylesheet" type="text/css"/>
+<script language="javascript" type="text/javascript" src="/media/js/jquery.min.js"></script>
+<script language="javascript" type="text/javascript" src="/media/js/jquery-ui-1.8.18.custom.min.js"></script>
+<script type="text/javascript">
+  $(document).ready(function() {
+    /*$("input#id_resultidfield").autocomplete({source: ["c++", "java", "php", "coldfusion", "javascript", "asp", "ruby"]});*/
+   {% autoescape off %}
+       {% for af in autocomplist %}
+           {{ af }}
+       {%endfor%}
+   {% endautoescape %}
+  });
+</script>
+
+
+<body>
+<table class="fillwidthtable">
+<form action="." method="POST"> {% csrf_token %}
+        <!-- {{form.as_table}} -->
+        {{ form.as_table }}
+        <tr><td></td><td class="alignright"><button type="SUBMIT">Submit</button></td></tr>
+</form>
+</table>
+
+<table><tr><td>
+<h5>{{searchdisp}} </h5>
+</td></tr></table>
+<!-- <form action="." method="POST"> {% csrf_token %}
+<table>
+<tr><h5>{{searchdisp}} </h5></tr>
+<tr>
+<td><h4>Displaying {{ page_no }} out of {{ totalpages }} pages. [limit {{nlimit}} per page]</h4></td>
+<td><input type="submit" method="POST" value="<<" name="previous" /></td>
+<td><input type="submit" method="POST" value=">>" name="next" /></td>
+</tr>
+</table>
+</form>-->
+
+<table id="viewtable">
+<tr>
+    {% for attr in fields %}
+         <th>{{ attr }}</th>
+    {% endfor %}
+</tr>
+
+{% for v in list %}
+{% if forloop.counter|divisibleby:2 %}
+<tr>
+{% else %}
+<tr class="alt">
+{% endif %}
+    {% for item in v %}
+         <td>{{ item }}</td>
+    {% endfor %}
+</tr>
+{% endfor %}
+</table>
+
+<form class="fillwidthtable" action="." method="POST"> {% csrf_token %}
+<table border='0'>
+<tr>
+<td><input type="submit" value="Save .csv" class="default" name="save" /></td>
+</table>
+</form>
+
+</body>
+{% endblock %}
+{% endblock %}

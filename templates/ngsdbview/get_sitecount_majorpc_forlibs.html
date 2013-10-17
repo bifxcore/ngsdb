@@ -1,0 +1,21 @@
+{%extends "admin/base_site.html"%}
+
+{% load ngsdbview_extras %}
+
+<TABLE border="1">
+{% if outputdata %}
+{% for gene, dic in outputdata.items %}
+		<TR>
+		<TD>{{ gene }} </TD>
+		{% for lib in dic %}
+			<TD>{{ lib }} </TD>
+				{% for l in dic|hash:lib %}
+					<TD>{{ l }}</TD> 
+				{% endfor %}
+		{% endfor %}
+		<TD>{{ genedic|hash:gene }}</TD>
+		</TR>
+{% endfor %}
+{% endif %}
+</TABLE>
+

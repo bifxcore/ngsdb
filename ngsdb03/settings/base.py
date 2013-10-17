@@ -3,6 +3,11 @@ import os
 # For host specific settings see corresponding files
 # for example for ngsdb host see ngsdb03.settings.ngsdb
 
+#This is for adding additional attributes to built-in Users from Django
+#this enables the get_profile() command for Users
+AUTH_PROFILE_MODULE = 'ngsdbview.UserProfile'
+
+
 GRAPPELLI_ADMIN_TITLE='NGSDB03: Myler Lab NGS database'
 
 ADMINS = (
@@ -115,6 +120,8 @@ WSGI_APPLICATION = 'ngsdb03.wsgi.application'
 
 TEMPLATE_DIRS = (
     os.path.abspath(os.path.join(os.path.dirname( __file__ ), '../..', 'templates')),
+    os.path.abspath(os.path.join(os.path.dirname( __file__ ), '../../ngsdbview', 'templates')),
+
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.

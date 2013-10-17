@@ -1,0 +1,176 @@
+{% extends "admin/base_site.html" %}
+
+{%block content%}
+<link rel="stylesheet" type="text/css" href="/media/css/style.css" >
+<link rel="stylesheet" type="text/css" href="/media/css/tabstyle.css" >
+{% block body %}
+
+
+    <!-- for autocompletion -->
+
+    <link href="/media/css/jquery-ui-1.8.18.custom.css" rel="stylesheet" type="text/css"/>
+    <script language="javascript" type="text/javascript" src="/media/js/jquery.min.js"></script>
+    <script language="javascript" type="text/javascript" src="/media/js/jquery-ui-1.8.18.custom.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            /*$("input#id_resultidfield").autocomplete({source: ["c++", "java", "php", "coldfusion", "javascript", "asp", "ruby"]});*/
+            {% autoescape off %}
+                {{ autoclibcodes }}
+            {% endautoescape %}
+        });
+    </script>
+    <!-- end for autocompletion -->
+
+
+<FORM action="." method="post">
+{% csrf_token %}
+{% load ngsdbview_extras %}
+
+
+    {%  if allres  %}
+
+    {# Table to display a bound form #}
+
+    <TABLE>
+        <TR><TD>
+            {{ form.as_table }}
+        </TD></TR>
+    </TABLE>
+    {# Table to display available libraries/analysis info #}
+    <TABLE id= "viewtable">
+        <TR>
+            <TH>Result Ids</TH>
+            <TH>Library Code</TH>
+            <TH>Library Constructed on</TH>
+            <TH>Lifestage</TH>
+            <TH>Phenotype</TH>
+            <TH>Genome Aligned to</TH>
+            <TH>Genome version</TH>
+            <TH>Genome source</TH>
+            <TH>View Analysis Steps</TH>
+        </TR>
+        {% for res in allres %}
+        {% for lib in res.libraries.all %}
+        <TR><TD><input type="radio" name="resid" value = {{ res.result_id }} >{{ res.result_id }}</TD>
+            <TD>{{ lib.librarycode }}</TD>
+            <TD>{{ lib.organism.organismcode }}</TD>
+            <TD>{{ lib.lifestage.lifestage }}</TD>
+            <TD>{{ lib.phenotype.phenotype }}</TD>
+            <TD>{{ res.genome.organism.organismcode }}</TD>
+            <TD>{{ res.genome.version }}</TD>
+            <TD>{{ res.genome.source }}</TD>
+            <TD><a href="/ngsdb/list_analysis_steps/{{ res.result_id }}/" target="_blank">View Analysis Steps</a></TD>
+        </TR>
+        {% endfor %}
+
+        {% endfor %}
+    </TABLE>
+        <input type="submit"  name="level1" value="Submit" />
+</FORM>
+        </P>
+
+
+    {# Table for align stat and pie chart #}
+{% if alignstatdic %}
+    <TABLE >
+        <TR>
+            <TD>
+                <TABLE id="viewtable">
+                    <TR>
+                        <TH>Name</TH><TH>Read count</TH>
+                    </TR>
+                    {% for key, value in alignstatdic.items %}
+                    <TR>
+                        <TD>{{ key }}</TD><TD>{{ value }}</TD>
+                    </TR>
+                    {% endfor %}
+                </TABLE>
+            </TD>
+            <TD>
+                <img src="{{ alinstatpiechart }}" />
+            </TD>
+        </TR>
+    </TABLE>
+{% endif %}
+
+    {# Table to display actual results  #}
+    {% if allgenes %}
+
+        {# Button to upload geneids to tritrypdb #}
+        <TABLE><TR>
+            <TD>
+                {# for tritrypdb upload #}
+                <FORM action="http://tritrypdb.org//tritrypdb/processQuestion.do" method="post">
+                    <input type="hidden" name="questionFullName" value="GeneQuestions.GeneByLocusTag">
+                    <input type="hidden" name="ds_gene_ids_type" value="data">
+                    <input type="hidden" name="ds_gene_ids_data" value= {{ geneidsfortritryp }}>
+                    <input type="hidden" name="questionSubmit" value="Get+Answer">
+
+
+                    <input type="submit"  name="tritryp" value="Load to TriTrypDB" />
+                </FORM>
+            </TD>
+            <TD>
+                {# for csv export #}
+                <FORM>
+                    <input type="submit"  name="csv" value="Export to CSV" />
+
+                </FORM>
+            </TD>
+        </TR></TABLE>
+
+        <TABLE id= "viewtable">
+        <TR>
+            <TH>Sl. No.</TH>
+            <TH>External Links</TH>
+            <TH>Geneid</TH>
+            <TH>Rank</TH>
+            <TH>Gene Strand</TH>
+            <TH>Chromosome</TH>
+            <TH>Position</TH>
+            <TH>Readcount</TH>
+            <TH>SitePercentage</TH>
+            <TH>Distance fromStop/Start</TH>
+            <TH>CDSstart</TH>
+            <TH>CDSend</TH>
+        </TR>
+        {% for geneobj in allgenes %}
+        <TR>
+            <TD>{{ forloop.counter }}</TD>
+            <TD><a href="http://tritrypdb.org/tritrypdb/showRecord.do?name=GeneRecordClasses.GeneRecordClass&project_id=TriTrypDB&source_id={{ geneobj.geneid }}" target="_blank">TriTrypDB</a>
+            &nbsp;<a href="http://www.genedb.org/gene/{{ geneobj.geneid }} " target="_blank">GeneDB</a>
+            </TD>
+            <TD>{{geneobj.geneid}}</TD><TD>{{ geneobj.rank }}</TD><TD>{{geneobj.genestrand}}</TD>
+            <TD>{{geneobj.chromosome}}</TD><TD>{{geneobj.position}}</TD>
+            <TD>{{geneobj.readcount}}</TD><TD>{{geneobj.slpercent|floatformat:2 }}</TD><TD>{{geneobj.intervallength}}</TD>
+            <TD>{{geneobj.cdsstart}}</TD><TD>{{geneobj.cdsend}}</TD>
+        </TR>
+        {% endfor %}
+    </TABLE>
+    {% endif %}
+
+
+
+
+
+    {% else %}
+<FORM action="." method="post">
+
+        <TABLE>
+        <TR><TD>
+            {{ form.as_table }}
+        </TD></TR>
+        <TR><TD>
+        </TD></TR>
+    </TABLE>
+        <input type="submit"  name="level1" value="Submit" />
+
+</FORM>
+
+{% endif %}
+
+{% endblock %}
+{% endblock %}
+
+
+

@@ -1,0 +1,71 @@
+{%extends "admin/base_site.html"%}
+
+{%block content%}
+
+<link rel="stylesheet" type="text/css" href="/media/css/tabstyle.css" >
+<!--[if lt IE 9]><script language="javascript" type="text/javascript" src="excanvas.js"></script><![endif]-->
+<script language="javascript" type="text/javascript" src="/media/js/jquery.min.js"></script>
+<script language="javascript" type="text/javascript" src="/media/js/jquery.jqplot.min.js"></script>
+<script language="javascript" type="text/javascript" src="/media/js/plugins/jqplot.pieRenderer.min.js"></script>
+
+<script type="text/javascript" src="/media/js/plugins/jqplot.canvasTextRenderer.min.js"></script>
+<script type="text/javascript" src="/media/js/plugins/jqplot.canvasAxisLabelRenderer.min.js"></script>
+
+<link rel="stylesheet" type="text/css" href="/media/css/jquery.jqplot.css" />
+
+<script type="text/javascript">
+
+     var howOften = 3;
+     var current = 0;
+     var items= new Array();
+     items[0] = "<img class='mainpagepic' src='/media/img/Leishmaniasis_life_cycle_diagram.png'/>"
+     items[1] = "<div id='chartdiv' class='mainpagepic'></div>"
+     items[2] = "<img class='mainpagepic' src='/media/img/leishmania.jpg'/>"
+     items[3] = "<div id='piediv' class='mainpagepic'></div>"
+
+    function changingBanner()
+    {
+        document.getElementById("changingpic").innerHTML = items[current];
+        if(current==1){
+            /*var plot1 = $.jqplot('chartdiv',  [[[1, 2],[3,5.12],[5,13.1],[7,33.6],[9,85.9],[11,219.9]]]); */
+            {% autoescape off %}
+            {{ linegraph }}
+            {% endautoescape %}
+
+        }else if(current==3){
+            {% autoescape off %}
+            {{ piechart }}
+            {% endautoescape %}
+        }
+        current = (current==items.length-1) ? 0 : current + 1;
+        setTimeout("changingBanner()",howOften*1000);
+    }
+
+   window.onload=changingBanner;
+
+</script>
+
+    <table>
+        <tr><td><h1>{% block title %}Seattle Biomed: NGSDB{% endblock %}</h1><br></td></tr>
+        <tr><td id="changingpic"><!--<div id="chartdiv"></div>--></td></tr>
+        <tr><td>
+            <table id="mainpagelinktable">
+     
+                <tr>
+                    <td>
+
+                    {% for desc, view in listoflinks %}
+                         <br><a href="./{{view}}"><h5>{{desc}}</h5></a>
+                         {% if forloop.counter == numlinks%}
+                             </td>
+                             <td>
+                         {%endif%}
+                    {%endfor%}
+                    </td>
+
+                 </tr>
+            </table>
+         </tr>
+    </table>
+
+{%endblock%}

@@ -1,0 +1,65 @@
+{%extends "admin/base_site.html"%}
+
+{%block content%}
+<link rel="stylesheet" type="text/css" href="/media/css/style.css" >
+<link rel="stylesheet" type="text/css" href="/media/css/tabstyle.css" >
+
+{% load ngsdbview_extras %}
+
+<script type="text/javascript">
+function toggletab(stepno)
+{
+    var x = document.getElementById(stepno);
+    if (x.style.display=="none"){
+        x.style.display="";
+    }
+    else{
+        x.style.display="none";
+    }
+
+}
+function highlight(stepno)
+{
+    var x = document.getElementById(stepno);
+    x.className =  rollon
+}
+function turntransparent(stepno)
+{
+    var x = document.getElementById(stepno);
+    x.className =  rolloff
+}
+</script>
+</script>
+
+<br>
+<form action=""> 
+<select name="URL" onchange="window.location.href= this.form.URL.options[this.form.URL.selectedIndex].value">
+<option value="">Go To Analysis Steps for Result ID:</option>
+{% for rid in resultids %}
+    <option value="/ngsdb/list_analysis_steps/{{rid}}/">{{rid}}</option>
+{% endfor %}
+</select>
+<br><br>
+
+{% block body %}
+
+{% for step in allsteps %}
+
+<table class="fillwidthtable" border="2">
+  <TR><th>{{ step.ordinal }} : {{ step.analysistype.type }} </th></TR>
+  <TR><TD>Software Used: {{ step.software.name }}</TD></TR>
+
+  <TR><TD onmouseout="highlight('e{{step}}')" onmouseover="turntransparent('e{{step}}')" onclick="toggletab('e{{step}}')" >Analysis Properties [click]
+                 <table border="2" id="e{{step}}" style="display:none">
+                 {% for prop in analysisprop_set|hash:step.ordinal %}
+                        <TR><TD>{{ prop.cvterm.name }}</TD><TD>{{ prop.value }}</TD></TR>
+                 {% endfor %} 
+                 </table>
+  </TD>
+  </TR>
+</table>
+{% endfor %}
+
+
+{% endblock %}
+{% endblock %}
