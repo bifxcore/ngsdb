@@ -66,7 +66,7 @@ header#grp-header {
   border-radius: 5px;
   -webkit-border-radius: 5px;
   -moz-border-radius: 5px;
-  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
+  #text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
 }
 #cssmenu a:hover {
   background: #000;
@@ -74,14 +74,14 @@ header#grp-header {
 }
 #cssmenu .active a,
 #cssmenu li:hover > a {
-  background: #979797 url(images/overlay.png) repeat-x 0 -40px;
-  background: #666666 url(images/overlay.png) repeat-x 0 -40px;
-  color: #444;
+  #background: #979797 url(images/overlay.png) repeat-x 0 -40px;
+  #background: #666666 url(images/overlay.png) repeat-x 0 -40px;
+  #color: yellow;
   border-top: solid 1px  #f8f8f8;
   -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
   -moz-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
   box-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
-  text-shadow: 0 1px 0 #ffffff;
+  #text-shadow: 0 1px 0 #ffffff;
 }
 #cssmenu ul ul li:hover a,
 #cssmenu li:hover li a {
@@ -97,7 +97,7 @@ header#grp-header {
   -webkit-border-radius: 5px;
   -moz-border-radius: 5px;
   border-radius: 5px;
-  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+  #text-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
 }
 #cssmenu li:hover > ul {
   display: block;
@@ -117,7 +117,7 @@ header#grp-header {
   border-radius: 5px;
   -webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
   -moz-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  #box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 #cssmenu ul ul li {
   float: none;
