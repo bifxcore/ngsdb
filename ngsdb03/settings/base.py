@@ -142,6 +142,7 @@ INSTALLED_APPS = (
     'south',
     'ngsdbview',
     'samples',
+    'django.contrib.humanize',
 )
 
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'

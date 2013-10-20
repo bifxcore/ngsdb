@@ -35,7 +35,7 @@
 </TABLE>
 
 {# table to display Analysis #}
-{%  if availana  %}
+{%  if availres  %}
     <TABLE id="viewtable">
         <TR>
             <TH>Sl. No.</TH>
@@ -55,7 +55,7 @@
             <TH>Collaborator</TH>
             <TH>Notes</TH>
         </TR>
-        {% for ana in availana %}
+        {% for ana in availres %}
             <TR>
                 {{ ana }}
                 <TD>{{ forloop.counter }}</TD>

@@ -334,7 +334,7 @@ class UserProfile(models.Model):
 	# This field is required.
 	id = models.AutoField(primary_key=True)
 	user = models.OneToOneField(User)
-	libraries = models.ManyToManyField(Library,default=[])
+	libraries = models.ManyToManyField(Library,default=['AH006'])
 	def __unicode__(self):
 		return str(self.user)
 

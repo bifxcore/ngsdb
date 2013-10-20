@@ -377,6 +377,10 @@ def ListAnalyses(request):
 
     availres = Result.objects.filter(libraries__library_id__in=availlibids)
     kwargs['availres']=availres
+    print 'well'
+    print availres
+    print 'hell'
+    print kwargs
 
     if request.method == 'POST':
         form = ListLibForm(request.POST) #bound form
