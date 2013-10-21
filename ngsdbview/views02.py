@@ -317,6 +317,8 @@ def Dashboard(request):
 
     return render_to_response('ngsdbview/dashboard.html',kwargs, context_instance=RequestContext(request))
 
+
+
 def ListLibraries(request):
     #gets user and the libraries the user has permission to
     [user, availlibids] = getlibraries(request)
@@ -356,6 +358,7 @@ def ListLibraries(request):
         kwargs['form']=form
 
     return render_to_response('ngsdbview/list_libraries.html',kwargs, context_instance=RequestContext(request))
+    #return render_to_response('ngsdbview/list_librariestwo.html',kwargs, context_instance=RequestContext(request))
 
 def ListAnalyses(request):
     '''lists analysis from ngsdb'''

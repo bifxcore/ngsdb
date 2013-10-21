@@ -95,8 +95,12 @@ class Collaborator(models.Model):
     ftp_path = models.URLField(blank=True)
     ftp_username = models.CharField(max_length=50, blank=True)
 
+    @property
+    def name(self):
+        return u"%s %s" % (self.firstname, self.lastname)
+
     def __unicode__(self):
-        return unicode(self.lastname)
+        return unicode(self.name)
 
 class Bioproject(models.Model):
     bioproject_code = models.CharField(unique=True, max_length=12)

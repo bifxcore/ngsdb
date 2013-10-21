@@ -9,8 +9,12 @@ urlpatterns = patterns('',
     url(r'^ngsdbview_library/$','ngsdbview.views.ViewLib'),
     url(r'^ngsdbview_result/$','ngsdbview.views.ViewResult'),
     url(r'^list_analysis_steps/(?P<result_id>.+)/','ngsdbview.views.ListAnalysisSteps'),
+    url(r'^contact/', 'ngsdbview.views.Contact'),
+    url(r'^aboutus/', 'ngsdbview.views.About'),
+
 
     # Gowthaman's views
+    url(r'^$', 'ngsdbview.views02.Dashboard'),
     url(r'^dashboard/','ngsdbview.views02.Dashboard'),
     url(r'^listlibraries/','ngsdbview.views02.ListLibraries'),
     url(r'^listanalyses/','ngsdbview.views02.ListAnalyses'),
@@ -22,6 +26,5 @@ urlpatterns = patterns('',
     url(r'^get_sitecount_majorpc_forlibs/','ngsdbview.views02.GetSitecountMajorpcForLibs'),
     url(r'^pair_libraries/','ngsdbview.views02.PairLibraries'),
     url(r'^alignstats/', 'ngsdbview.views02.GetAlignStats'),
-
 
 )

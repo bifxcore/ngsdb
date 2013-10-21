@@ -3,7 +3,6 @@
 {# samples/templates/author.html #}
 {% load render_table from django_tables2 %}
 {%block content%}
-        <link rel="stylesheet" href="{{ STATIC_URL }}django_tables2/themes/paleblue/css/screen.css" />
 {% block body %}
         {% render_table author %}
 {% endblock %}

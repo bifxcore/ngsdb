@@ -1,9 +1,25 @@
 # Create your views here.
-from samples.models import *
 from django.shortcuts import render
+from django.shortcuts import render_to_response
+from django.template import RequestContext
+from django_tables2 import RequestConfig
+from samples.models import *
+from samples.tables import *
+
 
 def author(request):
-    return render(request, "samples/author.html", {"author": Author.objects.all()})
+    kwargs = {}
+    table = AuthorTable(Author.objects.all())
+    RequestConfig(request, paginate={"per_page": 25}).configure(table)
+
+    kwargs['author'] = table
+    return render_to_response('samples/author.html', kwargs, context_instance=RequestContext(request))
+
+
 
 def librarylist(request):
-    return render(request, "samples/librarylist.html", {"librarylist": Library.objects.all()})
+    kwargs = {}
+    table = LibraryTable(Library.objects.all())
+    RequestConfig(request).configure(table)
+
+    return render(request, "samples/librarylist.html", {"librarylist": table})
