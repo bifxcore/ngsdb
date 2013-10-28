@@ -649,7 +649,7 @@ def deploy():
    with project():
        backup("last.db")
         #GR run("tar -cf last.tar %s" % static())
-       git = env.repo_url.startswith("git")
+       git = env.repo_url.endswith("git")
        run("%s > last.commit" % "git rev-parse HEAD" if git else "hg id -i")
        with update_changed_requirements():
             run("git pull origin master" if git else "hg pull && hg up -C")
