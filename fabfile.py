@@ -10,6 +10,7 @@ from contextlib import contextmanager
 from fabric.api import env, cd, prefix, sudo as _sudo, run as _run, hide, task
 from fabric.contrib.files import exists, upload_template
 from fabric.colors import yellow, green, blue, red
+from fabric.context_managers import shell_env
 
 sys.path.append('./deploy/fabric')
 now = datetime.datetime.now()
@@ -120,13 +121,22 @@ def virtualenv():
 
 
 @contextmanager
+def setsetting():
+    """
+    Sets the export DJANGO_SETTINGS_MODULE to be something like this =ngsdb03.settings.gramasamy02
+    """
+    with shell_env(DJANGO_SETTINGS_MODULE="ngsdb03.settings.gramasamy02"):
+        yield
+
+@contextmanager
 def project():
    """
     Runs commands within the project's directory.
     """
    with virtualenv():
-       with cd(env.proj_path):
-           yield
+       with setsetting():
+            with cd(env.proj_path):
+                yield
 
 
 @contextmanager
@@ -471,7 +481,10 @@ def create():
                return False
            remove()
        run("virtualenv %s --distribute" % env.proj_name)
-       vcs = "git" if env.repo_url.startswith("git") else "hg"
+       #GR add env.variable for settings module DJANGO_SETTINGS_MODULE
+       sudo("echo \"export DJANGO_SETTINGS_MODULE=%s.settings.%s\" >> %s/bin/activate" % (env.proj_name, env.fab_settings, env.venv_path))
+
+       vcs = "git" if env.repo_url.endswith("git") else "hg"
        run("%s clone %s %s" % (vcs, env.repo_url, env.proj_path))
 
    # Create DB and DB user.
@@ -510,12 +523,13 @@ def create():
            pip("-r %s/%s" % (env.proj_path, env.reqs_path))
        pip("gunicorn setproctitle south psycopg2 "
            "django-compressor python-memcached")
-       manage("createdb --noinput --nodata")
-       python("from django.conf import settings;"
-              "from django.contrib.sites.models import Site;"
-              "site, _ = Site.objects.get_or_create(id=settings.SITE_ID);"
-              "site.domain = '" + env.live_host + "';"
-              "site.save();")
+       #manage("createdb --noinput --nodata")
+
+       #python("from django.conf import settings;"
+       #       "from django.contrib.sites.models import Site;"
+       #       "site, _ = Site.objects.get_or_create(id=settings.SITE_ID);"
+       #       "site.domain = '" + env.live_host + "';"
+       #       "site.save();")
        if env.admin_pass:
            pw = env.admin_pass
            user_py = ("from django.contrib.auth.models import User;"
