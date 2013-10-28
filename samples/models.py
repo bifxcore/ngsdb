@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from ngsdbview.models import Author, Organism, Lifestage, Phenotype, Librarytype, Collaborator, Growthphase, Genotype
 
 # Create your models here.
 TEMPLATE_MATERIALS_CHOICES = (
@@ -8,70 +9,6 @@ TEMPLATE_MATERIALS_CHOICES = (
     ('gDNA', 'gDNA'),
     ('RibosomeBoundRNA', 'RibosomeBoundRNA')
 )
-
-
-class Author(models.Model):
-    designation = models.CharField(unique=True, max_length=4)
-    firstname = models.CharField(max_length=45)
-    lastname = models.CharField(max_length=45)
-    email = models.EmailField(unique=True)
-    affiliation = models.CharField(max_length=100, default="SeattleBioMed")
-    def __unicode__(self):
-        return unicode(self.designation)
-
-
-
-class Organism(models.Model):
-    organismcode = models.CharField(unique=True, max_length=50)
-    genus = models.CharField(max_length=45)
-    species = models.CharField(max_length=45)
-    strain = models.CharField(max_length=45)
-    isolate = models.CharField(max_length=45, blank=True)
-    source = models.CharField(max_length=100, help_text="Region/lab isolated from")
-
-    def __unicode__(self):
-        return unicode(self.organismcode)
-
-
-class Lifestage(models.Model):
-    lifestage = models.CharField(unique=True, max_length=45)
-    notes = models.CharField(max_length=400, default=None, blank=True)
-
-    def __unicode__(self):
-        return unicode(self.lifestage)
-
-
-class Growthphase(models.Model):
-    growthphase = models.CharField(unique=True, max_length=100)
-    notes = models.CharField(max_length=400, default=None, blank=True)
-
-    def __unicode__(self):
-        return unicode(self.growthphase)
-
-
-class Phenotype(models.Model):
-    phenotype = models.CharField(unique=True, max_length=45)
-    notes = models.CharField(max_length=45, default=None, blank=True)
-
-    def __unicode__(self):
-        return  unicode(self.phenotype)
-
-
-class Genotype(models.Model):
-    genotype = models.CharField(unique=True, max_length=45)
-    notes = models.CharField(max_length=45, default=None, blank=True)
-
-    def __unicode__(self):
-        return unicode(self.genotype)
-
-
-class Librarytype(models.Model):
-    type = models.CharField(unique=True, max_length=25)
-    notes = models.TextField(max_length=400, blank=True)
-
-    def __unicode__(self):
-        return unicode(self.type)
-
 
 class Genome(models.Model):
     reference_code = models.CharField(unique=True, max_length=10, help_text="Reference Genome Code")
@@ -84,23 +21,6 @@ class Genome(models.Model):
 
     def __unicode__(self):
         return unicode(self.reference_code)
-
-
-class Collaborator(models.Model):
-    firstname = models.CharField(max_length=45)
-    lastname = models.CharField(max_length=45)
-    email = models.EmailField(unique=True, max_length=100)
-    affiliation = models.CharField(max_length=100)
-    sharepoint_site = models.URLField(blank=True)
-    ftp_path = models.URLField(blank=True)
-    ftp_username = models.CharField(max_length=50, blank=True)
-
-    @property
-    def name(self):
-        return u"%s %s" % (self.firstname, self.lastname)
-
-    def __unicode__(self):
-        return unicode(self.name)
 
 class Bioproject(models.Model):
     bioproject_code = models.CharField(unique=True, max_length=12)
@@ -130,16 +50,16 @@ class Protocol(models.Model):
 
 class Library(models.Model):
     library_code = models.CharField(max_length=10, db_index=True, unique=True, blank=True, help_text="Only Settle BioMed\'s internal users may use this. eg. ES001, AH002")
-    author = models.ForeignKey(Author, help_text="Person constructed the library")
-    collaborator = models.ForeignKey(Collaborator, help_text="Initials of the PI collaborating on this project")
+    author = models.ForeignKey('ngsdbview.Author', related_name="ngsdbview.authors", help_text="Person constructed the library")
+    collaborator = models.ForeignKey('ngsdbview.Collaborator', related_name="ngsdbview.collaborator", help_text="Initials of the PI collaborating on this project")
     bioproject = models.ForeignKey(Bioproject, help_text="Bioproject ID from NCBI")
     biosample = models.ForeignKey(Biosample, help_text="Biosample ID from NCBI")
 
-    organism = models.ForeignKey(Organism, help_text="The organism sample data derived from")
-    lifestage = models.ForeignKey(Lifestage, help_text="Eg., Promastigotes, 10hrs, amastigotes etc")
-    growthphase = models.ForeignKey(Growthphase, help_text="Eg., procyclic, log")
-    phenotype = models.ForeignKey(Phenotype, help_text="Eg., Wildtype, Dwarf or Iron depletion etc")
-    genotype = models.ForeignKey(Genotype, help_text="Eg., Wildtype, JBP2KO")
+    organism = models.ForeignKey('ngsdbview.Organism', related_name="ngsdbview.organism", help_text="The organism sample data derived from")
+    lifestage = models.ForeignKey('ngsdbview.Lifestage', related_name="ngsdbview.lifestage", help_text="Eg., Promastigotes, 10hrs, amastigotes etc")
+    growthphase = models.ForeignKey('ngsdbview.Growthphase', related_name="ngsdbview.growthphase", help_text="Eg., procyclic, log")
+    phenotype = models.ForeignKey('ngsdbview.Phenotype', related_name="ngsdbview.phenotype", help_text="Eg., Wildtype, Dwarf or Iron depletion etc")
+    genotype = models.ForeignKey('ngsdbview.Genotype', related_name="ngsdbview.genotype", help_text="Eg., Wildtype, JBP2KO")
     source = models.CharField(max_length=100, help_text="Eg., Subcutaneous Leishion of an adult male, Lab culture, chimeric mouse liver")
     treatment = models.CharField(max_length=100, help_text="BrdU treatment for 5 hrs")
     collected_on = models.DateField(null=True, blank=True)
@@ -148,7 +68,7 @@ class Library(models.Model):
     sample_notes = models.TextField(help_text="Any other information related to sample, sample collection etc")
     is_clonal = models.BooleanField(default=False, help_text="Are the cells cloned to single cell before growing for this library?")
 
-    librarytype = models.ForeignKey(Librarytype, help_text="Type of library to be constructed")
+    librarytype = models.ForeignKey('ngsdbview.Librarytype', related_name="ngsdbview.librarytype", help_text="Type of library to be constructed")
     template_material = models.CharField(max_length=200, choices=TEMPLATE_MATERIALS_CHOICES)
     protocol = models.ForeignKey(Protocol, help_text="Add a new protocol using '+' before selecting here. Use the Protocol additional notes to describe any changes in protocol")
     protocol_notes = models.TextField(blank=True, default="None")

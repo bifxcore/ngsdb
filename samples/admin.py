@@ -33,17 +33,11 @@ class LibraryAdmin(admin.ModelAdmin):
 
 admin.site.register(Library, LibraryAdmin)
 
-admin.site.register(Organism)
-admin.site.register(Lifestage)
 admin.site.register(Growthphase)
-admin.site.register(Phenotype)
 admin.site.register(Genotype)
-admin.site.register(Librarytype)
 admin.site.register(Genome)
 admin.site.register(Bioproject)
 admin.site.register(Biosample)
 admin.site.register(Protocol)
-admin.site.register(Collaborator)
-admin.site.register(Author)
 
 
