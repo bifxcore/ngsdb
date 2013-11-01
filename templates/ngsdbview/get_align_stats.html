@@ -82,15 +82,19 @@
             <TABLE><TR>Genome and Version:
             {% for genome_version, libcodes in genomelibcodemap.items %}
                 <TD>
-                    <TABLE>
+                    <TABLE id="viewtable">
+                    <thead>
                         <TR><TH>
                             {{ genome_version }}
                         </TH></TR>
+                    </thead>
+                    <tbody>
                         {% for libcode in libcodes %}
                             <TR><TD>
                                 <input type="checkbox" name="libcode_genome_version" value = {{ libcode|add:'_'|add:genome_version }} > {{ libcode }}
                             </TD></TR>
                         {% endfor %}
+                    </tbody>
                     </TABLE>
                 </TD>
             {% endfor %}

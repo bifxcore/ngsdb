@@ -37,6 +37,7 @@
 {# table to display Analysis #}
 {%  if availres  %}
     <TABLE id="viewtable">
+        <thead>
         <TR>
             <TH>Sl. No.</TH>
             <TH>Analysis id</TH>
@@ -55,6 +56,8 @@
             <TH>Collaborator</TH>
             <TH>Notes</TH>
         </TR>
+        </thead>
+        <tbody>
         {% for ana in availres %}
             <TR>
                 {{ ana }}
@@ -75,6 +78,7 @@
 
             </TR>
         {% endfor %}
+        </tbody>
     </TABLE>
 
 

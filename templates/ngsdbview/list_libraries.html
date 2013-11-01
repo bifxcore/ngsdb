@@ -38,6 +38,7 @@
 {# table to display libraries #}
 {%  if availlibs  %}
     <TABLE id="viewtable">
+    <thead>
         <TR>
             <TH>Sl. No.</TH>
             <TH>Lib. Code</TH>
@@ -53,6 +54,8 @@
             <TH>Collaborator</TH>
             <TH>Notes</TH>
         </TR>
+    </thead>
+    <tbody>
         {% for lib in availlibs %}
             <TR>
                 <TD>{{ forloop.counter }}</TD>
@@ -71,6 +74,7 @@
 
             </TR>
         {% endfor %}
+    </tbody>
     </TABLE>
 
 

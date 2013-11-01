@@ -41,6 +41,7 @@
 
     {# Table to display available libraries/analysis info #}
     <TABLE id="viewtable">
+        <thead>
         <TR>
             <TH>Result Ids</TH>
             <TH>Library Code</TH>
@@ -52,6 +53,8 @@
             <TH>Genome source</TH>
             <TH>View Analysis Steps</TH>
         </TR>
+        </thead>
+        <tbody>
         {% for res in allres %}
             {% for lib in res.libraries.all %}
                 <TR><TD><input type="radio" name="resid" value = {{ res.result_id }} >{{ res.result_id }}</TD>
@@ -67,6 +70,7 @@
             {% endfor %}
 
         {% endfor %}
+        </tbody>
     </TABLE>
 
     <input type="submit"  name="level" value="Submit" />
@@ -76,8 +80,9 @@
 {% if alignstatdic %}
 	<TABLE >
 		<TR>
-			<TD>
+           	<TD>
 				<TABLE id="viewtable">
+
 					<TR><TH>Name</TH><TH>Read count</TH></TR>
 					<TR><TH>Considered for Alignment</TH><TD>{{ alignstatdic|hash:'Considered for Alignment'|intcomma }}</TD></TR>
                     <TR><TD>Uniquely aligned</TD><TD>{{ alignstatdic|hash:'Uniquely aligned'|intcomma }}</TD></TR>
