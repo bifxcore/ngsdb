@@ -484,7 +484,7 @@ def create():
        #GR add env.variable for settings module DJANGO_SETTINGS_MODULE
        sudo("echo \"export DJANGO_SETTINGS_MODULE=%s.settings.%s\" >> %s/bin/activate" % (env.proj_name, env.fab_settings, env.venv_path))
 
-       vcs = "git" if env.repo_url.endswith("git") else "hg"
+       vcs = "git" if env.repo_url.startswith("git") else "hg"
        run("%s clone %s %s" % (vcs, env.repo_url, env.proj_path))
 
    # Create DB and DB user.
@@ -543,23 +543,58 @@ def create():
    return True
 
 
+
 @task
 @log_call
-def remove():
-   """
+def remove_all():
+    """
     Blow away the current project.
     """
-   if exists(env.venv_path):
-       sudo("rm -rf %s" % env.venv_path)
-   if exists(env.proj_path):
-        sudo("rm -rf %s" % env.proj_path)
-   for template in get_templates().values():
-       remote_path = template["remote_path"]
-       if exists(remote_path):
-           sudo("rm %s" % remote_path)
-   psql("DROP DATABASE %s;" % env.proj_name)
-   psql("DROP USER %s;" % env.proj_name)
+    if exists(env.venv_path):
+        sudo("rm -rf %s" % env.venv_path)
+    if exists(env.proj_path):
+	sudo("rm -rf %s" % env.proj_path)
+    for template in get_templates().values():
+        remote_path = template["remote_path"]
+        if exists(remote_path):
+            sudo("rm %s" % remote_path)
+    psql("DROP DATABASE %s;" % env.proj_name)
+    psql("DROP USER %s;" % env.proj_name)
 
+
+@task
+@log_call
+def remove_virtualenv():
+    """
+    Blow away the current project's virtual env only.
+    """
+    if exists(env.venv_path):
+        sudo("rm -rf %s" % env.venv_path)
+
+
+
+@task
+@log_call
+def remove_code():
+    """
+    Blow away the current project's code and any configuration files left in its remote path.
+    """
+    if exists(env.proj_path):
+	sudo("rm -rf %s" % env.proj_path)
+    for template in get_templates().values():
+        remote_path = template["remote_path"]
+        if exists(remote_path):
+            sudo("rm %s" % remote_path)
+
+
+@task
+@log_call
+def remove_database():
+    """
+    Blow away the current project's database.
+    """
+    psql("DROP DATABASE %s;" % env.proj_name)
+    psql("DROP USER %s;" % env.proj_name)
 
 ##############
 # Deployment #
@@ -649,7 +684,7 @@ def deploy():
    with project():
        backup("last.db")
         #GR run("tar -cf last.tar %s" % static())
-       git = env.repo_url.endswith("git")
+       git = env.repo_url.startswith("git")
        run("%s > last.commit" % "git rev-parse HEAD" if git else "hg id -i")
        with update_changed_requirements():
             run("git pull origin master" if git else "hg pull && hg up -C")
