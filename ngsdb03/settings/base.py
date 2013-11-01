@@ -155,6 +155,7 @@ INSTALLED_APPS = (
     'ngsdbview',
     'samples',
     'django.contrib.humanize',
+    'gunicorn',
 )
 
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'
