@@ -48,15 +48,15 @@
         <!-- contact/about us -->
         <div id="general-links">
             <a href="/">{% trans 'Home' %}<B>|</B>
-            <a href="/ngsdbview//aboutus">About Us</a><B>|</B>
-            <a href="/ngsdbview/contactus">Contact Us</a><B>|</B
+            <a href="/ngsdbview/aboutus">About Us</a><B>|</B>
+            <a href="/ngsdbview/contact">Contact Us</a><B>|</B
             <a href="https://jira.sbri.org/browse/NGS-279">Log Issues</a>
         </div>
         <!-- Admin links -->
         <div id="admin-links">    <P>
-            <B> Add New</B>
-            <a href="/admin/samples/library/add/">Orders</a><B>|</B>
-            <a href="/admin/auth/user/add/">Users </a><B>|</B>
+            <B> Add A New</B>
+            <a href="/admin/samples/library/add/">Sample</a><B>|</B>
+            <a href="/admin/auth/user/add/">User </a><B>|</B>
             <a href="/admin/">Admin</a>
         </div>
         <div id="admin-docs">
@@ -95,6 +95,7 @@
            </li>
        </ul>
    </li>
+   {% if user.is_active %}
 
    <li><a href="/ngsdbview/alignstats/"><span>Alignment Statistics</span></a>
    </li>
@@ -132,17 +133,17 @@
    </li>
    <li class='has-sub'><a href='#'><span>PolyA</span></a>
       <ul>
-         <li><a href="/ngsdbview/contact/"><span>About</span></a></li>
+         <li><a href="/ngsdbview/contact/"><span>Coming soon</span></a></li>
       </ul>
    </li>
    <li class='has-sub'><a href='#'><span>DNA seq</span></a>
       <ul>
-         <li><a href="/ngsdbview/contact/"><span>About</span></a></li>
+         <li><a href="/ngsdbview/contact/"><span>Coming soon</span></a></li>
       </ul>
    </li>
    <li class='has-sub'><a href='#'><span>RibosomeProf</span></a>
       <ul>
-         <li><a href="/ngsdbview/contact/"><span>About</span></a></li>
+         <li><a href="/ngsdbview/contact/"><span>Coming soon</span></a></li>
       </ul>
    </li>
    <!-- Admin links on menu bar -->
@@ -164,6 +165,9 @@
            </li>
        </ul>
    </li>
+
+
+   {% endif %}
    <li class='last'><a href="/ngsdbview/contact/"><span>Contact</span></a></li>
 
 </ul>

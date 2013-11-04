@@ -6,7 +6,8 @@ import os
 #This is for adding additional attributes to built-in Users from Django
 #this enables the get_profile() command for Users
 AUTH_PROFILE_MODULE = 'ngsdbview.UserProfile'
-
+LOGIN_URL = '/admin/'
+LOGIN_REDIRECT_URL = '/ngsdbview/dashboard/'
 
 GRAPPELLI_ADMIN_TITLE='NGSDB03: Myler Lab NGS database'
 

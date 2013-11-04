@@ -6,6 +6,7 @@ from GChartWrapper import *
 from django import forms
 from django.forms.widgets import RadioSelect, CheckboxSelectMultiple
 from ngsdbview.viewtools import *
+from django.contrib.auth.decorators import login_required
 
 #============================================================================#
 # View forms
@@ -257,14 +258,15 @@ def PairLibraries(request):
 
     return render_to_response('ngsdbview/pair_libraries.html',kwargs, context_instance=RequestContext(request))
 
+@login_required
 def Dashboard(request):
     '''
      function to display dashboard...contains summary stats. of the database
      '''
 
-    [user, availlibids] = getlibraries(request)
+    #[user, availlibids] = getlibraries(request)
     kwargs = {}
-    kwargs['user']=user
+    #kwargs['user']=user
     kwargs['listoflinks']=listoflinks
     kwargs['title']="Dashboard"
 

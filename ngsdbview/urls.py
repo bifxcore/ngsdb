@@ -9,8 +9,8 @@ urlpatterns = patterns('',
     url(r'^ngsdbview_library/$','ngsdbview.views.ViewLib'),
     url(r'^ngsdbview_result/$','ngsdbview.views.ViewResult'),
     url(r'^list_analysis_steps/(?P<result_id>.+)/','ngsdbview.views.ListAnalysisSteps'),
-    url(r'^contact/', 'ngsdbview.views.Contact'),
-    url(r'^aboutus/', 'ngsdbview.views.About'),
+    url(r'^contact/$', 'ngsdbview.views.Contact'),
+    url(r'^aboutus/$', 'ngsdbview.views.About'),
 
 
     # Gowthaman's views

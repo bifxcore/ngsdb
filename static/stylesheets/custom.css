@@ -1,3 +1,7 @@
+header#grp-header {
+z-index: inherit;
+}
+
 #grp-user-tools {
     position: absolute;
     top: -90px;
@@ -14,9 +18,6 @@
     color: #f4f379;
 }
 
-header#grp-header {
-    z-index: -1000;
-}
 #grp-navigation {
     position: relative;
     top: 108px;
@@ -29,7 +30,8 @@ header#grp-header {
 
 #grp-content {
     position: relative;
-    top: 110px;
+    top: 107px;
+    background: antiquewhite;
 }
 
 #logo {

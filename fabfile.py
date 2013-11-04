@@ -86,13 +86,13 @@ templates = {
        "local_path": "deploy/upstart_run.conf",
        "remote_path": "%(proj_path)s/%(proj_name)s.run_via_gunicorn.sh",
        "mode": "555",
-        "reload_command": "service %(proj_name)s restart",
+       "reload_command": "service %(proj_name)s restart",
    },
    "cron": {
        "local_path": "deploy/crontab",
        "remote_path": "%(proj_path)s/deploy/%(proj_name)s.cron.conf",
        "move_to": "/etc/cron.d/%(proj_name)s",
-        "owner": "root",
+       "owner": "root",
        "mode": "600",
    },
    "gunicorn": {
@@ -382,7 +382,7 @@ def install():
            run("exit")
    #sudo("apt-get update -y -q")
    apt("g++ nginx libjpeg-dev python-dev python-setuptools libpng12-dev libgif-dev git-core "
-       "postgresql libpq-dev memcached supervisor")
+       "postgresql libpq-dev memcached")
    if not exists("/usr/lib/libjpeg.so"):
         sudo("ln -s /usr/lib/x86_64-linux-gnu/libjpeg.so /usr/lib")
    #requirements for connecting to MS SQL
@@ -491,12 +491,12 @@ def create():
    pw = db_pass()
    user_sql_args = (env.proj_name, pw.replace("'", "\'"))
    user_sql = "CREATE USER %s WITH ENCRYPTED PASSWORD '%s';" % user_sql_args
-   psql(user_sql, show=False)
+   #psql(user_sql, show=False)
    shadowed = "*" * len(pw)
    print_command(user_sql.replace("'%s'" % pw, "'%s'" % shadowed))
-   psql("CREATE DATABASE %s WITH OWNER %s ENCODING = 'UTF8' "
-        "LC_CTYPE = '%s' LC_COLLATE = '%s' TEMPLATE template0;" %
-        (env.proj_name, env.proj_name, env.locale, env.locale))
+   #psql("CREATE DATABASE %s WITH OWNER %s ENCODING = 'UTF8' "
+   #     "LC_CTYPE = '%s' LC_COLLATE = '%s' TEMPLATE template0;" %
+   #     (env.proj_name, env.proj_name, env.locale, env.locale))
 
    # Set up SSL certificate.
    conf_path = "/etc/nginx/conf"
@@ -606,7 +606,7 @@ def restart():
    """
     Restart gunicorn worker processes and nginx server for the project.
     """
-   sudo("service %s restart" % env.proj_name)
+   #sudo("service %s restart" % env.proj_name)
    sudo("service nginx restart")
 
 @task
@@ -637,7 +637,7 @@ def start():
    """
     Starts gunicorn worker and nginx server for the project.
     """
-   sudo("service %s start" % env.proj_name)
+   #sudo("service %s start" % env.proj_name)
    sudo("service nginx start")
 
 @task
