@@ -682,20 +682,17 @@ def deploy():
         print name
         upload_template_and_reload(name)
    with project():
-       backup("last.db")
+       #backup("last.db")
         #GR run("tar -cf last.tar %s" % static())
        git = env.repo_url.startswith("git")
        run("%s > last.commit" % "git rev-parse HEAD" if git else "hg id -i")
        with update_changed_requirements():
             run("git pull origin master" if git else "hg pull && hg up -C")
             run("git stash")
-       print "ran git02"
-       manage("collectstatic -v 0 --noinput")
-       print "mangedcollectstatic"
-       manage("syncdb --noinput")
-       print "synced"
-       manage("migrate --noinput")
-       print "mirated"
+       #manage("collectstatic -v 0 --noinput")
+       #manage("syncdb --noinput")
+       #manage("migrate --noinput")
+
    restart()
    return True
 
