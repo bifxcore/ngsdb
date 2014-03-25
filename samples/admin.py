@@ -20,7 +20,7 @@ class LibraryAdmin(admin.ModelAdmin):
 
     fieldsets = [
         ('Library', {'fields':['library_code', 'author', 'collaborator', 'bioproject']}),
-        ('Sample Information', {'fields': ['biosample', 'organism', 'lifestage', 'growthphase', 'phenotype', 'genotype', 'source', 'treatment', 'collected_on', 'collected_at', 'collected_by', 'sample_notes', 'is_clonal'], 'classes': ['grp-collapse grp-closed']}),
+        ('Sample Information', {'fields': ['sample_name', 'sample_id','biosample', 'organism', 'lifestage', 'growthphase', 'phenotype', 'genotype', 'source', 'treatment', 'collected_on', 'collected_at', 'collected_by', 'sample_notes', 'is_clonal'], 'classes': ['grp-collapse grp-open']}),
         ('Library Construction', {'fields': ['librarytype', 'template_material', 'protocol', 'protocol_notes', 'library_creation_date', 'submitted_for_sequencing_on'], 'classes': ['grp-collapse grp-closed']}),
         ('Sequencing Information', {'fields': ['sequence_downloaded_on', 'flowcell_number', 'lane_number', 'index_sequence', 'experiment_notes'], 'classes': ['grp-collapse grp-closed']}),
         ('Analysis Information', {'fields': ['reference_genome', 'reference_genome_version', 'note_for_analysis'], 'classes': ['grp-collapse grp-closed']}),
