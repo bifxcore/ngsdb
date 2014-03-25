@@ -34,6 +34,7 @@ class Bioproject(models.Model):
 class Biosample(models.Model):
     biosample_code = models.CharField(unique=True, max_length=12)
     organisms = models.CharField(max_length=100, blank=True)
+    collected_on_test = models.DateField(null=False, blank=False)
     notes = models.TextField(max_length=400, blank=True)
 
     def __unicode__(self):
@@ -44,6 +45,7 @@ class Protocol(models.Model):
     protocol_file = models.FileField(upload_to="protocols", blank=True)
     protocol_link = models.URLField(max_length=1000, blank=True)
     notes = models.CharField(max_length=400, default=None)
+
     def __unicode__(self):
         return unicode(self.protocol_name)
 

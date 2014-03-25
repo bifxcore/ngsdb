@@ -93,7 +93,7 @@ class Organism(models.Model):
     organism_id = models.AutoField(primary_key=True)
     organismcode = models.CharField(unique=True, max_length=10)
     genus = models.CharField(max_length=45)
-    speceis = models.CharField(max_length=45)
+    species = models.CharField(max_length=45)
     strain = models.CharField(max_length=45)
     isolate = models.CharField(max_length=45)
     source = models.CharField(max_length=100)
