@@ -54,7 +54,7 @@ class Phenotype(models.Model):
     phenotype = models.CharField(unique=True, max_length=45)
     notes = models.CharField(max_length=45, default=None)
     def __unicode__(self):
-        return str(self.phenotype)
+        return unicode(self.phenotype)
 
 class Growthphase(models.Model):
     growthphase = models.CharField(unique=True, max_length=100)
