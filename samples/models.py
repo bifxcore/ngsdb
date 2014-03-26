@@ -57,7 +57,7 @@ class Library(models.Model):
     bioproject = models.ForeignKey(Bioproject, help_text="Bioproject ID from NCBI")
     biosample = models.ForeignKey(Biosample, help_text="Biosample ID from NCBI")
     sample_name = models.CharField(max_length=25, db_index=True, blank=True, help_text="Sample name from the source")
-    sample_id = models.CharField(max_length=25, db_index=True, blank=True, help_text="Sample id from the source")
+    rna_id = models.CharField(max_length=25, db_index=True, blank=True)
     organism = models.ForeignKey('ngsdbview.Organism', related_name="ngsdbview.organism", help_text="The organism sample data derived from")
     lifestage = models.ForeignKey('ngsdbview.Lifestage', related_name="ngsdbview.lifestage", help_text="Eg., Promastigotes, 10hrs, amastigotes etc")
     growthphase = models.ForeignKey('ngsdbview.Growthphase', related_name="ngsdbview.growthphase", help_text="Eg., procyclic, log")
