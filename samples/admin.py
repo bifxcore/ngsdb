@@ -20,11 +20,11 @@ class LibraryAdmin(admin.ModelAdmin):
 
     fieldsets = (
         ('Library', {'fields':('library_code', 'author', 'collaborator', 'bioproject')}),
-        ('Sample Information', {'fields': ('sample_name', 'sample_id','biosample', 'organism', 'lifestage', 'growthphase', 'phenotype', 'genotype', 'source', 'treatment', 'collected_on', 'collected_at', 'collected_by', 'sample_notes', 'is_clonal'),}),
-        ('Library Construction', {'fields': ('librarytype', 'template_material', 'protocol', 'protocol_notes', 'library_creation_date', 'submitted_for_sequencing_on'), }),
-        ('Sequencing Information', {'fields': ('sequence_downloaded_on', 'flowcell_number', 'lane_number', 'index_sequence', 'experiment_notes'), }),
-        ('Analysis Information', {'fields': ('reference_genome', 'reference_genome_version', 'note_for_analysis'),}),
-        ('Data Tracking', {'fields': ('date_created', 'date_modified', 'author_modified'), })
+        ('Sample Information', {'fields': ('sample_name', 'sample_id','biosample', 'organism', 'lifestage', 'growthphase', 'phenotype', 'genotype', 'source', 'treatment', 'collected_on', 'collected_at', 'collected_by', 'sample_notes', 'is_clonal'), 'classes': ('grp-collapse grp-closed',), }),
+        ('Library Construction', {'fields': ('librarytype', 'template_material', 'protocol', 'protocol_notes', 'library_creation_date', 'submitted_for_sequencing_on'), 'classes': ('grp-collapse grp-closed',), }),
+        ('Sequencing Information', {'fields': ('sequence_downloaded_on', 'flowcell_number', 'lane_number', 'index_sequence', 'experiment_notes'), 'classes': ('grp-collapse grp-closed',), }),
+        ('Analysis Information', {'fields': ('reference_genome', 'reference_genome_version', 'note_for_analysis'), 'classes': ('grp-collapse grp-closed',), }),
+        ('Data Tracking', {'fields': ('date_created', 'date_modified', 'author_modified'), 'classes': ('grp-collapse grp-closed',), })
     )
 
     list_display = ('library_code', 'librarytype', 'organism', 'lifestage', 'phenotype', 'genotype', 'growthphase', 'treatment', 'template_material', 'reference_genome', 'collaborator', 'bioproject', 'library_creation_date', 'sequence_downloaded_on', 'flowcell_number','lane_number', 'index_sequence')
