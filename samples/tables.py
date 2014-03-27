@@ -1,5 +1,6 @@
 #samples/tables.py
 import django_tables2 as tables
+from django_tables2_reports.tables import TableReport
 from samples.models import *
 
 class AuthorTable(tables.Table):
@@ -9,7 +10,7 @@ class AuthorTable(tables.Table):
 
 
 
-class LibraryTable(tables.Table):
+class LibraryTable(TableReport):
     selection = tables.CheckBoxColumn(accessor="pk", orderable=False)
     is_clonal = tables.Column(verbose_name="Is clonal?")
 

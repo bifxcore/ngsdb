@@ -2,7 +2,7 @@
 from django.shortcuts import render
 from django.shortcuts import render_to_response
 from django.template import RequestContext
-from django_tables2 import RequestConfig
+from django_tables2_reports.config import RequestConfigReport as RequestConfig
 from samples.models import *
 from samples.tables import *
 
@@ -18,7 +18,6 @@ def author(request):
 
 
 def librarylist(request):
-    kwargs = {}
     table = LibraryTable(Library.objects.all())
     RequestConfig(request).configure(table)
 

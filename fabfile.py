@@ -69,13 +69,7 @@ templates = {
         "move_to": "/etc/nginx/sites-enabled/%(proj_name)s.conf",
         #"reload_command": "service nginx restart",
    },
-   #"supervisor": {
-   #    "local_path": "deploy/supervisor.conf",
-   #    #"remote_path": "/etc/supervisor/conf.d/%(proj_name)s.conf",
-   #    "remote_path": "%(proj_path)s/deploy/%(proj_name)s.supervisor.conf",
-   #    #"move_to": "/etc/supervisor/conf.d/%(proj_name)s.conf",
-   #   #"reload_command": "supervisorctl reload",
-   #},
+
    "upstart": {
        "local_path": "deploy/upstart.conf",
        "remote_path": "%(proj_path)s/deploy/%(proj_name)s.upstart.conf",

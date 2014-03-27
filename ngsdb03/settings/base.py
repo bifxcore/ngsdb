@@ -115,6 +115,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django_tables2_reports.middleware.TableReportMiddleware',
 )
 
 ROOT_URLCONF = 'ngsdb03.urls'
@@ -150,6 +151,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_tables2',
+    'django_tables2_reports',
     'grappelli',
     # Uncomment the next line to enable the admin:
     'django.contrib.admin',
@@ -207,6 +209,10 @@ def get_env_variable(var_name):
        error_msg = "Set the %s environment variable" % var_name
        raise ImproperlyConfigured(error_msg)
 
+
+
+# django_table2_reports
+EXCEL_SUPPORT = 'xlwt'
 
 # LDAP authentication
 import logging
