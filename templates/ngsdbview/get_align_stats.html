@@ -30,35 +30,16 @@
     {% load ngsdbview_extras %}
     {% load humanize %}
 
-    <TABLE><TR>
-        <TD>
-            <TABLE id="viewtable">
-                <TR><TH nowrap="nowrap">Library Code</TH></TR>
-                <TR><TH nowrap="nowrap">Original Library size</TH></TR>
-                <TR><TH nowrap="nowrap">Considered for Alignment</TH></TR>
-                <TR><TH nowrap="nowrap">Uniquely aligned</TH></TR>
-                <TR><TH nowrap="nowrap">Non-Uniquely aligned</TH></TR>
-                <TR><TH nowrap="nowrap">Total Aligned Reads</TH></TR>
-                <TR><TH nowrap="nowrap">Aligned Percentage</TH></TR>
-                <TR><TH nowrap="nowrap">Unaligned</TH></TR>
-            </TR></TABLE>
-        </TD>
-        {% for libcode, alignstat in alignstatdics.items %}
-        <TD>
-            <TABLE >
-            <TR><TH>{{ libcode }}</TH></TR>
-            <TR><TD>{{ alignstat|hash:'Original library size'|intcomma }}</TD></TR>
-            <TR><TH>{{ alignstat|hash:'Considered for Alignment'|intcomma }}</TH></TR>
-            <TR><TD>{{ alignstat|hash:'Uniquely aligned'|intcomma }}</TD></TR>
-            <TR><TD>{{ alignstat|hash:'Non-Uniquely aligned'|intcomma }}</TD></TR>
-            <TR><TH>{{ alignstat|hash:'totalaligned_readcount'|intcomma }}</TH></TR>
-            <TR><TH nowrap="nowrap">{{ alignstat|hash:'totalalignedperc' }}({{ alignstat|hash:'uniqalignedperc' }} + {{ alignstat|hash:'nonuniqalignedperc' }})</TH></TR>
-            <TR><TD>{{ alignstat|hash:'Unaligned '|intcomma }}({{ alignstat|hash:'unalignedperc' }})</TD></TR>
-
-            </TABLE>
-        </TD>
-    {% endfor %}
-    </TR>
+    <!--  second ttable   -->
+    <TABLE id="viewtable">
+        {% for rowtitle in roworder %}
+        <TR>
+            <TH>{{ rowtitle }}</TH>
+            {% for key in alignstatdicshori|hash:rowtitle %}
+            <TD>{{ alignstatdicshori|hash:rowtitle|hash:key|intcomma }}</TD>
+            {% endfor %}
+        </TR>
+        {% endfor %}
     </TABLE>
 
     {% if alignstatpics %}

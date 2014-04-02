@@ -196,15 +196,17 @@ def CreateAlignstat(request, libcode, resid, returntype):
     alignstatdic = {
         'Uniquely aligned' : uniquely_aligned_readcount,
         'Non-Uniquely aligned' : nonuniquely_aligned_readcount,
-        'Unaligned ' : unaligned_readcount,
+        'Unaligned Reads' : unaligned_readcount,
         'Considered for Alignment' : considered_reads,
         'Original library size': libsize,
         'uniqalignedperc': uniqalignedperc,
         'nonuniqalignedperc': nonuniqalignedperc,
         'totalalignedperc': totalalignedperc,
-        'unalignedperc': unalignedperc,
-        'totalaligned_readcount': totalaligned_readcount
+        'Unaligned in Percentage': unalignedperc,
+        'Total Aligned Reads': totalaligned_readcount,
+        'Total Aligned in Percentage':str(totalalignedperc) + '(' + str(uniqalignedperc) + str(unalignedperc) + ')',
     }
+
     if returntype == 'chart':
         return alinstatpiechart
     elif returntype == 'data':
@@ -439,6 +441,23 @@ def GetAlignStats(request):
                 alignstatdics[libcode_genome_version] = CreateAlignstat(request, libcode, resid, 'data')
                 alignstatpics[libcode_genome_version] = CreateAlignstat(request, libcode, resid, 'stackbarchart')
                 alignstatpercall[libcode_genome_version] = CreateAlignstat(request, libcode, resid, 'alignperc')
+
+            alignstatdicshori = defaultdict(lambda: defaultdict(int))
+            for libcode_genome_version, alignstat in alignstatdics.items():
+                alignstatdicshori['Library Code & Genome'][libcode_genome_version]=libcode_genome_version
+                for rowtitle, value in alignstat.items():
+                    alignstatdicshori[rowtitle][libcode_genome_version]=value
+
+            kwargs['alignstatdicshori']= alignstatdicshori
+            kwargs['roworder'] = ['Library Code & Genome', 'Original library size', 'Considered for Alignment', 'Uniquely aligned', 'Non-Uniquely aligned', 'Total Aligned Reads', 'Unaligned Reads', 'Total Aligned in Percentage', 'Unaligned in Percentage']
+
+            print alignstatdicshori
+            for libcode_genome_version, valuedic in alignstatdicshori.items():
+                print libcode_genome_version
+                for code, data in valuedic.items():
+                    print code
+                    print data
+
 
             #create align stat percentages
             alignstatperc = [[],[],[]]
