@@ -469,9 +469,9 @@ def GetAlignStats(request):
                 alignstatperc[2].append(value[2])
 
             #create vertical bar chart
-            verticalbarchart = VerticalBarStack([alignstatperc[0], alignstatperc[1], alignstatperc[2]]).color('4d89f9', 'c6d9fd', 'ffcc99').encoding('text')
+            verticalbarchart = HorizontalBarStack([alignstatperc[0], alignstatperc[1], alignstatperc[2]]).color('4d89f9', 'c6d9fd', 'ffcc99').encoding('text').label("1", "1", "1", "1", "1", "1", "1", "1")
             width = 75 * len(keys)
-            verticalbarchart.legend('Uniquely Aligned', 'NonUniquely Aligned', 'Not Aligned').axes('y').size(width,125)
+            verticalbarchart.legend('Uniquely Aligned', 'NonUniquely Aligned', 'Not Aligned').axes('y').size(width,500)
             kwargs['alignstatdics']=alignstatdics
             kwargs['alignstatpics']= verticalbarchart
 
