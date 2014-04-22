@@ -1,0 +1,37 @@
+#grp-user-tools {
+    position: absolute;
+    top: -90px;
+    left: -40px;
+}
+
+#grp-branding {
+    background: #000000;
+    z-index: 1000;
+}
+
+#grp-admin-title {
+    padding: 5px;
+    color: #f4f379;
+}
+
+header#grp-header {
+    z-index: -1000;
+}
+#grp-navigation {
+    position: relative;
+    top: 108px;
+}
+
+#grp-context-navigation {
+    position: relative;
+    top: 108px;
+}
+
+#grp-content {
+    position: relative;
+    top: 110px;
+}
+
+#logo {
+    z-index: 10;
+}
