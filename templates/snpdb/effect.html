@@ -5,7 +5,7 @@
 
 {% block content %}
 <head>
-    <h1>SNP Summary</h1>
+    <h1>SNP Effect</h1>
 
     <link href="http://netdna.bootstrapcdn.com/font-awesome/3.1.1/css/font-awesome.min.css" rel="stylesheet">
     <link href="http://cdnjs.cloudflare.com/ajax/libs/x-editable/1.4.4/bootstrap-editable/css/bootstrap-editable.css" rel="stylesheet">
@@ -15,21 +15,19 @@
 <body>
 <div class="collapse navbar-collapse navbar-ex1-collapse">
     <ul class="nav navbar-nav">
-        <form id='search' action='search' method="get">
+        <form id='search' action='/search/effect' method="get">
             <div class="row">
                 <div class="col-md-4">
                     <input type="text" name="s">
                 </div>
                 <div class="col-md-4">
                     <select id="att" class="selectpicker" name="att" title="Select One">
-                        <option id="snp_position">SNP Position</option>
-                        <option id="result">Result</option>
-                        <option id="ref_base">Reference Base</option>
-                        <option id="alt_base">Alternative Base</option>
-                        <option id="heterozygosity">Heterozygosity</option>
-                        <option id="quality">Quality</option>
-                        <option id="library">Library</option>
-                        <option id="chromosome">Chromosome</option>
+                        <option id="snp_id">SNP ID</option>
+                        <option id="effect">Effect Type</option>
+                        <option id="effect_class">Effect Class</option>
+                        <option id="effect_string">Effect</option>
+                        <option id="effect_group">Effect Group</option>
+
                     </select>
                 </div>
                 <div class="col-md-2">
@@ -51,28 +49,20 @@
     <thead>
     <tr>
         <th class="col-xs-1 text-center"><a href={{ filter_urls.snp_id }}>SNP ID</a></th>
-        <th class="col-xs-1 text-center"><a href={{ filter_urls.snp_position }}>Position</a></th>
-        <th class="col-xs-1 text-center"><a href={{ filter_urls.result }}>Result</a></th>
-        <th class="col-xs-1 text-center"><a href={{ filter_urls.ref_base }}>Reference Base</a></th>
-        <th class="col-xs-1 text-center"><a href={{ filter_urls.alt_base }}>Alternate Base</a></th>
-        <th class="col-xs-1 text-center"><a href={{ filter_urls.heterozygosity }}>Heterozygosity</a></th>
-        <th class="col-xs-1 text-center"><a href={{ filter_urls.quality }}>Quality</a></th>
-        <th class="col-xs-2 text-center"><a href={{ filter_urls.library }}>Library</a></th>
-        <th class="col-xs-1 text-center"><a href={{ filter_urls.chromosome }}>Chromosome</a></th>
+        <th class="col-xs-1 text-center"><a href={{ filter_urls.effect }}>Effect Type</a></th>
+        <th class="col-xs-1 text-center"><a href={{ filter_urls.effect_class }}>Effect Class</a></th>
+        <th class="col-xs-1 text-center"><a href={{ filter_urls.effect_string }}>Effect</a></th>
+        <th class="col-xs-1 text-center"><a href={{ filter_urls.effect_group }}>Effect Group</a></th>
     </tr>
     </thead>
     <tbody>
         <tr>
-            {% for each in snps %}
+            {% for each in snp_effect %}
                 <td class="text-center">{{ each.snp_id }}</td>
-                <td class="text-center">{{ each.snp_position }}</td>
-                <td class="text-center">{{ each.result }}</td>
-                <td class="text-center">{{ each.ref_base }}</td>
-                <td class="text-center">{{ each.alt_base }}</td>
-                <td class="text-center">{{ each.heterozygosity }}</td>
-                <td class="text-center">{{ each.quality }}</td>
-                <td class="text-center">{{ each.library }}</td>
-                <td class="text-center">{{ each.chromosome.chromosome_name }}</td>
+                <td class="text-center">{{ each.effect.effect_name }}</td>
+                <td class="text-center">{{ each.effect_class }}</td>
+                <td class="text-center">{{ each.effect_string }}</td>
+                <td class="text-center">{{ each.effect_group }}</td>
                 </tr>
             {% endfor %}
     </tbody>

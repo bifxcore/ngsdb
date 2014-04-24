@@ -5,7 +5,7 @@
 
 {% block content %}
 <head>
-    <h1>SNP Summary</h1>
+    <h1>SNP Type</h1>
 
     <link href="http://netdna.bootstrapcdn.com/font-awesome/3.1.1/css/font-awesome.min.css" rel="stylesheet">
     <link href="http://cdnjs.cloudflare.com/ajax/libs/x-editable/1.4.4/bootstrap-editable/css/bootstrap-editable.css" rel="stylesheet">
@@ -15,21 +15,21 @@
 <body>
 <div class="collapse navbar-collapse navbar-ex1-collapse">
     <ul class="nav navbar-nav">
-        <form id='search' action='search' method="get">
+        <form id='search' action='/search/alignment' method="get">
             <div class="row">
                 <div class="col-md-4">
                     <input type="text" name="s">
                 </div>
                 <div class="col-md-4">
                     <select id="att" class="selectpicker" name="att" title="Select One">
-                        <option id="snp_position">SNP Position</option>
-                        <option id="result">Result</option>
-                        <option id="ref_base">Reference Base</option>
-                        <option id="alt_base">Alternative Base</option>
-                        <option id="heterozygosity">Heterozygosity</option>
-                        <option id="quality">Quality</option>
-                        <option id="library">Library</option>
-                        <option id="chromosome">Chromosome</option>
+                        <option id="snp_position">SNP Type</option>
+                        <option id="result">SNP ID</option>
+                        <option id="ref_base">Indel</option>
+                        <option id="alt_base">Deletion</option>
+                        <option id="heterozygosity">Is SNP</option>
+                        <option id="quality">Monomorphic</option>
+                        <option id="library">Transition</option>
+                        <option id="chromosome">SV</option>
                     </select>
                 </div>
                 <div class="col-md-2">
@@ -50,29 +50,27 @@
 <table class="table table-condensed table-hover" style="table-layout: fixed; word-wrap: break-word;">
     <thead>
     <tr>
+        <th class="col-xs-1 text-center"><a href={{ filter_urls.snptype_id }}>SNP Type</a></th>
         <th class="col-xs-1 text-center"><a href={{ filter_urls.snp_id }}>SNP ID</a></th>
-        <th class="col-xs-1 text-center"><a href={{ filter_urls.snp_position }}>Position</a></th>
-        <th class="col-xs-1 text-center"><a href={{ filter_urls.result }}>Result</a></th>
-        <th class="col-xs-1 text-center"><a href={{ filter_urls.ref_base }}>Reference Base</a></th>
-        <th class="col-xs-1 text-center"><a href={{ filter_urls.alt_base }}>Alternate Base</a></th>
-        <th class="col-xs-1 text-center"><a href={{ filter_urls.heterozygosity }}>Heterozygosity</a></th>
-        <th class="col-xs-1 text-center"><a href={{ filter_urls.quality }}>Quality</a></th>
-        <th class="col-xs-2 text-center"><a href={{ filter_urls.library }}>Library</a></th>
-        <th class="col-xs-1 text-center"><a href={{ filter_urls.chromosome }}>Chromosome</a></th>
+        <th class="col-xs-1 text-center"><a href={{ filter_urls.indel }}>Indel</a></th>
+        <th class="col-xs-1 text-center"><a href={{ filter_urls.deletion }}>Deletion</a></th>
+        <th class="col-xs-1 text-center"><a href={{ filter_urls.is_snp }}>Is SNP</a></th>
+        <th class="col-xs-1 text-center"><a href={{ filter_urls.monomorphic }}>Monomorphic</a></th>
+        <th class="col-xs-1 text-center"><a href={{ filter_urls.transition }}>Transition</a></th>
+        <th class="col-xs-2 text-center"><a href={{ filter_urls.sv }}>SV</a></th>
     </tr>
     </thead>
     <tbody>
         <tr>
-            {% for each in snps %}
+            {% for each in snptypes %}
+                <td class="text-center">{{ each.snptype_id }}</td>
                 <td class="text-center">{{ each.snp_id }}</td>
-                <td class="text-center">{{ each.snp_position }}</td>
-                <td class="text-center">{{ each.result }}</td>
-                <td class="text-center">{{ each.ref_base }}</td>
-                <td class="text-center">{{ each.alt_base }}</td>
-                <td class="text-center">{{ each.heterozygosity }}</td>
-                <td class="text-center">{{ each.quality }}</td>
-                <td class="text-center">{{ each.library }}</td>
-                <td class="text-center">{{ each.chromosome.chromosome_name }}</td>
+                <td class="text-center">{{ each.indel }}</td>
+                <td class="text-center">{{ each.deletion }}</td>
+                <td class="text-center">{{ each.is_snp }}</td>
+                <td class="text-center">{{ each.monomorphic }}</td>
+                <td class="text-center">{{ each.transition }}</td>
+                <td class="text-center">{{ each.sv }}</td>
                 </tr>
             {% endfor %}
     </tbody>
