@@ -10,7 +10,9 @@ urlpatterns = patterns('',
                        url(r'^statistics/search', 'snpdb.views.statistics_filter'),
                        url(r'^effect/search', 'snpdb.views.effect_filter'),
                        url(r'^filter/search', 'snpdb.views.filter_filter'),
-                       url(r'^gene_to_snp/search', 'snpdb.views.gene_snps_filter'),
+                       url(r'^gene-snps/search', 'snpdb.views.gene_snps_filter'),
+                       url(r'^library-summary/search', 'snpdb.views.library_summary'),
+
 
                        #Search Functions
                        url(r'^library-summary', 'snpdb.views.library_summary'),

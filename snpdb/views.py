@@ -548,10 +548,17 @@ def library_summary(request):
 
 
 def gene_snps_filter(request):
-    gene = request.GET.get('att')
-    genome = Feature.objects.values('genome_id').filter(geneid=gene)
-    results = SNP.objects.all().filter(result__in=(Result.objects.value('result_id').filter(result_id__in=genome)))
-    print results
+    gene = request.GET.get('s')
+    genome = Feature.objects.values('genome_id').filter(geneid=gene).distinct()
+    print genome
+    result = Result.objects.values('result_id').filter(genome_id__in=genome).distinct()
+    print result
+    test = SNP.objects.all().filter(result__in=result)
+    for e in test:
+        print e
+    results = SNP.objects.all().filter(result__in=(Result.objects.values('result_id').filter(genome_id=genome)))
+    for a in results:
+        print a
     return render_to_response('snpdb/gene_snps_filter.html', {"results": results,
                                                  "filter_urls": filter_urls,
                                                  "paginator": paginator,
