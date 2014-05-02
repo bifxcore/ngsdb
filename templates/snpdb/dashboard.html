@@ -1,19 +1,23 @@
+<!DOCTYPE html>
 <html lang="en">
 
-{#<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">#}
-{#<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js">#}
-{%  load staticfiles %}
+{%  load static from staticfiles %}
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js">
+    <link href="{% static 'bootstrap/css/bootstrap.min.css' %}" rel="stylesheet" media="screen">
+    <link href="{% static 'bootstrap/css/bootstrap.min.js' %}" rel="stylesheet" media="screen">
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" />
+    <script src="http://netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js /"></script>
+    <script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script src="http://netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
+
 <link href="{% static 'bootstrap/css/bootstrap.min.css' %}" rel="stylesheet" media="screen">
-{#<link href="{% static 'bootstrap/css/bootstrap.min.js' %}" rel="stylesheet" media="screen">#}
 
 {%  block navagation %}
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" />
-{#    <script src="http://netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js /"></script>#}
 
 <script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
-{#    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>#}
-{#    <script src="http://netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>#}
-
 
 <div class='navbar navbar-inverse navbar-default' role="navigation">
     <div class="container">
@@ -24,7 +28,14 @@
                 <li id="snptype"><a href="/snpdb/snptype">SNP Type</a></li>
                 <li id="statistics"><a href="/snpdb/statistics">Statistics</a></li>
                 <li id="effect"><a href="/snpdb/effect">Effect</a></li>
-                <li id="filter"><a href="snpdb/filter">Filter</a></li>
+                <li id="filter"><a href="/snpdb/filter">Filter</a></li>
+                <li class="dropdown">
+                    <a href="/snpdb/search" class="dropdown-toggle" data-toggle="dropdown">Searches <b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="/snpdb/library-summary">Library Summary</a></li>
+                        <li><a href="/snpdb/gene-snps">Gene to Snps</a></li>
+                    </ul>
+                </li>
             </ul>
         </div>
     </div>
@@ -35,7 +46,7 @@
 {%  block content %}
 <h1><a>SNP Database</a></h1>
 <div id='content' class="row">
-    <div class='container'>
+    <div class='container'>  <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
         <h2>Main Content Section</h2>
         <body class="font-size-medium">
         <p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi. Nam liber tempor cum soluta nobis eleifend option congue nihil imperdiet doming id quod mazim placerat facer possim assum.<p>
@@ -46,8 +57,6 @@
 {%  endblock %}
 
 
-{#<script type="text/javascript" src="../../bs_igdbview/static/bootstrap/js/bootstrap.js"></script>#}
 <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
-{#<script src="media/js/bootstrap-dropdown.js" type="text/javascript"></script>#}
 
 </html>

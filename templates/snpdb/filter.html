@@ -5,7 +5,7 @@
 
 {% block content %}
 <head>
-    <h1>SNP Effect</h1>
+    <h1>SNP Filter</h1>
 
     <link href="http://netdna.bootstrapcdn.com/font-awesome/3.1.1/css/font-awesome.min.css" rel="stylesheet">
     <link href="http://cdnjs.cloudflare.com/ajax/libs/x-editable/1.4.4/bootstrap-editable/css/bootstrap-editable.css" rel="stylesheet">
@@ -15,7 +15,7 @@
 <body>
 <div class="collapse navbar-collapse navbar-ex1-collapse">
     <ul class="nav navbar-nav">
-        <form id='search' action='/search/filter' method="get">
+        <form id='search' action='search' method="get">
             <div class="row">
                 <div class="col-md-4">
                     <input type="text" name="s">
@@ -49,13 +49,13 @@
     <tr>
         <th class="col-xs-1 text-center"><a href={{ filter_urls.snp_id }}>SNP ID</a></th>
         <th class="col-xs-1 text-center"><a href={{ filter_urls.filter_id }}>Filter ID</a></th>
-        <th class="col-xs-1 text-center"><a href={{ filter_urls.filter_result}}>Filter Result</a></th>
+        <th class="col-xs-1 text-center"><a href={{ filter_urls.filter_result }}>Filter Result</a></th>
         <th class="col-xs-1 text-center"><a href={{ filter_urls.filter }}>Filter</a></th>
     </tr>
     </thead>
     <tbody>
         <tr>
-            {% for each in filter %}
+            {% for each in filter_list %}
                 <td class="text-center">{{ each.snp_id }}</td>
                 <td class="text-center">{{ each.filter_id }}</td>
                 <td class="text-center">{{ each.filter_result }}</td>

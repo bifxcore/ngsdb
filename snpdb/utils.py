@@ -4,6 +4,7 @@ from django.http import QueryDict
 import re
 from pprint import pprint
 
+
 def url_append_parameter(url, attr, val):
     (scheme, netloc, path, params, query, fragment) = urlparse(url)
     query_dict = QueryDict(query).copy()

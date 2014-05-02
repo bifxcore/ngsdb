@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+{% extends "snpdb/dashboard.html" %}
+
+{% block content %}
+    <head>
+        <h1>Library Summary</h1>
+
+        <link href="http://netdna.bootstrapcdn.com/font-awesome/3.1.1/css/font-awesome.min.css" rel="stylesheet">
+        <link href="http://cdnjs.cloudflare.com/ajax/libs/x-editable/1.4.4/bootstrap-editable/css/bootstrap-editable.css" rel="stylesheet">
+        <link href="lib/bootstrap-filterable.css" rel="stylesheet" type="text/css">
+
+    </head>
+
+    <body>
+    <div class="collapse navbar-collapse navbar-ex1-collapse">
+        <ul class="nav navbar-nav">
+            <form id='search' action='/snpdb/library-summary/search' method="get">
+                <div class="row">
+                    <div class="col-md-4">
+                        <input type="text" name="s">
+                    </div>
+                    <div class="col-md-2">
+                        <button id="submit" class="btn btn-default" type="submit">Search</button>
+                    </div>
+                </div>
+            </form>
+        </ul>
+    </div>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script src="http://netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
+    </body>
+    <table class="table table-condensed table-hover" style="table-layout: fixed; word-wrap: break-word;">
+        <thead>
+        <tr>
+            <th class="col-xs-1 text-center"><a href={{ filter_urls.library_id }}>Library ID</a></th>
+            <th class="col-xs-1 text-center"><a href={{ filter_urls.librarycode }}>Library Code</a></th>
+            <th class="col-xs-1 text-center"><a href={{ filter_urls.snp_count }}>SNP Total</a></th>
+        </tr>
+        </thead>
+        <tbody>
+            <tr>
+                {% for each in results %}
+                    <td class="text-center">{{ each.library_id }}</td>
+                    <td class="text-center">{{ each.library__librarycode }}</td>
+                    <td class="text-center">{{ each.num_snps }}</td>
+                    </tr>
+                {% endfor %}
+        </tbody>
+    </table>
+    <div class="pagination">
+            <span class="step-links">
+                {% if snp.has_previous %}
+                    <a href="?page={{  snp.previous_page_number }}">&laquo;</a>
+                {%  endif %}
+
+                {% for page in paginator.page_range %}
+                    {% if page <= toolbar_max and page > toolbar_min and page != snp.number %}
+                        <a href="?page={{  page  }}">{{ page }}</a>
+                    {% elif page == snp.number %}
+                        <span class="current">
+                            {{  snp.number }}
+                        </span>
+                    {% endif %}
+                {% endfor %}
+
+                {% if snp.has_next %}
+                    <a href="?page={{ snp.next_page_number }}">&raquo;</a>
+                {% endif %}
+            </span>
+    </div>
+
+
+
+
+{% endblock %}
+</html>
