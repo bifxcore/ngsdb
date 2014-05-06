@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+{% extends "snpdb/dashboard.html" %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Library Summary</h1>
+</div>
+
+<body>
+<div class="collapse navbar-collapse navbar-ex1-collapse">
+    <ul class="nav navbar-nav">
+        <form class="form-inline" role="form" id='search' action='/snpdb/gene-snps/search' method="get">
+            <div class="form-group">
+                <label class="sr-only" for="gene_id">Gene ID</label>
+                <input type="text" class="form-control" name="s" placeholder="gene id">
+            </div>
+            <button id="submit" class="btn btn-primary" type="submit">Search</button>
+        </form>
+    </ul>
+</div>
+
+
+</body>
+<table class="table table-condensed table-hover" style="table-layout: fixed; word-wrap: break-word;">
+    <thead>
+    <tr>
+        <th class="col-xs-1 text-center"><a href={{ filter_urls.snp_id }}>SNP ID</a></th>
+        <th class="col-xs-2 text-center"><a href={{ filter_urls.library }}>Library</a></th>
+        <th class="col-xs-2 text-center"><a href={{ filter_urls.gene }}>Gene</a></th>
+        <th class="col-xs-1 text-center"><a href={{ filter_urls.snp_position }}>Position</a></th>
+        <th class="col-xs-1 text-center"><a href={{ filter_urls.result }}>Result</a></th>
+        <th class="col-xs-1 text-center"><a href={{ filter_urls.ref_base }}>Reference Base</a></th>
+        <th class="col-xs-1 text-center"><a href={{ filter_urls.alt_base }}>Alternate Base</a></th>
+        <th class="col-xs-1 text-center"><a href={{ filter_urls.heterozygosity }}>Heterozygosity</a></th>
+        <th class="col-xs-1 text-center"><a href={{ filter_urls.quality }}>Quality</a></th>
+        <th class="col-xs-1 text-center"><a href={{ filter_urls.chromosome }}>Chromosome</a></th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        {% for each in results %}
+        <td class="text-center">{{ each.snp_id }}</td>
+        <td class="text-center">{{ library }}</td>
+        <td class="text-center">{{ gene }}</td>
+        <td class="text-center">{{ each.snp_position }}</td>
+        <td class="text-center">{{ each.result }}</td>
+        <td class="text-center">{{ each.ref_base }}</td>
+        <td class="text-center">{{ each.alt_base }}</td>
+        <td class="text-center">{{ each.heterozygosity }}</td>
+        <td class="text-center">{{ each.quality }}</td>
+        <td class="text-center">{{ each.chromosome__chromosome_name }}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+
+<div class="pagination">
+    <span class="step-links">
+        {% if results.has_previous %}
+            <a href="?page={{  results.previous_page_number }}">&laquo;</a>
+        {%  endif %}
+
+        {% for page in paginator.page_range %}
+            {% if page <= toolbar_max and page > toolbar_min and page != results.number %}
+                <a href="?page={{  page  }}">{{ page }}</a>
+            {% elif page == results.number %}
+                <span class="current">
+                    {{  results.number }}
+                </span>
+            {% endif %}
+        {% endfor %}
+
+        {% if results.has_next %}
+            <a href="?page={{ results.next_page_number }}">&raquo;</a>
+        {% endif %}
+    </span>
+</div>
+
+
+{% endblock %}
+</html>

@@ -11,12 +11,14 @@ urlpatterns = patterns('',
                        url(r'^effect/search', 'snpdb.views.effect_filter'),
                        url(r'^filter/search', 'snpdb.views.filter_filter'),
                        url(r'^gene-snps/search', 'snpdb.views.gene_snps_filter'),
+                       url(r'^library-snps/search', 'snpdb.views.library_snps_filter'),
                        url(r'^library-summary/search', 'snpdb.views.library_summary'),
 
 
                        #Search Functions
                        url(r'^library-summary', 'snpdb.views.library_summary'),
                        url(r'^gene-snps', 'snpdb.views.gene_snps'),
+                       url(r'^library-snps', 'snpdb.views.library_snps'),
 
                        # Basic Table Views:
                        url(r'^snptype', 'snpdb.views.snp_type'),

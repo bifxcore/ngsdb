@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+{% extends "snpdb/dashboard.html" %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Library Summary</h1>
+</div>
+
+
+<body>
+<div class="collapse navbar-collapse navbar-ex1-collapse">
+    <ul class="nav navbar-nav">
+        <form class="form-inline" role="form" id='search' action='/snpdb/library-snps/search' method="get">
+            <div class="form-group">
+                <label class="sr-only" for="gene_id">Gene ID</label>
+                <input type="text" class="form-control" name="s" placeholder="gene id">
+            </div>
+            <div class="form-group">
+                <label class="sr-only" for="library_code">librarycode</label>
+                <input type="text" class="form-control" name="lib" placeholder="library code">
+            </div>
+            <button id="submit" class="btn btn-primary" type="submit">Search</button>
+        </form>
+    </ul>
+</div>
+
+
+<div class="form-group">
+    <ul>
+        {% for each in results %}
+        <li>{{ each.librarycode }}</li>
+        {% endfor %}
+    </ul>
+</div>
+</body>
+
+
+<div class="pagination">
+    <span class="step-links">
+        {% if results.has_previous %}
+            <a href="?page={{  results.previous_page_number }}">&laquo;</a>
+        {%  endif %}
+
+        {% for page in paginator.page_range %}
+            {% if page <= toolbar_max and page > toolbar_min and page != results.number %}
+                <a href="?page={{  page  }}">{{ page }}</a>
+            {% elif page == results.number %}
+                <span class="current">
+                    {{  results.number }}
+                </span>
+            {% endif %}
+        {% endfor %}
+
+        {% if results.has_next %}
+            <a href="?page={{ results.next_page_number }}">&raquo;</a>
+        {% endif %}
+    </span>
+</div>
+
+{% endblock %}
+</html>

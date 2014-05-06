@@ -4,78 +4,81 @@
 {% extends "snpdb/dashboard.html" %}
 
 {% block content %}
-<head>
-    <h1>SNP Filter</h1>
 
-    <link href="http://netdna.bootstrapcdn.com/font-awesome/3.1.1/css/font-awesome.min.css" rel="stylesheet">
-    <link href="http://cdnjs.cloudflare.com/ajax/libs/x-editable/1.4.4/bootstrap-editable/css/bootstrap-editable.css" rel="stylesheet">
-    <link href="lib/bootstrap-filterable.css" rel="stylesheet" type="text/css">
-</head>
+<script type="text/javascript" xmlns="http://www.w3.org/1999/html">
+    $(document).ready(function(){
+        $('.selectpicker').selectpicker();
+    });
+</script>
+
+
+<script type="text/javascript">
+    $(document).ready(function(){
+        $('.checkbox').checkbox();
+    });
+</script>
+
+
+<div class="page-header text-info">
+    <h1>SNP Filter</h1>
+</div>
 
 <body>
 <div class="collapse navbar-collapse navbar-ex1-collapse">
     <ul class="nav navbar-nav">
-        <form id='search' action='search' method="get">
-            <div class="row">
-                <div class="col-md-4">
-                    <input type="text" name="s">
-                </div>
-                <div class="col-md-4">
-                    <select id="att" class="selectpicker" name="att" title="Select One">
-                        <option id="snp_id">SNP ID</option>
-                        <option id="filter_id">Filter ID</option>
-                        <option id="filter_result">Filter Result</option>
-                        <option id="filter_cv">Filter</option>
-
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <div class="checkbox-inline">
-                        <input type="checkbox" name="check">Regex
-                    </div>
-                </div>
-                <div class="col-md-2">
-                    <button id="submit" class="btn btn-default" type="submit">Search</button>
-                </div>
+        <form class="form-inline" role="form" id='search' action='/snpdb/effect/search' method="get">
+            <div class="form-group">
+                <label class="sr-only" for="search">Search</label>
+                <input type="text" class="form-control" name="s" placeholder="search">
+                <select id="att" class="selectpicker" name="att" title="Select One">
+                    <option id="snp_id">SNP ID</option>
+                    <option id="filter_id">Filter ID</option>
+                    <option id="filter_result">Filter Result</option>
+                    <option id="filter_cv">Filter</option>
+                </select>
+                <input type="checkbox"> Regex
+                <button class="btn btn-primary" type="submit">Search</button>
             </div>
         </form>
     </ul>
 </div>
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-<script src="http://netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
 </body>
+
+
 <table class="table table-condensed table-hover" style="table-layout: fixed; word-wrap: break-word;">
     <thead>
     <tr>
-        <th class="col-xs-1 text-center"><a href={{ filter_urls.snp_id }}>SNP ID</a></th>
-        <th class="col-xs-1 text-center"><a href={{ filter_urls.filter_id }}>Filter ID</a></th>
-        <th class="col-xs-1 text-center"><a href={{ filter_urls.filter_result }}>Filter Result</a></th>
-        <th class="col-xs-1 text-center"><a href={{ filter_urls.filter }}>Filter</a></th>
+        <th class="text-center text-info"><a href={{ filter_urls.snp_id }}>SNP ID</a></th>
+        <th class="text-center"><a href={{ filter_urls.filter_id }}>Filter ID</a></th>
+        <th class="text-center"><a href={{ filter_urls.filter_result }}>Filter Result</a></th>
+        <th class="text-center"><a href={{ filter_urls.filter }}>Filter</a></th>
     </tr>
     </thead>
     <tbody>
-        <tr>
-            {% for each in filter_list %}
-                <td class="text-center">{{ each.snp_id }}</td>
-                <td class="text-center">{{ each.filter_id }}</td>
-                <td class="text-center">{{ each.filter_result }}</td>
-                <td class="text-center">{{ each.filter_cv.filter_type }}</td>
-                </tr>
-            {% endfor %}
+    <tr>
+        {% for each in filter_list %}
+        <td class="text-center">{{ each.snp_id }}</td>
+        <td class="text-center">{{ each.filter_id }}</td>
+        <td class="text-center">{{ each.filter_result }}</td>
+        <td class="text-center">{{ each.filter_cv.filter_type }}</td>
+    </tr>
+    {% endfor %}
     </tbody>
 </table>
+
+
 <div class="pagination">
         <span class="step-links">
-            {% if snp.has_previous %}
-                <a href="?page={{  snp.previous_page_number }}">&laquo;</a>
+            {% if filter_list.has_previous %}
+                <a href="?page={{  filter_list.previous_page_number }}">&laquo;</a>
             {%  endif %}
 
             {% for page in paginator.page_range %}
-                {% if page <= toolbar_max and page > toolbar_min and page != snp.number %}
+                {% if page <= toolbar_max and page > toolbar_min and page != filter_list.number %}
                     <a href="?page={{  page  }}">{{ page }}</a>
-                {% elif page == snp.number %}
+                {% elif page == filter_list.number %}
                     <span class="current">
-                        {{  snp.number }}
+                        {{  filter_list.number }}
                     </span>
                 {% endif %}
             {% endfor %}

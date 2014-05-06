@@ -3,101 +3,102 @@
 {% extends "snpdb/dashboard.html" %}
 
 {% block content %}
-    <head>
-        <h1>SNP Type</h1>
 
-        <link href="http://netdna.bootstrapcdn.com/font-awesome/3.1.1/css/font-awesome.min.css" rel="stylesheet">
-        <link href="http://cdnjs.cloudflare.com/ajax/libs/x-editable/1.4.4/bootstrap-editable/css/bootstrap-editable.css" rel="stylesheet">
-        <link href="lib/bootstrap-filterable.css" rel="stylesheet" type="text/css">
-
-    </head>
-
-    <body>
-    <div class="collapse navbar-collapse navbar-ex1-collapse">
-        <ul class="nav navbar-nav">
-            <form id='search' action='/snpdb/snptype/search' method="get">
-                <div class="row">
-                    <div class="col-md-4">
-                        <input type="text" name="s">
-                    </div>
-                    <div class="col-md-4">
-                        <select id="att" class="selectpicker" name="att" title="Select One">
-                            <option id="snp_position">SNP Type</option>
-                            <option id="result">SNP ID</option>
-                            <option id="ref_base">Indel</option>
-                            <option id="alt_base">Deletion</option>
-                            <option id="heterozygosity">Is SNP</option>
-                            <option id="quality">Monomorphic</option>
-                            <option id="library">Transition</option>
-                            <option id="chromosome">SV</option>
-                        </select>
-                    </div>
-                    <div class="col-md-2">
-                        <div class="checkbox-inline">
-                            <input type="checkbox" name="check">Regex
-                        </div>
-                    </div>
-                    <div class="col-md-2">
-                        <button id="submit" class="btn btn-default" type="submit">Search</button>
-                    </div>
-                </div>
-            </form>
-        </ul>
-    </div>
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-    <script src="http://netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
-    </body>
-    <table class="table table-condensed table-hover" style="table-layout: fixed; word-wrap: break-word;">
-        <thead>
-        <tr>
-            <th class="col-xs-1 text-center"><a href={{ filter_urls.snptype_id }}>SNP Type</a></th>
-            <th class="col-xs-1 text-center"><a href={{ filter_urls.snp_id }}>SNP ID</a></th>
-            <th class="col-xs-1 text-center"><a href={{ filter_urls.indel }}>Indel</a></th>
-            <th class="col-xs-1 text-center"><a href={{ filter_urls.deletion }}>Deletion</a></th>
-            <th class="col-xs-1 text-center"><a href={{ filter_urls.is_snp }}>Is SNP</a></th>
-            <th class="col-xs-1 text-center"><a href={{ filter_urls.monomorphic }}>Monomorphic</a></th>
-            <th class="col-xs-1 text-center"><a href={{ filter_urls.transition }}>Transition</a></th>
-            <th class="col-xs-2 text-center"><a href={{ filter_urls.sv }}>SV</a></th>
-        </tr>
-        </thead>
-        <tbody>
-            <tr>
-                {% for each in snptypes %}
-                    <td class="text-center">{{ each.snptype_id }}</td>
-                    <td class="text-center">{{ each.snp_id }}</td>
-                    <td class="text-center">{{ each.indel }}</td>
-                    <td class="text-center">{{ each.deletion }}</td>
-                    <td class="text-center">{{ each.is_snp }}</td>
-                    <td class="text-center">{{ each.monomorphic }}</td>
-                    <td class="text-center">{{ each.transition }}</td>
-                    <td class="text-center">{{ each.sv }}</td>
-                    </tr>
-                {% endfor %}
-        </tbody>
-    </table>
-    <div class="pagination">
-            <span class="step-links">
-                {% if snp.has_previous %}
-                    <a href="?page={{  snp.previous_page_number }}">&laquo;</a>
-                {%  endif %}
-
-                {% for page in paginator.page_range %}
-                    {% if page <= toolbar_max and page > toolbar_min and page != snp.number %}
-                        <a href="?page={{  page  }}">{{ page }}</a>
-                    {% elif page == snp.number %}
-                        <span class="current">
-                            {{  snp.number }}
-                        </span>
-                    {% endif %}
-                {% endfor %}
-
-                {% if snp.has_next %}
-                    <a href="?page={{ snp.next_page_number }}">&raquo;</a>
-                {% endif %}
-            </span>
-    </div>
+<script type="text/javascript" xmlns="http://www.w3.org/1999/html">
+    $(document).ready(function(){
+        $('.selectpicker').selectpicker();
+    });
+</script>
 
 
+<script type="text/javascript">
+    $(document).ready(function(){
+        $('.checkbox').checkbox();
+    });
+</script>
+
+
+<div class="page-header">
+    <h1>SNP Type</h1>
+</div>
+
+
+<body>
+<div class="collapse navbar-collapse navbar-ex1-collapse">
+    <ul class="nav navbar-nav">
+        <form class="form-inline" role="form" id='search' action='/snpdb/snptype/search' method="get">
+            <div class="form-group">
+                <label class="sr-only" for="search">Search</label>
+                <input type="text" class="form-control" name="s" placeholder="search">
+                <select id="att" class="selectpicker" name="att" title="Select One">
+                    <option id="snp_position">SNP Type</option>
+                    <option id="result">SNP ID</option>
+                    <option id="ref_base">Indel</option>
+                    <option id="alt_base">Deletion</option>
+                    <option id="heterozygosity">Is SNP</option>
+                    <option id="quality">Monomorphic</option>
+                    <option id="library">Transition</option>
+                    <option id="chromosome">SV</option>
+                </select>
+                <input type="checkbox"> Regex
+                <button class="btn btn-primary" type="submit">Search</button>
+            </div>
+        </form>
+    </ul>
+</div>
+</body>
+</body>
+<table class="table table-condensed table-hover" style="table-layout: fixed; word-wrap: break-word;">
+    <thead>
+    <tr>
+        <th class="text-center"><a href={{ filter_urls.snptype_id }}>SNP Type</a></th>
+        <th class="text-center"><a href={{ filter_urls.snp_id }}>SNP ID</a></th>
+        <th class="text-center"><a href={{ filter_urls.indel }}>Indel</a></th>
+        <th class="text-center"><a href={{ filter_urls.deletion }}>Deletion</a></th>
+        <th class="text-center"><a href={{ filter_urls.is_snp }}>Is SNP</a></th>
+        <th class="text-center"><a href={{ filter_urls.monomorphic }}>Monomorphic</a></th>
+        <th class="text-center"><a href={{ filter_urls.transition }}>Transition</a></th>
+        <th class="text-center"><a href={{ filter_urls.sv }}>SV</a></th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        {% for each in snptypes %}
+        <td class="text-center">{{ each.snptype_id }}</td>
+        <td class="text-center">{{ each.snp_id }}</td>
+        <td class="text-center">{{ each.indel }}</td>
+        <td class="text-center">{{ each.deletion }}</td>
+        <td class="text-center">{{ each.is_snp }}</td>
+        <td class="text-center">{{ each.monomorphic }}</td>
+        <td class="text-center">{{ each.transition }}</td>
+        <td class="text-center">{{ each.sv }}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+
+<div class="pagination">
+    <span class="step-links">
+        {% if snptypes.has_previous %}
+            <a href="?page={{  snptypes.previous_page_number }}">&laquo;</a>
+        {%  endif %}
+
+        {% for page in paginator.page_range %}
+            {% if page <= toolbar_max and page > toolbar_min and page != snp.number %}
+                <a href="?page={{  page  }}">{{ page }}</a>
+            {% elif page == snptypes.number %}
+                <span class="current">
+                    {{  snptypes.number }}
+                </span>
+            {% endif %}
+        {% endfor %}
+
+        {% if snptypes.has_next %}
+            <a href="?page={{ snptypes.next_page_number }}">&raquo;</a>
+        {% endif %}
+    </span>
+</div>
 
 
 {% endblock %}
