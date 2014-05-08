@@ -531,6 +531,12 @@ a.text-warning:hover {
 a.text-danger:hover {
   color: #843534;
 }
+.text-header {
+  color: #2e618d;
+}
+a.text-header:hover {
+  color: #7aadd9;
+}
 .bg-primary {
   color: #fff;
   background-color: #428bca;

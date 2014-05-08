@@ -5,7 +5,7 @@
 
 {% block content %}
 
-<script type="text/javascript" xmlns="http://www.w3.org/1999/html">
+<script type="text/javascript">
     $(document).ready(function(){
         $('.selectpicker').selectpicker();
     });
@@ -18,7 +18,8 @@
     });
 </script>
 
-<div class="page-header">
+
+<div class="page-header text-header">
     <h1>SNP Statistics</h1>
 </div>
 
@@ -29,7 +30,7 @@
             <div class="form-group">
                 <label class="sr-only" for="search">Search</label>
                 <input type="text" class="form-control" name="s" placeholder="search">
-                <select id="att" class="selectpicker" name="att" title="Select One">
+                <select class="selectpicker show-tick" data-style="btn-large btn-default" name="att" title='Search Option'>
                     <option id="stats_id">Statistic ID</option>
                     <option id="snp">SNP ID</option>
                     <option id="stats_cvterm_id">Statistic</option>
@@ -47,7 +48,7 @@
 <table class="table table-condensed table-hover" style="table-layout: fixed; word-wrap: break-word;">
     <thead>
     <tr>
-        <th class="text-center"><a href={{ filter_urls.stats_id }}>Statistic ID</a></th>
+        <th class="text-center text-default"><a href={{ filter_urls.stats_id }}>Statistic ID</a></th>
         <th class="text-center"><a href={{ filter_urls.snp }}>SNP ID</a></th>
         <th class="text-center"><a href={{ filter_urls.stats_cvterm }}>Statistic</a></th>
         <th class="text-center"><a href={{ filter_urls.cv_value }}>Value</a></th>
