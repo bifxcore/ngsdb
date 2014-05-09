@@ -42,7 +42,7 @@
     </thead>
     <tbody>
     <tr>
-        {% for each in filter_list %}
+        {% for each in filters %}
         <td class="text-center">{{ each.snp_id }}</td>
         <td class="text-center">{{ each.filter_id }}</td>
         <td class="text-center">{{ each.filter_result }}</td>
@@ -52,27 +52,26 @@
     </tbody>
 </table>
 
-
 <div class="pagination">
-        <span class="step-links">
-            {% if filter_list.has_previous %}
-                <a href="?page={{  filter_list.previous_page_number }}">&laquo;</a>
-            {%  endif %}
+    <ul class="pagination">
+        {% if filters.has_previous %}
+            <li><a href="?page={{  filters.previous_page_number }}">&laquo;</a></li>
+        {% else %}
+            <li class="disabled"><a href="#">&laquo;</a></li>
+        {%  endif %}
 
-            {% for page in paginator.page_range %}
-                {% if page <= toolbar_max and page > toolbar_min and page != filter_list.number %}
-                    <a href="?page={{  page  }}">{{ page }}</a>
-                {% elif page == filter_list.number %}
-                    <span class="current">
-                        {{  filter_list.number }}
-                    </span>
-                {% endif %}
-            {% endfor %}
-
-            {% if snp.has_next %}
-                <a href="?page={{ snp.next_page_number }}">&raquo;</a>
+        {% for page in paginator.page_range %}
+            {% if page <= toolbar_max and page > toolbar_min and page != filters.number %}
+                    <li><a href="?page={{  page  }}">{{ page }}</a></li>
+            {% elif page == filters.number %}
+                <li class="active"><a href="?page={{  filters.number }}">{{ filters.number }}</a></li>
             {% endif %}
-        </span>
+        {% endfor %}
+
+        {% if filters.has_next %}
+            <li><a href="?page={{ filters.next_page_number }}">&raquo;</a></li>
+        {% endif %}
+    </ul>
 </div>
 
 

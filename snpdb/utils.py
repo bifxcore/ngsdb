@@ -2,7 +2,6 @@ __author__ = 'mcobb'
 from urlparse import urlparse, urlunparse
 from django.http import QueryDict
 import re
-from pprint import pprint
 
 
 def url_append_parameter(url, attr, val):

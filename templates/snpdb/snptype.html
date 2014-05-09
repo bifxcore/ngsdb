@@ -66,27 +66,26 @@
 
 
 <div class="pagination">
-    <span class="step-links">
+    <ul class="pagination">
         {% if snptypes.has_previous %}
-            <a href="?page={{  snptypes.previous_page_number }}">&laquo;</a>
+            <li><a href="?page={{  snptypes.previous_page_number }}">&laquo;</a></li>
+        {% else %}
+            <li class="disabled"><a href="#">&laquo;</a></li>
         {%  endif %}
 
         {% for page in paginator.page_range %}
-            {% if page <= toolbar_max and page > toolbar_min and page != snp.number %}
-                <a href="?page={{  page  }}">{{ page }}</a>
+            {% if page <= toolbar_max and page > toolbar_min and page != snptypes.number %}
+                    <li><a href="?page={{  page  }}">{{ page }}</a></li>
             {% elif page == snptypes.number %}
-                <span class="current">
-                    {{  snptypes.number }}
-                </span>
+                <li class="active"><a href="?page={{  snptypes.number }}">{{ snptypes.number }}</a></li>
             {% endif %}
         {% endfor %}
 
-        {% if snptypes.has_next %}
-            <a href="?page={{ snptypes.next_page_number }}">&raquo;</a>
+        {% if results.has_next %}
+            <li><a href="?page={{ snptypes.next_page_number }}">&raquo;</a></li>
         {% endif %}
-    </span>
+    </ul>
 </div>
-
 
 {% endblock %}
 </html>

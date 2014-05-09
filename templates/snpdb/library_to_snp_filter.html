@@ -4,7 +4,7 @@
 
 {% block content %}
 <div class="page-header text-header">
-    <h1>Library Summary</h1>
+    <h1>Gene and Library Query Results</h1>
 </div>
 
 <body>
@@ -17,6 +17,9 @@
             </div>
             <button id="submit" class="btn btn-primary" type="submit">Search</button>
         </form>
+        <div>
+            <h5><a href="/snpdb/compare_gene_lib/search?s={{gene}}"Compare Gene across Libraries</h5>
+        </div>
     </ul>
 </div>
 
@@ -57,27 +60,26 @@
 
 
 <div class="pagination">
-    <span class="step-links">
+    <ul class="pagination">
         {% if results.has_previous %}
-            <a href="?page={{  results.previous_page_number }}">&laquo;</a>
+        <li><a href="?page={{  results.previous_page_number }}">&laquo;</a></li>
+        {% else %}
+        <li class="disabled"><a href="#">&laquo;</a></li>
         {%  endif %}
 
         {% for page in paginator.page_range %}
-            {% if page <= toolbar_max and page > toolbar_min and page != results.number %}
-                <a href="?page={{  page  }}">{{ page }}</a>
-            {% elif page == results.number %}
-                <span class="current">
-                    {{  results.number }}
-                </span>
-            {% endif %}
+        {% if page <= toolbar_max and page > toolbar_min and page != results.number %}
+        <li><a href="?page={{  page  }}">{{ page }}</a></li>
+        {% elif page == results.number %}
+        <li class="active"><a href="?page={{  results.number }}">{{ results.number }}</a></li>
+        {% endif %}
         {% endfor %}
 
         {% if results.has_next %}
-            <a href="?page={{ results.next_page_number }}">&raquo;</a>
+        <li><a href="?page={{ results.next_page_number }}">&raquo;</a></li>
         {% endif %}
-    </span>
+    </ul>
 </div>
-
 
 {% endblock %}
 </html>

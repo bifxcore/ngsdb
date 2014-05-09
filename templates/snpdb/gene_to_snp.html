@@ -29,25 +29,25 @@
 </body>
 
 <div class="pagination">
-    <span class="step-links">
+    <ul class="pagination">
         {% if genes.has_previous %}
-            <a href="?page={{  genes.previous_page_number }}">&laquo;</a>
+            <li><a href="?page={{  genes.previous_page_number }}">&laquo;</a></li>
+        {% else %}
+            <li class="disabled"><a href="#">&laquo;</a></li>
         {%  endif %}
 
         {% for page in paginator.page_range %}
             {% if page <= toolbar_max and page > toolbar_min and page != genes.number %}
-                <a href="?page={{  page  }}">{{ page }}</a>
+                    <li><a href="?page={{  page  }}">{{ page }}</a></li>
             {% elif page == genes.number %}
-                <span class="current">
-                    {{  genes.number }}
-                </span>
+                <li class="active"><a href="?page={{  genes.number }}">{{ genes.number }}</a></li>
             {% endif %}
         {% endfor %}
 
         {% if genes.has_next %}
-            <a href="?page={{ genes.next_page_number }}">&raquo;</a>
+            <li><a href="?page={{ genes.next_page_number }}">&raquo;</a></li>
         {% endif %}
-    </span>
+    </ul>
 </div>
 
 

@@ -23,13 +23,23 @@
     });
 </script>
 
+<script>
+    $(document).ready(function() {
+        $('.nav li a').click(function() {
+            if(!$(this).parent('li').hasClass('active')) {
+                $(this).parent.parent.find('li.active').removeClass('active');
+                $(this).parent.('li').addClass(('active'));
+            };
+        });
+    });
+</script>
 
 
 <div class='navbar navbar-inverse navbar-default' role="navigation">
     <div class="container">
         <div class="navbar-header">
             <ul class="nav navbar-nav">
-                <li id="home"><a href="/snpdb">Home</a></li>
+                <li class="active" id="home"><a href="/snpdb">Home</a></li>
                 <li id="snp"><a href="/snpdb/snp">SNP</a></li>
                 <li id="snptype"><a href="/snpdb/snptype">SNP Type</a></li>
                 <li id="statistics"><a href="/snpdb/statistics">Statistics</a></li>

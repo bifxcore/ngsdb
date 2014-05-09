@@ -4,7 +4,7 @@
 
 {% block content %}
 <div class="page-header text-header">
-    <h1>Library Summary</h1>
+    <h1>Snps in Genes Query Results</h1>
 </div>
 
 <body>
@@ -37,7 +37,7 @@
         {% for each in results %}
         <td class="text-center">{{ each.result_id }}</td>
         <td class="text-center">{{ gene }}</td>
-        <td class="text-center">{{ each.library__librarycode}}</td>
+        <td class="text-center"><a href="/snpdb/library-snps/search?s={{gene}}&lib={{each.library__librarycode}}">{{ each.library__librarycode}}</a></td>
         <td class="text-center">{{ each.library__organism__organismcode }}</td>
         <td class="text-center">{{ each.result__genome_id }}</td>
     </tr>
@@ -45,29 +45,27 @@
     </tbody>
 </table>
 
-
 <div class="pagination">
-            <span class="step-links">
-                {% if snp.has_previous %}
-                    <a href="?page={{  snp.previous_page_number }}">&laquo;</a>
-                {%  endif %}
+    <ul class="pagination">
+        {% if results.has_previous %}
+            <li><a href="?page={{  results.previous_page_number }}">&laquo;</a></li>
+        {% else %}
+            <li class="disabled"><a href="#">&laquo;</a></li>
+        {%  endif %}
 
-                {% for page in paginator.page_range %}
-                    {% if page <= toolbar_max and page > toolbar_min and page != snp.number %}
-                        <a href="?page={{  page  }}">{{ page }}</a>
-                    {% elif page == snp.number %}
-                        <span class="current">
-                            {{  snp.number }}
-                        </span>
-                    {% endif %}
-                {% endfor %}
+        {% for page in paginator.page_range %}
+            {% if page <= toolbar_max and page > toolbar_min and page != results.number %}
+                    <li><a href="?page={{  page  }}">{{ page }}</a></li>
+            {% elif page == results.number %}
+                <li class="active"><a href="?page={{  results.number }}">{{ results.number }}</a></li>
+            {% endif %}
+        {% endfor %}
 
-                {% if snp.has_next %}
-                    <a href="?page={{ snp.next_page_number }}">&raquo;</a>
-                {% endif %}
-            </span>
-</div>
-
+        {% if results.has_next %}
+            <li><a href="?page={{ results.next_page_number }}">&raquo;</a></li>
+        {% endif %}
+    </ul>
+</div
 
 {% endblock %}
 </html>

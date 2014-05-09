@@ -52,27 +52,29 @@
 </table>
 
 
+
 <div class="pagination">
-    <span class="step-links">
+    <ul class="pagination">
         {% if snp_effect.has_previous %}
-            <a href="?page={{  snp_effect.previous_page_number }}">&laquo;</a>
+            <li><a href="?page={{  snp_effect.previous_page_number }}">&laquo;</a></li>
+        {% else %}
+            <li class="disabled"><a href="#">&laquo;</a></li>
         {%  endif %}
 
         {% for page in paginator.page_range %}
             {% if page <= toolbar_max and page > toolbar_min and page != snp_effect.number %}
-                <a href="?page={{  page  }}">{{ page }}</a>
+                    <li><a href="?page={{  page  }}">{{ page }}</a></li>
             {% elif page == snp_effect.number %}
-                <span class="current">
-                    {{  snp_effect.number }}
-                </span>
+                <li class="active"><a href="?page={{  filters.number }}">{{ snp_effect.number }}</a></li>
             {% endif %}
         {% endfor %}
 
         {% if snp_effect.has_next %}
-            <a href="?page={{ snp_effect.next_page_number }}">&raquo;</a>
+            <li><a href="?page={{ snp_effect.next_page_number }}">&raquo;</a></li>
         {% endif %}
-    </span>
+    </ul>
 </div>
+
 
 
 {% endblock %}

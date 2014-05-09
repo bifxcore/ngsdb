@@ -5,6 +5,7 @@ from django.conf.urls import *
 urlpatterns = patterns('',
                        # Sends requests to filter functions
                        # url(r'^search/snp', 'snpdb.views.snptype_filter'),
+                       url(r'^compare_gene_lib/search', 'snpdb.views.compare_gene_lib'),
                        url(r'^snptype/search', 'snpdb.views.snptype_filter'),
                        url(r'^snp/search', 'snpdb.views.snp_filter'),
                        url(r'^statistics/search', 'snpdb.views.statistics_filter'),
