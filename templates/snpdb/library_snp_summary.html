@@ -10,7 +10,7 @@
 <body>
 <div class="collapse navbar-collapse navbar-ex1-collapse">
     <ul class="nav navbar-nav">
-        <form class="form-inline" role="form" id='search' action='/snpdb/library-summary/search' method="get">
+        <form class="form-inline" role="form" id='search' action='/snpdb/library-snp-summary/search' method="get">
             <div class="form-group">
                 <label class="sr-only" for="library_id">Library</label>
                 <input type="text" class="form-control" name="s" placeholder="library code">
@@ -33,7 +33,7 @@
     <tbody>
     <tr>
         {% for each in results %}
-        <td class="text-center">{{ each.library_id }}</td>
+        <td class="text-center"><a href="/snpdb/library-gene-snps/search?s={{lib={{each.library__librarycode}}">{{ each.library_id }}</a></td>
         <td class="text-center">{{ each.library__librarycode }}</td>
         <td class="text-center">{{ each.num_snps }}</td>
     </tr>

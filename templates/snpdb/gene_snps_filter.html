@@ -37,7 +37,7 @@
         {% for each in results %}
         <td class="text-center">{{ each.result_id }}</td>
         <td class="text-center">{{ gene }}</td>
-        <td class="text-center"><a href="/snpdb/library-snps/search?s={{gene}}&lib={{each.library__librarycode}}">{{ each.library__librarycode}}</a></td>
+        <td class="text-center"><a href="/snpdb/library-gene-snps/search?s={{gene}}&lib={{each.library__librarycode}}">{{ each.library__librarycode}}</a></td>
         <td class="text-center">{{ each.library__organism__organismcode }}</td>
         <td class="text-center">{{ each.result__genome_id }}</td>
     </tr>
