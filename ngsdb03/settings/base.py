@@ -164,6 +164,7 @@ INSTALLED_APPS = (
     'samples',
     'django.contrib.humanize',
     'snpdb',
+    'mathfilters'
 )
 
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'

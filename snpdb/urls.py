@@ -12,7 +12,7 @@ urlpatterns = patterns('',
                        url(r'^effect/search', 'snpdb.views.effect_filter'),
                        url(r'^filter/search', 'snpdb.views.filter_filter'),
                        url(r'^gene-snps/search', 'snpdb.views.gene_snps_filter'),
-                       url(r'^library-gene-snps/search', 'snpdb.views.library_gene_snps'),
+                       url(r'^library-gene-snps/search', 'snpdb.views.library_gene_snps_filter'),
                        url(r'^library-snp-summary/search', 'snpdb.views.library_snps'),
 
 
@@ -20,6 +20,7 @@ urlpatterns = patterns('',
                        url(r'^library-snp-summary', 'snpdb.views.library_snp_summary'),
                        url(r'^gene-snps', 'snpdb.views.gene_snps'),
                        url(r'^library-gene-snps', 'snpdb.views.library_gene_snps'),
+                       url(r'^gene-snp-summary', 'snpdb.views.gene_snp_summary'),
 
                        # Basic Table Views:
                        url(r'^snptype', 'snpdb.views.snp_type'),
