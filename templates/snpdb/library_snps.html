@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+{% extends "snpdb/dashboard.html" %}
+
+{% block content %}
+<div class="page-header text-header">
+    <h1>SNPs in Library</h1>
+    <h5> There are {{count}} snps in this library. </h5>
+</div>
+
+
+<table class="table table-condensed table-hover" style="table-layout: fixed; word-wrap: break-word;">
+    <thead>
+    <tr>
+        <th class="col-xs-2 text-center"><a href={{ filter_urls.library }}>Library ID</a></th>
+        <th class="col-xs-2 text-center"><a href={{ filter_urls.librarycode }}>Library</a></th>
+        <th class="col-xs-1 text-center"><a href={{ filter_urls.snp_id }}>SNP ID</a></th>
+        <th class="col-xs-1 text-center"><a href={{ filter_urls.snp_position }}>Position</a></th>
+        <th class="col-xs-1 text-center"><a href={{ filter_urls.ref_base }}>Reference Base</a></th>
+        <th class="col-xs-1 text-center"><a href={{ filter_urls.alt_base }}>Alternate Base</a></th>
+        <th class="col-xs-1 text-center"><a href={{ filter_urls.heterozygosity }}>Heterozygosity</a></th>
+        <th class="col-xs-1 text-center"><a href={{ filter_urls.quality }}>Quality</a></th>
+        <th class="col-xs-1 text-center"><a href={{ filter_urls.chromosome }}>Chromosome</a></th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        {% for each in results %}
+        <td class="text-center">{{ each.library }}</td>
+        <td class="text-center">{{ each.library__librarycode }}</td>
+        <td class="text-center">{{ each.snp_id }}</td>
+        <td class="text-center">{{ each.snp_position }}</td>
+        <td class="text-center">{{ each.ref_base }}</td>
+        <td class="text-center">{{ each.alt_base }}</td>
+        <td class="text-center">{{ each.heterozygosity }}</td>
+        <td class="text-center">{{ each.quality }}</td>
+        <td class="text-center">{{ each.chromosome__chromosome_name }}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+
+<div class="pagination">
+    <ul class="pagination">
+        {% if results.has_previous %}
+        <li><a href="?page={{  results.previous_page_number }}">&laquo;</a></li>
+        {% else %}
+        <li class="disabled"><a href="#">&laquo;</a></li>
+        {%  endif %}
+
+        {% for page in paginator.page_range %}
+        {% if page <= toolbar_max and page > toolbar_min and page != results.number %}
+        <li><a href="?page={{  page  }}">{{ page }}</a></li>
+        {% elif page == results.number %}
+        <li class="active"><a href="?page={{ results.number }}">{{ results.number }}</a></li>
+        {% endif %}
+        {% endfor %}
+
+        {% if results.has_next %}
+        <li><a href="?page={{ results.next_page_number }}">&raquo;</a></li>
+        {% endif %}
+    </ul>
+</div>
+
+{% endblock %}
+</html>

@@ -575,6 +575,38 @@ def library_snp_summary(request):
                                                                  "toolbar_min": toolbar_min})
 
 
+
+# Returns all snps found in the specific library.
+def library_snps(request):
+    library = request.GET.get('lib')
+    count = request.GET.get('count')
+    results = SNP.objects.values('library', 'library__librarycode', 'snp_id', 'snp_position', 'ref_base', 'alt_base',
+                                 'heterozygosity', 'quality', 'chromosome__chromosome_name').filter(library__librarycode=library)
+    order_by = request.GET.get('order_by', 'library')
+    result_list = results.order_by(order_by)
+    paginator = Paginator(result_list, 50)
+    page = request.GET.get('page')
+
+    # Calls utils method to append new filters or order_by to the current url
+    filter_urls = build_orderby_urls(request.get_full_path(), ['library_id', 'librarycode', 'snp_id'])
+    try:
+        results = paginator.page(page)
+    except PageNotAnInteger:
+        results = paginator.page(1)
+    except EmptyPage:
+        contacts = paginator.page(paginator.num_pages)
+
+    toolbar_max = min(results.number + 4, paginator.num_pages)
+    toolbar_min = max(results.number - 4, 0)
+
+    return render_to_response('snpdb/library_snps.html', {"results": results,
+                                                                 "filter_urls": filter_urls,
+                                                                 "paginator": paginator,
+                                                                 "toolbar_max": toolbar_max,
+                                                                 "toolbar_min": toolbar_min,
+                                                                 "count": count})
+
+
 # Returns all snps found within the gene location regardless of library.
 def gene_snps_filter(request):
     gene = request.GET.get('s')

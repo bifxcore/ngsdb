@@ -1,0 +1,1 @@
+- Pagination is not maintaining search criteria and is therefore failing when moving to the next page.

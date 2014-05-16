@@ -33,7 +33,7 @@
     <tbody>
     <tr>
         {% for each in results %}
-        <td class="text-center"><a href="/snpdb/library-gene-snps/search?s={{lib={{each.library__librarycode}}">{{ each.library_id }}</a></td>
+        <td class="text-center"><a href="/snpdb/library-snp-summary/search?lib={{each.library__librarycode}}&count={{each.num_snps}}">{{ each.library_id }}</a></td>
         <td class="text-center">{{ each.library__librarycode }}</td>
         <td class="text-center">{{ each.num_snps }}</td>
     </tr>
