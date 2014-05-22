@@ -1,1 +1,2 @@
 -r base.txt
+PyYAML==3.11

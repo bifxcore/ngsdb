@@ -1,2 +1,3 @@
 -r base.txt
 gunicorn
+PyYAML==3.11

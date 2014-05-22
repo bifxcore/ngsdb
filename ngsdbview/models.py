@@ -164,7 +164,6 @@ class Library(models.Model):
     collaborator = models.ForeignKey(Collaborator)
     librarytype = models.ForeignKey(Librarytype)
     protocol = models.ForeignKey(Protocol)
-#	seqtech = models.ForeignKey(Seqtech)
     fastqname = models.CharField(max_length=1000)
     fastqalias = models.CharField(max_length=1000)
     librarysize = models.IntegerField()
@@ -283,6 +282,20 @@ class Resultslgene(models.Model):
 
     def __unicode__(self):
         return str(self.resultslgene_id)
+
+
+class Resultsriboprof(models.Model):
+    resultsriboprof_id = models.AutoField(primary_key=True)
+    result = models.ForeignKey(Result)
+    geneid = models.CharField(max_length=45, db_index=True)
+    featuretype = models.CharField(max_length=10, db_index=True)
+    counts_raw = models.DecimalField(max_digits=10, decimal_places=4)
+    counts_normalized = models.DecimalField(max_digits=10, decimal_places=4)
+    time_data_loaded = models.DateTimeField(auto_now=True)
+
+    def __unicode__(self):
+        return str(self.resultsriboprof_id)
+
 
 class Analysis(models.Model):
     analysis_id = models.AutoField(primary_key=True)
