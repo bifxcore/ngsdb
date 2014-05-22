@@ -506,15 +506,34 @@ def statistics_filter(request):
 
 # Returns a summary of snps found within a gene, regardless of the library.
 def gene_snp_summary(request):
-    results = Feature.objects.values('geneid', 'featuretype').distinct().filter(
-        genome__result__snp_position__range=(Feature.objects.values_list('fmin', 'fmax').
-                                             filter(genome__result__snp__chromosome__chromosome_name=Feature.objects.values_list('chromosome').
-                                                    annotate(num_snps=Count('genome__result__snp__snp_id'), hetero=BooleanSum('genome__result__snp__heterozygosity'),
-                                                             indel=BooleanSum('genome__result__snp__snp_type__indel'),
-                                                             trans=BooleanSum('genome__result__snp__snp_type__transition')))))
+    result = {}
+    gene = Feature.objects.values_list('geneid', flat=True)
+    fmin = Feature.objects.values_list('fmin', flat=True).filter(geneid=gene).filter(featuretype='gene')[0]
+    fmax = Feature.objects.values_list('fmax', flat=True).filter(geneid=gene).filter(featuretype='gene')[0]
+    chromosome = Feature.objects.values_list('chromosome', flat=True).filter(geneid=gene).filter(featuretype='gene')[0]
+    genes = SNP.objects.values('library__librarycode', 'result_id',
+                                     'chromosome__chromosome_name', 'snp_id',
+                                     'snp_position', 'ref_base', 'alt_base',
+                                     'quality', 'heterozygosity').filter(snp_position__range=(Feature.objects.values_list('fmin', flat=True).filter(geneid=gene).filter(featuretype='gene')[0],
+                                                                                              Feature.objects.values_list('fmax', flat=True).filter(geneid=gene).filter(featuretype='gene')[0]),
+                                                                         chromosome__chromosome_name=Feature.objects.values_list('chromosome', flat=True).filter(geneid=gene).filter(featuretype='gene')[0])
+    # count = result_list.count()
+    # genes = Feature.objects.values_list('geneid', 'fmin', 'fmax', 'chromosome').distinct().filter(featuretype='gene', genome__result__snp__snp_position__range=('fmin', 'fmax'))
+    print genes
+    # for each in genes:
+        # results = SNP.objects.values().filter(snp_position__range=(each['fmin'], each['fmax']), chromosome__chromosome_name=each['chromosome'])
+        # print results
+        # genome__result__snp__snp_position__range=(Feature.objects.values_list('fmin'), Feature.objects.values_list('fmax')),
+        # genome__result__snp__chromosome__chromosome_name=Feature.objects.values_list('chromosome')
+        # annotate(num_snps=Count('genome__result__snp__snp_id'),
+        #          hetero=BooleanSum('genome__result__snp__heterozygosity'),
+        #          indel=BooleanSum('genome__result__snp__snp_type__indel'),
+        #          trans=BooleanSum('genome__result__snp__snp_type__transition'))
+    # )
+    # print results
+
     # fmin = Feature.objects.values_list('fmin', flat=True).filter(geneid=gene).filter(featuretype='gene')[0]
     # fmax = Feature.objects.values_list('fmax', flat=True).filter(geneid=gene).filter(featuretype='gene')[0]
-    print results
     order_by = request.GET.get('order_by', 'geneid')
     result_list = results.order_by(order_by)
     paginator = Paginator(result_list, 50)
@@ -564,8 +583,10 @@ def gene_snps(request):
 
 # Returns a summary of the number of snps found in each library.
 def library_snp_summary(request):
-    results = SNP.objects.values('library__librarysize', 'library_id', 'library__librarycode').distinct().annotate(num_snps=Count('snp_id'), hetero=BooleanSum('heterozygosity'),
-                                                                                                                   indel=BooleanSum('snp_type__indel'), trans=BooleanSum('snp_type__transition'))
+    results = SNP.objects.values('library__librarysize', 'library_id', 'library__librarycode').distinct().annotate(num_snps=Count('snp_id'),
+                                                                                                                   hetero=BooleanSum('heterozygosity'),
+                                                                                                                   indel=BooleanSum('snp_type__indel'),
+                                                                                                                   trans=BooleanSum('snp_type__transition'))
     order_by = request.GET.get('order_by', 'library')
     result_list = results.order_by(order_by)
     paginator = Paginator(result_list, 50)
@@ -596,7 +617,7 @@ def library_snp_summary(request):
 def library_snps(request):
     library = request.GET.get('lib')
     count = request.GET.get('count')
-    results = SNP.objects.values('library', 'library__librarycode', 'snp_id', 'snp_position', 'ref_base', 'alt_base',
+    results = SNP.objects.values('library', 'library__librarycode', 'snp_id', 'sbp__snp_position', 'ref_base', 'alt_base',
                                  'heterozygosity', 'quality', 'chromosome__chromosome_name').filter(library__librarycode=library)
     order_by = request.GET.get('order_by', 'library')
     result_list = results.order_by(order_by)
@@ -629,7 +650,7 @@ def gene_snps_filter(request):
     fmin = Feature.objects.values_list('fmin', flat=True).filter(geneid=gene).filter(featuretype='gene')[0]
     fmax = Feature.objects.values_list('fmax', flat=True).filter(geneid=gene).filter(featuretype='gene')[0]
     chromosome = Feature.objects.values_list('chromosome', flat=True).filter(geneid=gene).filter(featuretype='gene')[0]
-    result_list = SNP.objects.values('library__librarycode', 'result_id', 'chromosome__chromosome_name', 'snp_id', 'snp_position',
+    result_list = SNP.objects.values('library__librarycode', 'result_id', 'chromosome__chromosome_name', 'snp_id', 'snp__snp_position',
                                      'ref_base', 'alt_base').filter(snp_position__range=(Feature.objects.values_list('fmin', flat=True).filter(geneid=gene).filter(featuretype='gene')[0],
                                                                                          Feature.objects.values_list('fmax', flat=True).filter(geneid=gene).filter(featuretype='gene')[0]),
                                                                     chromosome__chromosome_name=Feature.objects.values_list('chromosome', flat=True).filter(geneid=gene).filter(featuretype='gene')[0])
@@ -694,7 +715,6 @@ def library_gene_snps_filter(request):
     fmin = Feature.objects.values_list('fmin', flat=True).filter(geneid=gene).filter(featuretype='gene')[0]
     fmax = Feature.objects.values_list('fmax', flat=True).filter(geneid=gene).filter(featuretype='gene')[0]
     chromosome = Feature.objects.values_list('chromosome', flat=True).filter(geneid=gene).filter(featuretype='gene')[0]
-    print chromosome
     result_list = SNP.objects.values('library__librarycode', 'result_id',
                                      'chromosome__chromosome_name', 'snp_id',
                                      'snp_position', 'ref_base', 'alt_base',
@@ -731,7 +751,6 @@ def library_gene_snps_filter(request):
 
 
 def compare_gene_lib(request):
-    # <!--<li role="presentation"><a role="menuitem" href="/snpdb/library-snps">Compare Gene Across Library</a></li>-->
     gene = request.GET.get('s')
     library = request.GET.get('lib')
     result_list = SNP.objects.values('snp_id', 'snp_position', 'result',
