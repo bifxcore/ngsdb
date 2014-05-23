@@ -368,8 +368,7 @@ def ListAnalyses(request):
     '''lists analysis from ngsdb'''
     #gets user and the libraries the user has permission to
     [user, availlibids] = getlibraries(request)
-    print user
-    print availlibids
+
     kwargs={}
     kwargs['title']='List of Analyses:'
     kwargs['listoflinks']=listoflinks
@@ -384,10 +383,7 @@ def ListAnalyses(request):
 
     availres = Result.objects.filter(libraries__library_id__in=availlibids)
     kwargs['availres']=availres
-    print 'well'
-    print availres
-    print 'hell'
-    print kwargs
+
 
     if request.method == 'POST':
         form = ListLibForm(request.POST) #bound form
@@ -409,6 +405,32 @@ def ListAnalyses(request):
         kwargs['form']=form
 
     return render_to_response('ngsdbview/list_analyses.html',kwargs, context_instance=RequestContext(request))
+
+
+def ListExperiments(request):
+    '''
+        Lists experiments and the libraries grouped under them
+    '''
+    [user, availlibids] = getlibraries(request)
+    print user
+    print availlibids
+    kwargs={}
+    kwargs['title']='List of Experiments:'
+    kwargs['listoflinks']=listoflinks
+    kwargs['user']=user
+    # for autocomplete
+    kwargs['autocomexpcodes'] = constructAutocomplete('expts', Experiment.objects.filter(libraries__librarycode__in=availlibids).values_list('name', flat=True))
+
+    expts = {}
+    allexp = Experiment.objects.all()
+    for exp in allexp:
+        expname = exp.name
+        expts[expname] = Library.objects.filter(experiment__name=expname)
+
+    kwargs['expts']=expts
+
+    return render_to_response('ngsdbview/list_experiments.html',kwargs, context_instance=RequestContext(request))
+
 
 def GetAlignStats(request):
     '''

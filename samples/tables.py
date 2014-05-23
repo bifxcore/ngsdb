@@ -20,7 +20,7 @@ class LibraryTable(TableReport):
 
     class Meta:
         model = Library
-        fields = ("library_code", "librarytype", "collaborator", "author", "organism", "lifestage", "growthphase", "phenotype", "source", "treatment", "is_clonal", "flowcell_number", "date_modified")
+        fields = ("library_code", "sample_name", "librarytype", "collaborator", "author", "organism", "lifestage", "growthphase", "phenotype", "source", "treatment", "is_clonal", "flowcell_number", "date_modified")
         sequence = ("selection", "library_code", "collaborator", "author" )
         attrs = {"class": "paleblue"}
 

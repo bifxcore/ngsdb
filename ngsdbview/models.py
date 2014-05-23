@@ -157,6 +157,7 @@ class Genome(models.Model):
 class Library(models.Model):
     library_id = models.AutoField(primary_key=True)
     librarycode = models.CharField(unique=True, max_length=25, db_index=True)
+    samplename = models.CharField(max_length=25, db_index=True, blank=True, help_text="Sample name from the source")
     author = models.ForeignKey(Author)
     organism = models.ForeignKey(Organism)
     lifestage = models.ForeignKey(Lifestage)
@@ -346,7 +347,7 @@ class Feature(models.Model):
     aa_seq = models.TextField()
     time_data_loaded = models.DateTimeField(auto_now_add=True)
     time_data_modified = models.DateTimeField(auto_now=True)
-def __unicode__(self):
+    def __unicode__(self):
         return str(self.geneid)
 
 
@@ -359,6 +360,16 @@ class Geneidmap(models.Model):
     db_soruce_current = models.CharField(max_length=50)
     db_version_current = models.CharField(max_length=50)
     time_data_loaded = models.DateTimeField(auto_now=True)
+
+
+class Experiment(models.Model):
+    experiment_id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=25, db_index=True)
+    description = models.CharField(max_length=100)
+    notes = models.TextField()
+    libraries = models.ManyToManyField(Library)
+    def __unicode__(self):
+        return str(self.name)
 
 #==============================================
 #==============================================

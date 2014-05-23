@@ -1,0 +1,30 @@
+{% extends "admin/base_site.html" %}
+
+{%block content%}
+<link rel="stylesheet" type="text/css" href="/media/css/style.css" >
+<link rel="stylesheet" type="text/css" href="/media/css/tabstyle.css" >
+{% block body %}
+
+<!-- for autocompletion -->
+<!-- end for autocompletion -->
+
+{%  if expts  %}
+<TABLE><TR><TH>
+    {% for expname, libs in expts.items %}
+        <TABLE id="viewtable">
+            <TR><TH>Experiment {{ forloop.counter }}:  {{ expname }} </TH></TR>
+            <TR><TH>
+                <TABLE id="viewtable"><TR>
+                {% for lib in libs %}
+                    <TD>{{ lib.librarycode }} - {{ lib.samplename }}</TD>
+                {% endfor %}
+                </TR></TABLE>
+            </TH></TR>
+        </TABLE>
+    {% endfor %}
+</TH></TR></TABLE>
+
+{% endif %}
+
+{% endblock %}
+{% endblock %}

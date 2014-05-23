@@ -8,15 +8,39 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
+        # Adding model 'Experiments'
+        db.create_table(u'ngsdbview_experiments', (
+            ('experiment_id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('name', self.gf('django.db.models.fields.CharField')(max_length=25, db_index=True)),
+            ('description', self.gf('django.db.models.fields.CharField')(max_length=100)),
+            ('notes', self.gf('django.db.models.fields.TextField')()),
+        ))
+        db.send_create_signal(u'ngsdbview', ['Experiments'])
+
+        # Adding M2M table for field libraries on 'Experiments'
+        m2m_table_name = db.shorten_name(u'ngsdbview_experiments_libraries')
+        db.create_table(m2m_table_name, (
+            ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
+            ('experiments', models.ForeignKey(orm[u'ngsdbview.experiments'], null=False)),
+            ('library', models.ForeignKey(orm[u'ngsdbview.library'], null=False))
+        ))
+        db.create_unique(m2m_table_name, ['experiments_id', 'library_id'])
+
 
         # Changing field 'Library.protocol'
-        # db.alter_column(u'ngsdbview_library', 'protocol_id', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['samples.Protocol']))
-	pass
+        db.alter_column(u'ngsdbview_library', 'protocol_id', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['ngsdbview.Protocol']))
+
     def backwards(self, orm):
+        # Deleting model 'Experiments'
+        db.delete_table(u'ngsdbview_experiments')
+
+        # Removing M2M table for field libraries on 'Experiments'
+        db.delete_table(db.shorten_name(u'ngsdbview_experiments_libraries'))
+
 
         # Changing field 'Library.protocol'
-        #db.alter_column(u'ngsdbview_library', 'protocol_id', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['ngsdbview.Protocol']))
-	pass
+        db.alter_column(u'ngsdbview_library', 'protocol_id', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['samples.Protocol']))
+
     models = {
         u'auth.group': {
             'Meta': {'object_name': 'Group'},
@@ -126,6 +150,14 @@ class Migration(SchemaMigration):
             'name': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '255'}),
             'url': ('django.db.models.fields.CharField', [], {'max_length': '255'})
         },
+        u'ngsdbview.experiments': {
+            'Meta': {'object_name': 'Experiments'},
+            'description': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
+            'experiment_id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'libraries': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['ngsdbview.Library']", 'symmetrical': 'False'}),
+            'name': ('django.db.models.fields.CharField', [], {'max_length': '25', 'db_index': 'True'}),
+            'notes': ('django.db.models.fields.TextField', [], {})
+        },
         u'ngsdbview.feature': {
             'Meta': {'object_name': 'Feature'},
             'aa_seq': ('django.db.models.fields.TextField', [], {}),
@@ -193,7 +225,7 @@ class Migration(SchemaMigration):
             'notes': ('django.db.models.fields.CharField', [], {'max_length': '400'}),
             'organism': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['ngsdbview.Organism']"}),
             'phenotype': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['ngsdbview.Phenotype']"}),
-            'protocol': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'samples.protocol'", 'to': u"orm['samples.Protocol']"})
+            'protocol': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['ngsdbview.Protocol']"})
         },
         u'ngsdbview.libraryfile': {
             'Meta': {'object_name': 'Libraryfile'},
@@ -350,14 +382,6 @@ class Migration(SchemaMigration):
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'libraries': ('django.db.models.fields.related.ManyToManyField', [], {'default': "['AH006']", 'to': u"orm['ngsdbview.Library']", 'symmetrical': 'False'}),
             'user': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['auth.User']", 'unique': 'True'})
-        },
-        u'samples.protocol': {
-            'Meta': {'object_name': 'Protocol'},
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'notes': ('django.db.models.fields.CharField', [], {'default': 'None', 'max_length': '400'}),
-            'protocol_file': ('django.db.models.fields.files.FileField', [], {'max_length': '100', 'blank': 'True'}),
-            'protocol_link': ('django.db.models.fields.URLField', [], {'max_length': '1000', 'blank': 'True'}),
-            'protocol_name': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '50'})
         }
     }
 
