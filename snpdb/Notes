@@ -1,3 +1,2 @@
 - Pagination is not maintaining search criteria and is therefore failing when moving to the next page.
 - Need to cleanup the gene search and library search so the list of gene/libraries are readable.
-- Add highlighting to gene/snp table where snp is found within the CDS region.

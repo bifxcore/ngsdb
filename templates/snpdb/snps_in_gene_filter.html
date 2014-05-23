@@ -39,19 +39,23 @@
     </tr>
     </thead>
     <tbody>
-    <tr>
         {% for each in results %}
-        <td class="text-center"><a href="/snpdb/library-gene-snps/search?s={{gene}}&lib={{each.library__librarycode}}">{{ each.library__librarycode}}</a></td>
-        <td class="text-center">{{ each.result_id }}</td>
-        <td class="text-center">{{ each.chromosome__chromosome_name }}</td>
-        <td class="text-center">{{ each.snp_id }}</td>
-        <td class="text-center">{{ each.snp__snp_position }}</td>
-        <td class="text-center">{{ fmin }}</td>
-        <td class="text-center">{{ fmax }}</td>
-        <td class="text-center">{{ each.ref_base }}</td>
-        <td class="text-center">{{ each.alt_base }}</td>
-        <td class="text-center">{{ gene }}</td>
-    </tr>
+            {% if each.snp_position >= cds_fmin and each.snp_position <= cds_fmax %}
+                <tr class="success">
+            {% else %}
+                <tr>
+            {% endif %}
+            <td class="text-center"><a href="/snpdb/library-gene-snps/search?s={{gene}}&lib={{each.library__librarycode}}">{{ each.library__librarycode}}</a></td>
+            <td class="text-center">{{ each.result_id }}</td>
+            <td class="text-center">{{ each.chromosome__chromosome_name }}</td>
+            <td class="text-center">{{ each.snp_id }}</td>
+            <td class="text-center">{{ each.snp__snp_position }}</td>
+            <td class="text-center">{{ fmin }}</td>
+            <td class="text-center">{{ fmax }}</td>
+            <td class="text-center">{{ each.ref_base }}</td>
+            <td class="text-center">{{ each.alt_base }}</td>
+            <td class="text-center">{{ gene }}</td>
+        </tr>
     {% endfor %}
     </tbody>
 </table>

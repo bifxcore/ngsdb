@@ -11,7 +11,7 @@
 <body>
 <div class="collapse navbar-collapse navbar-ex1-collapse">
     <ul class="nav navbar-nav">
-        <form class="form-inline" role="form" id='search' action='/snpdb/library-snp-summary/search' method="get">
+        <form class="form-inline" role="form" id='search' action='/snpdb/chromosome-library-snps-summary/search' method="get">
             <div class="form-group">
                 <label class="sr-only" for="library_id">Library</label>
                 <input type="text" class="form-control" name="lib" placeholder="library code">
@@ -26,6 +26,7 @@
 <table class="table table-condensed table-hover table-responsive" style="table-layout: fixed; word-wrap: break-word;">
     <thead>
     <tr>
+        <th class="text-center"><a href={{ filter_urls.chromosome_name }}>Chromosome Name</a></th>
         <th class="text-center"><a href={{ filter_urls.library_id }}>Library ID</a></th>
         <th class="text-center"><a href={{ filter_urls.librarycode }}>Library Code</a></th>
         <th class="text-center"><a href={{ filter_urls.snp_count }}>SNP Total</a></th>
@@ -40,6 +41,7 @@
     <tbody>
     <tr>
     {% for each in results %}
+        <td class="text-center">{{ each.chromosome__chromosome_name }}</a></td>
         <td class="text-center"><a href="/snpdb/library-snp-summary/search?lib={{each.library__librarycode}}&count={{each.num_snps}}">{{ each.library_id }}</a></td>
         <td class="text-center">{{ each.library__librarycode }}</td>
         <td class="text-center">{{ each.num_snps }}</td>

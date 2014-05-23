@@ -4,20 +4,16 @@
 
 {% block content %}
 <div class="page-header text-header">
-    <h1>Gene and Library Query</h1>
+    <h1>Chromosome and Library Query</h1>
 </div>
 
 
 <body>
 <div class="collapse navbar-collapse navbar-ex1-collapse">
     <ul class="nav navbar-nav">
-        <form class="form-inline" role="form" id='search' action='/snpdb/library-gene-snps/search' method="get">
+        <form class="form-inline" role="form" id='search' action='/snpdb/chromosome-library-snps-summary/search' method="get">
             <div class="form-group">
-                <label class="sr-only" for="gene_id">Gene ID</label>
-                <input type="text" class="form-control" name="s" placeholder="gene id">
-            </div>
-            <div class="form-group">
-                <label class="sr-only" for="library_code">librarycode</label>
+                <label class="sr-only" for="chromosome">Chromosome</label>
                 <input type="text" class="form-control" name="lib" placeholder="library code">
             </div>
             <button id="submit" class="btn btn-primary" type="submit">Search</button>

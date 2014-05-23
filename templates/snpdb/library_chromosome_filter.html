@@ -5,7 +5,7 @@
 {% block content %}
 <div class="page-header text-header">
     <h1>Gene and Library Query Results</h1>
-    <h4>There are {{ count }} snps found in both {{library}} and {{gene}}. </h4>
+    <h4>There are {{ count }} snps found in both {{library}} and {{chromosome}}. </h4>
 </div>
 
 <body>
@@ -13,7 +13,7 @@
     <ul class="nav navbar-nav">
         <form class="form-inline" role="form" id='search' action='/snpdb/gene-snps/search' method="get">
             <div class="form-group">
-                <label class="sr-only" for="gene_id">Gene ID</label>
+                <label class="sr-only" for="chromosome">Chromosome</label>
                 <input type="text" class="form-control" name="s" placeholder="gene id">
             </div>
             <button id="submit" class="btn btn-primary" type="submit">Search</button>
@@ -31,14 +31,13 @@
     <tr>
         <th class="col-xs-1 text-center"><a href={{ filter_urls.snp_id }}>SNP ID</a></th>
         <th class="col-xs-2 text-center"><a href={{ filter_urls.library }}>Library</a></th>
-        <th class="col-xs-2 text-center"><a href={{ filter_urls.gene }}>Gene</a></th>
+        <th class="col-xs-2 text-center"><a href={{ filter_urls.chromosome }}>Chromosome</a></th>
         <th class="col-xs-1 text-center"><a href={{ filter_urls.snp_position }}>Position</a></th>
         <th class="col-xs-1 text-center"><a href={{ filter_urls.result }}>Result</a></th>
         <th class="col-xs-1 text-center"><a href={{ filter_urls.ref_base }}>Reference Base</a></th>
         <th class="col-xs-1 text-center"><a href={{ filter_urls.alt_base }}>Alternate Base</a></th>
         <th class="col-xs-1 text-center"><a href={{ filter_urls.heterozygosity }}>Heterozygosity</a></th>
         <th class="col-xs-1 text-center"><a href={{ filter_urls.quality }}>Quality</a></th>
-        <th class="col-xs-1 text-center"><a href={{ filter_urls.chromosome }}>Chromosome</a></th>
     </tr>
     </thead>
     <tbody>
@@ -51,14 +50,13 @@
         {% endif %}
         <td class="text-center">{{ each.snp_id }}</td>
         <td class="text-center">{{ library }}</td>
-        <td class="text-center">{{ gene }}</td>
+        <td class="text-center">{{ chromosome }}</td>
         <td class="text-center">{{ each.snp_position }}</td>
         <td class="text-center">{{ each.result_id }}</td>
         <td class="text-center">{{ each.ref_base }}</td>
         <td class="text-center">{{ each.alt_base }}</td>
         <td class="text-center">{{ each.heterozygosity }}</td>
         <td class="text-center">{{ each.quality }}</td>
-        <td class="text-center">{{ each.chromosome__chromosome_name }}</td>
     </tr>
     {% endfor %}
     </tbody>

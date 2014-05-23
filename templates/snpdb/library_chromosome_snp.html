@@ -4,16 +4,16 @@
 
 {% block content %}
 <div class="page-header text-header">
-    <h1>Gene and Library Query</h1>
+    <h1>Chromosome and Library Query</h1>
 </div>
 
 
 <body>
 <div class="collapse navbar-collapse navbar-ex1-collapse">
     <ul class="nav navbar-nav">
-        <form class="form-inline" role="form" id='search' action='/snpdb/library-gene-snps/search' method="get">
+        <form class="form-inline" role="form" id='search' action='/snpdb/library-chromosome-snps/search' method="get">
             <div class="form-group">
-                <label class="sr-only" for="gene_id">Gene ID</label>
+                <label class="sr-only" for="chromosome">Chromosome</label>
                 <input type="text" class="form-control" name="s" placeholder="gene id">
             </div>
             <div class="form-group">
@@ -29,7 +29,7 @@
 <div class="form-group">
     <ul>
         {% for each in results %}
-        <li>{{ each.librarycode }}</li>
+        <li>{{ each.chromosome_name }}</li>
         {% endfor %}
     </ul>
 </div>
