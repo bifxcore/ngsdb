@@ -33,6 +33,6 @@ urlpatterns = patterns('',
                        url(r'^snp','snpdb.views.snp'),
                        url(r'^statistics', 'snpdb.views.statistics'),
                        url(r'^effect', 'snpdb.views.effect'),
-                       url(r'^filter', 'snpdb.views.filter'),
+                       url(r'^filter', 'snpdb.views.snp_filter'),
                        url(r'^$', 'snpdb.views.dashboard'),
                        )
