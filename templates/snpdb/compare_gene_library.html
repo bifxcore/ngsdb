@@ -3,6 +3,8 @@
 {% extends "snpdb/dashboard.html" %}
 
 {% block content %}
+{% load display_rows %}
+
 <div class="page-header text-header">
     <h1>Library Comparison on Gene</h1>
 </div>
@@ -22,12 +24,14 @@
 </div>
 
 
-<div class="form-group">
-    <ul>
-        {% for each in results %}
-        <li>{{ each.librarycode }}</li>
+<div class="form">
+        {% for group in results|group_by:6 %}
+        <div class="form-group">
+                {% for obj in group %}
+                    <label class="col-sm-2">{{ obj.librarycode }}      </label>
+                {% endfor %}
+        </div>
         {% endfor %}
-    </ul>
 </div>
 </body>
 

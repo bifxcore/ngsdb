@@ -1,2 +1,4 @@
 - Pagination is not maintaining search criteria and is therefore failing when moving to the next page.
-- Need to cleanup the gene search and library search so the list of gene/libraries are readable.
+
+Future Functionality:
+- Mapping table for genes: return all values for genes with old names

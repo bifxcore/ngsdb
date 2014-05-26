@@ -7,6 +7,7 @@
 
 <div class="page-header text-header">
     <h1>SNP Type</h1>
+
 </div>
 
 
@@ -68,21 +69,21 @@
 <div class="pagination">
     <ul class="pagination">
         {% if snptypes.has_previous %}
-            <li><a href="?page={{  snptypes.previous_page_number }}">&laquo;</a></li>
+        <li><a href="?page={{  snptypes.previous_page_number }}">&laquo;</a></li>
         {% else %}
-            <li class="disabled"><a href="#">&laquo;</a></li>
+        <li class="disabled"><a href="#">&laquo;</a></li>
         {%  endif %}
 
         {% for page in paginator.page_range %}
-            {% if page <= toolbar_max and page > toolbar_min and page != snptypes.number %}
-                    <li><a href="?page={{  page  }}">{{ page }}</a></li>
-            {% elif page == snptypes.number %}
-                <li class="active"><a href="?page={{  snptypes.number }}">{{ snptypes.number }}</a></li>
-            {% endif %}
+        {% if page <= toolbar_max and page > toolbar_min and page != snptypes.number %}
+        <li><a href="?page={{  page  }}">{{ page }}</a></li>
+        {% elif page == snptypes.number %}
+        <li class="active"><a href="?page={{  snptypes.number }}">{{ snptypes.number }}</a></li>
+        {% endif %}
         {% endfor %}
 
         {% if results.has_next %}
-            <li><a href="?page={{ snptypes.next_page_number }}">&raquo;</a></li>
+        <li><a href="?page={{ snptypes.next_page_number }}">&raquo;</a></li>
         {% endif %}
     </ul>
 </div>

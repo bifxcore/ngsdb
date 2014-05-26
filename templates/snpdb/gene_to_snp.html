@@ -3,9 +3,12 @@
 {% extends "snpdb/dashboard.html" %}
 
 {% block content %}
+{% load display_rows %}
+
 <div class="page-header text-header">
     <h1>Snps found in Genes</h1>
 </div>
+
 
 <body>
 <div class="collapse navbar-collapse navbar-ex1-collapse">
@@ -20,16 +23,21 @@
     </ul>
 </div>
 
+<div class="form">
+   {% for group in genes|group_by:6 %}
+        <div class="form-group">
+            {% for obj in group %}
+                <label class="col-sm-2">{{ obj.geneid }}</label>
+            {% endfor %}
+        </div>
+   {% endfor %}
+</div>
 
-<ul>
-    {% for each in genes %}
-    <li>{{ each.geneid }}</li>
-    {% endfor %}
-</ul>
 </body>
 
+
 <div class="pagination">
-    <ul class="pagination">
+    <ul class="pagination pull-left">
         {% if genes.has_previous %}
             <li><a href="?page={{  genes.previous_page_number }}">&laquo;</a></li>
         {% else %}
@@ -50,7 +58,5 @@
     </ul>
 </div>
 
-
 {% endblock %}
-
 </html>
