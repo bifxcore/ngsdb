@@ -1,0 +1,142 @@
+{% extends "admin/base_site.html" %}
+
+
+{%block content%}
+<link rel="stylesheet" type="text/css" href="/media/css/style.css" >
+<link rel="stylesheet" type="text/css" href="/media/css/tabstyle.css" >
+{% block body %}
+
+<!-- for autocompletion -->
+<!-- end for autocompletion -->
+
+
+{% load ngsdbview_extras %}
+{% load humanize %}
+
+{% if finalcount %}
+{# Display the results table #}
+    {# Button to upload geneids to tritrypdb #}
+        <TABLE ><TR>
+            <TD>
+                <FORM action="http://tritrypdb.org//tritrypdb/processQuestion.do" method="post">
+                    <input type="hidden" name="questionFullName" value="GeneQuestions.GeneByLocusTag">
+                    <input type="hidden" name="ds_gene_ids_type" value="data">
+                    <input type="hidden" name="ds_gene_ids_data" value= {{ geneidsfortritryp }}>
+                    <input type="hidden" name="questionSubmit" value="Get+Answer">
+
+                    <input type="submit"  name="tritryp" value="Load to TriTrypDB" />
+                </FORM>
+            </TD>
+        </TR></TABLE>
+
+<TABLE id= "viewtable">
+    {# header #}
+    <TR>
+        <TH>Sl. No</TH>
+        <TH>External Links</TH>
+        <TH>Gene Id</TH>
+        {% for lib in headerLib %}
+         <TH>{{ lib }}</TH>
+         {% endfor %}
+     </TR>
+     <TR>
+         <TD></TD>
+         <TD></TD>
+         <TD></TD>
+         {% for genome in headerGen %}
+         <TH>{{ genome }}</TH>
+         {% endfor %}
+     </TR>
+      {# data #}
+     {% for geneid, readlist in finalcount.items %}
+      <TR>
+           <TH>{{ forloop.counter }}</TH>
+           <TD><a href="http://tritrypdb.org/tritrypdb/showRecord.do?name=GeneRecordClasses.GeneRecordClass&project_id=TriTrypDB&source_id={{ geneid }}" target="_blank">TriTrypDB</a>
+                            &nbsp;<a href="http://www.genedb.org/gene/{{ geneid }} " target="_blank">GeneDB</a></TD>
+           <TD>{{ geneid }}</TD>
+           {% for count in readlist %}
+                <TD>{{ count|floatformat:"0"|intcomma }}</TD>
+           {% endfor %}
+      </TR>
+      {% endfor %}
+      </TABLE>
+
+
+
+{% elif step1 %}
+<FORM action="." method="post">
+{% csrf_token %}
+    <Table><TR>
+    {% for lib in allowedlibs %}
+        <TD><input type="checkbox" name="selectlibcodes" value = {{ lib.librarycode }} checked>
+        <p>
+        {{ lib }} {{ lib.samplename }}</TD>
+    {% endfor %}
+    {% for lib in notallowedlibs %}
+        <TD>{{ lib }} {{ lib.samplename }}</TD>
+    {% endfor %}
+    </TR></Table>
+    {# display form to get geneid #}
+    {{ form.as_table }}
+    <input type="hidden" name="formlevel2" value="2">
+    <input type="submit" name="submit" value="submit"/>
+</FORM>
+
+{% elif analysisdic %}
+<FORM action="." method="post">
+{% csrf_token %}
+{% load ngsdbview_extras %}
+
+{# Table to display a bound form #}
+{{ form.as_table }}
+
+{# Table to display available libraries/analysis info #}
+            <TABLE id="viewtable">
+                <TR>
+                    <TH>Library Code</TH>
+                    <TH>Result Ids</TH>
+                    <TH>Library Code</TH>
+                    <TH>Genome Aligned to</TH>
+                    <TH>Genome version</TH>
+                    <TH>Genome source</TH>
+                    <TH>View Analysis Steps</TH>
+                </TR>
+                {% for libcode, anaset in analysisdic.items %}
+                    <TR><TH>{{ libcode }}</TH></TR>
+                    {% for res in anaset %}
+                        <TR><TD></TD>
+                            <TD><input type="radio" name={{ 'radio_resids_'|add:libcode }} value = {{ res.result_id }} >{{ res.result_id }}</TD>
+                            <TD>{{ libcode }}</TD>
+                            <TD>{{ res.genome.organism.organismcode }}</TD>
+                            <TD>{{ res.genome.version }}</TD>
+                            <TD>{{ res.genome.source }}</TD>
+                            <TD><a href="/ngsdbview/list_analysis_steps/{{ res.result_id }}/" target="_blank">View Analysis Steps</a></TD>
+                        </TR>
+                    {% endfor %}
+
+                {% endfor %}
+            </TABLE>
+            <input type="hidden" name="formlevel3" value="3">
+            <input type="submit"  name="level" value="Submit" />
+
+</FORM>
+
+{% else %}
+
+
+<FORM action="." method="post">
+{% csrf_token %}
+<TABLE>
+  <TR>
+    <TD>{{ form.as_table }}</TD>
+	<TD>
+	    <input type="submit" name="formlevel1" value="Submit" />
+    </TD>
+  </TR>
+</TABLE>
+</form>
+
+{% endif %}
+
+{% endblock %}
+{% endblock %}

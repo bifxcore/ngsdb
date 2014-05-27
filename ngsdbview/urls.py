@@ -27,5 +27,7 @@ urlpatterns = patterns('',
     url(r'^get_sitecount_majorpc_forlibs/','ngsdbview.views02.GetSitecountMajorpcForLibs'),
     url(r'^pair_libraries/','ngsdbview.views02.PairLibraries'),
     url(r'^alignstats/', 'ngsdbview.views02.GetAlignStats'),
+    url(r'^analyzeexperiments/','ngsdbview.views02.AnalyzeExperiments'),
+
 
 )
