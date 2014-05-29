@@ -11,6 +11,7 @@ urlpatterns = patterns('',
     # url(r'^ngsdb03/', include('ngsdb03.foo.urls')),
     url(r'^ngsdbview/', include('ngsdbview.urls')),
     url(r'^samples/', include('samples.urls')),
+    url(r'^snpdb/', include('snpdb.urls')),
 
     # Uncomment the admin/doc line below to enable admin documentation:
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),

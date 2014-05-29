@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+{% extends "snpdb/dashboard.html" %}
+
+{% block content %}
+<div class="page-header text-header">
+    <h1>Snps in Genes Query Results</h1>
+    <h4>There are {{ count }} snps within this gene. </h4>
+</div>
+
+<body>
+<div class="collapse navbar-collapse navbar-ex1-collapse">
+    <ul class="nav navbar-nav">
+        <form class="form-inline" role="form" id='search' action='/snpdb/gene-snps/search' method="get">
+            <div class="form-group">
+                <label class="sr-only" for="gene_id">Gene ID</label>
+                <input type="text" class="form-control" name="s" placeholder="gene id">
+            </div>
+            <button id="submit" class="btn btn-default" type="submit">Search</button>
+        </form>
+    </ul>
+</div>
+</body>
+
+
+<table class="table table-condensed table-hover" style="table-layout: fixed; word-wrap: break-word;">
+    <thead>
+    <tr>
+        <th class="col-xs-1 text-center"><a href={{ filter_urls.librarycode }}>Library Code</a></th>
+        <th class="col-xs-1 text-center"><a href={{ filter_urls.result_id }}>Result ID</a></th>
+        <th class="col-xs-1 text-center"><a href={{ filter_urls.chromosome }}>Chromosome</a></th>
+        <th class="col-xs-1 text-center"><a href={{ filter_urls.snp_id }}>SNP ID</a></th>
+        <th class="col-xs-1 text-center"><a href={{ filter_urls.snp_position }}>SNP Position</a></th>
+        <th class="col-xs-1 text-center"><a href={{ filter_urls.fmin }}>Gene Start</a></th>
+        <th class="col-xs-1 text-center"><a href={{ filter_urls.fmax }}>Gene Stop</a></th>
+        <th class="col-xs-1 text-center"><a href={{ filter_urls.ref_base }}>Reference Base</a></th>
+        <th class="col-xs-1 text-center"><a href={{ filter_urls.alt_base }}>Alternate Base</a></th>
+        <th class="col-xs-1 text-center"><a href={{ filter_urls.gene }}>Gene</a></th>
+    </tr>
+    </thead>
+    <tbody>
+        {% for each in results %}
+            {% if each.snp_position >= cds_fmin and each.snp_position <= cds_fmax %}
+                <tr class="success">
+            {% else %}
+                <tr>
+            {% endif %}
+            <td class="text-center"><a href="/snpdb/library-gene-snps/search?s={{gene}}&lib={{each.library__librarycode}}">{{ each.library__librarycode}}</a></td>
+            <td class="text-center">{{ each.result_id }}</td>
+            <td class="text-center">{{ each.chromosome__chromosome_name }}</td>
+            <td class="text-center">{{ each.snp_id }}</td>
+            <td class="text-center">{{ each.snp__snp_position }}</td>
+            <td class="text-center">{{ fmin }}</td>
+            <td class="text-center">{{ fmax }}</td>
+            <td class="text-center">{{ each.ref_base }}</td>
+            <td class="text-center">{{ each.alt_base }}</td>
+            <td class="text-center">{{ gene }}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<div class="pagination">
+    <ul class="pagination">
+        {% if results.has_previous %}
+        <li><a href="?page={{  results.previous_page_number }}">&laquo;</a></li>
+        {% else %}
+        <li class="disabled"><a href="#">&laquo;</a></li>
+        {%  endif %}
+
+        {% for page in paginator.page_range %}
+        {% if page <= toolbar_max and page > toolbar_min and page != results.number %}
+        <li><a href="?page={{  page  }}">{{ page }}</a></li>
+        {% elif page == results.number %}
+        <li class="active"><a href="?page={{  results.number }}">{{ results.number }}</a></li>
+        {% endif %}
+        {% endfor %}
+
+        {% if results.has_next %}
+        <li><a href="?page={{ results.next_page_number }}">&raquo;</a></li>
+        {% endif %}
+    </ul>
+</div
+
+        {% endblock %}
+</html>

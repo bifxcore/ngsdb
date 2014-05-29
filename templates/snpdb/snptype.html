@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+{% extends "snpdb/dashboard.html" %}
+
+{% block content %}
+
+
+<div class="page-header text-header">
+    <h1>SNP Type</h1>
+
+</div>
+
+
+<body>
+<div class="collapse navbar-collapse navbar-ex1-collapse">
+    <ul class="nav navbar-nav">
+        <form class="form-inline" role="form" id='search' action='/snpdb/snptype/search' method="get">
+            <div class="form-group">
+                <label class="sr-only" for="search">Search</label>
+                <input type="text" class="form-control" name="s" placeholder="search">
+                <select class="selectpicker show-tick" data-style="btn-large btn-default" name="att" title='Search Option'>
+                    <option id="snp_position">SNP Type</option>
+                    <option id="result">SNP ID</option>
+                    <option id="ref_base">Indel</option>
+                    <option id="alt_base">Deletion</option>
+                    <option id="heterozygosity">Is SNP</option>
+                    <option id="quality">Monomorphic</option>
+                    <option id="library">Transition</option>
+                    <option id="chromosome">SV</option>
+                </select>
+                <input type="checkbox"> Regex
+                <button class="btn btn-primary" type="submit">Search</button>
+            </div>
+        </form>
+    </ul>
+</div>
+</body>
+</body>
+<table class="table table-condensed table-hover" style="table-layout: fixed; word-wrap: break-word;">
+    <thead>
+    <tr>
+        <th class="text-center"><a href={{ filter_urls.snptype_id }}>SNP Type</a></th>
+        <th class="text-center"><a href={{ filter_urls.snp_id }}>SNP ID</a></th>
+        <th class="text-center"><a href={{ filter_urls.indel }}>Indel</a></th>
+        <th class="text-center"><a href={{ filter_urls.deletion }}>Deletion</a></th>
+        <th class="text-center"><a href={{ filter_urls.is_snp }}>Is SNP</a></th>
+        <th class="text-center"><a href={{ filter_urls.monomorphic }}>Monomorphic</a></th>
+        <th class="text-center"><a href={{ filter_urls.transition }}>Transition</a></th>
+        <th class="text-center"><a href={{ filter_urls.sv }}>SV</a></th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        {% for each in snptypes %}
+        <td class="text-center">{{ each.snptype_id }}</td>
+        <td class="text-center">{{ each.snp_id }}</td>
+        <td class="text-center">{{ each.indel }}</td>
+        <td class="text-center">{{ each.deletion }}</td>
+        <td class="text-center">{{ each.is_snp }}</td>
+        <td class="text-center">{{ each.monomorphic }}</td>
+        <td class="text-center">{{ each.transition }}</td>
+        <td class="text-center">{{ each.sv }}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+
+<div class="pagination">
+    <ul class="pagination">
+        {% if snptypes.has_previous %}
+        <li><a href="?page={{  snptypes.previous_page_number }}">&laquo;</a></li>
+        {% else %}
+        <li class="disabled"><a href="#">&laquo;</a></li>
+        {%  endif %}
+
+        {% for page in paginator.page_range %}
+        {% if page <= toolbar_max and page > toolbar_min and page != snptypes.number %}
+        <li><a href="?page={{  page  }}">{{ page }}</a></li>
+        {% elif page == snptypes.number %}
+        <li class="active"><a href="?page={{  snptypes.number }}">{{ snptypes.number }}</a></li>
+        {% endif %}
+        {% endfor %}
+
+        {% if results.has_next %}
+        <li><a href="?page={{ snptypes.next_page_number }}">&raquo;</a></li>
+        {% endif %}
+    </ul>
+</div>
+
+{% endblock %}
+</html>

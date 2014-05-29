@@ -1,0 +1,4 @@
+- Pagination is not maintaining search criteria and is therefore failing when moving to the next page.
+
+Future Functionality:
+- Mapping table for genes: return all values for genes with old names

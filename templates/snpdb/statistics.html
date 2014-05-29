@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+
+{% extends "snpdb/dashboard.html" %}
+
+{% block content %}
+
+<script type="text/javascript">
+    $(document).ready(function(){
+        $('.selectpicker').selectpicker();
+    });
+</script>
+
+
+<script type="text/javascript">
+    $(document).ready(function(){
+        $('.checkbox').checkbox();
+    });
+</script>
+
+
+<div class="page-header text-header">
+    <h1>SNP Statistics</h1>
+</div>
+
+<body>
+<div class="collapse navbar-collapse navbar-ex1-collapse">
+    <ul class="nav navbar-nav">
+        <form class="form-inline" role="form" id='search' action='/snpdb/effect/search' method="get">
+            <div class="form-group">
+                <label class="sr-only" for="search">Search</label>
+                <input type="text" class="form-control" name="s" placeholder="search">
+                <select class="selectpicker show-tick" data-style="btn-large btn-default" name="att" title='Search Option'>
+                    <option id="stats_id">Statistic ID</option>
+                    <option id="snp">SNP ID</option>
+                    <option id="stats_cvterm_id">Statistic</option>
+                    <option id="cv_value">Value</option>
+                </select>
+                <input type="checkbox"> Regex
+                <button class="btn btn-primary" type="submit">Search</button>
+            </div>
+        </form>
+    </ul>
+</div>
+</body>
+
+
+<table class="table table-condensed table-hover" style="table-layout: fixed; word-wrap: break-word;">
+    <thead>
+    <tr>
+        <th class="text-center text-default"><a href={{ filter_urls.stats_id }}>Statistic ID</a></th>
+        <th class="text-center"><a href={{ filter_urls.snp }}>SNP ID</a></th>
+        <th class="text-center"><a href={{ filter_urls.stats_cvterm }}>Statistic</a></th>
+        <th class="text-center"><a href={{ filter_urls.cv_value }}>Value</a></th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        {% for each in statistic %}
+        <td class="text-center">{{ each.stats_id }}</td>
+        <td class="text-center">{{ each.snp_id }}</td>
+        <td class="text-center">{{ each.stats_cvterm_id }}</td>
+        <td class="text-center">{{ each.cv_value }}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+
+<div class="pagination">
+    <ul class="pagination">
+        {% if statistic.has_previous %}
+            <li><a href="?page={{  statistic.previous_page_number }}">&laquo;</a></li>
+        {% else %}
+            <li class="disabled"><a href="#">&laquo;</a></li>
+        {%  endif %}
+
+        {% for page in paginator.page_range %}
+            {% if page <= toolbar_max and page > toolbar_min and page != statistic.number %}
+                    <li><a href="?page={{  page  }}">{{ page }}</a></li>
+            {% elif page == statistic.number %}
+                <li class="active"><a href="?page={{  filters.number }}">{{ statistic.number }}</a></li>
+            {% endif %}
+        {% endfor %}
+
+        {% if statistic.has_next %}
+            <li><a href="?page={{ statistic.next_page_number }}">&raquo;</a></li>
+        {% endif %}
+    </ul>
+</div>
+
+
+
+{% endblock %}
+</html>
