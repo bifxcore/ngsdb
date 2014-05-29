@@ -26,7 +26,6 @@
     <div id="user-tools">
         {% trans 'Welcome,' %}
         <strong>{% filter force_escape %}{% firstof user.first_name user.username %}{% endfilter %}</strong>.
-         <div></div>
             {%if user.username != 'guest' %}
             {% if password_change_url %}
                 <a href="{{ password_change_url }}">
@@ -53,12 +52,22 @@
             <a href="https://jira.sbri.org/browse/NGS-279">Log Issues</a>
         </div>
         <!-- Admin links -->
+        </br>
         <div id="admin-links">    <P>
             <B> Add A New</B>
-            <a href="/admin/samples/library/add/">Sample</a><B>|</B>
+            <a href="/admin/samples/sample/add/">Sample</a><B>|</B>
+            <a href="/admin/samples/library/add/">Library</a><B>|</B>
             <a href="/admin/auth/user/add/">User </a><B>|</B>
             <a href="/admin/">Admin</a>
         </div>
+        <div id="admin-links">    <P>
+            <B> List All</B>
+            <a href="/admin/samples/sample/">Samples</a><B>|</B>
+            <a href="/admin/samples/library/">Libraries</a><B>|</B>
+            <a href="/admin/auth/user/">Users </a><B>
+        </div>
+
+
         <div id="admin-docs">
         {% if docsroot %}
             <a href="{{ docsroot }}">{% trans 'Documentation' %}</a>
@@ -158,8 +167,10 @@
            </li>
            <li class='has-sub'><a href="#"><span>Sample Management</span></a>
                <ul>
-                    <li><a href="/admin/samples/library/add/"><span>Add Samples</span></a></li>
-                    <li><a href="/admin/samples/library/"><span>Edit Existing Samples</span></a></li>
+                    <li><a href="/admin/samples/library/add/"><span>Add a Library</span></a></li>
+                    <li><a href="/admin/samples/library/"><span>Edit Existing Libraries</span></a></li>
+                   <li><a href="/admin/samples/sample/add/"><span>Add a Sample</span></a></li>
+                    <li><a href="/admin/samples/sample/"><span>Edit Existing Samples</span></a></li>
 
                </ul>
            </li>

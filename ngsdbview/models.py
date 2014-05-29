@@ -98,7 +98,7 @@ class Organism(models.Model):
     isolate = models.CharField(max_length=45)
     source = models.CharField(max_length=100)
     def __unicode__(self):
-        return str(self.organismcode)
+        return unicode(self.organismcode)
 
 class Software(models.Model):
     software_id = models.AutoField(primary_key=True)
