@@ -94,8 +94,17 @@ class Sample(models.Model):
     date_created = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)
     author_modified = models.ForeignKey(User)
+
     def __unicode__(self):
         return unicode(self.sampleid)
+
+    def bioanalyzer_file_link(self):
+        if self.bioanalyzer_analysis:
+            return "<a href='%s'>download</a>" % (self.bioanalyzer_analysis.url,)
+        else:
+            return "No attachment"
+
+    bioanalyzer_file_link.allow_tags = True
 
 class Library(models.Model):
     library_code = models.CharField(max_length=10, db_index=True, unique=True, blank=True, help_text="Only Settle BioMed\'s internal users may use this. eg. ES001, AH002")
