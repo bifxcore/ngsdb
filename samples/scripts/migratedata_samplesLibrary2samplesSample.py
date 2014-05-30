@@ -48,12 +48,16 @@ def migrate_library2sample_ingoringSpreadsheet(lib):
             print "Library ", lib.library_code, "has been migrated already, skipping."
         else:
             #create an new samples.sample object
-            newsampleobj = Sample(sampleid = lib.sample_name, organism=lib.organism, lifestage=lib.lifestage, growthphase=lib.growthphase, phenotype=lib.phenotype, genotype=lib.genotype, source=lib.source, sourcename=Source.objects.get(pk=1), sample_concentration=0, sample_volume=0, sample_quantity=0, author_modified=User.objects.get(username="gramasamy"))
+            newsampleobj = Sample(organism=lib.organism, lifestage=lib.lifestage, growthphase=lib.growthphase, phenotype=lib.phenotype, genotype=lib.genotype, source=lib.source, sourcename=Source.objects.get(pk=1), sample_concentration=0, sample_volume=0, sample_quantity=0, author_modified=User.objects.get(username="gramasamy"))
 
-
-
+            newsampleobj.sampleid = 's' + lib.library_code
+            if lib.sample_name:
+                newsampleobj.sampleid = lib.sample_name
             newsampleobj.date_created = lib.date_created
-            newsampleobj.sample_notes = lib.sample_notes
+            if lib.sample_notes != 'NA':
+                newsampleobj.sample_notes = lib.sample_notes
+            if lib.experiment_notes  != 'NA':
+                newsampleobj.sample_notes = newsampleobj.sample_notes + ' ' + lib.experiment_notes
             newsampleobj.collected_on = lib.collected_on
             newsampleobj.collected_at = lib.collected_at
             newsampleobj.collected_by = lib.collected_by
