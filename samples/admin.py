@@ -39,11 +39,19 @@ class LibraryAdmin(admin.ModelAdmin):
 
 admin.site.register(Library, LibraryAdmin)
 
-admin.site.register(Genome)
-admin.site.register(Bioproject)
-admin.site.register(Biosample)
+
+class BioprojctAdmin(admin.ModelAdmin):
+    list_display=('bioproject_code', 'organisms', 'notes')
+
+admin.site.register(Bioproject, BioprojctAdmin)
+
+class BiosampleAdmin(admin.ModelAdmin):
+    list_display=('biosample_code', 'organisms', 'notes')
+admin.site.register(Biosample, BiosampleAdmin)
+
 admin.site.register(Protocol)
 admin.site.register(Source)
+admin.site.register(Genome)
 
 
 
