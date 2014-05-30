@@ -6,9 +6,9 @@ from django.contrib import admin
 
 
 class SampleAdmin(admin.ModelAdmin):
-    list_display = ('sampleid', 'sampletype', 'organism', 'lifestage', 'genotype', 'collaborator', 'treatment', 'sample_quantity', 'bioanalyzer_analysis', 'label_ontube', 'freezer_location', 'sample_notes')
+    list_display = ('sampleid', 'sampletype', 'organism', 'lifestage', 'genotype', 'collaborator', 'treatment', 'sample_quantity', 'bioanalyzer_file_link', 'label_ontube', 'freezer_location', 'sample_notes')
     list_filter = ['sampletype', 'organism', 'lifestage', 'collaborator', 'treatment']
-    search_fields = ['sampleid', 'sampletype', 'organism', 'lifestage', 'growthphase', 'phenotype', 'genotype', 'collaborator', 'source', 'collected_by', 'treatment', 'isolation_method', 'sample_quantity', 'biological_replicate_of', 'bioanalyzer_analysis', 'label_ontube', 'freezer_location', 'sample_notes']
+    search_fields = ['sampleid', 'sampletype', 'organism__organismcode', 'lifestage__lifestage', 'growthphase__growthphase', 'phenotype__phenotype', 'genotype__genotype', 'collaborator__firstname', 'collaborator__lastname', 'source', 'collected_by', 'treatment', 'isolation_method', 'sample_quantity', 'biological_replicate_of', 'bioanalyzer_analysis', 'label_ontube', 'freezer_location', 'sample_notes']
 admin.site.register(Sample, SampleAdmin)
 
 class LibraryAdmin(admin.ModelAdmin):
