@@ -26,9 +26,9 @@
 <table class="table table-condensed table-hover" style="table-layout: fixed; word-wrap: break-word;">
     <thead>
     <tr>
-        <th class="col-xs-1 text-center"><a href={{ filter_urls.librarycode }}>Library Code</a></th>
+        <th class="col-xs-1 text-center"><a href={{ filter_urls.library__librarycode }}>Library Code</a></th>
         <th class="col-xs-1 text-center"><a href={{ filter_urls.result_id }}>Result ID</a></th>
-        <th class="col-xs-1 text-center"><a href={{ filter_urls.chromosome }}>Chromosome</a></th>
+        <th class="col-xs-1 text-center"><a href={{ filter_urls.chromosome__chromosome_name }}>Chromosome</a></th>
         <th class="col-xs-1 text-center"><a href={{ filter_urls.snp_id }}>SNP ID</a></th>
         <th class="col-xs-1 text-center"><a href={{ filter_urls.snp_position }}>SNP Position</a></th>
         <th class="col-xs-1 text-center"><a href={{ filter_urls.fmin }}>Gene Start</a></th>
@@ -49,7 +49,7 @@
             <td class="text-center">{{ each.result_id }}</td>
             <td class="text-center">{{ each.chromosome__chromosome_name }}</td>
             <td class="text-center">{{ each.snp_id }}</td>
-            <td class="text-center">{{ each.snp__snp_position }}</td>
+            <td class="text-center">{{ each.snp_position }}</td>
             <td class="text-center">{{ fmin }}</td>
             <td class="text-center">{{ fmax }}</td>
             <td class="text-center">{{ each.ref_base }}</td>

@@ -4,6 +4,7 @@
 
 {% block content %}
 {% load display_rows %}
+{% load snp_filters %}
 
 <div class="page-header text-header">
     <h1>Library Comparison on Gene</h1>
@@ -35,23 +36,23 @@
             <th class="text-center"><a href={{ filter_urls.librarycode }}>Library</a></th>
             <th class="text-center"><a href={{ filter_urls.organism_id }}>Organism ID</a></th>
             <th class="text-center"><a href={{ filter_urls.organismcode }}>Organism</a></th>
-            <th class="text-center"><a href={{ filter_urls.genome_id }}>Genome ID</a></th>
-            <th class="text-center"><a href={{ filter_urls.genome_version }}>Genome Version</a></th>
+            <th class="text-center"><a href={{ filter_urls.organism__genome__genome_id }}>Genome ID</a></th>
+            <th class="text-center"><a href={{ filter_urls.organism__genome__version }}>Genome Version</a></th>
         </tr>
         </thead>
         <tbody>
         <tr>
             {% for each in results %}
-            <td class="text-center"><input type="checkbox" name="check" value="{{ each.librarycode }}"></td>
-            <td class="text-center">{{ gene }}</a></td>
-            <td class="text-center">{{ each.library_id }}</a></td>
-            <td class="text-center">{{ each.librarycode }}</a></td>
-            <td class="text-center">{{ each.organism_id }}</a></td>
-            <td class="text-center">{{ each.organism__organismcode }}</a></td>
-            <td class="text-center">{{ each.organism__genome__genome_id }}</a></td>
-            <td class="text-center">{{ each.organism__genome__version }}</a></td>
+                <td class="text-center"><input type="checkbox" name="check" value="{{ each.librarycode }}"></td>
+                <td class="text-center">{{ gene }}</a></td>
+                <td class="text-center">{{ each.library_id }}</a></td>
+                <td class="text-center">{{ each.librarycode }}</a></td>
+                <td class="text-center">{{ each.organism_id }}</a></td>
+                <td class="text-center">{{ each.organism__organismcode }}</a></td>
+                <td class="text-center">{{ each.organism__genome__genome_id }}</a></td>
+                <td class="text-center">{{ each.organism__genome__version }}</a></td>
         </tr>
-        {% endfor %}
+            {% endfor %}
         </tbody>
     </table>
 

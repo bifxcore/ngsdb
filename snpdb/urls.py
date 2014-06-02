@@ -26,6 +26,7 @@ urlpatterns = patterns('',
                        url(r'^library-gene-snps', 'snpdb.views.library_gene_snps'),
                        url(r'^library-chromosome-snps', 'snpdb.views.library_chromosome_snps'),
                        url(r'^compare-gene-lib', 'snpdb.views.compare_gene_lib'),
+                       url(r'^gene-list', 'snpdb.views.gene_list'),
 
 
                        # Basic Table Views:

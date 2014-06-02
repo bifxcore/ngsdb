@@ -2,6 +2,8 @@
 <html lang="en">
 
 {% extends "snpdb/dashboard.html" %}
+{% load display_rows %}
+{% load snp_filters %}
 
 {% block content %}
 <div class="page-header text-header">
@@ -34,7 +36,7 @@
             <th class="text-center"><a href={{ filter_urls.snp_position }}>SNP Position</a></th>
             {% for each in max_snps %}
             <th class="text-center">
-                <div><a href={{ filter_urls.librarycode }}> Library</a></div>
+                <div><a href={{ filter_urls.library__librarycode }}> Library</a></div>
                 <div><a href={{ filter_urls.snp_position }}> Base Changes</a></div>
             </th>
             {% endfor %}

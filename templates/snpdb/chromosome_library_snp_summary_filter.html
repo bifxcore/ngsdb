@@ -26,10 +26,10 @@
 <table class="table table-condensed table-hover table-responsive" style="table-layout: fixed; word-wrap: break-word;">
     <thead>
     <tr>
-        <th class="text-center"><a href={{ filter_urls.chromosome_name }}>Chromosome Name</a></th>
+        <th class="text-center"><a href={{ filter_urls.chromosome__chromosome_name }}>Chromosome Name</a></th>
         <th class="text-center"><a href={{ filter_urls.library_id }}>Library ID</a></th>
-        <th class="text-center"><a href={{ filter_urls.librarycode }}>Library Code</a></th>
-        <th class="text-center"><a href={{ filter_urls.snp_count }}>SNP Total</a></th>
+        <th class="text-center"><a href={{ filter_urls.library__librarycode }}>Library Code</a></th>
+        <th class="text-center"><a href={{ filter_urls.num_snps }}>SNP Total</a></th>
         <th class="text-center"><a href={{ filter_urls.hetero }}>Heterozygosity Count</a></th>
         <th class="text-center"><a href={{ filter_urls.homo }}>Homozygous Count</a></th>
         <th class="text-center"><a href={{ filter_urls.indel }}>Indel Count</a></th>
@@ -50,8 +50,11 @@
         <td class="text-center">{{ each.indel }}</td>
         <td class="text-center">{{ each.trans }}</td>
         <td class="text-center">{{ each.num_snps|sub:each.trans }}</td>
-        <td class="text-center">{{ each.num_snps|div:each.library__librarysize }}</td>
-    </tr>
+        {% if each.library__librarysize > 0 %}
+            <td class="text-center">{{ each.num_snps|div:each.library__librarysize }}</td>
+        {% else %}
+            <td class="text-center">Library is missing size</td>
+        {% endif %}    </tr>
     {% endfor %}
     </tbody>
 </table>
