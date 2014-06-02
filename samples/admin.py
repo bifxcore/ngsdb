@@ -28,12 +28,12 @@ class LibraryAdmin(admin.ModelAdmin):
         ('Library', {'fields':('library_code', 'author', 'collaborator')}),
         ('Sample Information', {'fields': ('sampleid', 'biosample', 'bioproject'), 'classes': ('grp-collapse grp-open',), }),
         ('Library Construction', {'fields': ('librarytype', 'template_material', 'protocol', 'protocol_notes', 'library_creation_date', 'submitted_for_sequencing_on', 'library_gelimage'), 'classes': ('grp-collapse grp-open',), }),
-        ('Sequencing Information', {'fields': ('sequence_downloaded_on', 'flowcell_number', 'lane_number', 'index_sequence', 'experiment_notes'), 'classes': ('grp-collapse grp-open',), }),
+        ('Sequencing Information', {'fields': ('sequence_downloaded_on', 'flowcell_number', 'lane_number', 'index_sequence', 'fastqfile_name', 'fastqfile_readcount', 'fastqfile_size_inbytes', 'fastqfile_md5sum', 'experiment_notes'), 'classes': ('grp-collapse grp-open',), }),
         ('Analysis Information', {'fields': ('reference_genome', 'reference_genome_version', 'note_for_analysis'), 'classes': ('grp-collapse grp-open',), }),
         ('Data Tracking', {'fields': ('date_created', 'date_modified', 'author_modified'), 'classes': ('grp-collapse grp-open',), })
     )
 
-    list_display = ('library_code', 'sample_name', 'sampleid', 'librarytype', 'organism', 'lifestage', 'phenotype', 'genotype', 'growthphase', 'treatment', 'template_material', 'reference_genome', 'collaborator', 'bioproject', 'sample_name', 'rna_id', 'library_creation_date', 'sequence_downloaded_on', 'flowcell_number','lane_number', 'index_sequence')
+    list_display = ('library_code', 'sampleid', 'librarytype', 'organism', 'lifestage', 'phenotype', 'genotype', 'growthphase', 'treatment', 'template_material', 'reference_genome', 'collaborator', 'bioproject', 'library_creation_date', 'sequence_downloaded_on', 'flowcell_number','lane_number', 'index_sequence', 'fastqfile_name')
     list_filter = ['collaborator', 'librarytype__type', 'author__designation', 'organism__organismcode', 'lifestage', 'phenotype', 'genotype', 'growthphase', 'template_material', 'reference_genome', ]
     search_fields = ['collaborator__firstname', 'rna_id', 'collaborator__lastname', 'librarytype__type', 'author__designation', 'author__lastname', 'author__firstname', 'organism__organismcode', 'organism__species', 'organism__genus', 'experiment_notes', 'sample_notes',  'protocol_notes', 'lifestage__lifestage', 'growthphase__growthphase', 'phenotype__phenotype', 'genotype__genotype',  'bioproject__bioproject_code', 'bioproject__bioproject_code', 'biosample__biosample_code', 'protocol__protocol_name', 'library_code', 'flowcell_number', 'index_sequence',]
 

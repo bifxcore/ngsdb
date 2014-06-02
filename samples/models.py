@@ -140,6 +140,10 @@ class Library(models.Model):
     flowcell_number = models.CharField(max_length=15, blank=True)
     lane_number = models.CharField(max_length=3, blank=True)
     index_sequence = models.CharField(max_length=25, blank=True)
+    fastqfile_name = models.CharField(max_length=254, blank=True, null=True)
+    fastqfile_readcount = models.DecimalField(max_digits=25, decimal_places=2,  blank=True, null=True)
+    fastqfile_md5sum = models.CharField(max_length=50, blank=True, null=True)
+    fastqfile_size_inbytes = models.DecimalField(max_digits=50, decimal_places=2, blank=True, null=True)
     experiment_notes = models.TextField(blank=True,)
 
     reference_genome = models.ForeignKey(Genome,  help_text="Name of genome to align against")
