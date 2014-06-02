@@ -12,6 +12,88 @@
     <TR>
         <TD>
             <TABLE id="viewtable">
+                <TR><TH>Samples in Database</TH></TR>
+                <TR><TH>Collaborator Name</TH><TH># Samples</TH></TR>
+                {% for name in samplecountdic %}
+                    <TR><TD>{{ name }}</TD><TD> {{ samplecountdic|hash:name }}</TD></TR>
+                {% endfor %}
+                <TR id="sumrow"><TH>Total</TH><TD>{{ samplecounttotal }}</TD></TR>
+                <TR><TD><img src="{{ samplecountchart }}" /></TD></TR>
+            </TABLE>
+        </TD>
+        <TD>
+            <TABLE id="viewtable">
+                <TR><TD></TD></TR>
+                <TR><TH>Organims Code</TH><TH># Samples</TH></TR>
+                {% for name in sampleorgcountdic %}
+                    <TR><TD>{{ name }}</TD><TD> {{ sampleorgcountdic|hash:name }}</TD></TR>
+                {% endfor %}
+                <TR id="sumrow"><TH>Total</TH><TD>{{ sampleorgcounttotal }}</TD></TR>
+                <TR><TD><img src="{{ sampleorgcountchart }}" /></TD></TR>
+            </TABLE>
+        </TD>
+        <TD>
+            <TABLE id="viewtable">
+                <TR><TD></TD></TR>
+                <TR><TH>Sample Type</TH><TH># Samples</TH></TR>
+                {% for name in sampletypecountdic %}
+                    <TR><TD>{{ name }}</TD><TD> {{ sampletypecountdic|hash:name }}</TD></TR>
+                {% endfor %}
+                <TR id="sumrow"><TH>Total</TH><TD>{{ sampletypecounttotal }}</TD></TR>
+                <TR><TD><img src="{{ sampletypecountchart }}" /></TD></TR>
+            </TABLE>
+        </TD>
+    </TR>
+    <TR>
+        <TD>
+            <TABLE id="viewtable">
+                <TR><TH>Libraries Constructed</TH></TR>
+                <TR><TH>Collaborator Name</TH><TH># Libraries</TH></TR>
+                {% for name in libconstcountdic %}
+                    <TR><TD>{{ name }}</TD><TD> {{ libconstcountdic|hash:name }}</TD></TR>
+                {% endfor %}
+                <TR id="sumrow"><TH>Total</TH><TD>{{ libconstcounttotal }}</TD></TR>
+                <TR><TD><img src="{{ libconstcountchart }}" /></TD></TR>
+            </TABLE>
+        </TD>
+        <TD>
+            <TABLE id="viewtable">
+                <TR><TD></TD></TR>
+                <TR><TH>Author Name</TH><TH># Libraries</TH></TR>
+                {% for name in libauthcountdic %}
+                    <TR><TD>{{ name }}</TD><TD> {{ libauthcountdic|hash:name }}</TD></TR>
+                {% endfor %}
+                <TR id="sumrow"><TH>Total</TH><TD>{{ libauthcounttotal }}</TD></TR>
+                <TR><TD><img src="{{ libauthcountchart }}" /></TD></TR>
+            </TABLE>
+        </TD>
+        <TD>
+            <TABLE id="viewtable">
+                <TR><TD></TD></TR>
+                <TR><TH>Organism Code</TH><TH># Libraries</TH></TR>
+                {% for name in liborgcountdic %}
+                    <TR><TD>{{ name }}</TD><TD> {{ liborgcountdic|hash:name }}</TD></TR>
+                {% endfor %}
+                <TR id="sumrow"><TH>Total</TH><TD>{{ liborgcounttotal }}</TD></TR>
+                <TR><TD><img src="{{ liborgcountchart }}" /></TD></TR>
+            </TABLE>
+        </TD>
+        <TD>
+             <TABLE id="viewtable">
+                <TR><TD></TD></TR>
+                <TR><TH>Library Type</TH><TH># Libraries</TH></TR>
+                {% for name in libtypecountdic %}
+                    <TR><TD>{{ name }}</TD><TD> {{ libtypecountdic|hash:name }}</TD></TR>
+                {% endfor %}
+                <TR id="sumrow"><TH>Total</TH><TD>{{ libtypecounttotal }}</TD></TR>
+                <TR><TD><img src="{{ libtypecountchart }}" /></TD></TR>
+            </TABLE>
+        </TD>
+    </TR>
+    <TR>
+        <TD>
+            <TABLE id="viewtable">
+                <TR><TH>Libraries Analysed and Loaded</TH></TR>
                 <TR><TH>Collaborator Name</TH><TH>Lib. Count</TH></TR>
                 {% for name in collaborators %}
                     <TR><TD>{{ name }}</TD><TD> {{ collaborators|hash:name }}</TD></TR>
@@ -21,6 +103,7 @@
         </TD>
         <TD>
             <TABLE id="viewtable">
+                <TR><TD></TD></TR>
                 <TR><TH>Organism</TH><TH>Library count</TH></TR>
                 {% for org in liborg %}
                     <TR><TD>{{ org }}</TD><TD> {{ liborg|hash:org }}</TD></TR>
@@ -28,10 +111,9 @@
                 <TR><TD><img src="{{ liborgchart }}" /></TD></TR>
             </TABLE>
         </TD>
-    </TR>
-    <TR>
         <TD>
             <TABLE id="viewtable">
+                <TR><TD></TD></TR>
                 <TR><TH>Library Type</TH><TH>Count</TH></TR>
                 {% for type in libtype %}
                 <TR><TD>{{ type }}</TD><TD> {{ libtype|hash:type }}</TD></TR>
@@ -41,6 +123,7 @@
         </TD>
         <TD>
             <TABLE id="viewtable">
+                <TR><TD></TD></TR>
                 <TR><TH>Library Author</TH><TH>Count</TH></TR>
                 {% for auth in libauth %}
                 <TR><TD>{{ auth }}</TD><TD> {{ libauth|hash:auth }}</TD></TR>

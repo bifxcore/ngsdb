@@ -59,3 +59,7 @@ table.paleblue tbody tr.odd {
 	padding: 6px 6px 6px 12px;
 	color: #000000;
 }
+
+tr.sumrow {
+    bgcolor: yellow;
+}
