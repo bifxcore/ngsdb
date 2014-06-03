@@ -9,18 +9,45 @@
 <!-- end for autocompletion -->
 
 {%  if expts  %}
+
+<FORM action="/ngsdbview/analyzeexperiments/" method="post">
+                {% csrf_token %}
+
+
 <TABLE><TR><TH>
-    {% for expname, libs in expts.items %}
-        <TABLE id="viewtable">
-            <TR><TH>Experiment {{ forloop.counter }}:  {{ expname }} </TH></TR>
-            <TR><TH>
-                <TABLE id="viewtable"><TR>
-                {% for lib in libs %}
-                    <TD>{{ lib.librarycode }} - {{ lib.samplename }}</TD>
-                {% endfor %}
-                </TR></TABLE>
-            </TH></TR>
+    {% for exp, libs in expts.items %}
+        <TABLE id="viewtable2">
+            <TR><TH id="tableheader">Experiment {{ forloop.counter }}:
+
+                {{ exp.name }}
+                <input type="hidden" name="experiment_name" value={{ exp.name }}>
+                </TD><input type="submit" name="formlevel1" value="Load for analysis" />
+                </TH></TR>
+            <TR><TD>Description : {{ exp.description }}</TD></TR>
+            <TR><TD>Note : {{ exp.notes }}</TD></TR>
+            <TR><TD>
+                <TABLE>
+                    <TR>
+                    <TH>Library Code</TH>
+                    {% for lib in libs %}
+                        <TD>{{ lib.librarycode }} </TD>
+                    {% endfor %}
+                </TR><TR>
+                    <TH>Sampleid</TH>
+                    {% for lib in libs %}
+                        <TD>{{ lib.samplename }}</TD>
+                    {% endfor %}
+                </TR><TR>
+                    <TH>Lib. Type</TH>
+                    {% for lib in libs %}
+                        <TD>{{ lib.librarytype }}</TD>
+                    {% endfor %}
+                </TR>
+
+                </TABLE>
+            </TD></TR>
         </TABLE>
+    <div></div>
     {% endfor %}
 </TH></TR></TABLE>
 

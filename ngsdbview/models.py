@@ -13,6 +13,15 @@ from django.contrib.auth.models import User
 from ngsdbview.validators import *
 #import fields import *
 
+EXPERIMENT_TYPE_CHOICES = (
+    ('SL', 'SL'),
+    ('RNAseq', 'RNAseq'),
+    ('RiboProf', 'RiboProf'),
+    ('DNAseq', 'DNAseq'),
+    ('mixed', 'mixed')
+)
+
+
 class Author(models.Model):
     author_id = models.AutoField(primary_key=True)
     firstname = models.CharField(max_length=45)
@@ -365,9 +374,14 @@ class Geneidmap(models.Model):
 class Experiment(models.Model):
     experiment_id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=25, db_index=True)
+    type = models.CharField(max_length=25, choices=EXPERIMENT_TYPE_CHOICES)
     description = models.CharField(max_length=100)
     notes = models.TextField()
     libraries = models.ManyToManyField(Library)
+    date_created = models.DateTimeField(auto_now_add=True)
+    date_modified = models.DateTimeField(auto_now=True)
+    author_modified = models.ForeignKey(User)
+
     def __unicode__(self):
         return str(self.name)
 

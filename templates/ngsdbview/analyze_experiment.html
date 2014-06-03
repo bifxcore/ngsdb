@@ -40,11 +40,19 @@
          {% endfor %}
      </TR>
      <TR>
-         <TD></TD>
+         <TD>Ref. Genome -></TD>
          <TD></TD>
          <TD></TD>
          {% for genome in headerGen %}
          <TH>{{ genome }}</TH>
+         {% endfor %}
+     </TR>
+    <TR>
+         <TD>Lib. Type -></TD>
+         <TD></TD>
+         <TD></TD>
+         {% for libtype in headerLibtype %}
+         <TH>{{ libtype }}</TH>
          {% endfor %}
      </TR>
       {# data #}
@@ -59,23 +67,48 @@
            {% endfor %}
       </TR>
       {% endfor %}
-      </TABLE>
+
+
+</TABLE>
+
 
 
 
 {% elif step1 %}
 <FORM action="." method="post">
 {% csrf_token %}
-    <Table><TR>
+    Boxes without checkboxes are part of this experiment but, you do not have permission to look at the data.
+    Select only the libraries to be inck
+    <Table><TR><TH>Library Code:</TH>
+    <!-- Library codes -->
     {% for lib in allowedlibs %}
         <TD><input type="checkbox" name="selectlibcodes" value = {{ lib.librarycode }} checked>
         <p>
-        {{ lib }} {{ lib.samplename }}</TD>
+        {{ lib }} </TD>
     {% endfor %}
     {% for lib in notallowedlibs %}
-        <TD>{{ lib }} {{ lib.samplename }}</TD>
+        <TD>{{ lib }} </TD>
     {% endfor %}
-    </TR></Table>
+    </TR>
+    <!-- Library names -->
+    <TR><TH>Library Name:</TH>
+        {% for lib in allowedlibs %}
+        <TD>{{ lib.samplename }} </TD>
+    {% endfor %}
+    {% for lib in notallowedlibs %}
+        <TD>{{ lib.samplename }}</TD>
+    {% endfor %}
+    </TR>
+    <!-- Library type -->
+    <TR><TH>Library Type:</TH>
+        {% for lib in allowedlibs %}
+        <TD>{{ lib.librarytype }} </TD>
+    {% endfor %}
+    {% for lib in notallowedlibs %}
+        <TD>{{ lib.librarytype }}</TD>
+    {% endfor %}
+    </TR>
+    </Table>
     {# display form to get geneid #}
     {{ form.as_table }}
     <input type="hidden" name="formlevel2" value="2">

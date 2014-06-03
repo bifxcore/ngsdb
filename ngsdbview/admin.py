@@ -45,7 +45,7 @@ class SoftwareAdmin(admin.ModelAdmin):
 admin.site.register(Software, SoftwareAdmin)
 
 class ExperimentAdmin(admin.ModelAdmin):
-    list_display = ('name', 'description', 'notes')
+    list_display = ('name', 'type', 'description', 'notes', 'author_modified')
 admin.site.register(Experiment, ExperimentAdmin)
 
 # code for editing Libraryfile & Libraryprop while in Library admin page

@@ -370,7 +370,7 @@ def Dashboard(request):
     kwargs['libtypecountchart']= Pie(libtypecountdic.values()).legend('|'.join(libtypecountdic.keys())).size(225,125)
     kwargs['libtypecounttotal'] = samplelibrary.objects.all().count()
 
-
+    # Libraries analyzed
     kwargs['libtype']=libtype
     kwargs['libtypechart'] = Pie(libtype.values()).legend('|'.join(libtype.keys())).size(225,125)
 
@@ -498,7 +498,7 @@ def ListExperiments(request):
     allexp = Experiment.objects.all()
     for exp in allexp:
         expname = exp.name
-        expts[expname] = Library.objects.filter(experiment__name=expname)
+        expts[exp] = Library.objects.filter(experiment__name=expname)
 
     kwargs['expts']=expts
 
@@ -532,24 +532,36 @@ def AnalyzeExperiments(request):
             if 'formlevel3' in request.POST:
                 geneidbox = request.POST['geneidbox']
                 geneids = string2list(request, geneidbox)
-                allgenes = Resultsriboprof.objects.filter(result__in=resids).filter(geneid__in=geneids)
                 # readcount data for the table
                 finalcount = {}
                 for geneid in geneids:
-                    resset = allgenes.filter(geneid=geneid)
-                    finalcount[geneid] = resset.values_list('counts_raw', flat=True)
-                    print finalcount
+                    genecounts = []
+
+                    for resid in resids:
+                        resobj = Result.objects.get(result_id=resid)
+                        libtype = resobj.libraries.all()[0].librarytype.type
+                        genecount = ""
+                        if libtype == "ribosomeprofiling":
+                            genecount = Resultsriboprof.objects.get(result=resid, geneid=geneid).counts_raw
+                        elif libtype == "fragRNA":
+                            genecount = Resultsriboprof.objects.get(result=resid, geneid=geneid).counts_raw
+                        elif libtype == "SL":
+                            genecount = Resultslgene.objects.get(result=resid, geneid=geneid)
+                        genecounts.append(genecount)
+                    finalcount[geneid]=genecounts
                 kwargs['finalcount'] = finalcount
+
                 # header data for table
                 headerLib=[]
                 headerGen=[]
-                residsforheader =resset.values_list('result', flat=True)
-                for resid in residsforheader:
+                headerLibtype = []
+                for resid in resids:
                     headerLib.append(GetLibcodesForResid(request, resid)[0])
                     headerGen.append(GetGenomeVersionForResid(request, resid))
+                    headerLibtype.append(Result.objects.get(result_id=resid).libraries.all()[0].librarytype.type)
                 kwargs['headerLib'] = headerLib
                 kwargs['headerGen'] = headerGen
-
+                kwargs['headerLibtype'] = headerLibtype
                 #get list of geneids for tritryplink in comma separated string form
                 kwargs['geneidsfortritryp'] = ','.join(geneids)
 
