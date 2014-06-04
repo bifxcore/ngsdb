@@ -104,8 +104,6 @@ class Organism(models.Model):
     genus = models.CharField(max_length=45)
     species = models.CharField(max_length=45)
     strain = models.CharField(max_length=45)
-    isolate = models.CharField(max_length=45)
-    source = models.CharField(max_length=100)
     def __unicode__(self):
         return unicode(self.organismcode)
 

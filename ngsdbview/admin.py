@@ -37,7 +37,7 @@ class GenomeAdmin(admin.ModelAdmin):
 admin.site.register(Genome, GenomeAdmin)
 
 class OrganismAdmin(admin.ModelAdmin):
-    list_display = ('organismcode', 'genus', 'species', 'strain', 'source')
+    list_display = ('organismcode', 'genus', 'species', 'strain')
 admin.site.register(Organism, OrganismAdmin)
 
 class SoftwareAdmin(admin.ModelAdmin):

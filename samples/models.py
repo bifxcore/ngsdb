@@ -16,6 +16,12 @@ SAMPLE_TYPE_CHOICES = (
     ('cDNA', 'cDNA'),
 )
 
+CULTURE_METHOD_TYPE_CHOICES = (
+    ('axenic-culture', 'axenic-culture'),
+    ('intracellular-culture', 'intracellular-culture'),
+    ('animal derived', 'animal derived'),
+)
+
 class Genome(models.Model):
     reference_code = models.CharField(unique=True, max_length=10, help_text="Reference Genome Code")
     genus = models.CharField(max_length=45)
@@ -65,28 +71,30 @@ class Source(models.Model):
 class Sample(models.Model):
     sampleid = models.CharField(max_length=25, unique=True, db_index=True, help_text="Sample name from the source")
     sampletype = models.CharField(max_length=100, choices=SAMPLE_TYPE_CHOICES)
-    label_ontube = models.CharField(max_length=250, db_index=True, blank=True)
-    organism = models.ForeignKey('ngsdbview.Organism', related_name="ngsdbview.organismS", help_text="The organism sample data derived from")
-    lifestage = models.ForeignKey('ngsdbview.Lifestage', related_name="ngsdbview.lifestageS", help_text="Eg., Promastigotes, 10hrs, amastigotes etc")
+    label_ontube = models.CharField(max_length=250, db_index=True, blank=True, help_text="Text/Label found on the tube containing sample")
+    organism = models.ForeignKey('ngsdbview.Organism', related_name="ngsdbview.organismS", help_text="The organism/parasite sample is isolated from")
+    lifestage = models.ForeignKey('ngsdbview.Lifestage', related_name="ngsdbview.lifestageS", help_text="Lifecycle stage of the parasites the sample is isolated from", verbose_name="Lifecycle Stage")
     growthphase = models.ForeignKey('ngsdbview.Growthphase', related_name="ngsdbview.growthphaseS", help_text="Eg., procyclic, log")
     phenotype = models.ForeignKey('ngsdbview.Phenotype', related_name="ngsdbview.phenotypeS", help_text="Eg., Wildtype, Dwarf or Iron depletion etc")
     genotype = models.ForeignKey('ngsdbview.Genotype', related_name="ngsdbview.genotypeS", help_text="Eg., Wildtype, JBP2KO")
     collaborator = models.ForeignKey('ngsdbview.Collaborator', related_name="ngsdbview.collaboratorS", help_text="Initials of the PI collaborating on this project")
     source = models.CharField(max_length=100, help_text="Eg., Subcutaneous Leishion of an adult male, Lab culture, chimeric mouse liver")
     sourcename = models.ForeignKey(Source)
-    treatment = models.CharField(max_length=100, help_text="BrdU treatment for 5 hrs")
-    collected_on = models.DateField(null=True, blank=True)
-    collected_at = models.CharField(max_length=100, blank=True, help_text="Brazil or Bihar, India")
-    collected_by = models.CharField(max_length=50, blank=True, help_text="Name of the person collected/sent the sample")
-    collected_by_emailid = models.EmailField(max_length=254, blank=True, help_text="Emailid of the person collected/sent the sample")
-    isolation_method = models.CharField(max_length=100, blank=True, help_text="Name of the sample isolation procedure")
-    date_received = models.DateField(null=True, blank=True)
+    culture_method = models.CharField(max_length=100, choices=CULTURE_METHOD_TYPE_CHOICES, default="axenic-culture")
+    treatment = models.CharField(max_length=100, help_text="Type of treatment and treatment duration. e.g., BrdU 10uM for 10mins or heatshock or pH")
+    time_after_treatment = models.CharField(max_length=25, blank=True, help_text="The time between treatment and harvesting of cells. e.g., 10hrs, 10mins")
+    collected_on = models.DateField(null=True, blank=True, verbose_name="Sample isolated on", help_text="Date the sample was isolated from cells")
+    collected_at = models.CharField(max_length=100, blank=True, verbose_name="Sample isolated at", help_text="Name of the lab and country where the sample was isolated")
+    collected_by = models.CharField(max_length=50, blank=True, help_text="Name of the person isolated the sample", verbose_name="Sample isolated by")
+    collected_by_emailid = models.EmailField(max_length=254, blank=True, verbose_name="Sample isolated by : Email-id", help_text="Emailid of the person isolated the sample")
+    isolation_method = models.CharField(max_length=100, blank=True, verbose_name="Sample isolation method", help_text="Enter the name of the procedure or entire method")
+    date_received = models.DateField(null=True, blank=True, verbose_name="Date samples received at SBRI")
     sample_concentration = models.DecimalField(max_digits=10, decimal_places=4, blank=True, help_text="in ng/ul")
     sample_volume = models.DecimalField(max_digits=6, decimal_places=2,  blank=True, help_text="in ul")
     sample_quantity = models.DecimalField(max_digits=10, decimal_places=4,  blank=True, help_text="total quantity in ug")
     parent_sampleid = models.CharField(max_length=25, db_index=True, blank=True, help_text="Name of the parent sample this one is derived from")
-    sample_dilution = models.CharField(max_length=25, blank=True, default="NA", help_text="times dilution created from original sample, referred in parent sample name")
-    biological_replicate_of = models.CharField(max_length=25, blank=True, default="No Replicate", help_text="comma separated sample names of its biological replicates")
+    sample_dilution = models.CharField(max_length=25, blank=True, default="Original Concentration", help_text="times dilution created from original sample, referred in parent sample name")
+    biological_replicate_of = models.CharField(max_length=25, blank=True, default="No Replicate", help_text="comma separated sample names of its biological replicates, needed for original samples only, not for dilutions")
     bioanalyzer_analysis = models.FileField(upload_to="bioanalyzer", blank=True, help_text="Upload bioanalyzer trace file")
     freezer_location = models.CharField(max_length=100, blank=True, help_text="Name of the freezer, rack, box etc")
     is_clonal = models.BooleanField(default=False, help_text="Are the cells cloned to single cell before growing for this library?")

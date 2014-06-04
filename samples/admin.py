@@ -6,8 +6,15 @@ from django.contrib import admin
 
 
 class SampleAdmin(admin.ModelAdmin):
+    fieldsets = (
+        ('Sample', {'fields':('sampleid', 'sampletype', 'collaborator', 'label_ontube')}),
+        ('Sample Source Information', {'fields':('organism', 'genotype', 'lifestage', 'growthphase', 'phenotype', 'culture_method', 'treatment', 'time_after_treatment', 'is_clonal', 'source', 'sourcename'), 'classes': ('grp-collapse grp-close',),}),
+        ('Sample Isolation Information', {'fields':('isolation_method', 'collected_on', 'collected_by', 'collected_by_emailid'), 'classes': ('grp-collapse grp-close',),}),
+        ('Storage Information', {'fields':('date_received', 'sample_concentration', 'sample_volume', 'sample_quantity', 'parent_sampleid', 'sample_dilution', 'freezer_location', 'biological_replicate_of'), 'classes': ('grp-collapse grp-close',),}),
+        ('Other/QC Information', {'fields':('bioanalyzer_analysis', 'sample_notes', 'author_modified'), 'classes': ('grp-collapse grp-close',),}),
+    )
 
-    list_display = ('sampleid', 'sampletype', 'organism', 'lifestage', 'genotype', 'collaborator', 'treatment', 'sample_quantity', 'bioanalyzer_file_link', 'label_ontube', 'freezer_location', 'sample_notes')
+    list_display = ('sampleid', 'sampletype', 'organism', 'lifestage', 'genotype', 'collaborator', 'growthphase', 'treatment', 'time_after_treatment', 'sample_quantity', 'bioanalyzer_file_link', 'label_ontube', 'freezer_location', 'sample_notes')
     list_filter = ['sampletype', 'organism', 'lifestage', 'collaborator', 'treatment']
     search_fields = ['sampleid', 'sampletype', 'organism__organismcode', 'lifestage__lifestage', 'growthphase__growthphase', 'phenotype__phenotype', 'genotype__genotype', 'collaborator__firstname', 'collaborator__lastname', 'source', 'collected_by', 'treatment', 'isolation_method', 'sample_quantity', 'biological_replicate_of', 'bioanalyzer_analysis', 'label_ontube', 'freezer_location', 'sample_notes']
 admin.site.register(Sample, SampleAdmin)
