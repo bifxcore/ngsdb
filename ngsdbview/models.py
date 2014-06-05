@@ -43,6 +43,10 @@ class Protocol(models.Model):
     name = models.CharField(unique=True, max_length=50)
     sopfile = models.FileField(upload_to="protocols")
     notes = models.CharField(max_length=400, default=None)
+
+    class Meta:
+        ordering = ['name']
+
     def __unicode__(self):
         return str(self.name)
 
@@ -55,6 +59,9 @@ class Lifestage(models.Model):
     lifestage_id = models.AutoField(primary_key=True)
     lifestage = models.CharField(unique=True, max_length=45)
     notes = models.CharField(max_length=400, default=None)
+    class Meta:
+        ordering = ['lifestage']
+
     def __unicode__(self):
         return str(self.lifestage)
 
@@ -68,6 +75,10 @@ class Phenotype(models.Model):
 class Growthphase(models.Model):
     growthphase = models.CharField(unique=True, max_length=100)
     notes = models.CharField(max_length=400, default=None, blank=True)
+
+    class Meta:
+        ordering = ['growthphase']
+
     def __unicode__(self):
         return unicode(self.growthphase)
 
@@ -75,6 +86,10 @@ class Growthphase(models.Model):
 class Genotype(models.Model):
     genotype = models.CharField(unique=True, max_length=45)
     notes = models.CharField(max_length=45, default=None, blank=True)
+
+    class Meta:
+        ordering = ['genotype']
+
     def __unicode__(self):
         return unicode(self.genotype)
 
@@ -183,6 +198,7 @@ class Library(models.Model):
         return str(self.librarycode)
     class Meta:
         permissions = (("view_library", "Can see the library"),)
+        verbose_name_plural="Libraries"
 
 def get_libraryfile_upload_destination(instance, filename):
     return "libraryfiles/{id}/{file}".format(id=instance.library.librarycode, file=filename)

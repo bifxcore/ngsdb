@@ -69,15 +69,15 @@ class Source(models.Model):
         return unicode(self.name)
 
 class Sample(models.Model):
-    sampleid = models.CharField(max_length=25, unique=True, db_index=True, help_text="Sample name from the source")
+    sampleid = models.CharField(max_length=25, unique=True, db_index=True)
     sampletype = models.CharField(max_length=100, choices=SAMPLE_TYPE_CHOICES)
     label_ontube = models.CharField(max_length=250, db_index=True, blank=True, help_text="Text/Label found on the tube containing sample")
     organism = models.ForeignKey('ngsdbview.Organism', related_name="ngsdbview.organismS", help_text="The organism/parasite sample is isolated from")
     lifestage = models.ForeignKey('ngsdbview.Lifestage', related_name="ngsdbview.lifestageS", help_text="Lifecycle stage of the parasites the sample is isolated from", verbose_name="Lifecycle Stage")
-    growthphase = models.ForeignKey('ngsdbview.Growthphase', related_name="ngsdbview.growthphaseS", help_text="Eg., procyclic, log")
-    phenotype = models.ForeignKey('ngsdbview.Phenotype', related_name="ngsdbview.phenotypeS", help_text="Eg., Wildtype, Dwarf or Iron depletion etc")
+    growthphase = models.ForeignKey('ngsdbview.Growthphase', related_name="ngsdbview.growthphaseS")
+    phenotype = models.CharField(max_length=254, default="wildtype", help_text="Define the phenotype. e.g., short and round")
     genotype = models.ForeignKey('ngsdbview.Genotype', related_name="ngsdbview.genotypeS", help_text="Eg., Wildtype, JBP2KO")
-    collaborator = models.ForeignKey('ngsdbview.Collaborator', related_name="ngsdbview.collaboratorS", help_text="Initials of the PI collaborating on this project")
+    collaborator = models.ForeignKey('ngsdbview.Collaborator', related_name="ngsdbview.collaboratorS")
     source = models.CharField(max_length=100, help_text="Eg., Subcutaneous Leishion of an adult male, Lab culture, chimeric mouse liver")
     sourcename = models.ForeignKey(Source)
     culture_method = models.CharField(max_length=100, choices=CULTURE_METHOD_TYPE_CHOICES, default="axenic-culture")
@@ -92,16 +92,16 @@ class Sample(models.Model):
     sample_concentration = models.DecimalField(max_digits=10, decimal_places=4, blank=True, help_text="in ng/ul")
     sample_volume = models.DecimalField(max_digits=6, decimal_places=2,  blank=True, help_text="in ul")
     sample_quantity = models.DecimalField(max_digits=10, decimal_places=4,  blank=True, help_text="total quantity in ug")
-    parent_sampleid = models.CharField(max_length=25, db_index=True, blank=True, help_text="Name of the parent sample this one is derived from")
-    sample_dilution = models.CharField(max_length=25, blank=True, default="Original Concentration", help_text="times dilution created from original sample, referred in parent sample name")
+    parent_sampleid = models.CharField(max_length=25, db_index=True, blank=True, verbose_name="Parent sampleid if its a dilution", help_text="Name of the parent sample this one is derived from")
+    sample_dilution = models.CharField(max_length=25, blank=True, default="Original Concentration", help_text="times dilution created from original sample, referred in parent sampleid filed above. e.g., 1:100")
     biological_replicate_of = models.CharField(max_length=25, blank=True, default="No Replicate", help_text="comma separated sample names of its biological replicates, needed for original samples only, not for dilutions")
     bioanalyzer_analysis = models.FileField(upload_to="bioanalyzer", blank=True, help_text="Upload bioanalyzer trace file")
-    freezer_location = models.CharField(max_length=100, blank=True, help_text="Name of the freezer, rack, box etc")
-    is_clonal = models.BooleanField(default=False, help_text="Are the cells cloned to single cell before growing for this library?")
+    freezer_location = models.CharField(max_length=100, blank=True, help_text="Name of the freezer, rack, box etc. e.g., -80/Drawer_3/Rack3/A3")
+    is_clonal = models.BooleanField(default=False, verbose_name="Check this if the culture is clonal population", help_text="Are the cells cloned to single cell before growing for this library?")
     sample_notes = models.TextField(blank=True, help_text="Any other information related to sample, sample collection etc")
     date_created = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)
-    author_modified = models.ForeignKey(User)
+    author_modified = models.ForeignKey(User, verbose_name="Person Modified this entry last")
 
     def __unicode__(self):
         return unicode(self.sampleid)
@@ -125,7 +125,7 @@ class Library(models.Model):
     rna_id = models.CharField(max_length=25, db_index=True, blank=True)
     organism = models.ForeignKey('ngsdbview.Organism', related_name="ngsdbview.organism", help_text="The organism sample data derived from")
     lifestage = models.ForeignKey('ngsdbview.Lifestage', related_name="ngsdbview.lifestage", help_text="Eg., Promastigotes, 10hrs, amastigotes etc")
-    growthphase = models.ForeignKey('ngsdbview.Growthphase', related_name="ngsdbview.growthphase", help_text="Eg., procyclic, log")
+    growthphase = models.ForeignKey('ngsdbview.Growthphase', related_name="ngsdbview.growthphase")
     phenotype = models.ForeignKey('ngsdbview.Phenotype', related_name="ngsdbview.phenotype", help_text="Eg., Wildtype, Dwarf or Iron depletion etc")
     genotype = models.ForeignKey('ngsdbview.Genotype', related_name="ngsdbview.genotype", help_text="Eg., Wildtype, JBP2KO")
     source = models.CharField(max_length=100, help_text="Eg., Subcutaneous Leishion of an adult male, Lab culture, chimeric mouse liver")
@@ -160,6 +160,9 @@ class Library(models.Model):
     date_created = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)
     author_modified = models.ForeignKey(User)
+
+    class Meta:
+        verbose_name_plural="Libraries"
     def __unicode__(self):
         return unicode(self.library_code)
 
