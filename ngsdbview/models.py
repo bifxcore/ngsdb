@@ -40,15 +40,17 @@ class Librarytype(models.Model):
 
 class Protocol(models.Model):
     protocol_id = models.AutoField(primary_key=True)
-    name = models.CharField(unique=True, max_length=50)
-    sopfile = models.FileField(upload_to="protocols")
+    protocol_name = models.CharField(unique=True, max_length=50)
+    protocol_file = models.FileField(upload_to="protocols")
+    protocol_link = models.URLField(max_length=1000, blank=True)
     notes = models.CharField(max_length=400, default=None)
 
     class Meta:
-        ordering = ['name']
+        ordering = ['protocol_name']
 
     def __unicode__(self):
-        return str(self.name)
+        return str(self.protocol_name)
+
 
 class Seqtech(models.Model):
     seqtech_id = models.AutoField(primary_key=True)
@@ -61,6 +63,7 @@ class Lifestage(models.Model):
     notes = models.CharField(max_length=400, default=None)
     class Meta:
         ordering = ['lifestage']
+        verbose_name_plural="Lifecycle stages"
 
     def __unicode__(self):
         return str(self.lifestage)

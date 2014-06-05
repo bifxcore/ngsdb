@@ -4,10 +4,10 @@ from ngsdbview.models import Author, Organism, Lifestage, Phenotype, Librarytype
 
 # Create your models here.
 TEMPLATE_MATERIALS_CHOICES = (
-    ('TotalRNA', 'TotalRNA'),
-    ('PolyApurified_mRNA', 'PolyApurified_mRNA'),
+    ('total RNA', 'total RNA'),
+    ('polyA purified mRNA', 'polyA purified mRNA'),
     ('gDNA', 'gDNA'),
-    ('RibosomeBoundRNA', 'RibosomeBoundRNA')
+    ('Ribosome Bound RNA', 'Ribosome Bound RNA')
 )
 
 SAMPLE_TYPE_CHOICES = (
@@ -138,7 +138,7 @@ class Library(models.Model):
 
     librarytype = models.ForeignKey('ngsdbview.Librarytype', related_name="ngsdbview.librarytype", help_text="Type of library to be constructed")
     template_material = models.CharField(max_length=200, choices=TEMPLATE_MATERIALS_CHOICES)
-    protocol = models.ForeignKey(Protocol, help_text="Add a new protocol using '+' before selecting here. Use the Protocol additional notes to describe any changes in protocol")
+    protocol = models.ForeignKey('ngsdbview.Protocol', related_name="ngsdbview.protocol", help_text="Add a new protocol using '+' before selecting here. Use the Protocol additional notes to describe any changes in protocol")
     protocol_notes = models.TextField(blank=True, default="None")
     library_gelimage = models.FileField(upload_to="libraryimages", blank=True, default="NA", help_text="Upload annotated library image file")
 

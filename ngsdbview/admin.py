@@ -82,4 +82,9 @@ class AnalysisAdmin(admin.ModelAdmin):
     inlines = [ AnalysisfileInline, AnalysispropInline ]
 admin.site.register(Analysis, AnalysisAdmin)
 
+
+class ProtocolAdmin(admin.ModelAdmin):
+    list_display = ('protocol_name', 'protocol_file', 'protocol_link', 'notes')
+admin.site.register(Protocol, ProtocolAdmin)
+
 autoregister('ngsdbview')
