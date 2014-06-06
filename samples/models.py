@@ -61,6 +61,9 @@ class Protocol(models.Model):
     def __unicode__(self):
         return unicode(self.protocol_name)
 
+    # todo-me remove this model
+
+
 class Source(models.Model):
     name = models.CharField(max_length=200, unique=True, db_index=True)
     notes = models.TextField()

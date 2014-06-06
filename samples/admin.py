@@ -20,6 +20,7 @@ class SampleAdmin(admin.ModelAdmin):
     list_filter = ['sampletype', 'organism', 'lifestage', 'collaborator', 'treatment']
     search_fields = ['sampleid', 'sampletype', 'organism__organismcode', 'lifestage__lifestage', 'growthphase__growthphase', 'phenotype', 'genotype__genotype', 'collaborator__firstname', 'collaborator__lastname', 'source', 'collected_by', 'treatment', 'isolation_method', 'sample_quantity', 'biological_replicate_of', 'bioanalyzer_analysis', 'label_ontube', 'freezer_location', 'sample_notes']
     list_editable = ('growthphase', 'culture_method', 'lifestage', 'treatment', 'time_after_treatment')
+    # todo remove editable list once aarthi is done
 
     def save_model(self, request, obj, form, change):
         obj.author_modified = request.user
@@ -42,6 +43,7 @@ class LibraryAdmin(admin.ModelAdmin):
     list_filter = ['collaborator', 'librarytype__type', 'author__designation', 'organism__organismcode', 'lifestage', 'phenotype', 'genotype', 'growthphase', 'template_material', 'reference_genome']
     search_fields = ['collaborator__firstname', 'collaborator__lastname', 'librarytype__type', 'author__designation', 'author__lastname', 'author__firstname', 'experiment_notes', 'protocol_notes', 'bioproject__bioproject_code', 'bioproject__bioproject_code', 'biosample__biosample_code', 'protocol__protocol_name', 'library_code', 'flowcell_number', 'index_sequence']
     list_editable = ('protocol', 'template_material')
+    # todo remove editable list once aarthi is done
 
     def save_model(self, request, obj, form, change):
         obj.author_modified = request.user
