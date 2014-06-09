@@ -1,14 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 {% extends "snpdb/dashboard.html" %}
+{% load mathfilters %}
 
 {% block content %}
-<div class="page-header text-header">
+<div class="page-header text-header" style="padding-left:30px">
     <h1>Snps in Genes Query Results</h1>
-    <h4>There are {{ count }} snps within this gene. </h4>
+    <h4>There are {{ count }} snps within this gene and flanking region. </h4>
 </div>
 
 <body>
+<div class="container" style="padding-bottom:30px">
 <div class="collapse navbar-collapse navbar-ex1-collapse">
     <ul class="nav navbar-nav">
         <form class="form-inline" role="form" id='search' action='/snpdb/gene-snps/search' method="get">
@@ -16,9 +18,17 @@
                 <label class="sr-only" for="gene_id">Gene ID</label>
                 <input type="text" class="form-control" name="s" placeholder="gene id">
             </div>
+            <select class="form-control" name="f">
+              <option value="0">No Flanking</option>
+              <option value="100">100 bp flanking</option>
+              <option value="200">200 bp flanking</option>
+              <option value="300">300 bp flanking</option>
+              <option value="400">400 bp flanking</option>
+            </select>
             <button id="submit" class="btn btn-default" type="submit">Search</button>
         </form>
     </ul>
+</div>
 </div>
 </body>
 
@@ -33,6 +43,7 @@
         <th class="col-xs-1 text-center"><a href={{ filter_urls.snp_position }}>SNP Position</a></th>
         <th class="col-xs-1 text-center"><a href={{ filter_urls.fmin }}>Gene Start</a></th>
         <th class="col-xs-1 text-center"><a href={{ filter_urls.fmax }}>Gene Stop</a></th>
+        <th class="col-xs-1 text-center"><a href={{ filter_urls.bps }}>BPs from ATG</th>
         <th class="col-xs-1 text-center"><a href={{ filter_urls.ref_base }}>Reference Base</a></th>
         <th class="col-xs-1 text-center"><a href={{ filter_urls.alt_base }}>Alternate Base</a></th>
         <th class="col-xs-1 text-center"><a href={{ filter_urls.gene }}>Gene</a></th>
@@ -52,6 +63,7 @@
             <td class="text-center">{{ each.snp_position }}</td>
             <td class="text-center">{{ fmin }}</td>
             <td class="text-center">{{ fmax }}</td>
+            <td class="text-center">{{ fmin|sub:each.snp_position }}</td>
             <td class="text-center">{{ each.ref_base }}</td>
             <td class="text-center">{{ each.alt_base }}</td>
             <td class="text-center">{{ gene }}</td>

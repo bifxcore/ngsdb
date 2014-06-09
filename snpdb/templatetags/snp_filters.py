@@ -30,3 +30,11 @@ class MakeListNode(template.Node):
     def render(self, context):
         context[self.varname] = [i.resolve(context) for i in self.items]
         return ""
+
+@register.filter
+def empty_effect(value):
+    # print "value: ", value
+    if value:
+        return False
+    else:
+        return True

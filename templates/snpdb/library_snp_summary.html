@@ -4,13 +4,14 @@
 {% load mathfilters %}
 
 {% block content %}
-<div class="page-header text-header">
+<div class="page-header text-header" style="padding-left:30px">
     <h1>Library Summary</h1>
     <h4>There are {{ count }} libraries with SNP data. </h4>
 
 </div>
 
 <body>
+<div class="container" style="padding-bottom:30px">
 <div class="collapse navbar-collapse navbar-ex1-collapse">
     <ul class="nav navbar-nav">
         <form class="form-inline" role="form" id='search' action='/snpdb/library-snp-summary/search' method="get">
@@ -22,10 +23,11 @@
         </form>
     </ul>
 </div>
+    </div>
 </body>
 
-
-<table class="table table-condensed table-hover table-responsive" style="table-layout: fixed; word-wrap: break-word;">
+<div class="container-fluid">
+   <table class="table table-condensed table-hover table-responsive table-bordered" name="library_comparison" style="table-layout: fixed; word-wrap: break-word;">
     <thead>
     <tr>
         <th class="text-center"><a href={{ filter_urls.library__library_id }}>Library ID</a></th>
@@ -59,6 +61,7 @@
     {% endfor %}
     </tbody>
 </table>
+</div>
 
 
 

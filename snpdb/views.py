@@ -4,7 +4,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from utils import build_orderby_urls, integer_filters
 from django.db.models import *
 from django_boolean_sum import BooleanSum
-
+from templatetags.snp_filters import *
 
 
 def dashboard(request):
@@ -522,6 +522,7 @@ def gene_snps(request):
 
 # Returns all snps found within the gene location regardless of library.
 def gene_snps_filter(request):
+    flanks = int(request.GET.get('f'))
     order_by = request.GET.get('order_by', 'library__librarycode')
     gene = request.GET.get('s')
     fmin = Feature.objects.values_list('fmin', flat=True).filter(geneid=gene).filter(featuretype='gene')[0]
@@ -538,8 +539,8 @@ def gene_snps_filter(request):
     result_list = SNP.objects.values('library__librarycode', 'result_id',
                                      'chromosome__chromosome_name', 'snp_id',
                                      'snp_position', 'ref_base',
-                                     'alt_base').filter(snp_position__range=(Feature.objects.values_list('fmin', flat=True).filter(geneid=gene).filter(featuretype='gene')[0],
-                                                                             Feature.objects.values_list('fmax', flat=True).filter(geneid=gene).filter(featuretype='gene')[0]),
+                                     'alt_base').filter(snp_position__range=((Feature.objects.values_list('fmin', flat=True).filter(geneid=gene).filter(featuretype='gene')[0])+flanks,
+                                                                             (Feature.objects.values_list('fmax', flat=True).filter(geneid=gene).filter(featuretype='gene')[0])+flanks),
                                                         chromosome__chromosome_name=Feature.objects.values_list('chromosome', flat=True).filter(geneid=gene).filter(featuretype='gene')[0]).order_by(order_by)
     count = result_list.count()
     paginator = Paginator(result_list, 50)
@@ -680,36 +681,57 @@ def library_snp_summary(request):
 
 # Returns all snps found in the specific library.
 def library_snps(request):
-    order_by = request.GET.get('order_by', 'library')
+    order_by = request.GET.get('order_by', 'snp_id').encode("ascii")
     library = request.GET.get('lib')
     count = request.GET.get('count')
-    # genes = Feature.objects.values('geneid', 'fmin', 'fmax', 'chromosome').filter(featuretype='gene', genome__organism__library__librarycode=library)
-    snps = SNP.objects.all().prefetch_related('result__genome__feature__geneid').filter(library__librarycode=library)
+
     results = SNP.objects.values('library', 'library__librarycode', 'snp_id',
                                  'snp_position', 'ref_base', 'alt_base',
                                  'heterozygosity', 'quality',
-                                 'chromosome__chromosome_name').filter(library__librarycode=library).extra(select={"geneid": """SELECT geneid FROM feature, snp, chromosome WHERE feature.featuretype='gene' AND snp.snp_position BETWEEN feature.fmin, feature.fmax AND snp_chromsome.chromosome_name = feature.chromosome"""}).order_by(order_by)
+                                 'chromosome__chromosome_name', 'effect__effect_string',
+                                 'effect__effect_class', 'effect__effect').order_by(order_by)
 
+    snp_dict = {}
     for each in results:
-        print each
-    snp_genes = SNP.objects.values('library', 'library__librarycode', 'snp_id',
-                                   'snp_position', 'ref_base', 'alt_base',
-                                   'heterozygosity', 'quality',
-                                   'chromosome__chromosome_name', 'result__genome__feature__geneid').filter(library__librarycode=library,
-                                                                                                            result__genome__feature__featuretype='gene',
-                                                                                                            chromosome__chromosome_name=F('result__genome__feature__chromosome'),
-                                                                                                            result__genome__feature__fmin__lte=F('snp_position'),
-                                                                                                            result__genome__feature__fmax__gte=F('snp_position'))
-    order_by = request.GET.get('order_by', 'library')
-    result_list = results.order_by(order_by)
-    paginator = Paginator(result_list, 50)
+        if each['library__librarycode'] == library:
+            if empty_effect(each['effect__effect']) or each['effect__effect'] == 6:
+                if empty_effect(each['effect__effect_class']) or (each['effect__effect_class'] == ('NON_SYNONYMOUS_CODING' or 'SYNONOMOUS_CODING')):
+                    if each['snp_id'] in snp_dict:
+                        snp_dict[each['snp_id']]['effect__effect'] = each['effect__effect']
+                        snp_dict[each['snp_id']]['effect__effect_string'] = each['effect__effect_string']
+                    else:
+                        snp_dict[each['snp_id']] = each
+                else:
+                    each["effect__effect_class"] = 'None'
+                    each["effect__effect_string"] = 'None'
+                    each["effect__effect"] = 'None'
+                    snp_dict[each['snp_id']] = each
+            else:
+                if each['snp_id'] in snp_dict:
+                    pass
+                else:
+                    each["effect__effect_class"] = 'None'
+                    each["effect__effect_string"] = 'None'
+                    each["effect__effect"] = 'None'
+                    snp_dict[each['snp_id']] = each
+
+    # sorted_snp_dict = sorted(snp_dict.values())
+    # for each in snp_dict.items():
+    #     for items in each:
+    #         print items
+    print type(snp_dict.values())
+    sorted_snp_dict = sorted(snp_dict, key=lambda x: x[1][order_by])
+    print sorted_snp_dict
+    #todo Fix view to show data passed from snp_dict
+    paginator = Paginator(snp_dict.items(), 100)
     page = request.GET.get('page')
 
     # Calls utils method to append new filters or order_by to the current url
     filter_urls = build_orderby_urls(request.get_full_path(), ['library', 'library__librarycode', 'snp_id',
                                                                'snp_position', 'ref_base', 'alt_base',
                                                                'heterozygosity', 'quality',
-                                                               'chromosome__chromosome_name'])
+                                                               'chromosome__chromosome_name',
+                                                               'effect__effect_string'])
     try:
         results = paginator.page(page)
     except PageNotAnInteger:
@@ -722,6 +744,7 @@ def library_snps(request):
 
     return render_to_response('snpdb/library_snps.html', {"results": results,
                                                           "library": library,
+                                                          "order_by": order_by,
                                                           "filter_urls": filter_urls,
                                                           "paginator": paginator,
                                                           "toolbar_max": toolbar_max,
