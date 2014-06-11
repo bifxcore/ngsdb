@@ -10,9 +10,35 @@
     <h5> For a list of genes found within this library, follow this <a href="/snpdb/gene-list?lib={{library}}">link</a>.</h5>
 </div>
 
+<body>
+<div class="container-fluid" style="padding-bottom:30px">
+    <div class="collapse navbar-collapse navbar-ex1-collapse">
+        <ul class="nav navbar-nav">
+            <form class="form-inline" role="form" id='search' action='/snpdb/library-snp-summary/search' method="get">
+                <div class="form-group">
+                    <label class="sr-only" for="search">Search</label>
+                    <input type="text" class="form-control" name="s" placeholder="search">
+                    <input type="hidden" name="lib" value="{{library}}">
+                    <input type="hidden" name="count" value="{{count}}">
+                    <select class="selectpicker show-tick" data-style="btn-large btn-default" name="att" title='Search Option'>
+                        <option value="snp_id">SNP ID</option>
+                        <option value="snp_position">Position</option>
+                        <option value="ref_base">Reference Base</option>
+                        <option value="alt_base">Alternate Base</option>
+                        <option value="heterozygosity">Heterozygosity</option>
+                        <option value="quality">Quality</option>
+                        <option value="chromosome__chromosome_name">Chromosome</option>
+                        <option value="effect__effect_string">Genes</option>
+                    </select>
+                    <button class="btn btn-primary" type="submit">Search</button>
+                </div>
+            </form>
+    </div>
+</div>
+</body>
 
 <div class="container-fluid">
-    <form class="form-inline" role="form" id='compare_libs' action="/snpdb/compare-gene-lib-filter/search" method="get">
+    <form class="form-inline" role="form" id='compare_libs'>
         <table class="table table-condensed table-hover table-responsive table-bordered" name="result_table" style="table-layout: fixed; word-wrap: break-word;">
             <thead>
             <tr>
@@ -32,7 +58,11 @@
             {% for snp_id in results %}
                 {% for each in snp_id %}
                     {% if each.library %}
-                        <tr>
+                        {% if each.effect__effect_string|no_effect %}
+                            <tr class="success">
+                        {% else %}
+                            <tr>
+                        {% endif %}
                             <td class="text-center">{{ each.library }}</td>
                             <td class="text-center">{{ library }}</td>
                             <td class="text-center">{{ each.snp_id }}</td>
@@ -42,7 +72,15 @@
                             <td class="text-center">{{ each.heterozygosity }}</td>
                             <td class="text-center">{{ each.quality }}</td>
                             <td class="text-center">{{ each.chromosome__chromosome_name }}</td>
-                            <td class="text-center">{{ each.effect__effect_string }}</td>
+                            <td class="text-center">
+                            {% if each.effect__effect_string|get_type %}
+                                {% for effect in each.effect__effect_string %}
+                                    {{ effect }}
+                                {% endfor %}
+                            {% else %}
+                                {{ each.effect__effect_string }}
+                            {% endif %}
+                            </td>
                         </tr>
                     {% endif %}
                 {% endfor %}
@@ -63,14 +101,14 @@
 
         {% for page in paginator.page_range %}
             {% if page <= toolbar_max and page > toolbar_min and page != results.number %}
-                <li><a href="/snpdb/library-snp-summary/search?lib={{library}}&count={{count}}&page={{ page }}">{{ page }}</a></li>
+                <li><a href="/snpdb/library-snp-summary/search?lib={{library}}&count={{count}}&order_by={{order_by}}&page={{ page }}">{{ page }}</a></li>
             {% elif page == results.number %}
-                <li class="active"><a href="/snpdb/library-snp-summary/search?lib={{library}}&count={{count}}&page={{ results.number }}">{{ results.number }}</a></li>
+                <li class="active"><a href="/snpdb/library-snp-summary/search?lib={{library}}&count={{count}}&order_by={{order_by}}&page={{ results.number }}">{{ results.number }}</a></li>
             {% endif %}
         {% endfor %}
 
         {% if results.has_next %}
-            <li><a href="/snpdb/library-snp-summary/search?lib={{library}}&count={{count}}&page={{ results.next }}">&raquo;</a></li>
+            <li><a href="/snpdb/library-snp-summary/search?lib={{library}}&count={{count}}&order_by={{order_by}}&page={{ results.next }}">&raquo;</a></li>
         {% endif %}
     </ul>
 </div>

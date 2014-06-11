@@ -98,7 +98,7 @@ class Organism(models.Model):
     isolate = models.CharField(max_length=45)
     source = models.CharField(max_length=100)
     def __unicode__(self):
-        return str(self.organismcode)
+        return unicode(self.organismcode)
 
 class Software(models.Model):
     software_id = models.AutoField(primary_key=True)
@@ -157,6 +157,7 @@ class Genome(models.Model):
 class Library(models.Model):
     library_id = models.AutoField(primary_key=True)
     librarycode = models.CharField(unique=True, max_length=25, db_index=True)
+    samplename = models.CharField(max_length=25, db_index=True, blank=True, help_text="Sample name from the source")
     author = models.ForeignKey(Author)
     organism = models.ForeignKey(Organism)
     lifestage = models.ForeignKey(Lifestage)
@@ -164,7 +165,6 @@ class Library(models.Model):
     collaborator = models.ForeignKey(Collaborator)
     librarytype = models.ForeignKey(Librarytype)
     protocol = models.ForeignKey(Protocol)
-#	seqtech = models.ForeignKey(Seqtech)
     fastqname = models.CharField(max_length=1000)
     fastqalias = models.CharField(max_length=1000)
     librarysize = models.IntegerField()
@@ -284,6 +284,20 @@ class Resultslgene(models.Model):
     def __unicode__(self):
         return str(self.resultslgene_id)
 
+
+class Resultsriboprof(models.Model):
+    resultsriboprof_id = models.AutoField(primary_key=True)
+    result = models.ForeignKey(Result)
+    geneid = models.CharField(max_length=45, db_index=True)
+    featuretype = models.CharField(max_length=10, db_index=True)
+    counts_raw = models.DecimalField(max_digits=10, decimal_places=4)
+    counts_normalized = models.DecimalField(max_digits=10, decimal_places=4)
+    time_data_loaded = models.DateTimeField(auto_now=True)
+
+    def __unicode__(self):
+        return str(self.resultsriboprof_id)
+
+
 class Analysis(models.Model):
     analysis_id = models.AutoField(primary_key=True)
     analysistype = models.ForeignKey(Analysistype)
@@ -333,7 +347,7 @@ class Feature(models.Model):
     aa_seq = models.TextField()
     time_data_loaded = models.DateTimeField(auto_now_add=True)
     time_data_modified = models.DateTimeField(auto_now=True)
-def __unicode__(self):
+    def __unicode__(self):
         return str(self.geneid)
 
 
@@ -346,6 +360,16 @@ class Geneidmap(models.Model):
     db_soruce_current = models.CharField(max_length=50)
     db_version_current = models.CharField(max_length=50)
     time_data_loaded = models.DateTimeField(auto_now=True)
+
+
+class Experiment(models.Model):
+    experiment_id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=25, db_index=True)
+    description = models.CharField(max_length=100)
+    notes = models.TextField()
+    libraries = models.ManyToManyField(Library)
+    def __unicode__(self):
+        return str(self.name)
 
 #==============================================
 #==============================================

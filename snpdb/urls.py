@@ -15,6 +15,7 @@ urlpatterns = patterns('',
                        url(r'^gene-snps/search', 'snpdb.views.gene_snps_filter'),
                        url(r'^library-gene-snps/search', 'snpdb.views.library_gene_snps_filter'),
                        url(r'^library-snp-summary/search', 'snpdb.views.library_snps'),
+                       # url(r'^library-snp-summary/filter/search', 'snpdb.views.library_snps_filter'),
                        url(r'^library-chromosome-snps/search', 'snpdb.views.library_chromosome_snps_filter'),
                        url(r'^chromosome-library-snps-summary/search', 'snpdb.views.chromosome_library_snp_summary_filter'),
 

@@ -33,8 +33,22 @@ class MakeListNode(template.Node):
 
 @register.filter
 def empty_effect(value):
-    # print "value: ", value
     if value:
         return False
     else:
         return True
+
+@register.filter
+def no_effect(value):
+    if value == 'None' or value is None:
+        return False
+    else:
+        return True
+
+
+@register.filter
+def get_type(value):
+    if type(value) is list:
+        return True
+    else:
+        return False

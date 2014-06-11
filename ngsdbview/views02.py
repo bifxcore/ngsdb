@@ -29,6 +29,11 @@ class ListAnalysesForm(forms.Form):
 class GetResultsForGeneForm(forms.Form):
     geneid = forms.CharField(max_length=20, error_messages={'required': 'Please enter a Gene Id'})
 
+class AnalyzeExperimentFrom(forms.Form):
+    experiment_name = forms.CharField(max_length=100, error_messages={'required': 'Please enter a Experiment name'})
+    geneidbox = forms.CharField(widget=forms.Textarea(), required=False, label="Geneid List", help_text="Ids separated by commma or semicolan or space or newline or any combination of these ")
+
+
 class GetResultsForMultiGenesForm(forms.Form):
     libcode = forms.CharField(max_length=20, error_messages={'required': 'Please enter a Library code'})
     rank = forms.IntegerField(max_value=25, error_messages={'required': 'Please enter 0=> to display all sites; 1=>for major site and so on...'}, help_text="0=> to display all sites; 1=>for major site and so on..")
@@ -368,8 +373,7 @@ def ListAnalyses(request):
     '''lists analysis from ngsdb'''
     #gets user and the libraries the user has permission to
     [user, availlibids] = getlibraries(request)
-    print user
-    print availlibids
+
     kwargs={}
     kwargs['title']='List of Analyses:'
     kwargs['listoflinks']=listoflinks
@@ -384,10 +388,7 @@ def ListAnalyses(request):
 
     availres = Result.objects.filter(libraries__library_id__in=availlibids)
     kwargs['availres']=availres
-    print 'well'
-    print availres
-    print 'hell'
-    print kwargs
+
 
     if request.method == 'POST':
         form = ListLibForm(request.POST) #bound form
@@ -409,6 +410,108 @@ def ListAnalyses(request):
         kwargs['form']=form
 
     return render_to_response('ngsdbview/list_analyses.html',kwargs, context_instance=RequestContext(request))
+
+
+def ListExperiments(request):
+    '''
+        Lists experiments and the libraries grouped under them
+    '''
+    [user, availlibids] = getlibraries(request)
+    print user
+    print availlibids
+    kwargs={}
+    kwargs['title']='List of Experiments:'
+    kwargs['listoflinks']=listoflinks
+    kwargs['user']=user
+    # for autocomplete
+    kwargs['autocomexpcodes'] = constructAutocomplete('expts', Experiment.objects.filter(libraries__librarycode__in=availlibids).values_list('name', flat=True))
+
+    expts = {}
+    allexp = Experiment.objects.all()
+    for exp in allexp:
+        expname = exp.name
+        expts[expname] = Library.objects.filter(experiment__name=expname)
+
+    kwargs['expts']=expts
+
+    return render_to_response('ngsdbview/list_experiments.html',kwargs, context_instance=RequestContext(request))
+
+
+def AnalyzeExperiments(request):
+    '''
+        Analyze experiments and the libraries grouped under them
+    '''
+    [user, availlibids] = getlibraries(request)
+    availlibcodes = Library.objects.filter(library_id__in=availlibids).values_list('librarycode', flat=True)
+
+    print user
+    print availlibids
+    kwargs={}
+    kwargs['title']='Analyze Experiments:'
+    kwargs['listoflinks']=listoflinks
+    kwargs['user']=user
+    # for autocomplete
+    kwargs['autocomexpcodes'] = constructAutocomplete('expts', Experiment.objects.filter(libraries__librarycode__in=availlibids).values_list('name', flat=True))
+
+    if request.method == 'POST':
+        form = AnalyzeExperimentFrom(request.POST) # bound form
+        if form.is_valid():
+            resids = []
+            for key, value in request.POST.items():
+                if 'radio_resid' in key:
+                    resids.append(value)
+
+            if 'formlevel3' in request.POST:
+                geneidbox = request.POST['geneidbox']
+                geneids = string2list(request, geneidbox)
+                allgenes = Resultsriboprof.objects.filter(result__in=resids).filter(geneid__in=geneids)
+                # readcount data for the table
+                finalcount = {}
+                for geneid in geneids:
+                    resset = allgenes.filter(geneid=geneid)
+                    finalcount[geneid] = resset.values_list('counts_raw', flat=True)
+                    print finalcount
+                kwargs['finalcount'] = finalcount
+                # header data for table
+                headerLib=[]
+                headerGen=[]
+                residsforheader =resset.values_list('result', flat=True)
+                for resid in residsforheader:
+                    headerLib.append(GetLibcodesForResid(request, resid)[0])
+                    headerGen.append(GetGenomeVersionForResid(request, resid))
+                kwargs['headerLib'] = headerLib
+                kwargs['headerGen'] = headerGen
+
+                #get list of geneids for tritryplink in comma separated string form
+                kwargs['geneidsfortritryp'] = ','.join(geneids)
+
+
+            elif 'formlevel2' in request.POST:
+                selectlibcodes = request.POST.getlist('selectlibcodes')
+
+                analysisdic = {}
+                for libcode in selectlibcodes:
+                    analysisdic[libcode] = Result.objects.filter(libraries__librarycode=libcode)
+                kwargs['analysisdic'] = analysisdic
+                kwargs['form']=form
+
+            elif 'experiment_name' in request.POST:
+                experiment_name = form.cleaned_data['experiment_name']
+                allowedlibs = Library.objects.filter(experiment__name=experiment_name).filter(librarycode__in=availlibcodes)
+                notallowedlibs =  Library.objects.filter(experiment__name=experiment_name).exclude(librarycode__in=availlibcodes)
+                kwargs['step1']="step1"
+                kwargs['allowedlibs']=allowedlibs
+                kwargs['notallowedlibs']=notallowedlibs
+                kwargs['form']=form
+        else:
+            kwargs['form'] = form
+
+    else:
+        form = AnalyzeExperimentFrom() # un bound form
+        kwargs['form']=form
+
+    return render_to_response('ngsdbview/analyze_experiment.html',kwargs, context_instance=RequestContext(request))
+
 
 def GetAlignStats(request):
     '''

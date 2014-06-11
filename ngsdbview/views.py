@@ -72,7 +72,7 @@ def ListAnalysisSteps(request, result_id):
 		analysisprop_set[step.ordinal]=Analysisprop.objects.filter(analysis=step.analysis_id)
 
 	resultids = []
-	resultidlist = Analysis.objects.distinct('result_id').values_list('result_id');
+	resultidlist = Analysis.objects.distinct('result').values_list('result_id');
 	for id in resultidlist:
 	   resultids.append(id[0])
 
