@@ -1,7 +1,6 @@
 - Pagination is not maintaining search criteria and is therefore failing when moving to the next page.
 - Identify/highlight snps that are present within a gene on library page. Pull from Effects Table
     - Need new vcf file that lists effects
-    - Determine what to do if no effects
 - Display list of genes on the library comparison on gene page. Currently listing libraries.
 - Determine best way to sort custom columns.
     - boostrap - sortable

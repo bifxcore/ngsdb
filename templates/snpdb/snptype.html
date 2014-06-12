@@ -19,16 +19,15 @@
                 <label class="sr-only" for="search">Search</label>
                 <input type="text" class="form-control" name="s" placeholder="search">
                 <select class="selectpicker show-tick" data-style="btn-large btn-default" name="att" title='Search Option'>
-                    <option id="snp_position">SNP Type</option>
-                    <option id="result">SNP ID</option>
-                    <option id="ref_base">Indel</option>
-                    <option id="alt_base">Deletion</option>
-                    <option id="heterozygosity">Is SNP</option>
-                    <option id="quality">Monomorphic</option>
-                    <option id="library">Transition</option>
-                    <option id="chromosome">SV</option>
+                    <option value="snptype_id">SNP Type</option>
+                    <option value="snp_id">SNP ID</option>
+                    <option value="indel">Indel</option>
+                    <option value="deletion">Deletion</option>
+                    <option value="is_snp">Is SNP</option>
+                    <option value="monomorphic">Monomorphic</option>
+                    <option value="transition">Transition</option>
+                    <option value="sv">SV</option>
                 </select>
-                <input type="checkbox"> Regex
                 <button class="btn btn-primary" type="submit">Search</button>
             </div>
         </form>
@@ -69,24 +68,41 @@
 <div class="pagination">
     <ul class="pagination">
         {% if snptypes.has_previous %}
-        <li><a href="?page={{  snptypes.previous_page_number }}">&laquo;</a></li>
+            {% if selection %}
+                <li><a href="?page={{ snptypes.previous_page_number }}&s={{filter_on}}&att={{selection}}">&laquo;</a></li>
+            {% else %}
+                <li><a href="?page={{ snptypes.previous_page_number }}">&laquo;</a></li>
+            {% endif %}
         {% else %}
-        <li class="disabled"><a href="#">&laquo;</a></li>
-        {%  endif %}
+            <li class="disabled"><a href="#">&laquo;</a></li>
+        {% endif %}
 
         {% for page in paginator.page_range %}
-        {% if page <= toolbar_max and page > toolbar_min and page != snptypes.number %}
-        <li><a href="?page={{  page  }}">{{ page }}</a></li>
-        {% elif page == snptypes.number %}
-        <li class="active"><a href="?page={{  snptypes.number }}">{{ snptypes.number }}</a></li>
-        {% endif %}
+            {% if page <= toolbar_max and page > toolbar_min and page != snptypes.number %}
+                {% if selection %}
+                    <li><a href="?page={{ page }}&s={{filter_on}}&att={{selection}}">{{page}}</a></li>
+                {% else %}
+                    <li><a href="?page={{ page }}">{{page}}</a></li>
+                {% endif %}
+            {% elif page == snptypes.number %}
+                {% if selection %}
+                    <li><a href="?page={{ snptypes.number }}&s={{filter_on}}&att={{selection}}">{{snptypes.number}}</a></li>
+                {% else %}
+                    <li><a href="?page={{ snptypes.number }}">{{snptypes.number}}</a></li>
+                {% endif %}
+            {% endif %}
         {% endfor %}
 
-        {% if results.has_next %}
-        <li><a href="?page={{ snptypes.next_page_number }}">&raquo;</a></li>
+        {% if snptypes.has_next %}
+           {% if selection %}
+                <li><a href="?page={{ snptypes.next_page_number }}&s={{filter_on}}&att={{selection}}">&raquo;</a></li>
+            {% else %}
+                <li><a href="?page={{ snptypes.next_page_number }}">&raquo;</a></li>
+            {% endif %}
         {% endif %}
     </ul>
 </div>
+
 
 {% endblock %}
 </html>

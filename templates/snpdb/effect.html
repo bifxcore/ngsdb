@@ -1,4 +1,6 @@
 {% extends "snpdb/dashboard.html" %}
+{% load url_path %}
+
 
 {% block content %}
 
@@ -14,13 +16,12 @@
                 <label class="sr-only" for="search">Search</label>
                 <input type="text" class="form-control" name="s" placeholder="search">
                 <select class="selectpicker show-tick" data-style="btn-large btn-default" name="att" title='Search Option'>
-                    <option id="snp_id">SNP ID</option>
-                    <option id="effect">Effect Type</option>
-                    <option id="effect_class">Effect Class</option>
-                    <option id="effect_string">Effect</option>
-                    <option id="effect_group">Effect Group</option>
+                    <option value="snp_id">SNP ID</option>
+                    <option value="effect__effect_name">Effect Type</option>
+                    <option value="effect_class">Effect Class</option>
+                    <option value="effect_string">Effect</option>
+                    <option value="effect_group">Effect Group</option>
                 </select>
-                <input type="checkbox"> Regex
                 <button class="btn btn-primary" type="submit">Search</button>
             </div>
         </form>
@@ -56,26 +57,40 @@
 <div class="pagination">
     <ul class="pagination">
         {% if snp_effect.has_previous %}
-            <li><a href="?page={{  snp_effect.previous_page_number }}">&laquo;</a></li>
+            {% if selection %}
+                <li><a href="?page={{ snp_effect.previous_page_number }}&s={{filter_on}}&att={{selection}}">&laquo;</a></li>
+            {% else %}
+                <li><a href="?page={{ snp_effect.previous_page_number }}">&laquo;</a></li>
+            {% endif %}
         {% else %}
             <li class="disabled"><a href="#">&laquo;</a></li>
-        {%  endif %}
+        {% endif %}
 
         {% for page in paginator.page_range %}
             {% if page <= toolbar_max and page > toolbar_min and page != snp_effect.number %}
-                    <li><a href="?page={{  page  }}">{{ page }}</a></li>
+                {% if selection %}
+                    <li><a href="?page={{ page }}&s={{filter_on}}&att={{selection}}">{{page}}</a></li>
+                {% else %}
+                    <li><a href="?page={{ page }}">{{page}}</a></li>
+                {% endif %}
             {% elif page == snp_effect.number %}
-                <li class="active"><a href="?page={{  filters.number }}">{{ snp_effect.number }}</a></li>
+                {% if selection %}
+                    <li><a href="?page={{ snp_effect.number }}&s={{filter_on}}&att={{selection}}">{{snp_effect.number}}</a></li>
+                {% else %}
+                    <li><a href="?page={{ snp_effect.number }}">{{snp_effect.number}}</a></li>
+                {% endif %}
             {% endif %}
         {% endfor %}
 
         {% if snp_effect.has_next %}
-            <li><a href="?page={{ snp_effect.next_page_number }}">&raquo;</a></li>
+           {% if selection %}
+                <li><a href="?page={{ snp_effect.next_page_number }}&s={{filter_on}}&att={{selection}}">&raquo;</a></li>
+            {% else %}
+                <li><a href="?page={{ snp_effect.next_page_number }}">&raquo;</a></li>
+            {% endif %}
         {% endif %}
     </ul>
 </div>
-
-
 
 {% endblock %}
 </html>

@@ -5,6 +5,7 @@ from utils import build_orderby_urls, integer_filters
 from django.db.models import *
 from django_boolean_sum import BooleanSum
 from templatetags.snp_filters import *
+from django.template import RequestContext
 
 
 def dashboard(request):
@@ -13,6 +14,7 @@ def dashboard(request):
 
 def effect(request):
     order_by = request.GET.get('order_by', 'effect')
+    current_url = request.get_full_path()
     snp_effect_list = Effect.objects.all().order_by(order_by)
     paginator = Paginator(snp_effect_list, 50)
     page = request.GET.get('page')
@@ -34,7 +36,9 @@ def effect(request):
                                                     "filter_urls": filter_urls,
                                                     "paginator": paginator,
                                                     "toolbar_max": toolbar_max,
-                                                    "toolbar_min": toolbar_min})
+                                                    "toolbar_min": toolbar_min,
+                                                    "current_url": current_url},
+                              context_instance=RequestContext(request))
 
 
 def snp_filter(request):
@@ -153,59 +157,17 @@ def snp_type(request):
 def snp_filter_result(request):
     selection = request.GET.get('att')
     filter_on = request.GET.get('s')
-    check = request.GET.get('check')
-    if check == "on":
-        if selection == 'SNP Position':
-            positions = integer_filters(SNP.objects.values_list('snp_position'), filter_on, selection)
-            result_list = SNP.objects.all().filter(snp_position__in=positions)
-        elif selection == 'Result':
-            result_list = SNP.objects.all().filter(result__regex=filter_on)
-        elif selection == 'Reference Base':
-            result_list = SNP.objects.filter(ref_base__regex=filter_on)
-        elif selection == 'Alternative Base':
-            result_list = SNP.objects.filter(alt_base__regex=filter_on)
-        elif selection == 'Heterozygosity':
-            if filter_on == 'False':
-                result_list = SNP.objects.all().filter(heterozygosity=False)
-            elif filter_on == 'True':
-                result_list = SNP.objects.all().filter(heterozygosity=True)
-        elif selection == 'Quality':
-            qualities = integer_filters(SNP.objects.values_list('qualities'), filter_on, selection)
-            result_list = SNP.objects.filter(quality__in=qualities)
-        elif selection == 'Library':
-            result_list = SNP.objects.filter(library_id__regex=filter_on)
-        elif selection == 'Chromosome':
-            result_list = SNP.objects.filter(chromosome_id__regex=filter_on)
-        else:
-            result_list = SNP.objects.all()
-    else:
-        if selection == 'SNP Position':
-            result_list = SNP.objects.all().filter(snp_position=filter_on)
-        elif selection == 'Result':
-            result_list = SNP.objects.all().filter(result=filter_on)
-        elif selection == 'Reference Base':
-            result_list = SNP.objects.all().filter(ref_base=filter_on)
-        elif selection == 'Alternative Base':
-            result_list = SNP.objects.all().filter(alt_base=filter_on)
-        elif selection == 'Heterozygosity':
-            if filter_on == 'False':
-                result_list = SNP.objects.all().filter(heterozygosity=False)
-            elif filter_on == 'True':
-                result_list = SNP.objects.all().filter(heterozygosity=True)
-        elif selection == 'Quality':
-            result_list = SNP.objects.all().filter(quality=filter_on)
-        elif selection == 'Library':
-            result_list = SNP.objects.all().filter(library_id=filter_on)
-        elif selection == 'Library':
-            result_list = SNP.objects.all().filter(chromosome_id=filter_on)
-        else:
-            result_list = SNP.objects.all()
+    filter_dict = {}
+    filter_dict[str(selection)] = str(filter_on)
+
+    result_list = SNP.objects.values('snp_id','snp_position', 'result', 'ref_base', 'alt_base',
+                                     'heterozygosity', 'quality', 'library', 'chromosome__chromosome_name').filter(**filter_dict)
 
     order_by = request.GET.get('order_by', 'snp_id')
     result_list = result_list.order_by(order_by)
     filter_urls = build_orderby_urls(request.get_full_path(), ['snp_id', 'snp_position', 'result',
                                                                'ref_base', 'alt_base', 'heterozygosity',
-                                                               'quality', 'library', 'chromosome'])
+                                                               'quality', 'library', 'chromosome__chromosome_name'])
     paginator = Paginator(result_list, 50)
     page = request.GET.get('page')
 
@@ -221,43 +183,21 @@ def snp_filter_result(request):
 
     return render_to_response('snpdb/snp.html', {"snps": snps,
                                                  "filter_urls": filter_urls,
+                                                 "selection": selection,
+                                                 "filter_on": filter_on,
                                                  "paginator": paginator,
                                                  "toolbar_max": toolbar_max,
-                                                 "toolbar_min": toolbar_min})
+                                                 "toolbar_min": toolbar_min},
+                              context_instance=RequestContext(request))
 
 
 def effect_filter(request):
     selection = request.GET.get('att')
     filter_on = request.GET.get('s')
-    check = request.GET.get('check')
-    if check == "on":
-        if selection == 'SNP ID':
-            positions = integer_filters(Effect.objects.values_list('snp_id'), filter_on, selection)
-            result_list = Effect.objects.all().filter(snp_id__in=positions)
-        elif selection == 'Effect Type':
-            result_list = Effect.objects.all().filter(effect__regex=filter_on)
-        elif selection == 'Effect Class':
-            result_list = Effect.objects.filter(effect_class__regex=filter_on)
-        elif selection == 'Effect':
-            result_list = Effect.objects.filter(effect_string__regex=filter_on)
-        elif selection == 'Effect Group':
-            positions = integer_filters(Effect.objects.values_list('effect_group'), filter_on, selection)
-            result_list = Effect.objects.all().filter(effect_group__in=positions)
-        else:
-            result_list = Effect.objects.all()
-    else:
-        if selection == 'SNP ID':
-            result_list = Effect.objects.all().filter(snp_id=filter_on)
-        elif selection == 'Effect Type':
-            result_list = Effect.objects.all().filter(effect=filter_on)
-        elif selection == 'Effect Class':
-            result_list = Effect.objects.all().filter(effect_class=filter_on)
-        elif selection == 'Effect':
-            result_list = Effect.objects.all().filter(effect_string=filter_on)
-        elif selection == 'Effect Group':
-            result_list = Effect.objects.all().filter(effect_group=filter_on)
-        else:
-            result_list = Effect.objects.all()
+    # current_url = request.get_full_path()
+    filter_dict = {}
+    filter_dict[str(selection)] = str(filter_on)
+    result_list = Effect.objects.all().filter(**filter_dict)
 
     order_by = request.GET.get('order_by', 'snp')
     result_list = result_list.order_by(order_by)
@@ -277,45 +217,20 @@ def effect_filter(request):
 
     return render_to_response('snpdb/effect.html', {"snp_effect": snp_effect,
                                                     "filter_urls": filter_urls,
+                                                    "selection": selection,
+                                                    "filter_on": filter_on,
                                                     "paginator": paginator,
                                                     "toolbar_max": toolbar_max,
-                                                    "toolbar_min": toolbar_min})
+                                                    "toolbar_min": toolbar_min},
+                              context_instance=RequestContext(request))
 
 
 def filter_filter(request):
     selection = request.GET.get('att')
     filter_on = request.GET.get('s')
-    check = request.GET.get('check')
-    if check == "on":
-        if selection == 'SNP ID':
-            positions = integer_filters(Filter.objects.values_list('snp_id'), filter_on, selection)
-            result_list = Filter.objects.all().filter(snp_id__in=positions)
-        elif selection == 'Filter ID':
-            positions = integer_filters(Filter.objects.values_list('filter_id'), filter_on, selection)
-            result_list = Filter.objects.all().filter(filter_id__in=positions)
-        elif selection == 'Filter Result':
-            if filter_on == 'False':
-                result_list = Filter.objects.all().filter(filter_result=False)
-            elif filter_on == 'True':
-                result_list = Filter.objects.all().filter(filter_result=True)
-        elif selection == 'Filter':
-            result_list = Filter.objects.filter(filter__regex=filter_on)
-        else:
-            result_list = Filter.objects.all()
-    else:
-        if selection == 'SNP ID':
-            result_list = Filter.objects.all().filter(snp_id=filter_on)
-        elif selection == 'Filter ID':
-            result_list = Filter.objects.all().filter(filter_id=filter_on)
-        elif selection == 'Filter Result':
-            if filter_on == 'False':
-                result_list = Filter.objects.all().filter(filter_result=False)
-            elif filter_on == 'True':
-                result_list = Filter.objects.all().filter(filter_result=True)
-        elif selection == 'Filter':
-            result_list = Filter.objects.all().filter(filter=filter_on)
-        else:
-            result_list = Filter.objects.all()
+    filter_dict = {}
+    filter_dict[str(selection)] = str(filter_on)
+    result_list = Filter.objects.all().filter(**filter_dict)
 
     order_by = request.GET.get('order_by', 'snp')
     result_list = result_list.order_by(order_by)
@@ -324,17 +239,19 @@ def filter_filter(request):
     filter_urls = build_orderby_urls(request.get_full_path(), ['snp_id', 'filter_id', 'filter_result',
                                                                'filter_cv'])
     try:
-        filter_list = paginator.page(page)
+        filters = paginator.page(page)
     except PageNotAnInteger:
-        filter_list = paginator.page(1)
+        filters = paginator.page(1)
     except EmptyPage:
         contacts = paginator.page(paginator.num_pages)
 
-    toolbar_max = min(filter_list.number + 3, paginator.num_pages)
-    toolbar_min = max(filter_list.number - 3, 0)
+    toolbar_max = min(filters.number + 3, paginator.num_pages)
+    toolbar_min = max(filters.number - 3, 0)
 
-    return render_to_response('snpdb/filter.html', {"filter_list": filter_list,
+    return render_to_response('snpdb/filter.html', {"filters": filters,
                                                     "filter_urls": filter_urls,
+                                                    "selection": selection,
+                                                    "filter_on": filter_on,
                                                     "paginator": paginator,
                                                     "toolbar_max": toolbar_max,
                                                     "toolbar_min": toolbar_min})
@@ -343,90 +260,18 @@ def filter_filter(request):
 def snptype_filter(request):
     selection = request.GET.get('att')
     filter_on = request.GET.get('s')
-    check = request.GET.get('check')
-    if check == "on":
-        if selection == 'SNP Type':
-            positions = integer_filters(SNP_Type.objects.values_list('snptype_id'), filter_on, selection)
-            result_list = SNP_Type.objects.all().filter(snptype_id__in=positions)
-        elif selection == 'SNP ID':
-            positions = integer_filters(SNP_Type.objects.values_list('snp_id'), filter_on, selection)
-            result_list = SNP_Type.objects.all().filter(snp_id__in=positions)
-        elif selection == 'Indel':
-            if filter_on == 'False':
-                result_list = SNP_Type.objects.all().filter(indel=False)
-            elif filter_on == 'True':
-                result_list = SNP_Type.objects.all().filter(indel=True)
-        elif selection == 'Deletion':
-            if filter_on == 'False':
-                result_list = SNP_Type.objects.all().filter(deletion=False)
-            elif filter_on == 'True':
-                result_list = SNP_Type.objects.all().filter(deletion=True)
-        elif selection == 'Is SNP':
-            if filter_on == 'False':
-                result_list = SNP_Type.objects.all().filter(is_snp=False)
-            elif filter_on == 'True':
-                result_list = SNP_Type.objects.all().filter(is_snp=True)
-        elif selection == 'Monomorphic':
-            if filter_on == 'False':
-                result_list = SNP_Type.objects.all().filter(monomorphic=False)
-            elif filter_on == 'True':
-                result_list = SNP_Type.objects.all().filter(monomorphic=True)
-        elif selection == 'Transition':
-            if filter_on == 'False':
-                result_list = SNP_Type.objects.all().filter(transition=False)
-            elif filter_on == 'True':
-                result_list = SNP_Type.objects.all().filter(transition=True)
-        elif selection == 'SV':
-            if filter_on == 'False':
-                result_list = SNP_Type.objects.all().filter(sv=False)
-            elif filter_on == 'True':
-                result_list = SNP_Type.objects.all().filter(sv=True)
-        else:
-            result_list = SNP_Type.objects.all()
-    else:
-        if selection == 'SNP Type':
-            result_list = SNP_Type.objects.all().filter().filter(snptype_id=filter_on)
-        elif selection == 'SNP ID':
-            result_list = SNP_Type.objects.all().filter()(snp_id=filter_on)
-        elif selection == 'Indel':
-            if filter_on == 'False':
-                result_list = SNP_Type.objects.all().filter(indel=False)
-            elif filter_on == 'True':
-                result_list = SNP_Type.objects.all().filter(indel=True)
-        elif selection == 'Deletion':
-            if filter_on == 'False':
-                result_list = SNP_Type.objects.all().filter(deletion=False)
-            elif filter_on == 'True':
-                result_list = SNP_Type.objects.all().filter(deletion=True)
-        elif selection == 'Is SNP':
-            if filter_on == 'False':
-                result_list = SNP_Type.objects.all().filter(is_snp=False)
-            elif filter_on == 'True':
-                result_list = SNP_Type.objects.all().filter(is_snp=True)
-        elif selection == 'Monomorphic':
-            if filter_on == 'False':
-                result_list = SNP_Type.objects.all().filter(monomorphic=False)
-            elif filter_on == 'True':
-                result_list = SNP_Type.objects.all().filter(monomorphic=True)
-        elif selection == 'Transition':
-            if filter_on == 'False':
-                result_list = SNP_Type.objects.all().filter(transition=False)
-            elif filter_on == 'True':
-                result_list = SNP_Type.objects.all().filter(transition=True)
-        elif selection == 'SV':
-            if filter_on == 'False':
-                result_list = SNP_Type.objects.all().filter(sv=False)
-            elif filter_on == 'True':
-                result_list = SNP_Type.objects.all().filter(sv=True)
-        else:
-            result_list = Filter.objects.all()
+    filter_dict = {}
+    filter_dict[str(selection)] = str(filter_on)
+
+    result_list = SNP_Type.objects.all().filter(**filter_dict)
 
     order_by = request.GET.get('order_by', 'snp')
     result_list = result_list.order_by(order_by)
     paginator = Paginator(result_list, 50)
     page = request.GET.get('page')
-    filter_urls = build_orderby_urls(request.get_full_path(), ['snp_id', 'filter_id', 'filter_result',
-                                                               'filter_cv'])
+    filter_urls = build_orderby_urls(request.get_full_path(), ['snptype_id', 'snp_id', 'indel',
+                                                               'deletion', 'is_snp', 'monomorphic',
+                                                               'transition', 'sv'])
     try:
         snptypes = paginator.page(page)
     except PageNotAnInteger:
@@ -439,6 +284,8 @@ def snptype_filter(request):
 
     return render_to_response('snpdb/snptype.html', {"snptypes": snptypes,
                                                      "filter_urls": filter_urls,
+                                                     "selection": selection,
+                                                     "filter_on": filter_on,
                                                      "paginator": paginator,
                                                      "toolbar_max": toolbar_max,
                                                      "toolbar_min": toolbar_min})
@@ -447,31 +294,10 @@ def snptype_filter(request):
 def statistics_filter(request):
     selection = request.GET.get('att')
     filter_on = request.GET.get('s')
-    check = request.GET.get('check')
-    if check == "on":
-        if selection == 'Statistic ID':
-            positions = integer_filters(Statistics.objects.values_list('stats_id'), filter_on, selection)
-            result_list = Statistics.objects.all().filter(stats_id__in=positions)
-        elif selection == 'SNP ID':
-            positions = integer_filters(Statistics.objects.values_list('snp_id'), filter_on, selection)
-            result_list = Statistics.objects.all().filter(snp_id__in=positions)
-        elif selection == 'Statistic':
-            result_list = Statistics.objects.filter(stats_cvterm__regex=filter_on)
-        elif selection == 'Value':
-            result_list = Statistics.objects.all().filter(cv_value__regex=filter_on)
-        else:
-            result_list = Statistics.objects.all()
-    else:
-        if selection == 'Statistic ID':
-            result_list = Statistics.objects.all().filter(stats_id=filter_on)
-        elif selection == 'SNP ID':
-            result_list = Statistics.objects.all().filter(snp_id=filter_on)
-        elif selection == 'Statistic':
-            result_list = Statistics.objects.all().filter(stats_cvterm=filter_on)
-        elif selection == 'Value':
-            result_list = Statistics.objects.all().filter(cv_value=filter_on)
-        else:
-            result_list = Statistics.objects.all()
+    filter_dict = {}
+    filter_dict[str(selection)] = str(filter_on)
+
+    result_list = Statistics.objects.all().filter(**filter_dict)
 
     order_by = request.GET.get('order_by', 'snp')
     result_list = result_list.order_by(order_by)
@@ -491,15 +317,17 @@ def statistics_filter(request):
 
     return render_to_response('snpdb/statistics.html', {"statistic": statistic,
                                                         "filter_urls": filter_urls,
+                                                        "selection": selection,
+                                                        "filter_on": filter_on,
                                                         "paginator": paginator,
                                                         "toolbar_max": toolbar_max,
                                                         "toolbar_min": toolbar_min})
 
-# Query views.
-# --------------------------------------------------------------------------------------
+    # Query views.
+    # --------------------------------------------------------------------------------------
 
 
-# The search view for the user to input a gene. Lists all gene ids for the user to choose from.
+    # The search view for the user to input a gene. Lists all gene ids for the user to choose from.
 def gene_snps(request):
     genes = Feature.objects.values('geneid').distinct()
     paginator = Paginator(genes, 120)
@@ -520,7 +348,7 @@ def gene_snps(request):
                                                          "toolbar_min": toolbar_min})
 
 
-# Returns all snps found within the gene location regardless of library.
+    # Returns all snps found within the gene location regardless of library.
 def gene_snps_filter(request):
     flanks = int(request.GET.get('f'))
     order_by = request.GET.get('order_by', 'library__librarycode')
@@ -571,7 +399,7 @@ def gene_snps_filter(request):
                                                                  "count": count})
 
 
-# Returns the search page to query both a library/gene combination for snps.
+    # Returns the search page to query both a library/gene combination for snps.
 def library_gene_snps(request):
     gene = request.GET.get('s')
     library = request.GET.get('lib')
@@ -595,7 +423,7 @@ def library_gene_snps(request):
                                                             "toolbar_min": toolbar_min})
 
 
-# Returns the snps found within a specific library and gene.
+    # Returns the snps found within a specific library and gene.
 def library_gene_snps_filter(request):
     order_by = request.GET.get('order_by', 'library__librarycode')
     gene = request.GET.get('s')
@@ -643,7 +471,7 @@ def library_gene_snps_filter(request):
                                                                    "count": count})
 
 
-# Returns a summary of the number of snps found in each library.
+    # Returns a summary of the number of snps found in each library.
 def library_snp_summary(request):
     order_by = request.GET.get('order_by', 'library')
     results = SNP.objects.values('library__librarysize',
@@ -683,13 +511,10 @@ def library_snps(request):
     order_by = request.GET.get('order_by', 'snp_id').encode("ascii")
     library = request.GET.get('lib')
     count = request.GET.get('count')
-    print library
     selection = request.GET.get('att')
     filter_on = request.GET.get('s')
-    print selection, filter_on
     filter_dict = {}
     filter_dict[str(selection)] = str(filter_on)
-    print filter_dict
     if filter_dict:
         if selection == 'effect__effect_string':
             results = SNP.objects.filter(effect__effect_id=6, effect__effect_string__exact=filter_on.decode('utf-8'), effect__effect_class__endswith='SYNONYMOUS_CODING'.decode('utf-8'), library__librarycode=library).values('library', 'library__librarycode', 'snp_id',
@@ -780,90 +605,7 @@ def library_snps(request):
                                                           "count": count})
 
 
-# # Returns all snps found in the specific library.
-# def library_snps(request):
-#     order_by = request.GET.get('order_by', 'snp_id').encode("ascii")
-#     library = request.GET.get('lib')
-#     count = request.GET.get('count')
-#
-#     results = SNP.objects.values('library', 'library__librarycode', 'snp_id',
-#                                  'snp_position', 'ref_base', 'alt_base',
-#                                  'heterozygosity', 'quality',
-#                                  'chromosome__chromosome_name', 'effect__effect_string',
-#                                  'effect__effect_class', 'effect__effect').order_by(order_by)
-#
-#     snp_dict = {}
-#     for each in results:
-#         current_genes = []
-#         # current_genes[:] = []
-#         if each['library__librarycode'] == library:
-#             if empty_effect(each['effect__effect']) or each['effect__effect'] == 6:
-#                 if empty_effect(each['effect__effect_class']) or (each['effect__effect_class'] == ('NON_SYNONYMOUS_CODING' or 'SYNONYMOUS_CODING')):
-#                     if each['snp_id'] in snp_dict:
-#                         for k, v in snp_dict[each['snp_id']].iteritems():
-#                             if k == 'effect__effect_string':
-#                                 if type(v) is list:
-#                                     for x in v:
-#                                         current_genes.append(str(x))
-#                                 else:
-#                                     current_genes.append(str(v).strip())
-#                         if each['effect__effect_string'] in current_genes:
-#                             pass
-#                         elif snp_dict[each['snp_id']]['effect__effect_string'] == 'None':
-#                             snp_dict[each['snp_id']] = each
-#                         else:
-#                             current_genes.append(str(each['effect__effect_string'].strip()))
-#                             each['effect__effect_string'] = current_genes
-#                             snp_dict[each['snp_id']] = each
-#                     else:
-#                         snp_dict[each['snp_id']] = each
-#                 else:
-#                     if each['snp_id'] in snp_dict:
-#                         pass
-#                     else:
-#                         each["effect__effect_class"] = 'None'
-#                         each["effect__effect_string"] = 'None'
-#                         each["effect__effect"] = 'None'
-#                         snp_dict[each['snp_id']] = each
-#             else:
-#                 if each['snp_id'] in snp_dict:
-#                     pass
-#                 else:
-#                     each["effect__effect_class"] = 'None'
-#                     each["effect__effect_string"] = 'None'
-#                     each["effect__effect"] = 'None'
-#                     snp_dict[each['snp_id']] = each
-#     sorted_snp_dict = sorted(snp_dict.items(), key=lambda x: x[1][order_by])
-#     paginator = Paginator(sorted_snp_dict, 100)
-#     page = request.GET.get('page')
-#
-#     # Calls utils method to append new filters or order_by to the current url
-#     filter_urls = build_orderby_urls(request.get_full_path(), ['library', 'library__librarycode', 'snp_id',
-#                                                                'snp_position', 'ref_base', 'alt_base',
-#                                                                'heterozygosity', 'quality',
-#                                                                'chromosome__chromosome_name',
-#                                                                'effect__effect_string'])
-#     try:
-#         results = paginator.page(page)
-#     except PageNotAnInteger:
-#         results = paginator.page(1)
-#     except EmptyPage:
-#         contacts = paginator.page(paginator.num_pages)
-#
-#     toolbar_max = min(results.number + 4, paginator.num_pages)
-#     toolbar_min = max(results.number - 4, 0)
-#
-#     return render_to_response('snpdb/library_snps.html', {"results": results,
-#                                                           "library": library,
-#                                                           "order_by": order_by,
-#                                                           "filter_urls": filter_urls,
-#                                                           "paginator": paginator,
-#                                                           "toolbar_max": toolbar_max,
-#                                                           "toolbar_min": toolbar_min,
-#                                                           "count": count})
-
-
-# Dispalys the search page to compare snps across libraries
+    # Dispalys the search page to compare snps across libraries
 def compare_gene_lib(request):
     libraries = Library.objects.values('librarycode').distinct()
     paginator = Paginator(libraries, 120)
@@ -884,7 +626,7 @@ def compare_gene_lib(request):
                                                                   "toolbar_min": toolbar_min})
 
 
-# Returns the comparison of a gene across specific libraries.
+    # Returns the comparison of a gene across specific libraries.
 def compare_gene_lib_filter(request):
     order_by = request.GET.get('order_by', 'librarycode')
     gene = request.GET.get('s')
@@ -1008,7 +750,7 @@ def library_chromosome_snps_filter(request):
                                                                        "count": count})
 
 
-# Displays the search page for a snp summary by library and chromosome level.
+    # Displays the search page for a snp summary by library and chromosome level.
 def chromosome_library_snp_summary(request):
     libraries = Library.objects.values('librarycode').distinct().order_by('librarycode')
     paginator = Paginator(libraries, 120)
@@ -1029,7 +771,7 @@ def chromosome_library_snp_summary(request):
                                                                             "toolbar_min": toolbar_min})
 
 
-# Returns a chromosome level summary for an individual library.
+    # Returns a chromosome level summary for an individual library.
 def chromosome_library_snp_summary_filter(request):
     order_by = request.GET.get('order_by', 'chromosome__chromosome_name')
     library = request.GET.get('lib')
@@ -1063,7 +805,7 @@ def chromosome_library_snp_summary_filter(request):
     })
 
 
-# Returns the snps found within a library and chromosome
+    # Returns the snps found within a library and chromosome
 def library_chromosome_snps(request):
     chromosomes = Chromosome.objects.values('chromosome_name').distinct().order_by('chromosome_name')
     page = request.GET.get('page')

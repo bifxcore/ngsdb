@@ -28,6 +28,6 @@ def integer_filters(results_list, filter_by, selection):
     print return_list
     return return_list
 
-
-def subtract_values(arg1, arg2):
-    return abs(arg1-arg2)
+#
+# def subtract_values(arg1, arg2):
+#     return abs(arg1-arg2)
