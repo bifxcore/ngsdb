@@ -31,19 +31,20 @@ admin.site.register(Sample, SampleAdmin)
 class LibraryAdmin(admin.ModelAdmin):
     readonly_fields = ("date_modified", "date_created", "author_modified")
 
-    fieldsets = (
-        ('Library', {'fields':('library_code', 'author', 'collaborator')}),
-        ('Sample Information', {'fields': ('sampleid', 'biosample', 'bioproject'), 'classes': ('grp-collapse grp-close',), }),
-        ('Library Construction', {'fields': ('librarytype', 'template_material', 'protocol', 'protocol_notes', 'library_creation_date', 'submitted_for_sequencing_on', 'library_gelimage'), 'classes': ('grp-collapse grp-close',), }),
-        ('Sequencing Information', {'fields': ('sequence_downloaded_on', 'flowcell_number', 'lane_number', 'index_sequence', 'fastqfile_name', 'fastqfile_readcount', 'fastqfile_size_inbytes', 'fastqfile_md5sum', 'experiment_notes'), 'classes': ('grp-collapse grp-close',), }),
-        ('Analysis Information', {'fields': ('reference_genome', 'reference_genome_version', 'note_for_analysis'), 'classes': ('grp-collapse grp-close',), }),
-        ('Data Tracking', {'fields': ('date_created', 'date_modified', 'author_modified'), 'classes': ('grp-collapse grp-close',), })
-    )
+    #fieldsets = (
+    #    ('Library', {'fields':('library_code', 'author', 'collaborator')}),
+    #    ('Sample Information', {'fields': ('sampleid', 'biosample', 'bioproject'), 'classes': ('grp-collapse grp-close',), }),
+    #    ('Library Construction', {'fields': ('librarytype', 'template_material', 'protocol', 'protocol_notes', 'library_creation_date', 'submitted_for_sequencing_on', 'library_gelimage'), 'classes': ('grp-collapse grp-close',), }),
+    #    ('Sequencing Information', {'fields': ('sequence_downloaded_on', 'flowcell_number', 'lane_number', 'index_sequence', 'fastqfile_name', 'fastqfile_readcount', 'fastqfile_size_inbytes', 'fastqfile_md5sum', 'experiment_notes'), 'classes': ('grp-collapse grp-close',), }),
+    #    ('Analysis Information', {'fields': ('reference_genome', 'reference_genome_version', 'note_for_analysis'), 'classes': ('grp-collapse grp-close',), }),
+    #    ('Data Tracking', {'fields': ('date_created', 'date_modified', 'author_modified'), 'classes': ('grp-collapse grp-close',), })
+    #)
     list_display = ('library_code', 'librarytype', 'organism', 'protocol', 'template_material', 'reference_genome', 'collaborator', 'bioproject', 'library_creation_date', 'sequence_downloaded_on', 'flowcell_number', 'lane_number', 'index_sequence', 'fastqfile_name', 'fastqfile_readcount')
     list_filter = ['collaborator', 'librarytype__type', 'author__designation', 'organism__organismcode', 'lifestage', 'phenotype', 'genotype', 'growthphase', 'template_material', 'reference_genome']
     search_fields = ['collaborator__firstname', 'collaborator__lastname', 'librarytype__type', 'author__designation', 'author__lastname', 'author__firstname', 'experiment_notes', 'protocol_notes', 'bioproject__bioproject_code', 'bioproject__bioproject_code', 'biosample__biosample_code', 'protocol__protocol_name', 'library_code', 'flowcell_number', 'index_sequence']
     list_editable = ('protocol', 'template_material')
     # todo remove editable list once aarthi is done
+    # todo uncomment after all uploading of libraries
 
     def save_model(self, request, obj, form, change):
         obj.author_modified = request.user

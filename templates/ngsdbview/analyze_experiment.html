@@ -138,7 +138,7 @@
                     <TR><TH>{{ libcode }}</TH></TR>
                     {% for res in anaset %}
                         <TR><TD></TD>
-                            <TD><input type="radio" name={{ 'radio_resids_'|add:libcode }} value = {{ res.result_id }} >{{ res.result_id }}</TD>
+                            <TD><input type="radio" checked name={{ 'radio_resids_'|add:libcode }} value = {{ res.result_id }} >{{ res.result_id }}</TD>
                             <TD>{{ libcode }}</TD>
                             <TD>{{ res.genome.organism.organismcode }}</TD>
                             <TD>{{ res.genome.version }}</TD>
