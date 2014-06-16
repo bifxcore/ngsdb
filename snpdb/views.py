@@ -1,7 +1,7 @@
 from snpdb.models import *
 from django.shortcuts import render_to_response
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from utils import build_orderby_urls, integer_filters
+from utils import build_orderby_urls
 from django.db.models import *
 from django_boolean_sum import BooleanSum
 from templatetags.snp_filters import *
@@ -323,13 +323,13 @@ def statistics_filter(request):
                                                         "toolbar_max": toolbar_max,
                                                         "toolbar_min": toolbar_min})
 
-    # Query views.
-    # --------------------------------------------------------------------------------------
 
+# Query views.
+# --------------------------------------------------------------------------------------
 
-    # The search view for the user to input a gene. Lists all gene ids for the user to choose from.
+# The search view for the user to input a gene. Lists all gene ids for the user to choose from.
 def gene_snps(request):
-    genes = Feature.objects.values('geneid').distinct()
+    genes = Effect.objects.values('effect_string').filter(effect=6).filter(effect_class=("NON_SYNONYMOUS_CODING" or "SYNONYMOUS_CODING")).distinct().order_by('effect_string')
     paginator = Paginator(genes, 120)
 
     page = request.GET.get('page')
@@ -348,7 +348,7 @@ def gene_snps(request):
                                                          "toolbar_min": toolbar_min})
 
 
-    # Returns all snps found within the gene location regardless of library.
+# Returns all snps found within the gene location regardless of library.
 def gene_snps_filter(request):
     flanks = int(request.GET.get('f'))
     order_by = request.GET.get('order_by', 'library__librarycode')
@@ -399,7 +399,7 @@ def gene_snps_filter(request):
                                                                  "count": count})
 
 
-    # Returns the search page to query both a library/gene combination for snps.
+# Returns the search page to query both a library/gene combination for snps.
 def library_gene_snps(request):
     gene = request.GET.get('s')
     library = request.GET.get('lib')
@@ -423,7 +423,7 @@ def library_gene_snps(request):
                                                             "toolbar_min": toolbar_min})
 
 
-    # Returns the snps found within a specific library and gene.
+# Returns the snps found within a specific library and gene.
 def library_gene_snps_filter(request):
     order_by = request.GET.get('order_by', 'library__librarycode')
     gene = request.GET.get('s')
@@ -471,7 +471,7 @@ def library_gene_snps_filter(request):
                                                                    "count": count})
 
 
-    # Returns a summary of the number of snps found in each library.
+# Returns a summary of the number of snps found in each library.
 def library_snp_summary(request):
     order_by = request.GET.get('order_by', 'library')
     results = SNP.objects.values('library__librarysize',
@@ -503,10 +503,10 @@ def library_snp_summary(request):
                                                                  "filter_urls": filter_urls,
                                                                  "paginator": paginator,
                                                                  "toolbar_max": toolbar_max,
-                                                                 "toolbar_min": toolbar_min }
-    )
+                                                                 "toolbar_min": toolbar_min })
 
 
+# Returns all snps found within a library using the effect table.
 def library_snps(request):
     order_by = request.GET.get('order_by', 'snp_id').encode("ascii")
     library = request.GET.get('lib')
@@ -605,10 +605,11 @@ def library_snps(request):
                                                           "count": count})
 
 
-    # Dispalys the search page to compare snps across libraries
+# Dispalys the search page to compare snps across libraries
 def compare_gene_lib(request):
-    libraries = Library.objects.values('librarycode').distinct()
-    paginator = Paginator(libraries, 120)
+    genes = Effect.objects.values('effect_string').filter(effect=6).filter(effect_class=("NON_SYNONYMOUS_CODING" or "SYNONYMOUS_CODING")).distinct().order_by('effect_string')
+    count = len(genes)
+    paginator = Paginator(genes, 120)
 
     page = request.GET.get('page')
     try:
@@ -621,12 +622,13 @@ def compare_gene_lib(request):
     toolbar_min = max(results.number - 4, 0)
 
     return render_to_response('snpdb/compare_gene_library.html', {"results": results,
+                                                                  "count": count,
                                                                   "paginator": paginator,
                                                                   "toolbar_max": toolbar_max,
                                                                   "toolbar_min": toolbar_min})
 
 
-    # Returns the comparison of a gene across specific libraries.
+# Returns the comparison of a gene across specific libraries.
 def compare_gene_lib_filter(request):
     order_by = request.GET.get('order_by', 'librarycode')
     gene = request.GET.get('s')
@@ -651,29 +653,32 @@ def compare_gene_lib_filter(request):
                                                                          "count": count,
                                                                          "filter_urls": filter_urls,
                                                                          "toolbar_max": toolbar_max,
-                                                                         "toolbar_min": toolbar_min }
-    )
+                                                                         "toolbar_min": toolbar_min })
 
 
-def compare_gene_lib_filter_results(request):
-    order_by = request.GET.get('order_by', 'library__librarycode')
+def compare_gene_lib_filter_results_effect(request):
+    # order_by = request.GET.get('order_by', 'library__librarycode')
     gene = request.GET.get('s')
     library = request.GET.getlist('check')
     cds_fmin = Feature.objects.values_list('fmin', flat=True).filter(geneid=gene, featuretype='CDS')[0]
     cds_fmax = Feature.objects.values_list('fmax', flat=True).filter(geneid=gene, featuretype='CDS')[0]
     fmin = Feature.objects.filter(geneid=gene).filter(featuretype='gene').values('fmin')[0]
     fmax = Feature.objects.filter(geneid=gene).filter(featuretype='gene').values('fmax')[0]
-    result_list = SNP.objects.values('snp_id', 'snp_position', 'ref_base', 'alt_base', 'library__librarycode').filter(library__librarycode__in=library,
-                                                                                                                      snp_position__range=(Feature.objects.values_list('fmin', flat=True).filter(geneid=gene).filter(featuretype='gene')[0],
-                                                                                                                                           Feature.objects.values_list('fmax', flat=True).filter(geneid=gene).filter(featuretype='gene')[0]),
-                                                                                                                      chromosome__chromosome_name=Feature.objects.values_list('chromosome', flat=True).filter(geneid=gene).filter(featuretype='gene')[0]).order_by(order_by)
 
+    result_list = SNP.objects.filter(effect__effect_id=6, effect__effect_string__exact=gene,
+                                     effect__effect_class__endswith='SYNONYMOUS_CODING'.decode('utf-8'),
+                                     library__librarycode__in=library).values('library', 'library__librarycode', 'snp_id',
+                                                                              'snp_position', 'ref_base', 'alt_base',
+                                                                              'heterozygosity', 'quality',
+                                                                              'chromosome__chromosome_name', 'effect__effect_string',
+                                                                              'effect__effect_class', 'effect__effect')
     snp_group = []
+    library_group = []
     max_snps = 0
     count = 0
-    # print result_list
     for each in result_list:
         snp_position = each['snp_position']
+        library = each['library__librarycode']
         if snp_position in snp_group:
             count += 1
             pass
@@ -684,9 +689,13 @@ def compare_gene_lib_filter_results(request):
         if count > max_snps:
             max_snps = count
             count = 0
+        if library in library_group:
+            pass
+        else:
+            library_group.append(library)
     paginator = Paginator(result_list, 50)
     page = request.GET.get('page')
-    filter_urls = build_orderby_urls(request.get_full_path(), ['gene', 'fmin', 'fmax', 'snp_position', 'library__librarycode'])
+    filter_urls = build_orderby_urls(request.get_full_path(), ['snp_id', 'snp_position', 'ref_base', 'alt_base', 'library__librarycode'])
     try:
         results = paginator.page(page)
     except PageNotAnInteger:
@@ -704,14 +713,79 @@ def compare_gene_lib_filter_results(request):
                                                                                 "fmin": fmin,
                                                                                 "fmax": fmax,
                                                                                 "count": len(snp_group),
+                                                                                "library_group": library_group,
                                                                                 "snp_group": snp_group,
                                                                                 "max_snps": range(max_snps),
                                                                                 "filter_urls": filter_urls,
                                                                                 "toolbar_max": toolbar_max,
-                                                                                "toolbar_min": toolbar_min}
-    )
+                                                                                "toolbar_min": toolbar_min})
 
 
+# Returns the list of genes found within the selected libraries.
+# todo need to change view so that all library snps align. Look at gene LdBPK_292260.1 as an example (across all libs).
+def compare_gene_lib_filter_results(request):
+    order_by = request.GET.get('order_by', 'library__librarycode')
+    gene = request.GET.get('s')
+    library = request.GET.getlist('check')
+    cds_fmin = Feature.objects.values_list('fmin', flat=True).filter(geneid=gene, featuretype='CDS')[0]
+    cds_fmax = Feature.objects.values_list('fmax', flat=True).filter(geneid=gene, featuretype='CDS')[0]
+    fmin = Feature.objects.filter(geneid=gene).filter(featuretype='gene').values('fmin')[0]
+    fmax = Feature.objects.filter(geneid=gene).filter(featuretype='gene').values('fmax')[0]
+    result_list = SNP.objects.values('snp_id', 'snp_position', 'ref_base', 'alt_base', 'library__librarycode').filter(library__librarycode__in=library,
+                                                                                                                      snp_position__range=(Feature.objects.values_list('fmin', flat=True).filter(geneid=gene).filter(featuretype='gene')[0],
+                                                                                                                                           Feature.objects.values_list('fmax', flat=True).filter(geneid=gene).filter(featuretype='gene')[0]),
+                                                                                                                      chromosome__chromosome_name=Feature.objects.values_list('chromosome', flat=True).filter(geneid=gene).filter(featuretype='gene')[0]).order_by(order_by)
+
+    snp_group = []
+    library_group = []
+    max_snps = 0
+    count = 0
+    for each in result_list:
+        snp_position = each['snp_position']
+        library = each['library__librarycode']
+        if snp_position in snp_group:
+            count += 1
+            pass
+        else:
+            snp_group.append(snp_position)
+            count = 1
+            pass
+        if count > max_snps:
+            max_snps = count
+            count = 0
+        if library in library_group:
+            pass
+        else:
+            library_group.append(library)
+    paginator = Paginator(result_list, 50)
+    page = request.GET.get('page')
+    filter_urls = build_orderby_urls(request.get_full_path(), ['snp_id', 'snp_position', 'ref_base', 'alt_base', 'library__librarycode'])
+    try:
+        results = paginator.page(page)
+    except PageNotAnInteger:
+        results = paginator.page(1)
+    except EmptyPage:
+        results = paginator.page(paginator.num_pages)
+
+    toolbar_max = min(results.number + 4, paginator.num_pages)
+    toolbar_min = max(results.number - 4, 0)
+
+    return render_to_response('snpdb/compare_gene_library_filter_result.html', {"results": results,
+                                                                                "gene": gene,
+                                                                                "cds_fmin": cds_fmin,
+                                                                                "cds_fmax": cds_fmax,
+                                                                                "fmin": fmin,
+                                                                                "fmax": fmax,
+                                                                                "count": len(snp_group),
+                                                                                "library_group": library_group,
+                                                                                "snp_group": snp_group,
+                                                                                "max_snps": range(max_snps),
+                                                                                "filter_urls": filter_urls,
+                                                                                "toolbar_max": toolbar_max,
+                                                                                "toolbar_min": toolbar_min})
+
+
+# Returns snps found in a library and chromosome.
 def library_chromosome_snps_filter(request):
     chromosome = request.GET.get('s')
     library = request.GET.get('lib')
@@ -750,7 +824,7 @@ def library_chromosome_snps_filter(request):
                                                                        "count": count})
 
 
-    # Displays the search page for a snp summary by library and chromosome level.
+# Displays the search page for a snp summary by library and chromosome level.
 def chromosome_library_snp_summary(request):
     libraries = Library.objects.values('librarycode').distinct().order_by('librarycode')
     paginator = Paginator(libraries, 120)
@@ -771,7 +845,7 @@ def chromosome_library_snp_summary(request):
                                                                             "toolbar_min": toolbar_min})
 
 
-    # Returns a chromosome level summary for an individual library.
+# Returns a chromosome level summary for an individual library.
 def chromosome_library_snp_summary_filter(request):
     order_by = request.GET.get('order_by', 'chromosome__chromosome_name')
     library = request.GET.get('lib')
@@ -801,11 +875,10 @@ def chromosome_library_snp_summary_filter(request):
                                                                                    "filter_urls": filter_urls,
                                                                                    "paginator": paginator,
                                                                                    "toolbar_max": toolbar_max,
-                                                                                   "toolbar_min": toolbar_min
-    })
+                                                                                   "toolbar_min": toolbar_min})
 
 
-    # Returns the snps found within a library and chromosome
+# Returns the snps found within a library and chromosome
 def library_chromosome_snps(request):
     chromosomes = Chromosome.objects.values('chromosome_name').distinct().order_by('chromosome_name')
     page = request.GET.get('page')
@@ -827,6 +900,8 @@ def library_chromosome_snps(request):
                                                                     "toolbar_min": toolbar_min})
 
 
+# todo change to access genes through the Effect table.
+# Returns a full list of genes found within a specific library. Currently connects through the feature table.
 def gene_list(request):
     order_by = request.GET.get('order_by', 'chromosome')
     library = request.GET.get('lib')
@@ -854,3 +929,84 @@ def gene_list(request):
                                                        "paginator": paginator,
                                                        "toolbar_max": toolbar_max,
                                                        "toolbar_min": toolbar_min})
+
+
+# View to search a list of genes for snps.
+def multi_gene_snps(request):
+    genes = Effect.objects.values('effect_string').filter(effect=6).filter(effect_class=("NON_SYNONYMOUS_CODING" or "SYNONYMOUS_CODING")).distinct().order_by('effect_string')
+    paginator = Paginator(genes, 120)
+
+    page = request.GET.get('page')
+    try:
+        genes = paginator.page(page)
+    except PageNotAnInteger:
+        genes = paginator.page(1)
+    except EmptyPage:
+        contacts = paginator.page(paginator.num_pages)
+    toolbar_max = min(genes.number + 4, paginator.num_pages)
+    toolbar_min = max(genes.number - 4, 0)
+
+    return render_to_response('snpdb/multi_gene_snps.html', {"genes": genes,
+                                                             "paginator": paginator,
+                                                             "toolbar_max": toolbar_max,
+                                                             "toolbar_min": toolbar_min})
+
+
+# Returns snps found within a list of genes. Does not consider library.
+def multi_gene_snps_filter(request):
+    flanks = int(request.GET.get('f'))
+    order_by = request.GET.get('order_by', 'library__librarycode')
+    gene = request.GET.get('s')
+    query_string = {}
+    for each in gene.split():
+        # print type(str(each))
+        if 'geneid' in query_string:
+            print type(query_string)
+            query_string['geneid'].append(str(each))
+        else:
+            query_string['geneid'] = str(each)
+    # print query_string
+
+    fmin = Feature.objects.values_list('fmin', flat=True).filter(*query_string).filter(featuretype='gene')[0]
+    fmax = Feature.objects.values_list('fmax', flat=True).filter(geneid=gene).filter(featuretype='gene')[0]
+    try:
+        cds_fmin = Feature.objects.values_list('fmin', flat=True).filter(geneid=gene, featuretype='CDS')[0]
+        cds_fmax = Feature.objects.values_list('fmax', flat=True).filter(geneid=gene, featuretype='CDS')[0]
+    except IndexError:
+        print "There are no CDS regions associated with this gene."
+        cds_fmin = 0
+        cds_fmax = 0
+        pass
+    result_list = SNP.objects.values('library__librarycode', 'result_id',
+                                     'chromosome__chromosome_name', 'snp_id',
+                                     'snp_position', 'ref_base',
+                                     'alt_base').filter(snp_position__range=((Feature.objects.values_list('fmin', flat=True).filter(geneid=gene).filter(featuretype='gene')[0])+flanks,
+                                                                             (Feature.objects.values_list('fmax', flat=True).filter(geneid=gene).filter(featuretype='gene')[0])+flanks),
+                                                        chromosome__chromosome_name=Feature.objects.values_list('chromosome', flat=True).filter(geneid=gene).filter(featuretype='gene')[0]).order_by(order_by)
+    count = result_list.count()
+    paginator = Paginator(result_list, 50)
+    page = request.GET.get('page')
+    filter_urls = build_orderby_urls(request.get_full_path(), ['library__librarycode', 'result_id',
+                                                               'chromosome__chromosome_name', 'snp_id',
+                                                               'snp_position', 'ref_base', 'alt_base'])
+    try:
+        results = paginator.page(page)
+    except PageNotAnInteger:
+        results = paginator.page(1)
+    except EmptyPage:
+        contacts = paginator.page(paginator.num_pages)
+
+    toolbar_max = min(results.number + 4, paginator.num_pages)
+    toolbar_min = max(results.number - 4, 0)
+
+    return render_to_response('snpdb/snps_in_gene_filter.html', {"results": results,
+                                                                 "filter_urls": filter_urls,
+                                                                 "paginator": paginator,
+                                                                 "toolbar_max": toolbar_max,
+                                                                 "toolbar_min": toolbar_min,
+                                                                 "cds_fmin": cds_fmin,
+                                                                 "cds_fmax": cds_fmax,
+                                                                 "fmin": fmin,
+                                                                 "fmax": fmax,
+                                                                 "gene": gene,
+                                                                 "count": count})

@@ -5,6 +5,10 @@
 {% load display_rows %}
 {% load snp_filters %}
 
+<script type="text/javascript">
+    var $th = $td.closest('table').find('th').eq($td.index());
+
+</script>
 {% block content %}
 <div class="page-header text-header" style="padding-left:30px">
     <h1>Library Comparison on Gene</h1>
@@ -33,13 +37,13 @@
         <table class="table table-condensed table-hover table-responsive table-bordered" name="result_table" style="table-layout: fixed; word-wrap: break-word;">
             <thead>
             <tr>
-                <th class="text-center"><a href={{ filter_urls.gene }}>Gene</a></th>
-                <th class="text-center"><a href={{ filter_urls.fmin }}>Gene Start</a></th>
-                <th class="text-center"><a href={{ filter_urls.fmax }}>Gene Stop</a></th>
-                <th class="text-center"><a href={{ filter_urls.snp_position }}>SNP Position</a></th>
-                {% for each in max_snps %}
-                <th class="text-center">
-                    <div><a href={{ filter_urls.library__librarycode }}> Library</a></div>
+                <th class="text-center" id="gene"><a href={{ filter_urls.gene }}>Gene</a></th>
+                <th class="text-center" id="fmin"><a href={{ filter_urls.fmin.fmin }}>Gene Start</a></th>
+                <th class="text-center" id="fmax"><a href={{ filter_urls.fmax.fmax }}>Gene Stop</a></th>
+                <th class="text-center" id="position"><a href={{ filter_urls.snp_position }}>SNP Position</a></th>
+                {% for each in library_group %}
+                <th class="text-center" id={{each}}>
+                    <div><a href={{ filter_urls.library__librarycode }}> {{each}}</a></div>
                     <div><a href={{ filter_urls.snp_position }}> Base Changes</a></div>
                 </th>
                 {% endfor %}
@@ -48,20 +52,20 @@
             <tbody>
             <tr>
                 {% for position in snp_group %}
-                    <td class="text-center">{{ gene }}</td>
-                    <td class="text-center">{{ fmin.fmin }}</td>
-                    <td class="text-center">{{ fmax.fmax }}</td>
-                    <td class="text-center">{{ position }}</td>
+                    <td class="text-center" headers="gene">{{ gene }}</td>
+                    <td class="text-center" headers="fmin">{{ fmin.fmin }}</td>
+                    <td class="text-center" headers="fmax">{{ fmax.fmax }}</td>
+                    <td class="text-center" headers="position">{{ position }}</td>
                 {% for each in results %}
                     {% make_list each.snp_position position as some_list %}
                     {% if each.snp_positon|integer_comparison:some_list %}
                         {% if each.snp_position >= cds_fmin and each.snp_position <= cds_fmax %}
-                            <td class="text-center success">
+                            <td class="text-center success" headers={{each.library__librarycode}}>
                                 <div>{{ each.library__librarycode }}</div>
                                 <div>{{ each.ref_base}} <span class="glyphicon glyphicon-arrow-right"></span> {{each.alt_base}}</div>
                             </td>
                         {% else %}
-                        <td class="text-center">
+                        <td class="text-center" headers={{each.library__librarycode}}>
                             <div>{{ each.library__librarycode }}</div>
                             <div>{{ each.ref_base}} <span class="glyphicon glyphicon-arrow-right"></span> {{each.alt_base}}</div>
                         </td>

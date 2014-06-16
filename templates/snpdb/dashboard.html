@@ -42,20 +42,31 @@
         <div class="navbar-header">
             <ul class="nav navbar-nav">
                 <li class="active" id="home"><a href="/snpdb">Home</a></li>
-                <li id="snp"><a href="/snpdb/snp">SNP</a></li>
-                <li id="snptype"><a href="/snpdb/snptype">SNP Type</a></li>
-                <li id="statistics"><a href="/snpdb/statistics">Statistics</a></li>
-                <li id="effect"><a href="/snpdb/effect">Effect</a></li>
-                <li id="filter"><a href="/snpdb/filter">Filter</a></li>
                 <li class="dropdown">
-                    <a class="dropdown-toggle" data-toggle="dropdown" id="search_dropdown" href="#">Search <b class="caret"></b></a>
+                    <a class="dropdown-toggle" data-toggle="dropdown" id="search_dropdown" href="#">Tables <b class="caret"></b></a>
+                    <ul id="dropdown" class="dropdown-menu" role="menu">
+                        <li role="presentation" id="snp"><a role="menuitem" href="/snpdb/snp">SNP</a></li>
+                        <li role="presentation" id="snptype"><a role="menuitem" href="/snpdb/snptype">SNP Type</a></li>
+                        <li role="presentation" id="statistics"><a role="menuitem" href="/snpdb/statistics">Statistics</a></li>
+                        <li role="presentation" id="effect"><a role="menuitem" href="/snpdb/effect">Effect</a></li>
+                        <li role="presentation" id="filter"><a role="menuitem" href="/snpdb/filter">Filter</a></li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown" id="search_dropdown" href="#">Summary Views <b class="caret"></b></a>
                     <ul id="dropdown" class="dropdown-menu" role="menu">
                         <li role="presentation"><a role="menuitem" href="/snpdb/library-snp-summary">Library Level Summary</a></li>
                         <li role="presentation"><a role="menuitem" href="/snpdb/chromosome-library-snp-summary">Chromosome Level Summary</a></li>
-                        <li role="presentation"><a role="menuitem" href="/snpdb/gene-snps">Gene to Snps</a></li>
-                        <li role="presentation"><a role="menuitem" href="/snpdb/library-chromosome-snps">Chromosome and Library to Snps</a></li>
-                        <li role="presentation"><a role="menuitem" href="/snpdb/library-gene-snps">Gene and Library to Snps</a></li>
-                        <li role="presentation"><a role="menuitem" href="/snpdb/compare-gene-lib">Library Comparison on Gene</a></li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown" id="search_dropdown" href="#">Search <b class="caret"></b></a>
+                    <ul id="dropdown" class="dropdown-menu" role="menu">
+                        <li role="presentation"><a role="menuitem" href="/snpdb/gene-snps"> Query Gene for Snps</a></li>
+                        <li role="presentation"><a role="menuitem" href="/snpdb/multi-gene-snps"> Query Mulit-Genes for Snps</a></li>
+                        <li role="presentation"><a role="menuitem" href="/snpdb/library-chromosome-snps">Query Chromosome and Library for Snps</a></li>
+                        <li role="presentation"><a role="menuitem" href="/snpdb/library-gene-snps">Query Gene and Library for Snps</a></li>
+                        <li role="presentation"><a role="menuitem" href="/snpdb/compare-gene-lib">Multi-Library Comparison on Gene</a></li>
                     </ul>
                 </li>
             </ul>

@@ -7,6 +7,7 @@
 
 <div class="page-header text-header" style="padding-left:30px">
     <h1>Library Comparison on Gene</h1>
+    <h4>There are {{ count }} genes in the database. </h4>
 </div>
 
 
@@ -28,7 +29,7 @@
         {% for group in results|group_by:6 %}
         <div class="form-group">
                 {% for obj in group %}
-                    <label class="col-sm-2">{{ obj.librarycode }}      </label>
+                    <label class="col-sm-2">{{ obj.effect_string }}</label>
                 {% endfor %}
         </div>
         {% endfor %}
@@ -39,16 +40,16 @@
 <div class="pagination">
     <ul class="pagination">
         {% if results.has_previous %}
-            <li><a href="?page={{  results.previous_page_number }}">&laquo;</a></li>
+            <li><a href="?page={{ results.previous_page_number }}">&laquo;</a></li>
         {% else %}
             <li class="disabled"><a href="#">&laquo;</a></li>
         {%  endif %}
 
         {% for page in paginator.page_range %}
             {% if page <= toolbar_max and page > toolbar_min and page != results.number %}
-                    <li><a href="?page={{  page  }}">{{ page }}</a></li>
+                    <li><a href="?page={{ page }}">{{ page }}</a></li>
             {% elif page == results.number %}
-                <li class="active"><a href="?page={{  results.number }}">{{ results.number }}</a></li>
+                <li class="active"><a href="?page={{ results.number }}">{{ results.number }}</a></li>
             {% endif %}
         {% endfor %}
 
