@@ -5,7 +5,14 @@
     - How much will bootstrap be utilized after integration?
 - Add filtering options for query result pages
 - Need to debug Library Comparison on Gene when there is no CDS region defined. Try catch needed.
+- Identify regions not present in reference but are present in query genome
+- List snps found within one library but not second
+- Add effect type to tables
+
 
 
 Future Functionality:
 - Mapping table for genes: return all values for genes with old names
+- Somy
+- CNV
+- Gene deletions?

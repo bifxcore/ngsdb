@@ -40,57 +40,57 @@
 </div>
 </body>
 
-<div class="container" style="padding-bottom:30px">
-<div class="container-fluid">
-    <form class="form-inline" role="form" id='compare_libs'>
-        <table class="table table-condensed table-hover table-responsive table-bordered" name="result_table" style="table-layout: fixed; word-wrap: break-word;">
-            <thead>
-            <tr>
-                <th class="text-center"><a href={{ filter_urls.library }}>Library ID</a></th>
-                <th class="text-center"><a href={{ filter_urls.library__librarycode }}>Library</a></th>
-                <th class="text-center"><a href={{ filter_urls.snp_id }}>SNP ID</a></th>
-                <th class="text-center"><a href={{ filter_urls.snp_position }}>Position</a></th>
-                <th class="text-center"><a href={{ filter_urls.ref_base }}>Reference Base</a></th>
-                <th class="text-center"><a href={{ filter_urls.alt_base }}>Alternate Base</a></th>
-                <th class="text-center"><a href={{ filter_urls.heterozygosity }}>Heterozygosity</a></th>
-                <th class="text-center"><a href={{ filter_urls.quality }}>Quality</a></th>
-                <th class="text-center"><a href={{ filter_urls.chromosome__chromosome_name }}>Chromosome</a></th>
-                <th class="text-center"><a href={{ filter_urls.effect__effect_string }}>Genes</a></th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for snp_id in results %}
-                {% for each in snp_id %}
-                    {% if each.library %}
-                        {% if each.effect__effect_string|no_effect %}
-                            <tr class="success">
-                        {% else %}
-                            <tr>
-                        {% endif %}
-                            <td class="text-center">{{ each.library }}</td>
-                            <td class="text-center">{{ library }}</td>
-                            <td class="text-center">{{ each.snp_id }}</td>
-                            <td class="text-center">{{ each.snp_position }}</td>
-                            <td class="text-center">{{ each.ref_base }}</td>
-                            <td class="text-center">{{ each.alt_base }}</td>
-                            <td class="text-center">{{ each.heterozygosity }}</td>
-                            <td class="text-center">{{ each.quality }}</td>
-                            <td class="text-center">{{ each.chromosome__chromosome_name }}</td>
-                            <td class="text-center">
-                            {% if each.effect__effect_string|get_type %}
-                                {% for effect in each.effect__effect_string %}
-                                    {{ effect }}
-                                {% endfor %}
+<div class="container-fluid" style="padding-bottom:30px">
+    <div class="container-fluid">
+        <form class="form-inline" role="form" id='compare_libs'>
+            <table class="table table-condensed table-hover table-responsive table-bordered" name="result_table" style="table-layout: fixed; word-wrap: break-word;">
+                <thead>
+                <tr>
+                    <th class="text-center"><a href={{ filter_urls.library }}>Library ID</a></th>
+                    <th class="text-center"><a href={{ filter_urls.library__librarycode }}>Library</a></th>
+                    <th class="text-center"><a href={{ filter_urls.snp_id }}>SNP ID</a></th>
+                    <th class="text-center"><a href={{ filter_urls.snp_position }}>Position</a></th>
+                    <th class="text-center"><a href={{ filter_urls.ref_base }}>Reference Base</a></th>
+                    <th class="text-center"><a href={{ filter_urls.alt_base }}>Alternate Base</a></th>
+                    <th class="text-center"><a href={{ filter_urls.heterozygosity }}>Heterozygosity</a></th>
+                    <th class="text-center"><a href={{ filter_urls.quality }}>Quality</a></th>
+                    <th class="text-center"><a href={{ filter_urls.chromosome__chromosome_name }}>Chromosome</a></th>
+                    <th class="text-center"><a href={{ filter_urls.effect__effect_string }}>Genes</a></th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for snp_id in results %}
+                    {% for each in snp_id %}
+                        {% if each.library %}
+                            {% if each.effect__effect_string|no_effect %}
+                                <tr class="success">
                             {% else %}
-                                {{ each.effect__effect_string }}
+                                <tr>
                             {% endif %}
-                            </td>
-                        </tr>
-                    {% endif %}
+                                <td class="text-center">{{ each.library }}</td>
+                                <td class="text-center">{{ library }}</td>
+                                <td class="text-center">{{ each.snp_id }}</td>
+                                <td class="text-center">{{ each.snp_position }}</td>
+                                <td class="text-center">{{ each.ref_base }}</td>
+                                <td class="text-center">{{ each.alt_base }}</td>
+                                <td class="text-center">{{ each.heterozygosity }}</td>
+                                <td class="text-center">{{ each.quality }}</td>
+                                <td class="text-center">{{ each.chromosome__chromosome_name }}</td>
+                                <td class="text-center">
+                                {% if each.effect__effect_string|get_type %}
+                                    {% for effect in each.effect__effect_string %}
+                                        {{ effect }}
+                                    {% endfor %}
+                                {% else %}
+                                    {{ each.effect__effect_string }}
+                                {% endif %}
+                                </td>
+                            </tr>
+                        {% endif %}
+                    {% endfor %}
                 {% endfor %}
-            {% endfor %}
-            </tbody>
-        </table>
+                </tbody>
+            </table>
     </form>
 </div>
 </div>

@@ -514,7 +514,8 @@ def library_snps(request):
     selection = request.GET.get('att')
     filter_on = request.GET.get('s')
     filter_dict = {}
-    filter_dict[str(selection)] = str(filter_on)
+    if selection:
+        filter_dict[str(selection)] = str(filter_on)
     if filter_dict:
         if selection == 'effect__effect_string':
             results = SNP.objects.filter(effect__effect_id=6, effect__effect_string__exact=filter_on.decode('utf-8'),
