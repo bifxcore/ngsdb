@@ -957,7 +957,7 @@ def multi_gene_snps(request):
 
 # Returns snps found within a list of genes. Does not consider library.
 def multi_gene_snps_filter(request):
-    order_by = request.GET.get('order_by', 'effet__effect_string')
+    order_by = request.GET.get('order_by', 'effect__effect_string')
     gene = request.GET.get('s')
     genes = gene.split()
 
@@ -997,7 +997,7 @@ def multi_gene_snps_filter(request):
 
 def multi_gene_library_snps(request):
     libraries = Library.objects.values('librarycode').order_by('librarycode')
-    print len(libraries)
+    # print len(libraries)
     genes = Effect.objects.values('effect_string').filter(effect=6).filter(effect_class=("NON_SYNONYMOUS_CODING" or
                                                                                          "SYNONYMOUS_CODING")).distinct().order_by('effect_string')
 
@@ -1017,3 +1017,47 @@ def multi_gene_library_snps(request):
                                                                      "libraries": libraries,
                                                                      "toolbar_max": toolbar_max,
                                                                      "toolbar_min": toolbar_min})
+
+
+def multi_gene_library_snps_filter(request):
+    order_by = request.GET.get('order_by', 'effect__effect_string')
+    gene = request.GET.get('s')
+    libraries = request.GET.getlist('check')
+    genes = gene.split()
+    # libraries = library.split()
+    print libraries
+
+    result_list = SNP.objects.filter(effect__effect_id=6, effect__effect_string__in=genes,
+                                     library__librarycode__in=libraries,
+                                     effect__effect_class__endswith='SYNONYMOUS_CODING'.decode('utf-8')).values('library', 'library__librarycode', 'snp_id',
+                                                                                                                'snp_position', 'ref_base', 'alt_base',
+                                                                                                                'heterozygosity', 'quality',
+                                                                                                                'chromosome__chromosome_name', 'effect__effect_string',
+                                                                                                                'effect__effect_class', 'effect__effect', 'result_id').order_by(order_by)
+
+    count = result_list.count()
+    paginator = Paginator(result_list, 50)
+    page = request.GET.get('page')
+    filter_urls = build_orderby_urls(request.get_full_path(), ['library', 'library__librarycode', 'snp_id',
+                                                               'snp_position', 'ref_base', 'alt_base',
+                                                               'heterozygosity', 'quality',
+                                                               'chromosome__chromosome_name', 'effect__effect_string',
+                                                               'effect__effect_class', 'effect__effect', 'result_id'])
+    try:
+        results = paginator.page(page)
+    except PageNotAnInteger:
+        results = paginator.page(1)
+    except EmptyPage:
+        contacts = paginator.page(paginator.num_pages)
+
+    toolbar_max = min(results.number + 4, paginator.num_pages)
+    toolbar_min = max(results.number - 4, 0)
+
+    return render_to_response('snpdb/multi_gene_snps__library_filter.html', {"results": results,
+                                                                             "filter_urls": filter_urls,
+                                                                             "paginator": paginator,
+                                                                             "toolbar_max": toolbar_max,
+                                                                             "toolbar_min": toolbar_min,
+                                                                             "genes": genes,
+                                                                             "count": count})
+

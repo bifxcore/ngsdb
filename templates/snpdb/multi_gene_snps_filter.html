@@ -27,7 +27,7 @@
 </div>
 </body>
 
-
+<div class="container" style="padding-bottom:30px">
 <table class="table table-condensed table-hover" style="table-layout: fixed; word-wrap: break-word;">
     <thead>
     <tr>
@@ -55,7 +55,10 @@
     {% endfor %}
     </tbody>
 </table>
+    </div>
 
+
+<div class="container" style="padding-bottom:30px">
 <div class="pagination">
     <ul class="pagination">
         {% if results.has_previous %}
@@ -77,5 +80,7 @@
         {% endif %}
     </ul>
 </div>
-        {% endblock %}
+</div>
+
+{% endblock %}
 </html>

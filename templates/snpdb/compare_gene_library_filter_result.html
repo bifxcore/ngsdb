@@ -32,6 +32,7 @@
 </div>
 </div>
 
+<div class="container" style="padding-bottom:30px">
 <div class="container-fluid">
     <form class="form-inline" role="form" id='compare_libs' action="/snpdb/compare-gene-lib-filter/search" method="get">
         <table class="table table-condensed table-hover table-responsive table-bordered" name="result_table" style="table-layout: fixed; word-wrap: break-word;">
@@ -78,7 +79,9 @@
         </table>
     </form>
 </div>
+</div>
 
+<div class="container" style="padding-bottom:30px">
 <div class="pagination">
     <ul class="pagination">
         {% if results.has_previous %}
@@ -99,6 +102,7 @@
         <li><a href="?page={{ results.next_page_number }}">&raquo;</a></li>
         {% endif %}
     </ul>
+</div>
 </div>
 
 {% endblock %}

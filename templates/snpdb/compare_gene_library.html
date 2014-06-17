@@ -12,6 +12,7 @@
 
 
 <body>
+<div class="container" style="padding-bottom:30px">
 <div class="collapse navbar-collapse navbar-ex1-collapse">
     <ul class="nav navbar-nav">
         <form class="form-inline" role="form" id='search' action='/snpdb/compare-gene-lib/search' method="get">
@@ -23,40 +24,44 @@
         </form>
     </ul>
 </div>
+</div>
 
+<div class="container" style="padding-bottom:30px">
 
 <div class="form">
         {% for group in results|group_by:6 %}
         <div class="form-group">
                 {% for obj in group %}
-                    <label class="col-sm-2">{{ obj.effect_string }}</label>
+                    <label class="col-md-2">{{ obj.effect_string }}</label>
                 {% endfor %}
         </div>
         {% endfor %}
 </div>
+</div>
 </body>
 
+<div class="container" style="padding-bottom:30px">
+    <div class="pagination">
+        <ul class="pagination">
+            {% if results.has_previous %}
+                <li><a href="?page={{ results.previous_page_number }}">&laquo;</a></li>
+            {% else %}
+                <li class="disabled"><a href="#">&laquo;</a></li>
+            {%  endif %}
 
-<div class="pagination">
-    <ul class="pagination">
-        {% if results.has_previous %}
-            <li><a href="?page={{ results.previous_page_number }}">&laquo;</a></li>
-        {% else %}
-            <li class="disabled"><a href="#">&laquo;</a></li>
-        {%  endif %}
+            {% for page in paginator.page_range %}
+                {% if page <= toolbar_max and page > toolbar_min and page != results.number %}
+                        <li><a href="?page={{ page }}">{{ page }}</a></li>
+                {% elif page == results.number %}
+                    <li class="active"><a href="?page={{ results.number }}">{{ results.number }}</a></li>
+                {% endif %}
+            {% endfor %}
 
-        {% for page in paginator.page_range %}
-            {% if page <= toolbar_max and page > toolbar_min and page != results.number %}
-                    <li><a href="?page={{ page }}">{{ page }}</a></li>
-            {% elif page == results.number %}
-                <li class="active"><a href="?page={{ results.number }}">{{ results.number }}</a></li>
+            {% if results.has_next %}
+                <li><a href="?page={{ results.next_page_number }}">&raquo;</a></li>
             {% endif %}
-        {% endfor %}
-
-        {% if results.has_next %}
-            <li><a href="?page={{ results.next_page_number }}">&raquo;</a></li>
-        {% endif %}
-    </ul>
+        </ul>
+    </div>
 </div>
 
 {% endblock %}

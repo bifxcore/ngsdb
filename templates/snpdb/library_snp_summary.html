@@ -7,7 +7,6 @@
 <div class="page-header text-header" style="padding-left:30px">
     <h1>Library Summary</h1>
     <h4>There are {{ count }} libraries with SNP data. </h4>
-
 </div>
 
 <body>
@@ -64,7 +63,7 @@
 </div>
 
 
-
+<div class="container" style="padding-bottom:30px">
 <div class="pagination">
     <ul class="pagination">
         {% if results.has_previous %}
@@ -86,9 +85,7 @@
         {% endif %}
     </ul>
 </div>
-
-
-
+</div>
 
 {% endblock %}
 </html>

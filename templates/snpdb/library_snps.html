@@ -11,6 +11,8 @@
 </div>
 
 <body>
+
+<div class="container" style="padding-bottom:30px">
 <div class="container-fluid" style="padding-bottom:30px">
     <div class="collapse navbar-collapse navbar-ex1-collapse">
         <ul class="nav navbar-nav">
@@ -35,8 +37,10 @@
             </form>
     </div>
 </div>
+</div>
 </body>
 
+<div class="container" style="padding-bottom:30px">
 <div class="container-fluid">
     <form class="form-inline" role="form" id='compare_libs'>
         <table class="table table-condensed table-hover table-responsive table-bordered" name="result_table" style="table-layout: fixed; word-wrap: break-word;">
@@ -89,7 +93,9 @@
         </table>
     </form>
 </div>
+</div>
 
+<div class="container" style="padding-bottom:30px">
 
 <div class="pagination">
     <ul class="pagination">
@@ -111,6 +117,7 @@
             <li><a href="/snpdb/library-snp-summary/search?lib={{library}}&count={{count}}&order_by={{order_by}}&page={{ results.next }}">&raquo;</a></li>
         {% endif %}
     </ul>
+</div>
 </div>
 
 {% endblock %}

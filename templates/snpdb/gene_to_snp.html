@@ -5,12 +5,15 @@
 {% block content %}
 {% load display_rows %}
 
+<div class="container" style="padding-bottom:30px">
 <div class="page-header text-header" style="padding-left:30px">
     <h1>Snps found in Genes</h1>
+</div>
 </div>
 
 
 <body>
+<div class="container" style="padding-bottom:30px">
 <div class="collapse navbar-collapse navbar-ex1-collapse">
     <ul class="nav navbar-nav">
         <form class="form-inline" role="form" id='search' action='/snpdb/gene-snps/search' method="get">
@@ -30,7 +33,9 @@
         </form>
     </ul>
 </div>
+</div>
 
+<div class="container" style="padding-bottom:30px">
 <div class="form">
    {% for group in genes|group_by:6 %}
         <div class="form-group">
@@ -40,10 +45,11 @@
         </div>
    {% endfor %}
 </div>
+</div>
 
 </body>
 
-
+<div class="container" style="padding-bottom:30px">
 <div class="pagination">
     <ul class="pagination pull-left">
         {% if genes.has_previous %}
@@ -64,6 +70,7 @@
             <li><a href="?page={{ genes.next_page_number }}">&raquo;</a></li>
         {% endif %}
     </ul>
+</div>
 </div>
 
 {% endblock %}

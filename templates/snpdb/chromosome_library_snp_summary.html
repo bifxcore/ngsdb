@@ -11,6 +11,7 @@
 
 
 <body>
+<div class="container" style="padding-bottom:30px">
 <div class="collapse navbar-collapse navbar-ex1-collapse">
     <ul class="nav navbar-nav">
         <form class="form-inline" role="form" id='search' action='/snpdb/chromosome-library-snps-summary/search' method="get">
@@ -22,7 +23,9 @@
         </form>
     </ul>
 </div>
+</div>
 
+<div class="container" style="padding-bottom:30px">
 <div class="form">
         {% for group in results|group_by:6 %}
         <div class="form-group">
@@ -31,6 +34,7 @@
                 {% endfor %}
         </div>
         {% endfor %}
+</div>
 </div>
 
 </body>

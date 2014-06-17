@@ -10,6 +10,7 @@
 
 
 <body>
+<div class="container" style="padding-bottom:30px">
 <div class="collapse navbar-collapse navbar-ex1-collapse">
     <ul class="nav navbar-nav">
         <form class="form-inline" role="form" id='search' action='/snpdb/library-chromosome-snps/search' method="get">
@@ -25,7 +26,9 @@
         </form>
     </ul>
 </div>
+</div>
 
+<div class="container" style="padding-bottom:30px">
 
 <div class="form">
         {% for group in results|group_by:6 %}
@@ -36,8 +39,10 @@
         </div>
         {% endfor %}
 </div>
+</div>
 </body>
 
+<div class="container" style="padding-bottom:30px">
 
 <div class="pagination">
     <ul class="pagination">
@@ -59,6 +64,7 @@
             <li><a href="?page={{ results.next_page_number }}">&raquo;</a></li>
         {% endif %}
     </ul>
+</div>
 </div>
 
 {% endblock %}

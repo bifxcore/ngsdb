@@ -3,12 +3,16 @@
 {% extends "snpdb/dashboard.html" %}
 
 {% block content %}
+<div class="container" style="padding-bottom:30px">
+
 <div class="page-header text-header" style="padding-left:30px">
     <h1>Gene and Library Query Results</h1>
     <h4>There are {{ count }} snps found in both {{library}} and {{gene}}. </h4>
 </div>
+</div>
 
 <body>
+<div class="container" style="padding-bottom:30px">
 <div class="collapse navbar-collapse navbar-ex1-collapse">
     <ul class="nav navbar-nav">
         <form class="form-inline" role="form" id='search' action='/snpdb/gene-snps/search' method="get">
@@ -23,9 +27,12 @@
         </div>
     </ul>
 </div>
+</div>
 
 
 </body>
+<div class="container" style="padding-bottom:30px">
+
 <table class="table table-condensed table-hover" style="table-layout: fixed; word-wrap: break-word;">
     <thead>
     <tr>
@@ -63,8 +70,9 @@
     {% endfor %}
     </tbody>
 </table>
+</div>
 
-
+<div class="container" style="padding-bottom:30px">
 <div class="pagination">
     <ul class="pagination">
         {% if results.has_previous %}
@@ -85,6 +93,7 @@
         <li><a href="?page={{ results.next_page_number }}">&raquo;</a></li>
         {% endif %}
     </ul>
+</div>
 </div>
 
 {% endblock %}
