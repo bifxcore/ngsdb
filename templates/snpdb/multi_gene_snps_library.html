@@ -6,7 +6,7 @@
 {% load display_rows %}
 
 <div class="page-header text-header" style="padding-left:30px">
-    <h1>Snps found in Genes</h1>
+    <h1>Snps found in Genes and Libraries</h1>
 </div>
 
 
@@ -15,12 +15,23 @@
 <div class="container" style="padding-bottom:30px">
 <div class="collapse navbar-collapse navbar-ex1-collapse">
     <ul class="nav navbar-nav">
-        <form class="form" role="form" id='search' action='/snpdb/multi-gene-snps/search' method="get">
+        <form class="form-horizontal" role="form" id='search' action='/snpdb/multi-gene-snps/search' method="get">
             <div class="form-group">
                 <textarea class="form-control" rows="3" name="s" placeholder="gene ids"></textarea>
                 <p class="help-block">Please separate Ids by commmas, semicolons, spaces, or newline.</p>
             </div>
-            <div class="form-inline">
+            <div class="form-group">
+                {% for group in libraries|group_by:16 %}
+                    <div class="form-vertical">
+                        {% for lib in group %}
+                            <div class="col-sm-2">
+                                <input type="checkbox"> {{lib.librarycode}}
+                            </div>
+                        {% endfor %}
+                     </div>
+                {% endfor %}
+            </div>
+            <div class="form-group">
                 <button id="submit" class="btn btn-primary" type="submit">Search</button>
             </div>
         </form>
@@ -29,14 +40,14 @@
 </div>
 
 <div class="container" style="padding-bottom:30px">
-<div class="form">
-   {% for group in genes|group_by:6 %}
-        <div class="form-group">
+<div class="form-horizontal">
+   <div class="form-group">
+       {% for group in genes|group_by:6 %}
             {% for obj in group %}
                 <label class="col-sm-2">{{ obj.effect_string }}</label>
             {% endfor %}
-        </div>
-   {% endfor %}
+       {% endfor %}
+   </div>
 </div>
 </div>
 

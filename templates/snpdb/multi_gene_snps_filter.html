@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+{% extends "snpdb/dashboard.html" %}
+{% load mathfilters %}
+
+{% block content %}
+<div class="page-header text-header" style="padding-left:30px">
+    <h1>Snps in Genes Query Results</h1>
+    <h4>There are {{ count }} snps within this gene and flanking region. </h4>
+</div>
+
+<body>
+<div class="container" style="padding-bottom:30px">
+<div class="collapse navbar-collapse navbar-ex1-collapse">
+    <ul class="nav navbar-nav">
+        <form class="form" role="form" id='search' action='/snpdb/multi-gene-snps/search' method="get">
+            <div class="form-group">
+                <textarea class="form-control" rows="3" name="s" placeholder="gene ids"></textarea>
+                <p class="help-block">Please separate Ids by commmas, semicolons, spaces, or newline.</p>
+            </div>
+            <div class="form-inline">
+                <button id="submit" class="btn btn-primary" type="submit">Search</button>
+            </div>
+        </form>
+    </ul>
+</div>
+</div>
+</body>
+
+
+<table class="table table-condensed table-hover" style="table-layout: fixed; word-wrap: break-word;">
+    <thead>
+    <tr>
+        <th class="col-xs-1 text-center"><a href={{ filter_urls.library__librarycode }}>Library Code</a></th>
+        <th class="col-xs-1 text-center"><a href={{ filter_urls.result_id }}>Result ID</a></th>
+        <th class="col-xs-1 text-center"><a href={{ filter_urls.effect__effect_string }}>Gene</a></th>
+        <th class="col-xs-1 text-center"><a href={{ filter_urls.chromosome__chromosome_name }}>Chromosome</a></th>
+        <th class="col-xs-1 text-center"><a href={{ filter_urls.snp_id }}>SNP ID</a></th>
+        <th class="col-xs-1 text-center"><a href={{ filter_urls.snp_position }}>SNP Position</a></th>
+        <th class="col-xs-1 text-center"><a href={{ filter_urls.ref_base }}>Reference Base</a></th>
+        <th class="col-xs-1 text-center"><a href={{ filter_urls.alt_base }}>Alternate Base</a></th>
+    </tr>
+    </thead>
+    <tbody>
+        {% for each in results %}
+            <td class="text-center">{{ each.library__librarycode}}</td>
+            <td class="text-center">{{ each.result_id }}</td>
+            <td class="text-center">{{ each.effect__effect_string }}</td>
+            <td class="text-center">{{ each.chromosome__chromosome_name }}</td>
+            <td class="text-center">{{ each.snp_id }}</td>
+            <td class="text-center">{{ each.snp_position }}</td>
+            <td class="text-center">{{ each.ref_base }}</td>
+            <td class="text-center">{{ each.alt_base }}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<div class="pagination">
+    <ul class="pagination">
+        {% if results.has_previous %}
+        <li><a href="?page={{  results.previous_page_number }}">&laquo;</a></li>
+        {% else %}
+        <li class="disabled"><a href="#">&laquo;</a></li>
+        {%  endif %}
+
+        {% for page in paginator.page_range %}
+        {% if page <= toolbar_max and page > toolbar_min and page != results.number %}
+        <li><a href="?page={{  page  }}">{{ page }}</a></li>
+        {% elif page == results.number %}
+        <li class="active"><a href="?page={{  results.number }}">{{ results.number }}</a></li>
+        {% endif %}
+        {% endfor %}
+
+        {% if results.has_next %}
+        <li><a href="?page={{ results.next_page_number }}">&raquo;</a></li>
+        {% endif %}
+    </ul>
+</div>
+        {% endblock %}
+</html>
