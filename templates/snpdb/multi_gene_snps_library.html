@@ -13,42 +13,42 @@
 <body>
 
 <div class="container" style="padding-bottom:30px">
-<div class="collapse navbar-collapse navbar-ex1-collapse">
-    <ul class="nav navbar-nav">
-        <form class="form-horizontal" role="form" id='search' action='/snpdb/multi-gene-library-snps/search' method="get">
-            <div class="form-group">
-                <textarea class="form-control" rows="3" name="s" placeholder="gene ids"></textarea>
-                <p class="help-block">Please separate Ids by commmas, semicolons, spaces, or newline.</p>
-            </div>
-            <div class="form-group">
-                {% for group in libraries|group_by:16 %}
-                    <div class="form-vertical">
-                        {% for lib in group %}
-                            <div class="col-sm-2">
-                                <input type="checkbox" name="check" value="{{ lib.librarycode }}"> {{lib.librarycode}}
-                            </div>
-                        {% endfor %}
-                     </div>
-                {% endfor %}
-            </div>
-            <div class="form-group">
-                <button id="submit" class="btn btn-primary" type="submit">Search</button>
-            </div>
-        </form>
-    </ul>
-</div>
+    <div class="collapse navbar-collapse navbar-ex1-collapse">
+        <ul class="nav navbar-nav">
+            <form class="form-horizontal" role="form" id='search' action='/snpdb/multi-gene-library-snps/search' method="get">
+                <div class="form-group">
+                    <textarea class="form-control" rows="3" name="s" placeholder="gene ids"></textarea>
+                    <p class="help-block">Please separate Ids by commmas, semicolons, spaces, or newline.</p>
+                </div>
+                <div class="form-group">
+                    {% for group in libraries|group_by:16 %}
+                        <div class="form-vertical">
+                            {% for lib in group %}
+                                <div class="col-sm-2">
+                                    <input type="checkbox" name="check" value="{{ lib.librarycode }}"> {{lib.librarycode}}
+                                </div>
+                            {% endfor %}
+                         </div>
+                    {% endfor %}
+                </div>
+                <div class="form-group">
+                    <button id="submit" class="btn btn-primary" type="submit">Search</button>
+                </div>
+            </form>
+        </ul>
+    </div>
 </div>
 
-<div class="container" style="padding-bottom:30px">
-<div class="form-horizontal">
-   <div class="form-group">
-       {% for group in genes|group_by:6 %}
-            {% for obj in group %}
-                <label class="col-sm-2">{{ obj.effect_string }}</label>
-            {% endfor %}
-       {% endfor %}
-   </div>
-</div>
+<div class="container-fluid" style="padding-bottom:30px">
+    <div class="form-horizontal">
+       <div class="form-group">
+           {% for group in genes|group_by:6 %}
+                {% for obj in group %}
+                    <label class="col-sm-2">{{ obj.effect_string }}</label>
+                {% endfor %}
+           {% endfor %}
+       </div>
+    </div>
 </div>
 
 </body>
