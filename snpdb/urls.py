@@ -19,6 +19,8 @@ urlpatterns = patterns('',
                        url(r'^snp/search', 'snpdb.views.snp_filter_result'),
                        url(r'^snptype/search', 'snpdb.views.snptype_filter'),
                        url(r'^statistics/search', 'snpdb.views.statistics_filter'),
+                       url(r'^snps-in-libx-no-liby/search', 'snpdb.views.snps_in_libx_no_liby'),
+
 
                        #Search Functions
                        url(r'^chromosome-library-snp-summary', 'snpdb.views.chromosome_library_snp_summary'),
@@ -30,6 +32,8 @@ urlpatterns = patterns('',
                        url(r'^library-chromosome-snps', 'snpdb.views.library_chromosome_snps'),
                        url(r'^library-gene-snps', 'snpdb.views.library_gene_snps'),
                        url(r'^library-snp-summary', 'snpdb.views.library_snp_summary'),
+                       url(r'^compare-libs', 'snpdb.views.compare_two_libraries'),
+
 
 
                        # Basic Table Views:

@@ -1062,3 +1062,67 @@ def multi_gene_library_snps_filter(request):
                                                                              "genes": genes,
                                                                              "count": count})
 
+
+def compare_two_libraries(request):
+    lib_list = Library.objects.values('librarycode')
+    page = request.GET.get('page')
+    paginator = Paginator(lib_list, 120)
+
+    try:
+        results = paginator.page(page)
+    except PageNotAnInteger:
+        results = paginator.page(1)
+    except EmptyPage:
+        contacts = paginator.page(paginator.num_pages)
+    toolbar_max = min(results.number + 4, paginator.num_pages)
+    toolbar_min = max(results.number - 4, 0)
+    return render_to_response('snpdb/compare_two_libraries.html', {"results": results,
+                                                                   "paginator": paginator,
+                                                                   "toolbar_max": toolbar_max,
+                                                                   "toolbar_min": toolbar_min})
+
+
+def snps_in_libx_no_liby(request):
+    print "made it here"
+    library1 = request.GET.get('lib1')
+    library2 = request.GET.get('lib2')
+
+    snp2 = SNP.objects.values('library', 'library__librarycode', 'snp_id',
+                              'snp_position', 'ref_base', 'alt_base',
+                              'heterozygosity', 'quality', 'chromosome__chromosome_name',
+                              'effect__effect_string', 'effect__effect_class',
+                              'effect__effect', 'result_id').filter(library__librarycode=library2)
+    # print snp1
+    result = SNP.objects.filter(library__librarycode=library1).values('library', 'library__librarycode', 'snp_id',
+                              'snp_position', 'ref_base', 'alt_base',
+                              'heterozygosity', 'quality', 'chromosome__chromosome_name',
+                              'effect__effect_string', 'effect__effect_class',
+                              'effect__effect', 'result_id').exclude(snp_position__in=snp2).exclude(chromosome__chromosome_name__in=snp2)
+    print result
+
+    count = result.count()
+    paginator = Paginator(result, 50)
+    page = request.GET.get('page')
+    filter_urls = build_orderby_urls(request.get_full_path(), ['library', 'library__librarycode', 'snp_id',
+                                                               'snp_position', 'ref_base', 'alt_base',
+                                                               'heterozygosity', 'quality',
+                                                               'chromosome__chromosome_name', 'effect__effect_string',
+                                                               'effect__effect_class', 'effect__effect', 'result_id'])
+    try:
+        results = paginator.page(page)
+    except PageNotAnInteger:
+        results = paginator.page(1)
+    except EmptyPage:
+        contacts = paginator.page(paginator.num_pages)
+
+    toolbar_max = min(results.number + 4, paginator.num_pages)
+    toolbar_min = max(results.number - 4, 0)
+    print "rendering"
+    return render_to_response('snpdb/compare_two_libraries_filter.html', {"results": results,
+                                                                          "filter_urls": filter_urls,
+                                                                          "paginator": paginator,
+                                                                          "toolbar_max": toolbar_max,
+                                                                          "toolbar_min": toolbar_min,
+                                                                          "genes": genes,
+                                                                          "count": count})
+
