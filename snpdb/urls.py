@@ -10,6 +10,7 @@ urlpatterns = patterns('',
                        url(r'^effect/search', 'snpdb.views.effect_filter'),
                        url(r'^filter/search', 'snpdb.views.filter_filter'),
                        url(r'^gene-snps/search', 'snpdb.views.gene_snps_filter'),
+                       url(r'^impact-snps/search', 'snpdb.views.impact_snps'),
                        url(r'^library-chromosome-snps/search', 'snpdb.views.library_chromosome_snps_filter'),
                        url(r'^library-gene-snps/search', 'snpdb.views.library_gene_snps_filter'),
                        # url(r'^library-snp-summary/filter/search', 'snpdb.views.library_snps_filter'),
@@ -19,7 +20,7 @@ urlpatterns = patterns('',
                        url(r'^snp/search', 'snpdb.views.snp_filter_result'),
                        url(r'^snptype/search', 'snpdb.views.snptype_filter'),
                        url(r'^statistics/search', 'snpdb.views.statistics_filter'),
-                       url(r'^snps-in-libx-no-liby/search', 'snpdb.views.snps_in_libx_no_liby'),
+                       url(r'^difference-two-libraries/search', 'snpdb.views.difference_two_libraries_filter'),
 
 
                        #Search Functions
@@ -32,7 +33,7 @@ urlpatterns = patterns('',
                        url(r'^library-chromosome-snps', 'snpdb.views.library_chromosome_snps'),
                        url(r'^library-gene-snps', 'snpdb.views.library_gene_snps'),
                        url(r'^library-snp-summary', 'snpdb.views.library_snp_summary'),
-                       url(r'^compare-libs', 'snpdb.views.compare_two_libraries'),
+                       url(r'^difference-two-libraries', 'snpdb.views.difference_two_libraries'),
 
 
 

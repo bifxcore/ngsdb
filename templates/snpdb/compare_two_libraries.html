@@ -5,6 +5,23 @@
 {% block content %}
 {% load display_rows %}
 
+<script>
+    $.each($('#libraries a.accordion-toggle'), function(i, link){
+        var $collapsible = $('#collapse' + id_of_a_bean); // Let's be thorough
+
+        $collapsible.collapse({
+            toggle : true, // May not be necessary anymore
+            parent : '#accordion'
+        });
+
+        $(link).on('click',
+            function(){
+                $collapsible.collapse('toggle'); // Here is the magic trick
+            }
+        );
+    });
+</script>
+
 <div class="page-header text-header" style="padding-left:30px">
     <h1>Difference Between Libraries</h1>
     <h4>Find snps present in Library 1 not present in Library 2</h4>
@@ -12,10 +29,10 @@
 
 
 <body>
-<div class="container" style="padding-bottom:30px">
+<div class="container-fluid" style="padding-bottom:30px">
     <div class="collapse navbar-collapse navbar-ex1-collapse">
         <ul class="nav navbar-nav">
-            <form class="form-inline" role="form" id='search' action='/snpdb/snps-in-libx-no-liby/search' method="get">
+            <form class="form-inline" role="form" id='search' action='/snpdb/difference-two-libraries/search' method="get">
                 <div class="form-group">
                     <label class="sr-only" for="library">Library 1</label>
                     <input type="text" class="form-control" name="lib1" placeholder="library 1">
@@ -30,20 +47,31 @@
     </div>
 </div>
 
-<div class="container" style="padding-bottom:30px">
-    <div class="form">
-            {% for group in results|group_by:6 %}
-                <div class="form-group">
-                    {% for obj in group %}
-                        <label class="col-md-2">{{ obj.effect_string }}</label>
-                    {% endfor %}
-                </div>
-            {% endfor %}
+<div class="container-fluid" style="padding-bottom:30px">
+    <div class="panel-group" id="accordion">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <a data-toggle="collapse" data-parent="#libraries" href="#collapseOne">Libraries - Click to Expand</a>
+                </h4>
+            </div>
+        </div>
+        <div id="collapseOne" class="panel-collapse collapse">
+            <div class="panel-body">
+                {% for group in results|group_by:6 %}
+                    <div class="form-group">
+                        {% for obj in group %}
+                            <label class="col-md-2">{{ obj.librarycode }}</label>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
     </div>
 </div>
 </body>
 
-<div class="container" style="padding-bottom:30px">
+<div class="container-fluid" style="padding-bottom:30px">
     <div class="pagination">
         <ul class="pagination">
             {% if results.has_previous %}
