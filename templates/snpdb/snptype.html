@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+{% extends "snpdb/dashboard.html" %}
+
+{% block content %}
+
+
+<div class="page-header text-header" style="padding-left:30px">
+    <h1>SNP Type</h1>
+
+</div>
+
+
+<body>
+<div class="collapse navbar-collapse navbar-ex1-collapse">
+    <ul class="nav navbar-nav">
+        <form class="form-inline" role="form" id='search' action='/snpdb/snptype/search' method="get">
+            <div class="form-group">
+                <label class="sr-only" for="search">Search</label>
+                <input type="text" class="form-control" name="s" placeholder="search">
+                <select class="selectpicker show-tick" data-style="btn-large btn-default" name="att" title='Search Option'>
+                    <option value="snptype_id">SNP Type</option>
+                    <option value="snp_id">SNP ID</option>
+                    <option value="indel">Indel</option>
+                    <option value="deletion">Deletion</option>
+                    <option value="is_snp">Is SNP</option>
+                    <option value="monomorphic">Monomorphic</option>
+                    <option value="transition">Transition</option>
+                    <option value="sv">SV</option>
+                </select>
+                <button class="btn btn-primary" type="submit">Search</button>
+            </div>
+        </form>
+    </ul>
+</div>
+</body>
+</body>
+<table class="table table-condensed table-hover" style="table-layout: fixed; word-wrap: break-word;">
+    <thead>
+    <tr>
+        <th class="text-center"><a href={{ filter_urls.snptype_id }}>SNP Type</a></th>
+        <th class="text-center"><a href={{ filter_urls.snp_id }}>SNP ID</a></th>
+        <th class="text-center"><a href={{ filter_urls.indel }}>Indel</a></th>
+        <th class="text-center"><a href={{ filter_urls.deletion }}>Deletion</a></th>
+        <th class="text-center"><a href={{ filter_urls.is_snp }}>Is SNP</a></th>
+        <th class="text-center"><a href={{ filter_urls.monomorphic }}>Monomorphic</a></th>
+        <th class="text-center"><a href={{ filter_urls.transition }}>Transition</a></th>
+        <th class="text-center"><a href={{ filter_urls.sv }}>SV</a></th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        {% for each in snptypes %}
+        <td class="text-center">{{ each.snptype_id }}</td>
+        <td class="text-center">{{ each.snp_id }}</td>
+        <td class="text-center">{{ each.indel }}</td>
+        <td class="text-center">{{ each.deletion }}</td>
+        <td class="text-center">{{ each.is_snp }}</td>
+        <td class="text-center">{{ each.monomorphic }}</td>
+        <td class="text-center">{{ each.transition }}</td>
+        <td class="text-center">{{ each.sv }}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+
+<div class="pagination">
+    <ul class="pagination">
+        {% if snptypes.has_previous %}
+            {% if selection %}
+                <li><a href="?page={{ snptypes.previous_page_number }}&s={{filter_on}}&att={{selection}}">&laquo;</a></li>
+            {% else %}
+                <li><a href="?page={{ snptypes.previous_page_number }}">&laquo;</a></li>
+            {% endif %}
+        {% else %}
+            <li class="disabled"><a href="#">&laquo;</a></li>
+        {% endif %}
+
+        {% for page in paginator.page_range %}
+            {% if page <= toolbar_max and page > toolbar_min and page != snptypes.number %}
+                {% if selection %}
+                    <li><a href="?page={{ page }}&s={{filter_on}}&att={{selection}}">{{page}}</a></li>
+                {% else %}
+                    <li><a href="?page={{ page }}">{{page}}</a></li>
+                {% endif %}
+            {% elif page == snptypes.number %}
+                {% if selection %}
+                    <li><a href="?page={{ snptypes.number }}&s={{filter_on}}&att={{selection}}">{{snptypes.number}}</a></li>
+                {% else %}
+                    <li><a href="?page={{ snptypes.number }}">{{snptypes.number}}</a></li>
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+
+        {% if snptypes.has_next %}
+           {% if selection %}
+                <li><a href="?page={{ snptypes.next_page_number }}&s={{filter_on}}&att={{selection}}">&raquo;</a></li>
+            {% else %}
+                <li><a href="?page={{ snptypes.next_page_number }}">&raquo;</a></li>
+            {% endif %}
+        {% endif %}
+    </ul>
+</div>
+
+
+{% endblock %}
+</html>

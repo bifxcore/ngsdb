@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+
+{% load staticfiles %}
+{% load snp_filters %}
+{% load display_rows %}
+<script src="http://code.jquery.com/jquery-1.10.2.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<link href="{% static 'bootstrap/dist/css/bootstrap.css' %}" rel="stylesheet" media="screen">
+<script src="{% static 'bootstrap/dist/js/bootstrap.js' %}"></script>
+<link href="{% static 'bootstrap-select/bootstrap-select.css' %}" rel="stylesheet" media="screen">
+<script src="{% static 'bootstrap-select/bootstrap-select.js' %}"></script>
+
+{%  block navagation %}
+
+<script type="text/javascript">
+    $(document).ready(function(){
+        $(".dropdown-toggle").dropdown();
+    });
+</script>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('.selectpicker').selectpicker();
+    });
+</script>
+
+<script>
+    $(document).ready(function() {
+        $('.nav li a').click(function() {
+            if(!$(this).parent('li').hasClass('active')) {
+                $(this).parent.parent.find('li.active').removeClass('active');
+                $(this).parent.('li').addClass(('active'));
+            };
+        });
+    });
+</script>
+
+
+<div class='navbar navbar-inverse navbar-default' role="navigation">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav">
+                <li class="active" id="home"><a href="/snpdb">Home</a></li>
+                <li class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown" id="search_dropdown" href="#">Tables <b class="caret"></b></a>
+                    <ul id="dropdown" class="dropdown-menu" role="menu">
+                        <li role="presentation" id="snp"><a role="menuitem" href="/snpdb/snp">SNP</a></li>
+                        <li role="presentation" id="snptype"><a role="menuitem" href="/snpdb/snptype">SNP Type</a></li>
+                        <li role="presentation" id="statistics"><a role="menuitem" href="/snpdb/statistics">Statistics</a></li>
+                        <li role="presentation" id="effect"><a role="menuitem" href="/snpdb/effect">Effect</a></li>
+                        <li role="presentation" id="filter"><a role="menuitem" href="/snpdb/filter">Filter</a></li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown" id="search_dropdown" href="#">Summary Views <b class="caret"></b></a>
+                    <ul id="dropdown" class="dropdown-menu" role="menu">
+                        <li role="presentation"><a role="menuitem" href="/snpdb/library-snp-summary">Library Level Summary</a></li>
+                        <li role="presentation"><a role="menuitem" href="/snpdb/chromosome-library-snp-summary">Chromosome Level Summary</a></li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown" id="search_dropdown" href="#">Search <b class="caret"></b></a>
+                    <ul id="dropdown" class="dropdown-menu" role="menu">
+                        <li role="presentation"><a role="menuitem" href="/snpdb/gene-snps"> Query Gene for Snps</a></li>
+                        <li role="presentation"><a role="menuitem" href="/snpdb/multi-gene-snps"> Query Mulit-Genes for Snps</a></li>
+                        <li role="presentation"><a role="menuitem" href="/snpdb/multi-gene-library-snps"> Query Mulit-Genes and Multi Library for Snps</a></li>
+                        <li role="presentation"><a role="menuitem" href="/snpdb/library-chromosome-snps">Query Chromosome and Library for Snps</a></li>
+                        <li role="presentation"><a role="menuitem" href="/snpdb/library-gene-snps">Query Gene and Library for Snps</a></li>
+                        <li role="presentation"><a role="menuitem" href="/snpdb/compare-gene-lib">Multi-Library Comparison on Gene</a></li>
+                        <li role="presentation"><a role="menuitem" href="/snpdb/compare-libs">Compare Two Libraries</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+{%  endblock %}
+
+{%  block content %}
+<div class="page-header text-header" style="padding-left:30px">
+    <h1>SNP Database</h1>
+</div>
+
+<div id='content' class="row">
+    <div class='container'>
+        <h2>Main Content Section</h2>
+        <body class="font-size-medium">
+        <p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi. Nam liber tempor cum soluta nobis eleifend option congue nihil imperdiet doming id quod mazim placerat facer possim assum.<p>
+        <p>Typi non habent claritatem insitam; est usus legentis in iis qui facit eorum claritatem. Investigationes demonstraverunt lectores legere me lius quod ii legunt saepius. Claritas est etiam processus dynamicus, qui sequitur mutationem consuetudium lectorum. Mirum est notare quam littera gothica, quam nunc putamus parum claram, anteposuerit litterarum formas humanitatis per seacula quarta decima et quinta decima. Eodem modo typi, qui nunc nobis videntur parum clari, fiant sollemnes in futurum.</p>
+        </body>
+    </div>
+</div>
+{%  endblock %}
+
+
+
+</html>

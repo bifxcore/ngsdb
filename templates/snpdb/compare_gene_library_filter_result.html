@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+
+{% extends "snpdb/dashboard.html" %}
+{% load display_rows %}
+{% load snp_filters %}
+
+<script type="text/javascript">
+    var $th = $td.closest('table').find('th').eq($td.index());
+
+</script>
+{% block content %}
+<div class="page-header text-header" style="padding-left:30px">
+    <h1>Library Comparison on Gene</h1>
+    <h4>There are {{ count }} snps found within the {{ gene }} gene. </h4>
+</div>
+
+
+
+<body>
+<div class="container" style="padding-bottom:30px">
+<div class="collapse navbar-collapse navbar-ex1-collapse">
+    <ul class="nav navbar-nav">
+        <form class="form-inline" role="form" id='search' action='/snpdb/compare-gene-lib/search' method="get">
+            <div class="form-group">
+                <label class="sr-only" for="gene">Gene</label>
+                <input type="text" class="form-control" name="s" placeholder="gene">
+            </div>
+            <button id="submit" class="btn btn-primary" type="submit">Search</button>
+        </form>
+    </ul>
+</div>
+</div>
+
+<div class="container" style="padding-bottom:30px">
+<div class="container-fluid">
+    <form class="form-inline" role="form" id='compare_libs' action="/snpdb/compare-gene-lib-filter/search" method="get">
+        <table class="table table-condensed table-hover table-responsive table-bordered" name="result_table" style="table-layout: fixed; word-wrap: break-word;">
+            <thead>
+            <tr>
+                <th class="text-center" id="gene"><a href={{ filter_urls.gene }}>Gene</a></th>
+                <th class="text-center" id="fmin"><a href={{ filter_urls.fmin.fmin }}>Gene Start</a></th>
+                <th class="text-center" id="fmax"><a href={{ filter_urls.fmax.fmax }}>Gene Stop</a></th>
+                <th class="text-center" id="position"><a href={{ filter_urls.snp_position }}>SNP Position</a></th>
+                {% for each in library_group %}
+                <th class="text-center" id={{each}}>
+                    <div><a href={{ filter_urls.library__librarycode }}> {{each}}</a></div>
+                    <div><a href={{ filter_urls.snp_position }}> Base Changes</a></div>
+                </th>
+                {% endfor %}
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                {% for position in snp_group %}
+                    <td class="text-center" headers="gene">{{ gene }}</td>
+                    <td class="text-center" headers="fmin">{{ fmin.fmin }}</td>
+                    <td class="text-center" headers="fmax">{{ fmax.fmax }}</td>
+                    <td class="text-center" headers="position">{{ position }}</td>
+                {% for each in results %}
+                    {% make_list each.snp_position position as some_list %}
+                    {% if each.snp_positon|integer_comparison:some_list %}
+                        {% if each.snp_position >= cds_fmin and each.snp_position <= cds_fmax %}
+                            <td class="text-center success" headers={{each.library__librarycode}}>
+                                <div>{{ each.library__librarycode }}</div>
+                                <div>{{ each.ref_base}} <span class="glyphicon glyphicon-arrow-right"></span> {{each.alt_base}}</div>
+                            </td>
+                        {% else %}
+                        <td class="text-center" headers={{each.library__librarycode}}>
+                            <div>{{ each.library__librarycode }}</div>
+                            <div>{{ each.ref_base}} <span class="glyphicon glyphicon-arrow-right"></span> {{each.alt_base}}</div>
+                        </td>
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </form>
+</div>
+</div>
+
+<div class="container" style="padding-bottom:30px">
+<div class="pagination">
+    <ul class="pagination">
+        {% if results.has_previous %}
+        <li><a href="?page={{  results.previous_page_number }}">&laquo;</a></li>
+        {% else %}
+        <li class="disabled"><a href="#">&laquo;</a></li>
+        {%  endif %}
+
+        {% for page in paginator.page_range %}
+        {% if page <= toolbar_max and page > toolbar_min and page != results.number %}
+        <li><a href="?page={{  page  }}">{{ page }}</a></li>
+        {% elif page == results.number %}
+        <li class="active"><a href="?page={{ results.number }}">{{ results.number }}</a></li>
+        {% endif %}
+        {% endfor %}
+
+        {% if results.has_next %}
+        <li><a href="?page={{ results.next_page_number }}">&raquo;</a></li>
+        {% endif %}
+    </ul>
+</div>
+</div>
+
+{% endblock %}
+</html>

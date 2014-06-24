@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+{% extends "snpdb/dashboard.html" %}
+
+{% block content %}
+<div class="container" style="padding-bottom:30px">
+
+<div class="page-header text-header" style="padding-left:30px">
+    <h1>Gene and Library Query Results</h1>
+    <h4>There are {{ count }} snps found in both {{library}} and {{gene}}. </h4>
+</div>
+</div>
+
+<body>
+<div class="container" style="padding-bottom:30px">
+<div class="collapse navbar-collapse navbar-ex1-collapse">
+    <ul class="nav navbar-nav">
+        <form class="form-inline" role="form" id='search' action='/snpdb/gene-snps/search' method="get">
+            <div class="form-group">
+                <label class="sr-only" for="gene_id">Gene ID</label>
+                <input type="text" class="form-control" name="s" placeholder="gene id">
+            </div>
+            <button id="submit" class="btn btn-primary" type="submit">Search</button>
+        </form>
+        <div>
+            <h5><a href="/snpdb/compare_gene_lib/search?s={{gene}}"Compare Gene across Libraries</h5>
+        </div>
+    </ul>
+</div>
+</div>
+
+
+</body>
+<div class="container" style="padding-bottom:30px">
+
+<table class="table table-condensed table-hover" style="table-layout: fixed; word-wrap: break-word;">
+    <thead>
+    <tr>
+        <th class="col-xs-1 text-center"><a href={{ filter_urls.snp_id }}>SNP ID</a></th>
+        <th class="col-xs-2 text-center"><a href={{ filter_urls.library }}>Library</a></th>
+        <th class="col-xs-2 text-center"><a href={{ filter_urls.gene }}>Gene</a></th>
+        <th class="col-xs-1 text-center"><a href={{ filter_urls.snp_position }}>Position</a></th>
+        <th class="col-xs-1 text-center"><a href={{ filter_urls.result_id }}>Result</a></th>
+        <th class="col-xs-1 text-center"><a href={{ filter_urls.ref_base }}>Reference Base</a></th>
+        <th class="col-xs-1 text-center"><a href={{ filter_urls.alt_base }}>Alternate Base</a></th>
+        <th class="col-xs-1 text-center"><a href={{ filter_urls.heterozygosity }}>Heterozygosity</a></th>
+        <th class="col-xs-1 text-center"><a href={{ filter_urls.quality }}>Quality</a></th>
+        <th class="col-xs-1 text-center"><a href={{ filter_urls.chromosome__chromosome_name }}>Chromosome</a></th>
+    </tr>
+    </thead>
+    <tbody>
+
+    {% for each in results %}
+        {% if each.snp_position >= cds_fmin and each.snp_position <= cds_fmax %}
+            <tr class="success">
+        {% else %}
+            <tr>
+        {% endif %}
+        <td class="text-center">{{ each.snp_id }}</td>
+        <td class="text-center">{{ library }}</td>
+        <td class="text-center">{{ gene }}</td>
+        <td class="text-center">{{ each.snp_position }}</td>
+        <td class="text-center">{{ each.result_id }}</td>
+        <td class="text-center">{{ each.ref_base }}</td>
+        <td class="text-center">{{ each.alt_base }}</td>
+        <td class="text-center">{{ each.heterozygosity }}</td>
+        <td class="text-center">{{ each.quality }}</td>
+        <td class="text-center">{{ each.chromosome__chromosome_name }}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+</div>
+
+<div class="container" style="padding-bottom:30px">
+<div class="pagination">
+    <ul class="pagination">
+        {% if results.has_previous %}
+        <li><a href="?page={{  results.previous_page_number }}">&laquo;</a></li>
+        {% else %}
+        <li class="disabled"><a href="#">&laquo;</a></li>
+        {%  endif %}
+
+        {% for page in paginator.page_range %}
+        {% if page <= toolbar_max and page > toolbar_min and page != results.number %}
+        <li><a href="?page={{  page  }}">{{ page }}</a></li>
+        {% elif page == results.number %}
+        <li class="active"><a href="?page={{  results.number }}">{{ results.number }}</a></li>
+        {% endif %}
+        {% endfor %}
+
+        {% if results.has_next %}
+        <li><a href="?page={{ results.next_page_number }}">&raquo;</a></li>
+        {% endif %}
+    </ul>
+</div>
+</div>
+
+{% endblock %}
+</html>

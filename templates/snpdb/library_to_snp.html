@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+{% extends "snpdb/dashboard.html" %}
+{% load display_rows %}
+
+{% block content %}
+<div class="container" style="padding-bottom:30px">
+
+<div class="page-header text-header" style="padding-left:30px">
+    <h1>Gene and Library Query</h1>
+</div>
+</div>
+
+
+<body>
+<div class="container" style="padding-bottom:30px">
+    <div class="collapse navbar-collapse navbar-ex1-collapse">
+        <ul class="nav navbar-nav">
+            <form class="form-inline" role="form" id='search' action='/snpdb/library-gene-snps/search' method="get">
+                <div class="form-group">
+                    <label class="sr-only" for="gene_id">Gene ID</label>
+                    <input type="text" class="form-control" name="s" placeholder="gene id">
+                </div>
+                <div class="form-group">
+                    <label class="sr-only" for="library_code">librarycode</label>
+                    <input type="text" class="form-control" name="lib" placeholder="library code">
+                </div>
+                <button id="submit" class="btn btn-primary" type="submit">Search</button>
+            </form>
+        </ul>
+    </div>
+</div>
+
+<div class="container" style="padding-bottom:30px">
+    <div class="form">
+        {% for group in results|group_by:6 %}
+            <div class="form-group">
+                {% for obj in group %}
+                    <label class="col-sm-2">{{ obj.librarycode }}      </label>
+                {% endfor %}
+            </div>
+        {% endfor %}
+    </div>
+</div>
+</body>
+
+<div class="container" style="padding-bottom:30px">
+    <div class="pagination">
+        <ul class="pagination pull-right">
+            {% if results.has_previous %}
+                <li><a href="?page={{  results.previous_page_number }}">&laquo;</a></li>
+            {% else %}
+                <li class="disabled"><a href="#">&laquo;</a></li>
+            {%  endif %}
+
+            {% for page in paginator.page_range %}
+                {% if page <= toolbar_max and page > toolbar_min and page != results.number %}
+                        <li><a href="?page={{  page  }}">{{ page }}</a></li>
+                {% elif page == results.number %}
+                    <li class="active"><a href="?page={{  results.number }}">{{ results.number }}</a></li>
+                {% endif %}
+            {% endfor %}
+
+            {% if results.has_next %}
+                <li><a href="?page={{ results.next_page_number }}">&raquo;</a></li>
+            {% endif %}
+        </ul>
+    </div>
+</div>
+
+{% endblock %}
+</html>

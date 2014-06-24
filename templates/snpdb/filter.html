@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+
+{% extends "snpdb/dashboard.html" %}
+
+{% block content %}
+
+<div class="page-header text-header" style="padding-left:30px">
+    <h1>SNP Filter</h1>
+</div>
+
+<body>
+<div class="collapse navbar-collapse navbar-ex1-collapse">
+    <ul class="nav navbar-nav">
+        <form class="form-inline" role="form" id='search' action='/snpdb/filter/search' method="get">
+            <div class="form-group">
+                <label class="sr-only" for="search">Search</label>
+                <input type="text" class="form-control" name="s" placeholder="search">
+                <select class="selectpicker show-tick" data-style="btn-large btn-default" name="att" title='Search Option'>
+                    <option value="snp_id">SNP ID</option>
+                    <option value="filter_id">Filter ID</option>
+                    <option value="filter_result">Filter Result</option>
+                    <option value="filter_cv__filter_type">Filter</option>
+                </select>
+                <button class="btn btn-primary" type="submit">Search</button>
+            </div>
+        </form>
+    </ul>
+</div>
+</body>
+
+
+<table class="table table-condensed table-hover" style="table-layout: fixed; word-wrap: break-word;">
+    <thead>
+    <tr>
+        <th class="text-center text-info"><a href={{ filter_urls.snp_id }}>SNP ID</a></th>
+        <th class="text-center"><a href={{ filter_urls.filter_id }}>Filter ID</a></th>
+        <th class="text-center"><a href={{ filter_urls.filter_result }}>Filter Result</a></th>
+        <th class="text-center"><a href={{ filter_urls.filter__filter_type }}>Filter</a></th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        {% for each in filters %}
+        <td class="text-center">{{ each.snp_id }}</td>
+        <td class="text-center">{{ each.filter_id }}</td>
+        <td class="text-center">{{ each.filter_result }}</td>
+        <td class="text-center">{{ each.filter_cv.filter_type }}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<div class="pagination">
+    <ul class="pagination">
+        {% if filters.has_previous %}
+            {% if selection %}
+                <li><a href="?page={{ filters.previous_page_number }}&s={{filter_on}}&att={{selection}}">&laquo;</a></li>
+            {% else %}
+                <li><a href="?page={{ filters.previous_page_number }}">&laquo;</a></li>
+            {% endif %}
+        {% else %}
+            <li class="disabled"><a href="#">&laquo;</a></li>
+        {% endif %}
+
+        {% for page in paginator.page_range %}
+            {% if page <= toolbar_max and page > toolbar_min and page != filters.number %}
+                {% if selection %}
+                    <li><a href="?page={{ page }}&s={{filter_on}}&att={{selection}}">{{page}}</a></li>
+                {% else %}
+                    <li><a href="?page={{ page }}">{{page}}</a></li>
+                {% endif %}
+            {% elif page == filters.number %}
+                {% if selection %}
+                    <li><a href="?page={{ filters.number }}&s={{filter_on}}&att={{selection}}">{{filters.number}}</a></li>
+                {% else %}
+                    <li><a href="?page={{ filters.number }}">{{filters.number}}</a></li>
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+
+        {% if filters.has_next %}
+           {% if selection %}
+                <li><a href="?page={{ filters.next_page_number }}&s={{filter_on}}&att={{selection}}">&raquo;</a></li>
+            {% else %}
+                <li><a href="?page={{ filters.next_page_number }}">&raquo;</a></li>
+            {% endif %}
+        {% endif %}
+    </ul>
+</div>
+
+{% endblock %}
+</html>

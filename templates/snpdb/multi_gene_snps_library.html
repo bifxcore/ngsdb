@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+{% extends "snpdb/dashboard.html" %}
+
+{% block content %}
+{% load display_rows %}
+
+<div class="page-header text-header" style="padding-left:30px">
+    <h1>Snps found in Genes and Libraries</h1>
+</div>
+
+
+<body>
+
+<div class="container" style="padding-bottom:30px">
+    <div class="collapse navbar-collapse navbar-ex1-collapse">
+        <ul class="nav navbar-nav">
+            <form class="form-horizontal" role="form" id='search' action='/snpdb/multi-gene-library-snps/search' method="get">
+                <div class="form-group">
+                    <textarea class="form-control" rows="3" name="s" placeholder="gene ids"></textarea>
+                    <p class="help-block">Please separate Ids by commmas, semicolons, spaces, or newline.</p>
+                </div>
+                <div class="form-group">
+                    {% for group in libraries|group_by:16 %}
+                        <div class="form-vertical">
+                            {% for lib in group %}
+                                <div class="col-sm-2">
+                                    <input type="checkbox" name="check" value="{{ lib.librarycode }}"> {{lib.librarycode}}
+                                </div>
+                            {% endfor %}
+                         </div>
+                    {% endfor %}
+                </div>
+                <div class="form-group">
+                    <button id="submit" class="btn btn-primary" type="submit">Search</button>
+                </div>
+            </form>
+        </ul>
+    </div>
+</div>
+
+<div class="container-fluid" style="padding-bottom:30px">
+    <div class="form-horizontal">
+       <div class="form-group">
+           {% for group in genes|group_by:6 %}
+                {% for obj in group %}
+                    <label class="col-sm-2">{{ obj.effect_string }}</label>
+                {% endfor %}
+           {% endfor %}
+       </div>
+    </div>
+</div>
+
+</body>
+
+
+<div class="pagination">
+    <ul class="pagination pull-lefLdBPK_013360.1t">
+        {% if genes.has_previous %}
+            <li><a href="?page={{  genes.previous_page_number }}">&laquo;</a></li>
+        {% else %}
+            <li class="disabled"><a href="#">&laquo;</a></li>
+        {%  endif %}
+
+        {% for page in paginator.page_range %}
+            {% if page <= toolbar_max and page > toolbar_min and page != genes.number %}
+                    <li><a href="?page={{  page  }}">{{ page }}</a></li>
+            {% elif page == genes.number %}
+                <li class="active"><a href="?page={{  genes.number }}">{{ genes.number }}</a></li>
+            {% endif %}
+        {% endfor %}
+
+        {% if genes.has_next %}
+            <li><a href="?page={{ genes.next_page_number }}">&raquo;</a></li>
+        {% endif %}
+    </ul>
+</div>
+
+{% endblock %}
+</html>

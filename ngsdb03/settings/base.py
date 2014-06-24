@@ -15,6 +15,7 @@ GRAPPELLI_ADMIN_TITLE='NGSDB03: Myler Lab NGS database'
 
 ADMINS = (
     ('Gowthaman Ramasamy', 'ragowthaman@gmail.com'),
+    ('Marea Cobb', 'marea.cobb@seattlebiomed.org'),
 )
 
 MANAGERS = ADMINS
@@ -80,8 +81,9 @@ STATIC_URL = '/static/'
 # Additional locations of static files
 STATICFILES_DIRS = (
     os.path.abspath(os.path.join(os.path.dirname( __file__ ), 'static')),
-    "/Users/gramasamy/djcode/ngsdb03/static",
-    "/opt/django-sites/ngsdb/ngsdb03/static"
+    # "/Users/gramasamy/djcode/ngsdb03/static",
+    # "/opt/django-sites/ngsdb/ngsdb03/static",
+    # "/Volumes/mcobb$/Documents/djangoProjects/ngsdb03/static"
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
@@ -140,7 +142,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.core.context_processors.static",
     "django.core.context_processors.tz",
     "django.contrib.messages.context_processors.messages",
-    'django.core.context_processors.request',
+    "django.core.context_processors.request",
 )
 
 INSTALLED_APPS = (
@@ -161,6 +163,8 @@ INSTALLED_APPS = (
     'ngsdbview',
     'samples',
     'django.contrib.humanize',
+    'snpdb',
+    'mathfilters'
 )
 
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'

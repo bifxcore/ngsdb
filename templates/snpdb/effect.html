@@ -1,0 +1,96 @@
+{% extends "snpdb/dashboard.html" %}
+{% load url_path %}
+
+
+{% block content %}
+
+<div class="page-header text-header" style="padding-left:30px">
+    <h1>SNP Effect</h1>
+</div>
+
+<body>
+<div class="collapse navbar-collapse navbar-ex1-collapse">
+    <ul class="nav navbar-nav">
+        <form class="form-inline" role="form" id='search' action='/snpdb/effect/search' method="get">
+            <div class="form-group">
+                <label class="sr-only" for="search">Search</label>
+                <input type="text" class="form-control" name="s" placeholder="search">
+                <select class="selectpicker show-tick" data-style="btn-large btn-default" name="att" title='Search Option'>
+                    <option value="snp_id">SNP ID</option>
+                    <option value="effect__effect_name">Effect Type</option>
+                    <option value="effect_class">Effect Class</option>
+                    <option value="effect_string">Effect</option>
+                    <option value="effect_group">Effect Group</option>
+                </select>
+                <button class="btn btn-primary" type="submit">Search</button>
+            </div>
+        </form>
+    </ul>
+</div>
+</body>
+
+<table class="table table-condensed table-hover" style="table-layout: fixed; word-wrap: break-word;">
+    <thead>
+    <tr>
+        <th class="text-center"><a href={{ filter_urls.snp_id }}>SNP ID</a></th>
+        <th class="text-center"><a href={{ filter_urls.effect }}>Effect Type</a></th>
+        <th class="text-center"><a href={{ filter_urls.effect_class }}>Effect Class</a></th>
+        <th class="text-center"><a href={{ filter_urls.effect_string }}>Effect</a></th>
+        <th class="text-center"><a href={{ filter_urls.effect_group }}>Effect Group</a></th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        {% for each in snp_effect %}
+        <td class="text-center">{{ each.snp_id }}</td>
+        <td class="text-center">{{ each.effect.effect_name }}</td>
+        <td class="text-center">{{ each.effect_class }}</td>
+        <td class="text-center">{{ each.effect_string }}</td>
+        <td class="text-center">{{ each.effect_group }}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+
+
+<div class="pagination">
+    <ul class="pagination">
+        {% if snp_effect.has_previous %}
+            {% if selection %}
+                <li><a href="?page={{ snp_effect.previous_page_number }}&s={{filter_on}}&att={{selection}}">&laquo;</a></li>
+            {% else %}
+                <li><a href="?page={{ snp_effect.previous_page_number }}">&laquo;</a></li>
+            {% endif %}
+        {% else %}
+            <li class="disabled"><a href="#">&laquo;</a></li>
+        {% endif %}
+
+        {% for page in paginator.page_range %}
+            {% if page <= toolbar_max and page > toolbar_min and page != snp_effect.number %}
+                {% if selection %}
+                    <li><a href="?page={{ page }}&s={{filter_on}}&att={{selection}}">{{page}}</a></li>
+                {% else %}
+                    <li><a href="?page={{ page }}">{{page}}</a></li>
+                {% endif %}
+            {% elif page == snp_effect.number %}
+                {% if selection %}
+                    <li><a href="?page={{ snp_effect.number }}&s={{filter_on}}&att={{selection}}">{{snp_effect.number}}</a></li>
+                {% else %}
+                    <li><a href="?page={{ snp_effect.number }}">{{snp_effect.number}}</a></li>
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+
+        {% if snp_effect.has_next %}
+           {% if selection %}
+                <li><a href="?page={{ snp_effect.next_page_number }}&s={{filter_on}}&att={{selection}}">&raquo;</a></li>
+            {% else %}
+                <li><a href="?page={{ snp_effect.next_page_number }}">&raquo;</a></li>
+            {% endif %}
+        {% endif %}
+    </ul>
+</div>
+
+{% endblock %}
+</html>
