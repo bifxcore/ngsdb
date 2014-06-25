@@ -1085,56 +1085,31 @@ def snps_in_libx_no_liby(request):
     library1 = request.GET.get('lib1')
     library2 = request.GET.get('lib2')
 
-    snp2 = SNP.objects.values('library', 'library__librarycode', 'snp_id',
-                              'snp_position', 'ref_base', 'alt_base',
-                              'heterozygosity', 'quality', 'chromosome__chromosome_name',
-                              'effect__effect_string', 'effect__effect_class',
-                              'effect__effect', 'result_id').filter(library__librarycode=library2)
+    snp2 = SNP.objects.values('library__librarycode',
+                              'snp_position',
+                              'chromosome__chromosome_name').filter(library__librarycode=library2)
 
-    print "snp2"
-    snp1 = SNP.objects.filter(library__librarycode=library1).values('library', 'library__librarycode', 'snp_id',
-                                                                    'snp_position', 'ref_base', 'alt_base',
-                                                                    'heterozygosity', 'quality', 'chromosome__chromosome_name',
-                                                                    'effect__effect_string', 'effect__effect_class',
-                                                                    'effect__effect', 'result_id')
-    print "snp1"
+    snp1 = SNP.objects.filter(library__librarycode=library1, effect__effect=1).values('library__librarycode', 'snp_id',
+                                                                                      'snp_position',
+                                                                                      'chromosome__chromosome_name',
+                                                                                      'effect__effect_string', 'effect__effect_class',
+                                                                                      'effect__effect')
     result = snp1.exclude(snp_position__in=[snps['snp_position'] for snps in snp2],
                           chromosome__chromosome_name__in=[s['chromosome__chromosome_name'] for s in snp2])
-    print "results"
-    results = result[:50]
-    print results
-    # print "got result"
-    count = len(results)
-    print count
-    # paginator = Paginator(result, 50)
-    # page = request.GET.get('page')
-    # print "got page"
-    # filter_urls = build_orderby_urls(request.get_full_path(), ['library', 'library__librarycode', 'snp_id',
-    #                                                            'snp_position', 'ref_base', 'alt_base',
-    #                                                            'heterozygosity', 'quality',
-    #                                                            'chromosome__chromosome_name', 'effect__effect_string',
-    #                                                            'effect__effect_class', 'effect__effect', 'result_id'])
-    # print "got filter"
-    # try:
-    #     results = paginator.page(page)
-    #     print "results multi page"
-    # except PageNotAnInteger:
-    #     print "excpeting 1"
-    #     results = paginator.page(1)
-    #     print "one page"
-    # except EmptyPage:
-    #     print "excepting 2"
-    #     results = paginator.page(paginator.num_pages)
-    #
-    # toolbar_max = min(results.number + 4, paginator.num_pages)
-    # toolbar_min = max(results.number - 4, 0)
-    # print "rendering"
-    return render_to_response('snpdb/compare_two_libraries_filter.html', {"results": results,
-                                                                          "library1": library1,
-                                                                          "library2": library2})
-                                                                          # "filter_urls": filter_urls,
-                                                                          # "paginator": paginator,
-                                                                          # "toolbar_max": toolbar_max,
-                                                                          # "toolbar_min": toolbar_min})
+    print "getting snps"
+    snps = result.values('effect__effect_class').annotate(snp_count=Count('snp_id')).order_by('effect__effect_class')
+    print snps
+    effects = result.filter(effect__effect=1).values('effect__effect', 'effect__effect_class',
+                                                     'effect__effect_string').annotate(effect_count=Count('snp_id')).order_by('effect__effect_class')
+    # print effects
+    return render_to_response('snpdb/impact_snps.html', {"result": result,
+                                                         "effects": effect,
+                                                         "snps": snps,
+                                                         "library1": library1,
+                                                         "library2": library2})
+    # "filter_urls": filter_urls,
+    # "paginator": paginator,
+    # "toolbar_max": toolbar_max,
+    # "toolbar_min": toolbar_min})
     # "count": count})
 
