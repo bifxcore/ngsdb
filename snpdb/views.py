@@ -1097,13 +1097,12 @@ def snps_in_libx_no_liby(request):
     result = snp1.exclude(snp_position__in=[snps['snp_position'] for snps in snp2],
                           chromosome__chromosome_name__in=[s['chromosome__chromosome_name'] for s in snp2])
     print "getting snps"
-    snps = result.values('effect__effect_class').annotate(snp_count=Count('snp_id')).order_by('effect__effect_class')
-    print snps
+    snps = result.values('effect__effect_string').annotate(snp_count=Count('snp_id')).order_by('effect__effect_string')
     effects = result.filter(effect__effect=1).values('effect__effect', 'effect__effect_class',
                                                      'effect__effect_string').annotate(effect_count=Count('snp_id')).order_by('effect__effect_class')
     # print effects
     return render_to_response('snpdb/impact_snps.html', {"result": result,
-                                                         "effects": effect,
+                                                         "effects": effects,
                                                          "snps": snps,
                                                          "library1": library1,
                                                          "library2": library2})

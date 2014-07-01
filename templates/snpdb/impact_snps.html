@@ -42,7 +42,7 @@
                     <ul class="list-group">
                         {% for each in snps %}
                             {% if each.effect__effect_string == "HIGH" %}
-                                <li class="list-group-item">{{each.snp_count}}</li>
+                                <li class="list-group-item">Total: {{each.snp_count}}</li>
                             {% endif %}
                         {% endfor %}
                         {% for each in effects %}
@@ -57,17 +57,17 @@
         <div class="col-md-6">
             <div class="panel panel-primary">
                 <div class="panel-heading">
-                    <h3 class="panel-title">Moderate Impact</h3>
+                    <h3 class="panel-title">Low Impact</h3>
                 </div>
                 <div class="panel-body">
                     <ul class="list-group">
                         {% for each in snps %}
-                            {% if each.effect__effect_string == "MODERATE" %}
-                                <li class="list-group-item">{{each.snp_count}}</li>
+                            {% if each.effect__effect_string == "LOW" %}
+                                <li class="list-group-item">Total: {{each.snp_count}}</li>
                             {% endif %}
                         {% endfor %}
                         {% for each in effects %}
-                            {% if each.effect__effect_string == "MODERATE"%}
+                            {% if each.effect__effect_string == "LOW"%}
                                 <li class="list-group-item">{{each.effect__effect_class}}: {{each.effect_count}}</li>
                             {% endif %}
                         {% endfor %}
@@ -80,17 +80,17 @@
         <div class="col-md-6">
             <div class="panel panel-primary">
                 <div class="panel-heading">
-                    <h3 class="panel-title">Low Impact</h3>
+                    <h3 class="panel-title">Moderate Impact</h3>
                 </div>
                 <div class="panel-body">
                     <ul class="list-group">
                         {% for each in snps %}
-                            {% if each.effect__effect_string == "LOW" %}
-                                <li class="list-group-item">{{each.snp_count}}</li>
+                            {% if each.effect__effect_string == "MODERATE" %}
+                                <li class="list-group-item">Total: {{each.snp_count}}</li>
                             {% endif %}
                         {% endfor %}
                         {% for each in effects %}
-                            {% if each.effect__effect_string == "LOW"%}
+                            {% if each.effect__effect_string == "MODERATE"%}
                                 <li class="list-group-item">{{each.effect__effect_class}}: {{each.effect_count}}</li>
                             {% endif %}
                         {% endfor %}
@@ -107,7 +107,7 @@
                     <ul class="list-group">
                         {% for each in snps %}
                             {% if each.effect__effect_string == "MODIFIER" %}
-                                <li class="list-group-item">{{each.snp_count}}</li>
+                                <li class="list-group-item">Total: {{each.snp_count}}</li>
                             {% endif %}
                         {% endfor %}
                         {% for each in effects %}

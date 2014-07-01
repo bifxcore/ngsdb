@@ -30,3 +30,7 @@ MIDDLEWARE_CLASSES += ("debug_toolbar.middleware.DebugToolbarMiddleware", )
 DEBUG_TOOLBAR_CONFIG = {
     "INTERCEPT_REDIRECTS" : False
 }
+
+DATABASE_OPTIONS = {
+    "connect_timeout": 200,
+}
