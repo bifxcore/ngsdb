@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+
+{% extends "snpdb/dashboard.html" %}
+
+{% block content %}
+
+<div class="page-header text-header" style="padding-left:30px">
+    <h1>SNP Summary</h1>
+    <h4>There are {{ count }} snps. </h4>
+</div>
+
+<body>
+<div class="collapse navbar-collapse navbar-ex1-collapse">
+    <ul class="nav navbar-nav">
+        <form class="form-inline" role="form" id='search' action='/snpdb/snp/search' method="get">
+            <div class="form-group">
+                <label class="sr-only" for="search">Search</label>
+                <input type="text" class="form-control" name="s" placeholder="search">
+                <select class="selectpicker show-tick" data-style="btn-large btn-default" name="att" title='Search Option'>
+                    <option value="snp_position">SNP Position</option>
+                    <option value="result">Result</option>
+                    <option value="ref_base">Reference Base</option>
+                    <option value="alt_base">Alternative Base</option>
+                    <option value="heterozygosity">Heterozygosity</option>
+                    <option value="quality">Quality</option>
+                    <option value="library">Library</option>
+                    <option value="chromosome__chromosome_name">Chromosome</option>
+                    <option value="effect__effect_string">Effect Impact</option>
+                    <option value="effect__effect_class">Effect</option>
+                </select>
+                <button class="btn btn-primary" type="submit">Search</button>
+            </div>
+        </form>
+    </ul>
+</div>
+</body>
+
+
+<table class="table table-condensed table-hover" style="table-layout: fixed; word-wrap: break-word;">
+    <thead>
+    <tr>
+        <th class=" text-center"><a href={{ filter_urls.snp_id }}>SNP ID</a></th>
+        <th class=" text-center"><a href={{ filter_urls.snp_position }}>Position</a></th>
+        <th class=" text-center"><a href={{ filter_urls.result }}>Result</a></th>
+        <th class=" text-center"><a href={{ filter_urls.ref_base }}>Reference Base</a></th>
+        <th class=" text-center"><a href={{ filter_urls.alt_base }}>Alternate Base</a></th>
+        <th class=" text-center"><a href={{ filter_urls.heterozygosity }}>Heterozygosity</a></th>
+        <th class=" text-center"><a href={{ filter_urls.quality }}>Quality</a></th>
+        <th class=" text-center"><a href={{ filter_urls.library }}>Library</a></th>
+        <th class=" text-center"><a href={{ filter_urls.chromosome__chromosome_name }}>Chromosome</a></th>
+        <th class=" text-center"><a href={{ filter_urls.effect_string }}>Effect Impact</a></th>
+        <th class=" text-center"><a href={{ filter_urls.effect_class }}>Effect</a></th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        {% for each in snps %}
+            <td class="text-center">{{ each.snp_id }}</td>
+            <td class="text-center">{{ each.snp_position }}</td>
+            <td class="text-center">{{ each.result_id }}</td>
+            <td class="text-center">{{ each.ref_base }}</td>
+            <td class="text-center">{{ each.alt_base }}</td>
+            <td class="text-center">{{ each.heterozygosity }}</td>
+            <td class="text-center">{{ each.quality }}</td>
+            <td class="text-center">{{ each.library }}</td>
+            <td class="text-center">{{ each.chromosome__chromosome_name }}</td>
+            <td class="text-center">{{ each.effect__effect_string }}</td>
+            <td class="text-center">{{ each.effect__effect_class }}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+
+<div class="pagination">
+    <ul class="pagination">
+        {% if snps.has_previous %}
+            {% if selection %}
+                <li><a href="?page={{ snps.previous_page_number }}&s={{filter_on}}&att={{selection}}">&laquo;</a></li>
+            {% else %}
+                <li><a href="?page={{ snps.previous_page_number }}">&laquo;</a></li>
+            {% endif %}
+        {% else %}
+            <li class="disabled"><a href="#">&laquo;</a></li>
+        {% endif %}
+
+        {% for page in paginator.page_range %}
+            {% if page <= toolbar_max and page > toolbar_min and page != snps.number %}
+                {% if selection %}
+                    <li><a href="?page={{ page }}&s={{filter_on}}&att={{selection}}">{{page}}</a></li>
+                {% else %}
+                    <li><a href="?page={{ page }}">{{page}}</a></li>
+                {% endif %}
+            {% elif page == snps.number %}
+                {% if selection %}
+                    <li><a href="?page={{ snps.number }}&s={{filter_on}}&att={{selection}}">{{snps.number}}</a></li>
+                {% else %}
+                    <li><a href="?page={{ snps.number }}">{{snps.number}}</a></li>
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+
+        {% if snps.has_next %}
+           {% if selection %}
+                <li><a href="?page={{ snps.next_page_number }}&s={{filter_on}}&att={{selection}}">&raquo;</a></li>
+            {% else %}
+                <li><a href="?page={{ snps.next_page_number }}">&raquo;</a></li>
+            {% endif %}
+        {% endif %}
+    </ul>
+</div>
+
+{% endblock %}
+</html>

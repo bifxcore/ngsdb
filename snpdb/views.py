@@ -6,6 +6,7 @@ from django.db.models import *
 from django_boolean_sum import BooleanSum
 from templatetags.snp_filters import *
 from django.template import RequestContext
+from itertools import *
 
 
 def dashboard(request):
@@ -1081,34 +1082,66 @@ def compare_two_libraries(request):
                                                                    "toolbar_min": toolbar_min})
 
 
-def snps_in_libx_no_liby(request):
+def difference_two_libraries(request):
     library1 = request.GET.get('lib1')
     library2 = request.GET.get('lib2')
 
-    snp2 = SNP.objects.values('library__librarycode',
-                              'snp_position',
-                              'chromosome__chromosome_name').filter(library__librarycode=library2)
+    snp2 = SNP.objects.filter(library__librarycode=library2).values_list('snp_position',
+                                                                         'chromosome__chromosome_name')
+    snp1 = SNP.objects.filter(library__librarycode=library1).values_list('snp_position',
+                                                                         'chromosome__chromosome_name')
+    difference = set(snp1).difference(set(snp2))
+    snps = []
+    for x in difference:
+        keys = ['snp_position', 'chromosome__chromosome_name']
+        snps.append(dict(zip(keys, x)))
 
-    snp1 = SNP.objects.filter(library__librarycode=library1, effect__effect=1).values('library__librarycode', 'snp_id',
-                                                                                      'snp_position',
-                                                                                      'chromosome__chromosome_name',
-                                                                                      'effect__effect_string', 'effect__effect_class',
-                                                                                      'effect__effect')
-    result = snp1.exclude(snp_position__in=[snps['snp_position'] for snps in snp2],
-                          chromosome__chromosome_name__in=[s['chromosome__chromosome_name'] for s in snp2])
-    print "getting snps"
-    snps = result.values('effect__effect_string').annotate(snp_count=Count('snp_id')).order_by('effect__effect_string')
-    effects = result.filter(effect__effect=1).values('effect__effect', 'effect__effect_class',
-                                                     'effect__effect_string').annotate(effect_count=Count('snp_id')).order_by('effect__effect_class')
-    # print effects
-    return render_to_response('snpdb/impact_snps.html', {"result": result,
-                                                         "effects": effects,
-                                                         "snps": snps,
+    snp_ids = []
+    for each in snps:
+        ids = SNP.objects.values_list('snp_id', flat=True).filter(library__librarycode=library1, snp_position=each['snp_position'],
+                                                                  chromosome__chromosome_name=each['chromosome__chromosome_name'])
+        snp_ids.append(ids)
+    snp_id = [x for sublist in snp_ids for x in sublist]
+
+    print "got result"
+
+    snp_impact = Effect.objects.filter(snp__in=snp_id, effect=1).values('effect_string').annotate(snp_count=Count('snp')).order_by('effect_string')
+    effects = Effect.objects.filter(snp__in=snp_id, effect=1).values('effect', 'effect_class',
+                                                                     'effect_string').annotate(effect_count=Count('snp')).order_by('effect_class')
+    print "got modifier"
+    return render_to_response('snpdb/impact_snps.html', {"effects": effects,
+                                                         "snp_impact": snp_impact,
                                                          "library1": library1,
                                                          "library2": library2})
-    # "filter_urls": filter_urls,
-    # "paginator": paginator,
-    # "toolbar_max": toolbar_max,
-    # "toolbar_min": toolbar_min})
     # "count": count})
+
+
+def impact_snps(request):
+    impact = request.GET.get('impact')
+    library1 = request.GET.get('lib1')
+    library2 = request.GET.get('lib2')
+
+    snp2 = SNP.objects.filter(library__librarycode=library2).values_list('snp_position',
+                                                                         'chromosome__chromosome_name')
+    snp1 = SNP.objects.filter(library__librarycode=library1).values_list('snp_position',
+                                                                         'chromosome__chromosome_name')
+    difference = set(snp1).difference(set(snp2))
+    snps = []
+    for x in difference:
+        keys = ['snp_position', 'chromosome__chromosome_name']
+        snps.append(dict(zip(keys, x)))
+
+    snp_ids = []
+    for each in snps:
+        ids = SNP.objects.values_list('snp_id', flat=True).filter(library__librarycode=library1, snp_position=each['snp_position'],
+                                                                  chromosome__chromosome_name=each['chromosome__chromosome_name'])
+        snp_ids.append(ids)
+    snp_id = [x for sublist in snp_ids for x in sublist]
+
+    snps = SNP.objects.filter(snp_id__in=snp_id, effect__effect_string=impact).values('snp_id', 'snp_position', 'chromosome__chromosome_name',
+                                                                                      'effect__effect_string', 'effect__effect_class',
+                                                                                      'result_id', 'ref_base', 'alt_base',
+                                                                                      'heterozygosity', 'quality', 'library')
+    return render_to_response('snpdb/impact_snps_search.html', {"snps": snps,
+                                                                })
 
