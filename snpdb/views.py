@@ -6,11 +6,13 @@ from django.db.models import *
 from django_boolean_sum import BooleanSum
 from templatetags.snp_filters import *
 from django.template import RequestContext
-from itertools import *
-
 
 def dashboard(request):
     return render_to_response('snpdb/dashboard.html')
+
+
+def test(request):
+    return render_to_response('snpdb/test_header.html')
 
 
 def effect(request):
@@ -327,7 +329,7 @@ def statistics_filter(request):
 
 # Query views.
 # --------------------------------------------------------------------------------------
-# Dispalys the search page to compare snps across libraries
+# Displays the search page to compare snps across libraries
 def compare_gene_lib(request):
     genes = Effect.objects.values('effect_string').filter(effect=6).filter(effect_class=("NON_SYNONYMOUS_CODING" or "SYNONYMOUS_CODING")).distinct().order_by('effect_string')
     count = len(genes)
@@ -717,48 +719,7 @@ def library_snps(request):
                                      'heterozygosity', 'quality',
                                      'chromosome__chromosome_name', 'effect__effect_string',
                                      'effect__effect_class', 'effect__effect')
-
-    snp_dict = {}
-    for each in results:
-        current_genes = []
-        if each['library__librarycode'] == library:
-            if empty_effect(each['effect__effect']) or each['effect__effect'] == 6:
-                if empty_effect(each['effect__effect_class']) or (each['effect__effect_class'] == ('NON_SYNONYMOUS_CODING' or 'SYNONYMOUS_CODING')):
-                    if each['snp_id'] in snp_dict:
-                        for k, v in snp_dict[each['snp_id']].iteritems():
-                            if k == 'effect__effect_string':
-                                if type(v) is list:
-                                    for x in v:
-                                        current_genes.append(str(x).decode('UTF8').strip())
-                                else:
-                                    current_genes.append(str(v).decode('UTF8'))
-                        if each['effect__effect_string'] in current_genes:
-                            pass
-                        elif snp_dict[each['snp_id']]['effect__effect_string'] == 'None':
-                            snp_dict[each['snp_id']] = each
-                        else:
-                            current_genes.append(str(each['effect__effect_string'].decode('UTF8').strip()))
-                            each['effect__effect_string'] = current_genes
-                            snp_dict[each['snp_id']] = each
-                    else:
-                        snp_dict[each['snp_id']] = each
-                else:
-                    if each['snp_id'] in snp_dict:
-                        pass
-                    else:
-                        each["effect__effect_class"] = 'None'
-                        each["effect__effect_string"] = 'None'
-                        each["effect__effect"] = 'None'
-                        snp_dict[each['snp_id']] = each
-            else:
-                if each['snp_id'] in snp_dict:
-                    pass
-                else:
-                    each["effect__effect_class"] = 'None'
-                    each["effect__effect_string"] = 'None'
-                    each["effect__effect"] = 'None'
-                    snp_dict[each['snp_id']] = each
-    sorted_snp_dict = sorted(snp_dict.items(), key=lambda x: x[1][order_by])
+    sorted_snp_dict = genes_from_effect(results, library, order_by)
     paginator = Paginator(sorted_snp_dict, 100)
     page = request.GET.get('page')
 
@@ -786,6 +747,54 @@ def library_snps(request):
                                                           "toolbar_max": toolbar_max,
                                                           "toolbar_min": toolbar_min,
                                                           "count": count})
+
+
+def genes_from_effect(results, library, order_by):
+    snp_dict = {}
+    for each in results:
+        # print each
+        current_genes = []
+        if each['library__librarycode'] == library:
+            if empty_effect(each['effect__effect']) or each['effect__effect'] == 6:
+                # if empty_effect(each['effect__effect_class']) or (each['effect__effect_class'] == ('NON_SYNONYMOUS_CODING' or 'SYNONYMOUS_CODING')):
+                if each['snp_id'] in snp_dict:
+                    for k, v in snp_dict[each['snp_id']].iteritems():
+                        if k == 'effect__effect_string':
+                            if type(v) is list:
+                                for x in v:
+                                    current_genes.append(str(x).decode('UTF8').strip())
+                            else:
+                                current_genes.append(str(v).decode('UTF8'))
+                    if each['effect__effect_string'] in current_genes:
+                        pass
+                    elif snp_dict[each['snp_id']]['effect__effect_string'] == 'None':
+                        snp_dict[each['snp_id']] = each
+                    else:
+                        current_genes.append(str(each['effect__effect_string']).strip())
+                        each['effect__effect_string'] = current_genes
+                        snp_dict[each['snp_id']] = each
+                else:
+                    snp_dict[each['snp_id']] = each
+                    # else:
+                    #     if each['snp_id'] in snp_dict:
+                    #         pass
+                    #     else:
+                    #         each["effect__effect_class"] = 'None'
+                    #         each["effect__effect_string"] = 'None'
+                    #         each["effect__effect"] = 'None'
+                    #         snp_dict[each['snp_id']] = each
+            else:
+                if each['snp_id'] in snp_dict:
+                    pass
+                else:
+                    each["effect__effect_class"] = 'None'
+                    each["effect__effect_string"] = 'None'
+                    each["effect__effect"] = 'None'
+                    snp_dict[each['snp_id']] = each
+        else:
+            print "library not same", library, each['library__librarycode']
+    sorted_snp_dict = sorted(snp_dict.items(), key=lambda x: x[1][order_by])
+    return sorted_snp_dict
 
 
 # Returns snps found in a library and chromosome.
@@ -1103,8 +1112,6 @@ def difference_two_libraries(request):
         snp_ids.append(ids)
     snp_id = [x for sublist in snp_ids for x in sublist]
 
-    print "got result"
-
     snp_impact = Effect.objects.filter(snp__in=snp_id, effect=1).values('effect_string').annotate(snp_count=Count('snp')).order_by('effect_string')
     effects = Effect.objects.filter(snp__in=snp_id, effect=1).values('effect', 'effect_class',
                                                                      'effect_string').annotate(effect_count=Count('snp')).order_by('effect_class')
@@ -1113,10 +1120,10 @@ def difference_two_libraries(request):
                                                          "snp_impact": snp_impact,
                                                          "library1": library1,
                                                          "library2": library2})
-    # "count": count})
 
 
 def impact_snps(request):
+    order_by = request.GET.get('order_by', 'snp_id').encode("ascii")
     impact = request.GET.get('impact')
     library1 = request.GET.get('lib1')
     library2 = request.GET.get('lib2')
@@ -1138,10 +1145,47 @@ def impact_snps(request):
         snp_ids.append(ids)
     snp_id = [x for sublist in snp_ids for x in sublist]
 
-    snps = SNP.objects.filter(snp_id__in=snp_id, effect__effect_string=impact).values('snp_id', 'snp_position', 'chromosome__chromosome_name',
-                                                                                      'effect__effect_string', 'effect__effect_class',
-                                                                                      'result_id', 'ref_base', 'alt_base',
-                                                                                      'heterozygosity', 'quality', 'library')
-    return render_to_response('snpdb/impact_snps_search.html', {"snps": snps,
+    snps = SNP.objects.filter(snp_id__in=snp_id, effect__effect_string=impact).values_list('snp_id', 'effect__effect_group')
+    groups = []
+    for y in snps:
+        keys = ['snp_id', 'effect__effect_group']
+        groups.append(dict(zip(keys, y)))
+    genes = []
+    for each in groups:
+        genes.append(SNP.objects.filter(**each).values('library', 'library__librarycode', 'snp_id',
+                                                       'snp_position', 'ref_base', 'alt_base',
+                                                       'heterozygosity', 'quality', 'result_id',
+                                                       'chromosome__chromosome_name', 'effect__effect_string',
+                                                       'effect__effect_class', 'effect__effect'))
+    print genes[:10]
+    group = [x for sublist in genes for x in sublist]
+    sorted_gene_dict = genes_from_effect(group, library1, order_by)
+    gene_dict = [x for sublist in sorted_gene_dict for x in sublist]
+    print len(filter(None, gene_dict))
+    # new_dict = {k:v for k,v in gene_dict.items() if v}
+    count = len(gene_dict)
+    paginator = Paginator(gene_dict, 200)
+    page = request.GET.get('page')
+
+    # Calls utils method to append new filters or order_by to the current url
+    filter_urls = build_orderby_urls(request.get_full_path(), ['library', 'library__librarycode', 'snp_id',
+                                                               'snp_position', 'ref_base', 'alt_base',
+                                                               'heterozygosity', 'quality',
+                                                               'chromosome__chromosome_name',
+                                                               'effect__effect_string'])
+    try:
+        results = paginator.page(page)
+    except PageNotAnInteger:
+        results = paginator.page(1)
+    except EmptyPage:
+        results = paginator.page(paginator.num_pages)
+
+    toolbar_max = min(results.number + 4, paginator.num_pages)
+    toolbar_min = max(results.number - 4, 0)
+    return render_to_response('snpdb/impact_snps_search.html', {"results": results,
+                                                                "toolbar_max": toolbar_max,
+                                                                "toolbar_min": toolbar_min,
+                                                                "count": count,
+                                                                "filter_urls": filter_urls,
                                                                 })
 

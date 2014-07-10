@@ -68,6 +68,10 @@ MEDIA_ROOT = ''
 # Examples: "http://example.com/media/", "http://media.example.com/"
 MEDIA_URL = ''
 
+
+# The absolute path to the project directory.
+PROJECT_DIR = os.path.dirname(__file__)
+
 # Absolute path to the directory static files should be collected to.
 # Don't put anything in this directory yourself; store your static files
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
@@ -80,7 +84,9 @@ STATIC_URL = '/static/'
 
 # Additional locations of static files
 STATICFILES_DIRS = (
-    os.path.abspath(os.path.join(os.path.dirname( __file__ ), 'static')),
+    os.path.join(PROJECT_DIR, 'static'),
+    os.path.join(os.path.dirname(__file__), 'static'),
+    # "/Users/mcobb/Documents/djangoProjects/ngsdb03/common_static",
     # "/Users/gramasamy/djcode/ngsdb03/static",
     # "/opt/django-sites/ngsdb/ngsdb03/static",
     # "/Volumes/mcobb$/Documents/djangoProjects/ngsdb03/static"
@@ -94,7 +100,7 @@ STATICFILES_DIRS = (
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-#    'django.contrib.staticfiles.finders.DefaultStorageFinder',
+    #    'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
 
 # Make this unique, and don't share it with anybody.
@@ -106,7 +112,7 @@ STATICFILES_FINDERS = (
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
     'django.template.loaders.app_directories.Loader',
-#     'django.template.loaders.eggs.Loader',
+    #     'django.template.loaders.eggs.Loader',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -162,9 +168,9 @@ INSTALLED_APPS = (
     'south',
     'ngsdbview',
     'samples',
-    'django.contrib.humanize',
     'snpdb',
-    'mathfilters'
+    'django.contrib.humanize',
+    'mathfilters',
 )
 
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'
@@ -194,8 +200,8 @@ LOGGING = {
             'handlers': ['mail_admins'],
             'level': 'ERROR',
             'propagate': True,
-        },
-    }
+            },
+        }
 }
 
 
@@ -206,12 +212,12 @@ LOGGING = {
 
 from django.core.exceptions import ImproperlyConfigured
 def get_env_variable(var_name):
-   """ Get the environment variable or return exception """
-   try:
-       return os.environ[var_name]
-   except KeyError:
-       error_msg = "Set the %s environment variable" % var_name
-       raise ImproperlyConfigured(error_msg)
+    """ Get the environment variable or return exception """
+    try:
+        return os.environ[var_name]
+    except KeyError:
+        error_msg = "Set the %s environment variable" % var_name
+        raise ImproperlyConfigured(error_msg)
 
 
 
@@ -228,7 +234,7 @@ logger.setLevel(logging.DEBUG)
 AUTHENTICATION_BACKENDS = (
     'django_auth_ldap.backend.LDAPBackend',
     'django.contrib.auth.backends.ModelBackend',
-    )
+)
 
 # Baseline configuration.
 AUTH_LDAP_SERVER_URI = "ldap://ds.sbri.org"
@@ -237,11 +243,11 @@ AUTH_LDAP_SERVER_URI = "ldap://ds.sbri.org"
 AUTH_LDAP_BIND_DN = "AD Lookup"
 AUTH_LDAP_BIND_PASSWORD = "pass123"
 AUTH_LDAP_USER_SEARCH = LDAPSearch("ou=Users,ou=SBRI,dc=sbri,dc=org",
-    ldap.SCOPE_SUBTREE, "(mailNickname=%(user)s)")
+                                   ldap.SCOPE_SUBTREE, "(mailNickname=%(user)s)")
 
 # Set up the basic group parameters.
 AUTH_LDAP_GROUP_SEARCH = LDAPSearch("ou=Security Groups,ou=SBRI,dc=sbri,dc=org",
-    ldap.SCOPE_SUBTREE, "(objectClass=group)")
+                                    ldap.SCOPE_SUBTREE, "(objectClass=group)")
 AUTH_LDAP_GROUP_TYPE = ActiveDirectoryGroupType(name_attr="cn")
 
 # Simple group restrictions
@@ -282,4 +288,4 @@ AUTH_LDAP_GROUP_CACHE_TIMEOUT = 3600
 AUTHENTICATION_BACKENDS = (
     'django_auth_ldap.backend.LDAPBackend',
     'django.contrib.auth.backends.ModelBackend',
-    )
+)

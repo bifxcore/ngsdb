@@ -2,9 +2,9 @@
 <html lang="en">
 
 {% extends "snpdb/dashboard.html" %}
+{% load snp_filters %}
 
-{% block content %}
-
+{% block body %}
 <div class="page-header text-header" style="padding-left:30px">
     <h1>SNP Summary</h1>
     <h4>There are {{ count }} snps. </h4>
@@ -47,7 +47,7 @@
         <th class=" text-center"><a href={{ filter_urls.alt_base }}>Alternate Base</a></th>
         <th class=" text-center"><a href={{ filter_urls.heterozygosity }}>Heterozygosity</a></th>
         <th class=" text-center"><a href={{ filter_urls.quality }}>Quality</a></th>
-        <th class=" text-center"><a href={{ filter_urls.library }}>Library</a></th>
+        <th class=" text-center"><a href={{ filter_urls.library__librarycode }}>Library</a></th>
         <th class=" text-center"><a href={{ filter_urls.chromosome__chromosome_name }}>Chromosome</a></th>
         <th class=" text-center"><a href={{ filter_urls.effect_string }}>Effect Impact</a></th>
         <th class=" text-center"><a href={{ filter_urls.effect_class }}>Effect</a></th>
@@ -55,19 +55,29 @@
     </thead>
     <tbody>
     <tr>
-        {% for each in snps %}
-            <td class="text-center">{{ each.snp_id }}</td>
-            <td class="text-center">{{ each.snp_position }}</td>
-            <td class="text-center">{{ each.result_id }}</td>
-            <td class="text-center">{{ each.ref_base }}</td>
-            <td class="text-center">{{ each.alt_base }}</td>
-            <td class="text-center">{{ each.heterozygosity }}</td>
-            <td class="text-center">{{ each.quality }}</td>
-            <td class="text-center">{{ each.library }}</td>
-            <td class="text-center">{{ each.chromosome__chromosome_name }}</td>
-            <td class="text-center">{{ each.effect__effect_string }}</td>
-            <td class="text-center">{{ each.effect__effect_class }}</td>
-    </tr>
+        {% for each in results %}
+            {% if each.snp_id %}
+                <td class="text-center">{{ each.snp_id }}</td>
+                <td class="text-center">{{ each.snp_position }}</td>
+                <td class="text-center">{{ each.result_id }}</td>
+                <td class="text-center">{{ each.ref_base }}</td>
+                <td class="text-center">{{ each.alt_base }}</td>
+                <td class="text-center">{{ each.heterozygosity }}</td>
+                <td class="text-center">{{ each.quality }}</td>
+                <td class="text-center">{{ each.library__librarycode }}</td>
+                <td class="text-center">{{ each.chromosome__chromosome_name }}</td>
+                <td class="text-center">
+                {% if each.effect__effect_string|get_type %}
+                    {% for effect in each.effect__effect_string %}
+                        {{ effect }}
+                    {% endfor %}
+                {% else %}
+                    {{ each.effect__effect_string }}
+                {% endif %}
+                </td>
+                <td class="text-center">{{ each.effect__effect_class|title }}</td>
+            {% endif %}
+        </tr>
     {% endfor %}
     </tbody>
 </table>
@@ -75,37 +85,37 @@
 
 <div class="pagination">
     <ul class="pagination">
-        {% if snps.has_previous %}
+        {% if results.has_previous %}
             {% if selection %}
-                <li><a href="?page={{ snps.previous_page_number }}&s={{filter_on}}&att={{selection}}">&laquo;</a></li>
+                <li><a href="?page={{ results.previous_page_number }}&s={{filter_on}}&att={{selection}}">&laquo;</a></li>
             {% else %}
-                <li><a href="?page={{ snps.previous_page_number }}">&laquo;</a></li>
+                <li><a href="?page={{ results.previous_page_number }}">&laquo;</a></li>
             {% endif %}
         {% else %}
             <li class="disabled"><a href="#">&laquo;</a></li>
         {% endif %}
 
         {% for page in paginator.page_range %}
-            {% if page <= toolbar_max and page > toolbar_min and page != snps.number %}
+            {% if page <= toolbar_max and page > toolbar_min and page != results.number %}
                 {% if selection %}
                     <li><a href="?page={{ page }}&s={{filter_on}}&att={{selection}}">{{page}}</a></li>
                 {% else %}
                     <li><a href="?page={{ page }}">{{page}}</a></li>
                 {% endif %}
-            {% elif page == snps.number %}
+            {% elif page == results.number %}
                 {% if selection %}
-                    <li><a href="?page={{ snps.number }}&s={{filter_on}}&att={{selection}}">{{snps.number}}</a></li>
+                    <li><a href="?page={{ results.number }}&s={{filter_on}}&att={{selection}}">{{results.number}}</a></li>
                 {% else %}
-                    <li><a href="?page={{ snps.number }}">{{snps.number}}</a></li>
+                    <li><a href="?page={{ results.number }}">{{results.number}}</a></li>
                 {% endif %}
             {% endif %}
         {% endfor %}
 
-        {% if snps.has_next %}
+        {% if results.has_next %}
            {% if selection %}
-                <li><a href="?page={{ snps.next_page_number }}&s={{filter_on}}&att={{selection}}">&raquo;</a></li>
+                <li><a href="?page={{ results.next_page_number }}&s={{filter_on}}&att={{selection}}">&raquo;</a></li>
             {% else %}
-                <li><a href="?page={{ snps.next_page_number }}">&raquo;</a></li>
+                <li><a href="?page={{ results.next_page_number }}">&raquo;</a></li>
             {% endif %}
         {% endif %}
     </ul>

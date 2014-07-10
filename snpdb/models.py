@@ -14,7 +14,7 @@ class Effect(models.Model):
     snp = models.ForeignKey('SNP')
     effect = models.ForeignKey('Effect_CV')
     effect_class = models.CharField(max_length=45)
-    effect_string = models.CharField(max_length=45)
+    effect_string = models.TextField()
     effect_group = models.IntegerField()
 
 

@@ -20,17 +20,17 @@ z-index: inherit;
 
 #grp-navigation {
     position: relative;
-    top: 108px;
+    top: 0px;
 }
 
 #grp-context-navigation {
     position: relative;
-    top: 108px;
+    top: 0px;
 }
 
 #grp-content {
     position: relative;
-    top: 107px;
+    top: 0px;
     background: antiquewhite;
 }
 

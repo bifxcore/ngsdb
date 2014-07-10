@@ -52,7 +52,7 @@
                         {% endfor %}
                         {% for each in effects %}
                             {% if each.effect_string == "HIGH"%}
-                                <li class="list-group-item">{{each.effect_class}}: {{each.effect_count}}</li>
+                                <li class="list-group-item">{{each.effect_class|title}}: {{each.effect_count|title}}</li>
                             {% endif %}
                         {% endfor %}
                     </ul>
@@ -117,7 +117,7 @@
                         {% endfor %}
                         {% for each in effects %}
                             {% if each.effect_string == "MODIFIER"%}
-                                <li class="list-group-item">{{each.effect_class}}: {{each.effect_count}}</li>
+                                <li class="list-group-item">{{each.effect_class|title}}: {{each.effect_count|title}}</li>
                             {% endif %}
                         {% endfor %}
                     </ul>
