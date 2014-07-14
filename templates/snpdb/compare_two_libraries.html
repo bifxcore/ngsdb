@@ -12,7 +12,7 @@
 
 
 <body>
-<div class="container" style="padding-bottom:30px">
+<div class="container-fluid" style="padding-bottom:30px">
     <div class="collapse navbar-collapse navbar-ex1-collapse">
         <ul class="nav navbar-nav">
             <form class="form-inline" role="form" id='search' action='/snpdb/compare-two-libs/search' method="get">
@@ -30,7 +30,7 @@
     </div>
 </div>
 
-<div class="container" style="padding-bottom:30px">
+<div class="container-fluid" style="padding-bottom:30px">
     <div class="form">
             {% for group in results|group_by:6 %}
                 <div class="form-group">
@@ -43,7 +43,7 @@
 </div>
 </body>
 
-<div class="container" style="padding-bottom:30px">
+<div class="container-fluid" style="padding-bottom:30px">
     <div class="pagination">
         <ul class="pagination">
             {% if results.has_previous %}
