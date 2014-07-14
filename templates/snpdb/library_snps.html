@@ -14,31 +14,30 @@
 
 <body>
 
-<div class="container" style="padding-bottom:30px">
-    <div class="container-fluid" style="padding-bottom:30px">
-        <div class="collapse navbar-collapse navbar-ex1-collapse">
-            <ul class="nav navbar-nav">
-                <form class="form-inline" role="form" id='search' action='/snpdb/library-snp-summary/search' method="get">
-                    <div class="form-group">
-                        <label class="sr-only" for="search">Search</label>
-                        <input type="text" class="form-control" name="s" placeholder="search">
-                        <input type="hidden" name="lib" value="{{library}}">
-                        <input type="hidden" name="count" value="{{count}}">
-                        <select class="selectpicker show-tick" data-style="btn-large btn-default" name="att" title='Search Option'>
-                            <option value="snp_id">SNP ID</option>
-                            <option value="snp_position">Position</option>
-                            <option value="ref_base">Reference Base</option>
-                            <option value="alt_base">Alternate Base</option>
-                            <option value="heterozygosity">Heterozygosity</option>
-                            <option value="quality">Quality</option>
-                            <option value="chromosome__chromosome_name">Chromosome</option>
-                            <option value="effect__effect_string">Genes</option>
-                        </select>
-                        <button class="btn btn-primary" type="submit">Search</button>
-                    </div>
-                </form>
-            </ul>
-        </div>
+
+<div class="container-fluid" style="padding-bottom:30px">
+    <div class="collapse navbar-collapse navbar-ex1-collapse">
+        <ul class="nav navbar-nav">
+            <form class="form-inline" role="form" id='search' action='/snpdb/library-snp-summary/search' method="get">
+                <div class="form-group">
+                    <label class="sr-only" for="search">Search</label>
+                    <input type="text" class="form-control" name="s" placeholder="search">
+                    <input type="hidden" name="lib" value="{{library}}">
+                    <input type="hidden" name="count" value="{{count}}">
+                    <select class="selectpicker show-tick" data-style="btn-large btn-default" name="att" title='Search Option'>
+                        <option value="snp_id">SNP ID</option>
+                        <option value="snp_position">Position</option>
+                        <option value="ref_base">Reference Base</option>
+                        <option value="alt_base">Alternate Base</option>
+                        <option value="heterozygosity">Heterozygosity</option>
+                        <option value="quality">Quality</option>
+                        <option value="chromosome__chromosome_name">Chromosome</option>
+                        <option value="effect__effect_string">Genes</option>
+                    </select>
+                    <button class="btn btn-primary" type="submit"  style="margin-left:0px; width:75px; vertical-align:middle; padding: 0px">Search</button>
+                </div>
+            </form>
+        </ul>
     </div>
 </div>
 </body>
@@ -98,7 +97,7 @@
 </div>
 </div>
 
-<div class="container" style="padding-bottom:30px">
+<div class="container-fluid" style="padding-bottom:30px">
 
 <div class="pagination">
     <ul class="pagination">
