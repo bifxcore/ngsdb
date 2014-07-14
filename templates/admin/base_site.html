@@ -94,21 +94,73 @@
 <ul>
    <li class='active'><a href="/ngsdbview/dashboard/"><span>Home</span></a>
    </li>
+   {% if user.is_active %}
+
+   <!-- New Menu starts -->
+   <li class='has-sub'><a href="/samples/librarylist/"><span>List all</span></a>
+       <ul>
+           <li class='first'><a href="/admin/samples/sample/"><span>Samples</span></a> </li>
+           <li><a href="/admin/samples/library/"><span>Libraries</span></a> </li>
+           <li><a href="/admin/samples/library/"><span>Analyses</span></a> </li>
+           <li><a href="/ngsdbview/listexperiments/"><span>Experiments</span></a> </li>
+           <li><a href="/admin/ngsdbview/experiment/"><span>Add Experiments</span></a> </li>
+           <li><a href="/admin/ngsdbview/collaborator/"><span>Collaborators</span></a> </li>
+           <li><a href="/admin/samples/bioproject/"><span>Bioprojects</span></a> </li>
+           <li><a href="/admin/ngsdbview/organism/"><span>Organisms</span></a> </li>
+           <li class='last'><a href="/admin/samples/genome/"><span>Genomes</span></a> </li>
+       </ul>
+   </li>
+
+   <li class='has-sub'><a href="/samples/librarylist/"><span>Query</span></a>
+       <ul>
+            <li class='has-sub'><a href="/ngsdbview/get_results_for_gene/"><span>Query Splice Leader DB</span></a>
+                <ul>
+                    <li class="first"><a href="/ngsdbview/get_results_for_gene/"><span>For a Gene All-libs</span></a></li>
+                    <li><a href="/ngsdbview/query_multigenes/"><span>for Multi-Gene One-Lib</span></a></li>
+                    <li><a href="/ngsdbview/query_multigenes_multilibs/"><span>for Multi-Gene Multi-Libs</span></a></li>
+                    <Li><a href="/ngsdbview/get_results_for_library/"><span>for a Library</span></a></li>
+                    <li><a href="/ngsdbview/Get_sites_forlib/"><span>for SL Sites from a Library</span></a></li>
+                    <li class="last"><a href="/ngsdbview/get_sitecount_majorpc_forlibs/"><span>for SLsite counts and Major SL percentage</span></a></li>
+                </ul>
+            </li>
+            <li class='has-sub'><a href="/ngsdbview/listexperiments/"><span>Query RiboProf DB</span></a>
+                <ul>
+                    <li class="first"><a href="/ngsdbview/listexperiments/"><span>to list all Experiments</span></a></li>
+                    <li class="last"><a href="/ngsdbview/analyzeexperiments/"><span>for an Experiment</span></a></li>
+
+                </ul>
+            </li>
+            <li class='has-sub'><a href="/ngsdbview/listexperiments/"><span>Query Across SL and RiboProf</span></a>
+                <ul>
+                    <li class="first"><a href="/ngsdbview/listexperiments/"><span>to list all Experiments</span></a></li>
+                    <li class="last"><a href="/ngsdbview/analyzeexperiments/"><span>for an Experiment</span></a></li>
+
+                </ul>
+            </li>
+
+       </ul>
+   </li>
+   <!-- New Menu ends -->
+
+
+
    <li class='has-sub'><a href="/samples/librarylist/"><span>Samples DB</span></a>
        <ul>
            <li class='has-sub'><a href="/samples/librarylist/"><span>List Samples</span></a>
                <ul>
-                    <li><a href="/samples/librarylist/"><span>Slim Viewonly</span></a></li>
-                    <li><a href="/admin/samples/library/"><span>Full Editable</span></a></li>
+                    <li><a href="/admin/samples/sample/"><span>Fully Editable</span></a></li>
 
                </ul>
            </li>
+           <li class='has-sub'><a href="/samples/librarylist/"><span>List Libraries</span></a>
+                <ul>
+                    <li><a href="/admin/samples/library/"><span>Fully Editable</span></a></li>
+                    <li><a href="/samples/librarylist/"><span>Slim Viewonly</span></a></li>
+                </ul>
+
        </ul>
    </li>
-   {% if user.is_active %}
 
-   <li><a href="/ngsdbview/alignstats/"><span>Alignment Statistics</span></a>
-   </li>
    <li class='has-sub'><a href="/ngsdbview/listlibraries/"><span>Splice Leader</span></a>
       <ul>
          <li class='has-sub'><a href="/ngsdbview/listlibraries/"><span>List All</span></a>
@@ -141,20 +193,8 @@
           </li>
       </ul>
    </li>
-   <li class='has-sub'><a href='#'><span>PolyA</span></a>
-      <ul>
-         <li><a href="/ngsdbview/contact/"><span>Coming soon</span></a></li>
-      </ul>
-   </li>
-   <li class='has-sub'><a href='#'><span>DNA seq</span></a>
-      <ul>
-         <li><a href="/ngsdbview/contact/"><span>Coming soon</span></a></li>
-      </ul>
-   </li>
-   <li class='has-sub'><a href='#'><span>RibosomeProf</span></a>
-      <ul>
-         <li><a href="/ngsdbview/contact/"><span>Coming soon</span></a></li>
-      </ul>
+   <li>
+       <a href="/ngsdbview/alignstats/"><span>Alignment Statistics</span></a>
    </li>
    <!-- Admin links on menu bar -->
    <li class='has-sub'><a href="/samples/librarylist/"><span>Admin</span></a>

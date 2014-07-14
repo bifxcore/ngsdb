@@ -4,10 +4,12 @@
 {% load snp_filters %}
 
 {% block content %}
-<div class="page-header text-header" style="padding-left:30px">
-    <h1>SNPs in Library</h1>
-    <h5> There are {{count}} snps in this library. </h5>
-    <h5> For a list of genes found within this library, follow this <a href="/snpdb/gene-list?lib={{library}}">link</a>.</h5>
+<div class="container-fluid">
+    <div class="page-header text-header" style="padding-left:30px">
+        <h1>SNPs in Library</h1>
+        <h5> There are {{count}} snps in this library. </h5>
+        <h5> For a list of genes found within this library, follow this <a href="/snpdb/gene-list?lib={{library}}">link</a>.</h5>
+    </div>
 </div>
 
 <body>
@@ -34,8 +36,8 @@
                     <button class="btn btn-primary" type="submit"  style="margin-left:0px; width:75px; vertical-align:middle; padding: 0px">Search</button>
                 </div>
             </form>
+        </ul>
     </div>
-</div>
 </div>
 </body>
 

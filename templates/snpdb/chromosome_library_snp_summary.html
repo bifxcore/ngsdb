@@ -5,8 +5,10 @@
 {% block content %}
 {% load display_rows %}
 
-<div class="page-header text-header" style="padding-left:30px">
-    <h1>Chromosome and Library Query</h1>
+<div class="container-fluid">
+    <div class="page-header text-header" style="padding-left:30px">
+        <h1>Chromosome and Library Query</h1>
+    </div>
 </div>
 
 
@@ -25,16 +27,16 @@
 </div>
 </div>
 
-<div class="container" style="padding-bottom:30px">
-<div class="form">
+<div class="container-fluid" style="padding-bottom:30px">
+    <div class="form">
         {% for group in results|group_by:6 %}
-        <div class="form-group">
+            <div class="form-group">
                 {% for obj in group %}
                     <label class="col-sm-2">{{ obj.librarycode }}      </label>
                 {% endfor %}
-        </div>
+            </div>
         {% endfor %}
-</div>
+    </div>
 </div>
 
 </body>

@@ -7,6 +7,7 @@ from django import forms
 from django.forms.widgets import RadioSelect, CheckboxSelectMultiple
 from ngsdbview.viewtools import *
 from django.contrib.auth.decorators import login_required
+from samples.models import Library as samplelibrary, Sample
 
 #============================================================================#
 # View forms
@@ -279,6 +280,7 @@ def Dashboard(request):
 
     libcount = Library.objects.all().count()
     anacount = Result.objects.all().count()
+
     kwargs['libcount'] = libcount
     kwargs['anacount'] = anacount
 
@@ -300,9 +302,75 @@ def Dashboard(request):
         author = Author.objects.filter(library__librarycode=libcode).values_list('designation', flat=True)[0]
         libauth[author] += 1
         (firstname, lastname) = Collaborator.objects.filter(library__librarycode=libcode).values_list('firstname', 'lastname')[0]
-        collaborator = firstname + '_' + lastname
+        collaborator = firstname + ' ' + lastname
         collaborators[collaborator] += 1
 
+
+    # Sample table by collab
+    samplecountdic = defaultdict(int)
+    for sample in Sample.objects.all():
+        collaborator = sample.collaborator.firstname + ' ' + sample.collaborator.lastname
+        samplecountdic[collaborator] += 1
+    kwargs['samplecountdic'] = samplecountdic
+    kwargs['samplecountchart']= Pie(samplecountdic.values()).legend('|'.join(samplecountdic.keys())).size(225,125)
+    kwargs['samplecounttotal'] = Sample.objects.all().count()
+
+    # Sample table by organism
+    sampleorgcountdic = defaultdict(int)
+    for sample in Sample.objects.all():
+        sampleorgcountdic[sample.organism.organismcode] += 1
+    kwargs['sampleorgcountdic'] = sampleorgcountdic
+    kwargs['sampleorgcountchart']= Pie(sampleorgcountdic.values()).legend('|'.join(sampleorgcountdic.keys())).size(225,125)
+    kwargs['sampleorgcounttotal'] = Sample.objects.all().count()
+
+    # Sample table by type
+    sampletypecountdic = defaultdict(int)
+    for sample in Sample.objects.all():
+        sampletypecountdic[sample.sampletype] += 1
+    kwargs['sampletypecountdic'] = sampletypecountdic
+    kwargs['sampletypecountchart']= Pie(sampletypecountdic.values()).legend('|'.join(sampletypecountdic.keys())).size(225,125)
+    kwargs['sampletypecounttotal'] = Sample.objects.all().count()
+
+    # Libraries constructed by collaborator
+    libconstcountdic = defaultdict(int)
+    for samlib in samplelibrary.objects.all():
+        if Sample.objects.filter(sampleid=samlib.sampleid).exists():
+            collaborator = samlib.sampleid.collaborator.firstname + ' ' + samlib.sampleid.collaborator.lastname
+            libconstcountdic[collaborator] += 1
+    kwargs['libconstcountdic'] = libconstcountdic
+    kwargs['libconstcountchart']= Pie(libconstcountdic.values()).legend('|'.join(libconstcountdic.keys())).size(225,125)
+    kwargs['libconstcounttotal'] = samplelibrary.objects.all().count()
+
+    # Libraries constructed by author
+    libauthcountdic = defaultdict(int)
+    for samlib in samplelibrary.objects.all():
+        if Sample.objects.filter(sampleid=samlib.sampleid).exists():
+            author = samlib.author.firstname + ' ' + samlib.author.lastname
+            libauthcountdic[author] += 1
+    kwargs['libauthcountdic'] = libauthcountdic
+    kwargs['libauthcountchart']= Pie(libauthcountdic.values()).legend('|'.join(libauthcountdic.keys())).size(225,125)
+    kwargs['libauthcounttotal'] = samplelibrary.objects.all().count()
+
+    # Libraries constructed by organism
+    liborgcountdic = defaultdict(int)
+    for samlib in samplelibrary.objects.all():
+        if Sample.objects.filter(sampleid=samlib.sampleid).exists():
+            org = Sample.objects.get(sampleid=samlib.sampleid).organism.organismcode
+            liborgcountdic[org] += 1
+    kwargs['liborgcountdic'] = liborgcountdic
+    kwargs['liborgcountchart']= Pie(liborgcountdic.values()).legend('|'.join(liborgcountdic.keys())).size(225,125)
+    kwargs['liborgcounttotal'] = samplelibrary.objects.all().count()
+
+    # Libraries constructed by librarytype
+    libtypecountdic = defaultdict(int)
+    for samlib in samplelibrary.objects.all():
+        if Sample.objects.filter(sampleid=samlib.sampleid).exists():
+            libtypecountdic[samlib.librarytype.type] += 1
+    kwargs['libtypecountdic'] = libtypecountdic
+    kwargs['libtypecountchart']= Pie(libtypecountdic.values()).legend('|'.join(libtypecountdic.keys())).size(225,125)
+    kwargs['libtypecounttotal'] = samplelibrary.objects.all().count()
+
+    # Libraries analyzed
     kwargs['libtype']=libtype
     kwargs['libtypechart'] = Pie(libtype.values()).legend('|'.join(libtype.keys())).size(225,125)
 
@@ -430,7 +498,7 @@ def ListExperiments(request):
     allexp = Experiment.objects.all()
     for exp in allexp:
         expname = exp.name
-        expts[expname] = Library.objects.filter(experiment__name=expname)
+        expts[exp] = Library.objects.filter(experiment__name=expname)
 
     kwargs['expts']=expts
 
@@ -464,24 +532,36 @@ def AnalyzeExperiments(request):
             if 'formlevel3' in request.POST:
                 geneidbox = request.POST['geneidbox']
                 geneids = string2list(request, geneidbox)
-                allgenes = Resultsriboprof.objects.filter(result__in=resids).filter(geneid__in=geneids)
                 # readcount data for the table
                 finalcount = {}
                 for geneid in geneids:
-                    resset = allgenes.filter(geneid=geneid)
-                    finalcount[geneid] = resset.values_list('counts_raw', flat=True)
-                    print finalcount
+                    genecounts = []
+
+                    for resid in resids:
+                        resobj = Result.objects.get(result_id=resid)
+                        libtype = resobj.libraries.all()[0].librarytype.type
+                        genecount = ""
+                        if libtype == "ribosomeprofiling":
+                            genecount = Resultsriboprof.objects.get(result=resid, geneid=geneid).counts_raw
+                        elif libtype == "fragRNA":
+                            genecount = Resultsriboprof.objects.get(result=resid, geneid=geneid).counts_raw
+                        elif libtype == "SL":
+                            genecount = Resultslgene.objects.get(result=resid, geneid=geneid)
+                        genecounts.append(genecount)
+                    finalcount[geneid]=genecounts
                 kwargs['finalcount'] = finalcount
+
                 # header data for table
                 headerLib=[]
                 headerGen=[]
-                residsforheader =resset.values_list('result', flat=True)
-                for resid in residsforheader:
+                headerLibtype = []
+                for resid in resids:
                     headerLib.append(GetLibcodesForResid(request, resid)[0])
                     headerGen.append(GetGenomeVersionForResid(request, resid))
+                    headerLibtype.append(Result.objects.get(result_id=resid).libraries.all()[0].librarytype.type)
                 kwargs['headerLib'] = headerLib
                 kwargs['headerGen'] = headerGen
-
+                kwargs['headerLibtype'] = headerLibtype
                 #get list of geneids for tritryplink in comma separated string form
                 kwargs['geneidsfortritryp'] = ','.join(geneids)
 
