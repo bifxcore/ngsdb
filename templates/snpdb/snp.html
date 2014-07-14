@@ -26,15 +26,6 @@
 
 <body>
 <div class="container-fluid">
-    <div class="page-header text-header" style="padding-left:30px; margin-top:10px; padding-bottom:0px">
-        <h1 style="padding-bottom:0px;">SNP Summary</h1>
-        <h2 style="padding-top:5px">There are {{ count }} snps. </h2>
-    </div>
->>>>>>> be1e0c19f2cf09f762b088433968f043b7d9560e
-</div>
-
-<body>
-<div class="container-fluid">
     <div class="collapse navbar-collapse">
         <ul class="nav navbar-nav">
             <form class="form-inline navbar-left" role="form" id='search' action='/snpdb/snp/search' method="get" style="padding-bottom:30px">
@@ -59,7 +50,6 @@
 </body>
 
 <div class="container-fluid" style="padding-bottom:30px">
-<<<<<<< HEAD
 	<table class="table table-condensed table-hover" style="table-layout: fixed; word-wrap: break-word;">
     	<thead>
     	<tr>
@@ -92,41 +82,7 @@
 	</table>
 </div>
 </body>
-=======
-    <table class="table table-condensed table-hover" style="table-layout: fixed; word-wrap: break-word;">
-        <thead>
-        <tr>
-            <th class=" text-center"><a href={{ filter_urls.snp_id }}>SNP ID</a></th>
-            <th class=" text-center"><a href={{ filter_urls.snp_position }}>Position</a></th>
-            <th class=" text-center"><a href={{ filter_urls.result }}>Result</a></th>
-            <th class=" text-center"><a href={{ filter_urls.ref_base }}>Reference Base</a></th>
-            <th class=" text-center"><a href={{ filter_urls.alt_base }}>Alternate Base</a></th>
-            <th class=" text-center"><a href={{ filter_urls.heterozygosity }}>Heterozygosity</a></th>
-            <th class=" text-center"><a href={{ filter_urls.quality }}>Quality</a></th>
-            <th class=" text-center"><a href={{ filter_urls.library }}>Library</a></th>
-            <th class=" text-center"><a href={{ filter_urls.chromosome__chromosome_name }}>Chromosome</a></th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr>
-            {% for each in snps %}
-                <td class="text-center">{{ each.snp_id }}</td>
-                <td class="text-center">{{ each.snp_position }}</td>
-                <td class="text-center">{{ each.result }}</td>
-                <td class="text-center">{{ each.ref_base }}</td>
-                <td class="text-center">{{ each.alt_base }}</td>
-                <td class="text-center">{{ each.heterozygosity }}</td>
-                <td class="text-center">{{ each.quality }}</td>
-                <td class="text-center">{{ each.library }}</td>
-                <td class="text-center">{{ each.chromosome__chromosome_name }}</td>
-        </tr>
-        {% endfor %}
-        </tbody>
-    </table>
-</div>
-</body>
 
->>>>>>> be1e0c19f2cf09f762b088433968f043b7d9560e
 
 <div class="pagination">
     <ul class="pagination">
