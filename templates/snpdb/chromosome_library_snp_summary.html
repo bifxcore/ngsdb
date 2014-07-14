@@ -4,14 +4,15 @@
 
 {% block content %}
 {% load display_rows %}
-
-<div class="page-header text-header" style="padding-left:30px">
-    <h1>Chromosome and Library Query</h1>
+<div class="container-fluid">
+    <div class="page-header text-header" style="padding-left:30px">
+        <h1>Chromosome and Library Query</h1>
+    </div>
 </div>
 
 
 <body>
-<div class="container" style="padding-bottom:30px">
+<div class="container-fluid" style="padding-bottom:30px">
 <div class="collapse navbar-collapse navbar-ex1-collapse">
     <ul class="nav navbar-nav">
         <form class="form-inline" role="form" id='search' action='/snpdb/chromosome-library-snps-summary/search' method="get">
@@ -25,7 +26,7 @@
 </div>
 </div>
 
-<div class="container" style="padding-bottom:30px">
+<div class="container-fluid" style="padding-bottom:30px">
 <div class="form">
         {% for group in results|group_by:6 %}
         <div class="form-group">

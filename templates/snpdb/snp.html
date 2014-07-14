@@ -17,15 +17,15 @@
    body { background: antiquewhite; }
 </style>
 
-<div class="container">
-<div class="page-header text-header" style="padding-left:30px; margin-top:10px; padding-bottom:0px">
-    <h1 style="padding-bottom:0px;">SNP Summary</h1>
-    <h2 style="padding-top:5px">There are {{ count }} snps. </h2>
-</div>
+<div class="container-fluid">
+    <div class="page-header text-header" style="padding-left:30px; margin-top:10px; padding-bottom:0px">
+        <h1 style="padding-bottom:0px;">SNP Summary</h1>
+        <h2 style="padding-top:5px">There are {{ count }} snps. </h2>
+    </div>
 </div>
 
 <body>
-<div class="container">
+<div class="container-fluid">
     <div class="collapse navbar-collapse">
         <ul class="nav navbar-nav">
             <form class="form-inline navbar-left" role="form" id='search' action='/snpdb/snp/search' method="get" style="padding-bottom:30px">
@@ -49,7 +49,7 @@
 </div>
 </body>
 
-<div class="container" style="padding-bottom:30px">
+<div class="container-fluid" style="padding-bottom:30px">
 <table class="table table-condensed table-hover" style="table-layout: fixed; word-wrap: break-word;">
     <thead>
     <tr>
@@ -67,15 +67,15 @@
     <tbody>
     <tr>
         {% for each in snps %}
-        <td class="text-center">{{ each.snp_id }}</td>
-        <td class="text-center">{{ each.snp_position }}</td>
-        <td class="text-center">{{ each.result }}</td>
-        <td class="text-center">{{ each.ref_base }}</td>
-        <td class="text-center">{{ each.alt_base }}</td>
-        <td class="text-center">{{ each.heterozygosity }}</td>
-        <td class="text-center">{{ each.quality }}</td>
-        <td class="text-center">{{ each.library }}</td>
-        <td class="text-center">{{ each.chromosome__chromosome_name }}</td>
+            <td class="text-center">{{ each.snp_id }}</td>
+            <td class="text-center">{{ each.snp_position }}</td>
+            <td class="text-center">{{ each.result }}</td>
+            <td class="text-center">{{ each.ref_base }}</td>
+            <td class="text-center">{{ each.alt_base }}</td>
+            <td class="text-center">{{ each.heterozygosity }}</td>
+            <td class="text-center">{{ each.quality }}</td>
+            <td class="text-center">{{ each.library }}</td>
+            <td class="text-center">{{ each.chromosome__chromosome_name }}</td>
     </tr>
     {% endfor %}
     </tbody>

@@ -4,25 +4,27 @@
 {% load mathfilters %}
 
 {% block content %}
-<div class="page-header text-header" style="padding-left:30px">
-    <h1>Library Summary</h1>
-    <h4>There are {{ count }} libraries with SNP data. </h4>
+<div class="container-fluid">
+    <div class="page-header text-header" style="padding-left:30px">
+        <h1>Library Summary</h1>
+        <h4>There are {{ count }} libraries with SNP data. </h4>
+    </div>
 </div>
 
 <body>
-<div class="container" style="padding-bottom:30px">
-<div class="collapse navbar-collapse navbar-ex1-collapse">
-    <ul class="nav navbar-nav">
-        <form class="form-inline" role="form" id='search' action='/snpdb/library-snp-summary/search' method="get">
-            <div class="form-group">
-                <label class="sr-only" for="library_id">Library</label>
-                <input type="text" class="form-control" name="lib" placeholder="library code">
-            </div>
-            <button id="submit" class="btn btn-primary" type="submit">Search</button>
-        </form>
-    </ul>
-</div>
+<div class="container-fluid" style="padding-bottom:30px">
+    <div class="collapse navbar-collapse">
+        <ul class="nav navbar-nav">
+            <form class="form-inline navbar-left" role="form" id='search' action='/snpdb/library-snp-summary/search' method="get">
+                <div class="form-group">
+                    <label class="sr-only" for="library_id">Library</label>
+                    <input type="text" class="form-control" name="lib" placeholder="library code">
+                </div>
+                <button id="submit" class="btn btn-primary" style="margin-left:0px; width:75px; vertical-align:middle; padding: 0px" type="submit">Search</button>
+            </form>
+        </ul>
     </div>
+</div>
 </body>
 
 <div class="container-fluid">
