@@ -37,7 +37,7 @@ class GenomeAdmin(admin.ModelAdmin):
 admin.site.register(Genome, GenomeAdmin)
 
 class OrganismAdmin(admin.ModelAdmin):
-    list_display = ('organismcode', 'genus', 'species', 'strain', 'source')
+    list_display = ('organismcode', 'genus', 'species', 'strain')
 admin.site.register(Organism, OrganismAdmin)
 
 class SoftwareAdmin(admin.ModelAdmin):
@@ -45,7 +45,7 @@ class SoftwareAdmin(admin.ModelAdmin):
 admin.site.register(Software, SoftwareAdmin)
 
 class ExperimentAdmin(admin.ModelAdmin):
-    list_display = ('name', 'description', 'notes')
+    list_display = ('name', 'type', 'description', 'notes', 'author_modified')
 admin.site.register(Experiment, ExperimentAdmin)
 
 # code for editing Libraryfile & Libraryprop while in Library admin page
@@ -81,5 +81,10 @@ class AnalysispropInline(admin.TabularInline):
 class AnalysisAdmin(admin.ModelAdmin):
     inlines = [ AnalysisfileInline, AnalysispropInline ]
 admin.site.register(Analysis, AnalysisAdmin)
+
+
+class ProtocolAdmin(admin.ModelAdmin):
+    list_display = ('protocol_name', 'protocol_file', 'protocol_link', 'notes')
+admin.site.register(Protocol, ProtocolAdmin)
 
 autoregister('ngsdbview')

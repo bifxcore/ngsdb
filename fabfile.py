@@ -609,7 +609,7 @@ def stop():
    """
     Stops gunicorn worker and nginx server for the project.
     """
-   sudo("service %s stop" % env.proj_name)
+   #sudo("service %s stop" % env.proj_name)
    sudo("service nginx stop")
 
 @task

@@ -1,0 +1,194 @@
+AS015	87	a381de1a51add1c85d1615aaf9457248	AS015.FCD2AF7.lane5.indexANCACG.CfaC1.NSA.fastq	49283688	AS015.FCD2AF7.lane5.indexANCACG.CfaC1.NSA.fastq
+AS016	131	e71623cdb9d6efa0d95f6ca401a98d33	AS016.FCD2AF7.lane5.indexTNAGGC.CfaC1.NSA.fastq	38999876	AS016.FCD2AF7.lane5.indexTNAGGC.CfaC1.NSA.fastq
+AS017	91	587e70b7744deb46645a56a466182c5e	AS017.FCD2AF7.lane5.indexCNATGT.CfCa1.UCLA.fastq	53383408	AS017.FCD2AF7.lane5.indexCNATGT.CfCa1.UCLA.fastq
+BJ004	18045176931	691a513d7d53345c80c2c160115cc2ef	BJ004_L005_R1.all.fastq	557426692	BJ004_L005_R1.all.fastq
+AH044	19	1bffe3b774956009fa4f2258d0a1db67	AH044_FC61WAM_lane2_LmjF_metacyc-SL.fastq	55933768	AH044_FC61WAM_lane2_LmjF_metacyc-SL.fastq
+AH043	19	c3cb2c8ead9eb2d23b300af273fbf90b	AH043_FC61WAM_lane1_LmjF_procyc-SL.fastq	41305180	AH043_FC61WAM_lane1_LmjF_procyc-SL.fastq
+AH045	19	68bb727e51e6affe8f34d3a5d6b57863	AH045_FC61WAM_lane3_LmjF_ama-SL.fastq	62630916	AH045_FC61WAM_lane3_LmjF_ama-SL.fastq
+BJ008	13488667419	d6d6ee133096e7e43b5d233208171f94	BJ008_FCC0KC0_lane5_index4_ALL.fastq	398223196	BJ008_FCC0KC0_lane5_index4_ALL.fastq
+BJ006	13380846659	97e5306dda8ab9a414f628430cd25b60	BJ006_FCC0KC0_lane3_index2_ALL.fastq	395043304	BJ006_FCC0KC0_lane3_index2_ALL.fastq
+BJ007	14309961453	eda504da39ec2406a30a2276a18478fd	BJ007_FCC0KC0_lane5_index3_ALL.fastq	422471516	BJ007_FCC0KC0_lane5_index3_ALL.fastq
+BJ005	13848806180	f46ecd8f00ff02df30cc0df4675452d7	BJ005_FCC0KC0_lane3_index5_ALL.fastq	408857976	BJ005_FCC0KC0_lane3_index5_ALL.fastq
+LB011	641223214	9c6874fb3ff6545c711be2488a46962a	LB011_C3_H3V_dKO_CGACGT_L007_R1_001.fastq	18930148	LB011_C3_H3V_dKO_CGACGT_L007_R1_001.fastq
+LB013	638969507	e2fbd530b0f20ebf38f5466e35791b06	LB013_H3V_sKO_CAGCAT_L007_R1_001.fastq	18863256	LB013_H3V_sKO_CAGCAT_L007_R1_001.fastq
+LB012	732281635	e5cb2c39ae4a643b8e60ed348a354378	LB012_C4_H3V_dKO_GCAGCT_L007_R1_001.fastq	21618148	LB012_C4_H3V_dKO_GCAGCT_L007_R1_001.fastq
+LB014	593059481	7a64e236975404c90bbef4fcd4f66e5b	LB014_WT_FVI_ATCAGT_L007_R1_001.fastq	17508412	LB014_WT_FVI_ATCAGT_L007_R1_001.fastq
+AS019	69580210	c6bba4bd20464f075b84c89096646a5e	M2903_TOTAL_lesion_BR2_-_L.bra_Beverly_TGACCA_L004_R1_001.fastq	2054036	M2903_TOTAL_lesion_BR2_-_L.bra_Beverly_TGACCA_L004_R1_001.fastq
+AS018	168502419	aec6da76d63c1cc0739829bba1f0bfef	M2903_QUICK_ama_BR2_-_L._bra_Beverly_TTAGGC_L004_R1_001.fastq	4974436	M2903_QUICK_ama_BR2_-_L._bra_Beverly_TTAGGC_L004_R1_001.fastq
+BJ010	11681750723	e5bd87d3203b674c158be96035fc7a46	BJ010_FCC164B_lane2_index3_ALL.fastq	344893440	BJ010_FCC164B_lane2_index3_ALL.fastq
+BJ013	10827961529	4eea6bd5426fefbbc070b2717067eedc	BJ013_FCC164B_lane4_index2_ALL.fastq	319681360	BJ013_FCC164B_lane4_index2_ALL.fastq
+BJ009	11177853029	7bf5dccaa73be26afb33a26c9c562e63	BJ009_FCC164B_lane2_index2_ALL.fastq	330017204	BJ009_FCC164B_lane2_index2_ALL.fastq
+BJ014	11674963337	0a8ecc8547b46cbd7383a00ba032d491	BJ014_FCC164B_lane4_index5_ALL.fastq	344686760	BJ014_FCC164B_lane4_index5_ALL.fastq
+BJ011	12374206198	1b8fba19a9527c60f25ea5cdc1bbb8cb	BJ011_FCC164B_lane3_index4_ALL.fastq	365334896	BJ011_FCC164B_lane3_index4_ALL.fastq
+BJ012	12591668925	6558c312b73918b6bcaf45c87d8e553e	BJ012_FCC164B_lane3_index5_ALL.fastq	371755968	BJ012_FCC164B_lane3_index5_ALL.fastq
+AS009	85	8b95625193116b271740d1dfb341f31f	AS009.FCD2AF7.lane4.indexACGACT.FV1quick.fastq	25877024	AS009.FCD2AF7.lane4.indexACGACT.FV1quick.fastq
+AS010	85	73cc408beb3bbba9462c772efe8732dd	AS010.FCD2AF7.lane4.indexATCAGT.FV1total.fastq	13549524	AS010.FCD2AF7.lane4.indexATCAGT.FV1total.fastq
+AS011	85	4b1c5ca6b0315f0e9f38bfe81a043adc	AS011.FCD2AF7.lane4.indexCAGCAT.FV1total.fastq	4876904	AS011.FCD2AF7.lane4.indexCAGCAT.FV1total.fastq
+md5sum	19	md5sum: 	AH032_FC61B9T_lane1_LdoS-qDNA.fastq: No such file or directory	wc:	AH032_FC61B9T_lane1_LdoS-qDNA.fastq: No such file or directory
+md5sum	19	md5sum: 	AH033_FC61B9T_lane2_LmjF-gDNA.fastq: No such file or directory	wc:	AH033_FC61B9T_lane2_LmjF-gDNA.fastq: No such file or directory
+AH084	16	5dbe9653213e42d083121f8b67edf7fe	AH084_FCC02BN_lane5_LdoS-amaAxe_VL-SL.fastq	145189184	AH084_FCC02BN_lane5_LdoS-amaAxe_VL-SL.fastq
+AH082	16	204ae8c0cac4f546d9c01e82310c3175	AH082_FCC02BN_lane3_LdoS-prom_VL-SL.fastq	202088832	AH082_FCC02BN_lane3_LdoS-prom_VL-SL.fastq
+AH081	16	d7c8a8ed089906bc3542b5fb51c14a33	AH081_FCC02BN_lane2_LdoS-amaMac_CL-SL.fastq	146047972	AH081_FCC02BN_lane2_LdoS-amaMac_CL-SL.fastq
+AH080	16	817573e0260763d6695c4d7b35dd665f	AH080_FCC02BN_lane1_LdoS-amaMac_VL-SL.fastq	149664728	AH080_FCC02BN_lane1_LdoS-amaMac_VL-SL.fastq
+md5sum	16	md5sum: 	AH085_FCC02BN_lane6_LdoS-amaAxe_CL-SL.fastq: No such file or directory	wc:	AH085_FCC02BN_lane6_LdoS-amaAxe_CL-SL.fastq: No such file or directory
+AH083	16	deee13b4420b3efe6242582147e13e06	AH083_FCC02BN_lane4_LdoS-prom_CL-SL.fastq	151529368	AH083_FCC02BN_lane4_LdoS-prom_CL-SL.fastq
+md5sum	19	md5sum: 	AH066_FC62VKH_lane5_LamP-SL.fastq: No such file or directory	wc:	AH066_FC62VKH_lane5_LamP-SL.fastq: No such file or directory
+md5sum	19	md5sum: 	AH065_FC62VKH_lane4_LamP-SL.fastq: No such file or directory	wc:	AH065_FC62VKH_lane4_LamP-SL.fastq: No such file or directory
+md5sum	19	md5sum: 	AH063_FC62VKH_lane2_LamP-SL.fastq: No such file or directory	wc:	AH063_FC62VKH_lane2_LamP-SL.fastq: No such file or directory
+md5sum	19	md5sum: 	AH064_FC62VKH_lane3_LamP-SL.fastq: No such file or directory	wc:	AH064_FC62VKH_lane3_LamP-SL.fastq: No such file or directory
+md5sum	16	md5sum: 	LmjF-3UTR_AH034.fastq: No such file or directory	wc:	LmjF-3UTR_AH034.fastq: No such file or directory
+md5sum	19	md5sum: 	AH034_FC61B7V_lane1_LmjF-polyA.fastq: No such file or directory	wc:	AH034_FC61B7V_lane1_LmjF-polyA.fastq: No such file or directory
+md5sum	16	md5sum: 	AH037_FC61WB7_lane3_LtaU-random_SL.fastq: No such file or directory	wc:	AH037_FC61WB7_lane3_LtaU-random_SL.fastq: No such file or directory
+md5sum	16	md5sum: 	AH036_FC61WB7_lane2_LtaU-random_SL.fastq: No such file or directory	wc:	AH036_FC61WB7_lane2_LtaU-random_SL.fastq: No such file or directory
+md5sum	16	md5sum: 	AH035_FC61WB7_lane1_LtaU-random_SL.fastq: No such file or directory	wc:	AH035_FC61WB7_lane1_LtaU-random_SL.fastq: No such file or directory
+AH038	16	b81c218fa76310ff683157966522360a	AH038_FC61WAV_lane1_LdoS_0hr.fastq	50967304	AH038_FC61WAV_lane1_LdoS_0hr.fastq
+AH041	16	a0b7031fc1d8d9e0276f4e4841732752	AH041_FC61WAV_lane4_LdoS_24hr.fastq	50373928	AH041_FC61WAV_lane4_LdoS_24hr.fastq
+AH042	16	8c3cb6f865d5e8de379c04dfe1b6e0d6	AH042_FC61WAV_lane5_LdoS_120hr.fastq	50350680	AH042_FC61WAV_lane5_LdoS_120hr.fastq
+AH039	16	1545b051c4ade566b179bbac1f2a9279	AH039_FC61WAV_lane2_LdoS_5hr.fastq	51526692	AH039_FC61WAV_lane2_LdoS_5hr.fastq
+AH040	16	172f48a4de0378b1e5fbe0d1d33e55b4	AH040_FC61WAV_lane3_LdoS_10hr.fastq	50553492	AH040_FC61WAV_lane3_LdoS_10hr.fastq
+AS013	77	bf0b728a29a9a43233594d3df7f1047f	AS013.FCD2AF7.lane4.indexCGACGT.log7p4.fastq	20866740	AS013.FCD2AF7.lane4.indexCGACGT.log7p4.fastq
+AS012	73	446439beed60d25f6ef8a0bda222dae7	AS012.FCD2AF7.lane4.indexCGATGT.IIAM.fastq	20620952	AS012.FCD2AF7.lane4.indexCGATGT.IIAM.fastq
+AS014	69	6a3ad895a71b5fb1fd803fb743075601	AS014.FCD2AF7.lane4.indexATCACG.PNA-.fastq	54794652	AS014.FCD2AF7.lane4.indexATCACG.PNA-.fastq
+AS024	41	e558c709dcc5ebc878943bc6df6ba8c6	AS024.FCC2BV9.lane6.indexATCACG.fastq	16640140	AS024.FCC2BV9.lane6.indexATCACG.fastq
+AS020	43	e33b6464f8db2e19f68cc5f71a25d122	AS020.FCC2BV9.lane6.indexACGACT.fastq	18570380	AS020.FCC2BV9.lane6.indexACGACT.fastq
+AS022	39	481434af193f0d7cb4a17917fdf87410	AS022.FCC2BV9.lane6.indexCAGCAT.fastq	16195492	AS022.FCC2BV9.lane6.indexCAGCAT.fastq
+AS023Mi	77125506	8bd6ccaddfa79f76fd8f885a6dfc537d	AS023Mi-B_S8_L001_R1_001.fastq	1958828	AS023Mi-B_S8_L001_R1_001.fastq
+AS021Mi	75463067	76e1d0caf344211860694c12ae378fed	AS021Mi-B_S6_L001_R1_001.fastq	1916640	AS021Mi-B_S6_L001_R1_001.fastq
+AS022Mi	49723978	da4a5c9afe819957943f41c905e5d4f4	AS022Mi-B_S7_L001_R1_001.fastq	1262896	AS022Mi-B_S7_L001_R1_001.fastq
+AS027Mi	66343405	ed7308b70356e37af28cc7345031bc06	AS027Mi-B_S4_L001_R1_001.fastq	1685016	AS027Mi-B_S4_L001_R1_001.fastq
+AS025Mi	54605672	ef64d9949b46fb8c4822e957dc175b3d	AS025Mi-B_S2_L001_R1_001.fastq	1386916	AS025Mi-B_S2_L001_R1_001.fastq
+AS026Mi	32646324	64cb06018ff09747c202b9f06fc191ed	AS026Mi-B_S3_L001_R1_001.fastq	829168	AS026Mi-B_S3_L001_R1_001.fastq
+AS024Mi	64164815	2b5a700907704c4da1bb9152e1951403	AS024Mi-B_S1_L001_R1_001.fastq	1629740	AS024Mi-B_S1_L001_R1_001.fastq
+AS020Mi	63121727	a4f878aed1f1c31234de19e815b6cb1e	AS020Mi-B_S5_L001_R1_001.fastq	1603208	AS020Mi-B_S5_L001_R1_001.fastq
+AS023	43	5d621a9fcaf966dd185808fccd009d34	AS023.FCC2BV9.lane6.indexCGACGT.fastq	18517036	AS023.FCC2BV9.lane6.indexCGACGT.fastq
+AS027	43	a63ffeded517545cdf2de567e3d00758	AS027.FCC2BV9.lane6.indexTGACCA.fastq	18569172	AS027.FCC2BV9.lane6.indexTGACCA.fastq
+AS026	41	804c43b5e00825bbf15aa56cd9339a53	AS026.FCC2BV9.lane6.indexTTAGGC.fastq	12119564	AS026.FCC2BV9.lane6.indexTTAGGC.fastq
+AS021	43	daefb23d1adcb05ee37af1677d4d5281	AS021.FCC2BV9.lane6.indexATCAGT.fastq	23122748	AS021.FCC2BV9.lane6.indexATCAGT.fastq
+AS025	41	6d618c0115277ae339892de73d77bfea	AS025.FCC2BV9.lane6.indexCGATGT.fastq	18771564	AS025.FCC2BV9.lane6.indexCGATGT.fastq
+md5sum	72	md5sum: 	AH079_FC631P2_lane4_LtaP-SL_JBP2KO_rep1.fastq: No such file or directory	wc:	AH079_FC631P2_lane4_LtaP-SL_JBP2KO_rep1.fastq: No such file or directory
+md5sum	16	md5sum: 	AH076_FC631P2_lane1_LtaP-SL_WT_rep1.fastq: No such file or directory	wc:	AH076_FC631P2_lane1_LtaP-SL_WT_rep1.fastq: No such file or directory
+md5sum	72	md5sum: 	AH078_FC631P2_lane3_LtaP-SL_JBP2KO_rep1.fastq: No such file or directory	wc:	AH078_FC631P2_lane3_LtaP-SL_JBP2KO_rep1.fastq: No such file or directory
+md5sum	16	md5sum: 	AH077_FC631P2_lane2_LtaP-SL_BrdU_rep1.fastq: No such file or directory	wc:	AH077_FC631P2_lane2_LtaP-SL_BrdU_rep1.fastq: No such file or directory
+AH006	18	217f8ea79dd7d23571eb82f944c5575d	AH006_FC431UF_lane3_LmjF-random.fastq	22638128	AH006_FC431UF_lane3_LmjF-random.fastq
+ES045	45	94bacfd0d522e0a236064c129ad22be5	ES045_pKARKOH1_DS145374_CGATGT_R1.fastq	87370800	ES045_pKARKOH1_DS145374_CGATGT_R1.fastq
+ES045	45	7f1422e268e7e37c0ba24cfae957b0ff	ES045_pKARKOH1_DS145374_CGATGT_R2.fastq	87370800	ES045_pKARKOH1_DS145374_CGATGT_R2.fastq
+ES044	45	e826e1d9590a329bad157b6a17b7ad77	ES044_dpKAR2rec_DS145373_ATCACG_R2.fastq	64398148	ES044_dpKAR2rec_DS145373_ATCACG_R2.fastq
+ES044	45	b7b82be305965e4228ce2368470602c3	ES044_dpKAR2rec_DS145373_ATCACG_R1.fastq	64398148	ES044_dpKAR2rec_DS145373_ATCACG_R1.fastq
+ES054	2129585218	4ef798af0419b28c21ecf7cc6ca9369e	ES054_ACTGAT_L004_R1_001.fastq	62869824	ES054_ACTGAT_L004_R1_001.fastq
+ES052	1884460129	224d75408e768f1feeefa21fd1b1e466	ES052_CGTACG_L004_R1_001.fastq	55633172	ES052_CGTACG_L004_R1_001.fastq
+ES046	2089158762	a3aa9e84fe03d43ab7d616671729ea9c	ES046_AGTTCC_L004_R1_001.fastq	61676340	ES046_AGTTCC_L004_R1_001.fastq
+ES051	2364686304	bf29a948c67c6de39ef5db0f7471e02e	ES051_GTTTCG_L004_R1_ALL.fastq	69810480	ES051_GTTTCG_L004_R1_ALL.fastq
+ES049	2315888564	17ddff4c2d06a03e5d08c70c111032df	ES049_GTCCGC_L004_R1_ALL.fastq	68369748	ES049_GTCCGC_L004_R1_ALL.fastq
+ES053	1860620978	18168e0d4c82feff761ecaefe9513284	ES053_GAGTGG_L004_R1_001.fastq	54929380	ES053_GAGTGG_L004_R1_001.fastq
+ES047	2094754728	6e49bac2cb1629299eb5c50a7786e7ee	ES047_ATGTCA_L004_R1_001.fastq	61841476	ES047_ATGTCA_L004_R1_001.fastq
+ES055	1583365505	88117579b333776b8ab50df89c769617	ES055_ATTCCT_L004_R1_001.fastq	46744368	ES055_ATTCCT_L004_R1_001.fastq
+ES050	1836497646	bdca427746e5243ecd0aca8df68005f0	ES050_GTGAAA_L004_R1_001.fastq	54217188	ES050_GTGAAA_L004_R1_001.fastq
+ES048	1260683836	6f9a831f1fadba73035f290a5b382e3b	ES048_CCGTCC_L004_R1_001.fastq	37217944	ES048_CCGTCC_L004_R1_001.fastq
+BJ022	10220960724	3f02b203276fc21285ffbf798a9daa7b	BJ022.FCD1L3T.lane7.index5_ALL.fastq	301746876	BJ022.FCD1L3T.lane7.index5_ALL.fastq
+BJ021	7895761829	f44de15626404bff8406ee565ce845d5	BJ021.FCD1L3T.lane6.index5_ALL.fastq	233093624	BJ021.FCD1L3T.lane6.index5_ALL.fastq
+BJ024	8088315866	e4a8456720aaeb6fd23793368e168b89	BJ024.FCD1L3T.lane6.index4_ALL.fastq	238777004	BJ024.FCD1L3T.lane6.index4_ALL.fastq
+BJ023	9296867833	94871fe3a0f65686382af2d0a8c14398	BJ023.FCD1L3T.lane7.index4_ALL.fastq	274464876	BJ023.FCD1L3T.lane7.index4_ALL.fastq
+BJ015r	8757461881	f6eeca7c7ab8178d32fbac2dfaf85e85	BJ015r_FCD1KU8_lane6_index2_ALL.fastq	258544756	BJ015r_FCD1KU8_lane6_index2_ALL.fastq
+BJ017r	5180394131	2852c4c77ddb7e7ed62275c84bf566a2	BJ017r_FCC1FB1_lane4_index3_ALL.fastq	152945108	BJ017r_FCC1FB1_lane4_index3_ALL.fastq
+BJ019r	9446912433	3c54627632f11456aa58678c3ba9f825	BJ019r_FCD1KU8_lane6_index4_ALL.fastq	278897900	BJ019r_FCD1KU8_lane6_index4_ALL.fastq
+BJ018r	5723383938	7d6a630369f3ebce9dd5f1ae7f51e5c3	BJ018r_FCC1FB1_lane2_index3_ALL.fastq	168978276	BJ018r_FCC1FB1_lane2_index3_ALL.fastq
+BJ016r	8493505669	1ad1091045d041bea16aabb0e8f6dd4c	BJ016r_FCD1KU8_lane4_index2_ALL.fastq	250751460	BJ016r_FCD1KU8_lane4_index2_ALL.fastq
+AH056	16	2451624571294d93be9fb7ac9c567f64	AH056_FC624AV_lane4_LmjF-random.fastq	84092816	AH056_FC624AV_lane4_LmjF-random.fastq
+AH046	16	f02def591d25c174d3705bef9350803b	AH046_FC624AV_lane1_LmjF-NSR.fastq	80456828	AH046_FC624AV_lane1_LmjF-NSR.fastq
+AH051	16	3137acd61a0c30c40504d3709f341df4	AH051_FC624AV_lane3_LmjF-NSR.fastq	71407180	AH051_FC624AV_lane3_LmjF-NSR.fastq
+AH047	16	cb23a1fd64d671522df391504e326627	AH047_FC624AV_lane2_LmjF-polyA.fastq	84735456	AH047_FC624AV_lane2_LmjF-polyA.fastq
+BJ047	7801883290	e025e37d872ff8ab2dc6c6babbce25f6	BJ047.FCC2BV9.lane5.indexCGACGT.ALL.fastq	230307280	BJ047.FCC2BV9.lane5.indexCGACGT.ALL.fastq
+BJ045	9061273079	119632212695758293621d7e013aecf9	BJ045.FCC2BV9.lane2.indexCAGCAT.ALL.fastq	267506296	BJ045.FCC2BV9.lane2.indexCAGCAT.ALL.fastq
+BJ049	9275944634	de1d5402fe6809a73aa67e2ab965450a	BJ049.FCD2DC3.lane7.indexGCAGCT.ALL.fastq	273833524	BJ049.FCD2DC3.lane7.indexGCAGCT.ALL.fastq
+BJ050	6501321177	fe12fbdab178efb37558bc2b08323cb5	BJ050.FCC2BV9.lane5.indexGCAGCT.ALL.fastq	191915868	BJ050.FCC2BV9.lane5.indexGCAGCT.ALL.fastq
+BJ048	10196080120	c7619f3b3b214e5b975f492445c60b9a	BJ048.FCD2DC3.lane2.indexCGACGT.ALL.fastq	301007548	BJ048.FCD2DC3.lane2.indexCGACGT.ALL.fastq
+BJ046	8671781945	a9178257038ed8d2120bcc82334d9ac8	BJ046.FCC2BV9.lane7.indexCAGCAT.ALL.fastq	256000000	BJ046.FCC2BV9.lane7.indexCAGCAT.ALL.fastq
+md5sum	19	md5sum: 	AH057_FC629PW_lane4_LmjF-gDNA.fastq: No such file or directory	wc:	AH057_FC629PW_lane4_LmjF-gDNA.fastq: No such file or directory
+LB002	42	d00c4c9e2a1230bcd810c58d066ea2fd	Ltar_WT_plus_DMOG_CAGCAT_L004_LB002.fastq	26472304	Ltar_WT_plus_DMOG_CAGCAT_L004_LB002.fastq
+LB001	41	39c8a4ca913a1cb00114ff3f7113e204	Ltar_WT_min_DMOG_ATCAGT_L004_LB001.fastq	34512980	Ltar_WT_min_DMOG_ATCAGT_L004_LB001.fastq
+LB003	41	8e0fcbc05aeed6d07fb0a107d2ef942f	Ltar_WT_min_BrdU_CGACGT_L004_LB003.fastq	31396120	Ltar_WT_min_BrdU_CGACGT_L004_LB003.fastq
+LB004	42	30740f11702f774893a41a86e5ff954f	Ltar_WT_plus_BrdU_GCAGCT_L004_LB004.fastq	50941200	Ltar_WT_plus_BrdU_GCAGCT_L004_LB004.fastq
+md5sum	19	md5sum: 	AH016_FC61AWU_lane2_LmjF-NSR_SL.fastq: No such file or directory	wc:	AH016_FC61AWU_lane2_LmjF-NSR_SL.fastq: No such file or directory
+md5sum	19	md5sum: 	AH014_FC61AWU_lane1_LmjF-NSR.fastq: No such file or directory	wc:	AH014_FC61AWU_lane1_LmjF-NSR.fastq: No such file or directory
+md5sum	19	md5sum: 	AH018_FC61AWU_lane4_LdoS-NSR.fastq: No such file or directory	wc:	AH018_FC61AWU_lane4_LdoS-NSR.fastq: No such file or directory
+md5sum	19	md5sum: 	AH017_FC61AWU_lane3_LmjF-random_SL.fastq: No such file or directory	wc:	AH017_FC61AWU_lane3_LmjF-random_SL.fastq: No such file or directory
+md5sum	19	md5sum: 	AH022_FC61AWU_lane5_LtaU-NSR.fastq: No such file or directory	wc:	AH022_FC61AWU_lane5_LtaU-NSR.fastq: No such file or directory
+md5sum	19	md5sum: 	AH024_FC61AWU_lane6_LtaU-NSR_SL.fastq: No such file or directory	wc:	AH024_FC61AWU_lane6_LtaU-NSR_SL.fastq: No such file or directory
+md5sum	19	md5sum: 	AH025_FC61AWU_lane7_LtaU-random.fastq: No such file or directory	wc:	AH025_FC61AWU_lane7_LtaU-random.fastq: No such file or directory
+md5sum	19	md5sum: 	AH031_FC61AWL_lane2_LbrM-NSR_SL.fastq: No such file or directory	wc:	AH031_FC61AWL_lane2_LbrM-NSR_SL.fastq: No such file or directory
+md5sum	19	md5sum: 	AH030_FC61AWL_lane1_LbrM-NSR.fastq: No such file or directory	wc:	AH030_FC61AWL_lane1_LbrM-NSR.fastq: No such file or directory
+md5sum	19	md5sum: 	AH068_FC62U4M_lane2_LdoS-gDNA_SLcut.fastq: No such file or directory	wc:	AH068_FC62U4M_lane2_LdoS-gDNA_SLcut.fastq: No such file or directory
+AH075	19	882ed98a913da8f325f8f18ab04174ee	AH075_FC62U4M_lane4_LdoS-polyA_ama.fastq	111366456	AH075_FC62U4M_lane4_LdoS-polyA_ama.fastq
+md5sum	19	md5sum: 	AH067_FC62U4M_lane1_LdoS-gDNA_SLvis.fastq: No such file or directory	wc:	AH067_FC62U4M_lane1_LdoS-gDNA_SLvis.fastq: No such file or directory
+md5sum	19	md5sum: 	AH074_FC62U4M_lane3_LdoS-polyA_prom.fastq: No such file or directory	wc:	AH074_FC62U4M_lane3_LdoS-polyA_prom.fastq: No such file or directory
+md5sum	19	md5sum: 	AH088_FC630DK_lane1_LmjF-meta_2h.fastq: No such file or directory	wc:	AH088_FC630DK_lane1_LmjF-meta_2h.fastq: No such file or directory
+md5sum	19	md5sum: 	AH086_FC630DK_lane1_LmjF-meta_0h.fastq: No such file or directory	wc:	AH086_FC630DK_lane1_LmjF-meta_0h.fastq: No such file or directory
+md5sum	19	md5sum: 	AH090_FC630DK_lane1_LmjF-meta_8h.fastq: No such file or directory	wc:	AH090_FC630DK_lane1_LmjF-meta_8h.fastq: No such file or directory
+md5sum	19	md5sum: 	AH087_FC630DK_lane1_LmjF-meta_1h.fastq: No such file or directory	wc:	AH087_FC630DK_lane1_LmjF-meta_1h.fastq: No such file or directory
+md5sum	19	md5sum: 	AH089_FC630DK_lane1_LmjF-meta_4h.fastq: No such file or directory	wc:	AH089_FC630DK_lane1_LmjF-meta_4h.fastq: No such file or directory
+md5sum	19	md5sum: 	AH093_FC630DK_lane1_LmjF-ama_lesion.fastq: No such file or directory	wc:	AH093_FC630DK_lane1_LmjF-ama_lesion.fastq: No such file or directory
+LB012	22856191	5457246a2a45ff2ef8caff2afc29aa0d	Lbr_ago-_total_lesion_1st_rep_ATCAGT_L003_R1_001.fastq	674724	Lbr_ago-_total_lesion_1st_rep_ATCAGT_L003_R1_001.fastq
+LB019	44	7a12dfbb84d33bffb49fb69667fab558	LB019_LmjF_FV1_purif_amas_CGACGT_L004_R1_001.fastq	44604836	LB019_LmjF_FV1_purif_amas_CGACGT_L004_R1_001.fastq
+LB017	38	fa5ac5450932ca3d76e219736ab6e937	LB017_LmjF_FV1_meta_L004_R1_001.fastq	31337400	LB017_LmjF_FV1_meta_L004_R1_001.fastq
+LB015	20038872	799d38cb577ba0ee5cf2de725ae78e9b	Lbr_WT_total_lesion_1st_rep_CGACGT_L003_R1_001.fastq	591564	Lbr_WT_total_lesion_1st_rep_CGACGT_L003_R1_001.fastq
+LB016	310314608	fba697bcec1886625ee09d2f2234869a	Lbr_WT_total_lesion_2nd_rep_GCAGCT_L004_R1_001.fastq	9161844	Lbr_WT_total_lesion_2nd_rep_GCAGCT_L004_R1_001.fastq
+LB013	15087170	6478cf5d9a60320a48be285ad7a1a6c1	Lbr_ago-_total_lesion_2nd_rep_GCAGCT_L003_R1_001.fastq	445372	Lbr_ago-_total_lesion_2nd_rep_GCAGCT_L003_R1_001.fastq
+LB014	21201781	c21e2d987a15156636df6a55d55ee9d8	Lbr_WT_quick_amas_2nd_rep_CAGCAT_L003_R1_001.fastq	625932	Lbr_WT_quick_amas_2nd_rep_CAGCAT_L003_R1_001.fastq
+LB018	41	588132da1bce485f21aa0a7eae75584a	LB018_LmjF_FV1_pro_log_ATCAGT_L004_R1_001.fastq	35677648	LB018_LmjF_FV1_pro_log_ATCAGT_L004_R1_001.fastq
+md5sum	19	md5sum: 	AH058_FC6297T_lane1_LmjF-sRNA.fastq: No such file or directory	wc:	AH058_FC6297T_lane1_LmjF-sRNA.fastq: No such file or directory
+ES040	14484325639	52da7f3d9644efc598cd1ee00049e7a7	ES040_NoIndex_L003_R1_all.fastq	447430264	ES040_NoIndex_L003_R1_all.fastq
+ES039	14352233538	24ff59d934b76a803bd0602e0abdf637	ES039_NoIndex_L002_R1_all.fastq	443345816	ES039_NoIndex_L002_R1_all.fastq
+ES038	14512561715	6a447203dfa75801093c5036ad68284a	ES038_NoIndex_L001_R1_all.fastq	448309140	ES038_NoIndex_L001_R1_all.fastq
+AH068	16	2c5e494dee2a80752d3481c25ee2dab0	AH068_LdoS_gDNA_SL_cut.fastq	137710784	AH068_LdoS_gDNA_SL_cut.fastq
+AH067	16	287e5030ff13529d6301c009434edb6c	AH067_LdoS_gDNA_SL_vis.fastq	129991900	AH067_LdoS_gDNA_SL_vis.fastq
+md5sum	36	md5sum: 	PA001_FCC161D_lane1_indexATCAGT.fastq: No such file or directory	wc:	PA001_FCC161D_lane1_indexATCAGT.fastq: No such file or directory
+AH008	18	ffe74f7a19314a273f2b8a4d64d8f172	AH008_FC431WL_lane2_LmjF-SL.fastq	31728776	AH008_FC431WL_lane2_LmjF-SL.fastq
+AH009	18	b2b338236d412bad0d5429f701e10b21	AH009_FC431WL_lane3_LmjF-random.fastq	53774268	AH009_FC431WL_lane3_LmjF-random.fastq
+AH007	18	6b0d0526b414e119d646ccf2dcf9d0de	AH007_FC431WL_lane1_LmjF-NSR.fastq	60262020	AH007_FC431WL_lane1_LmjF-NSR.fastq
+AS004	66	3aaa07d541fa095d2a3b90f4fb8f29b8	AS004_FCC24VH_laneX_indexCGACGT_10uMBrdU_48h.fastq	48897492	AS004_FCC24VH_laneX_indexCGACGT_10uMBrdU_48h.fastq
+AS003	53	5c072618b759709e9ae09e03a3e188e2	AS003_FCC24VH_laneX_indexCAGCAT_10uMBrdU_0h.fastq	57643304	AS003_FCC24VH_laneX_indexCAGCAT_10uMBrdU_0h.fastq
+AS001	53	8527d056e6e4f9921dbd501ddc2c7f92	AS001_FCC24VH_laneX_indexACGACT_0uMBrdU_48h.fastq	44941060	AS001_FCC24VH_laneX_indexACGACT_0uMBrdU_48h.fastq
+AS002	66	e5d3c4fcc1db8dcf7147169478a697c9	AS002_FCC24VH_laneX_indexATCAGT_10uMBrdU_48h.fastq	54234740	AS002_FCC24VH_laneX_indexATCAGT_10uMBrdU_48h.fastq
+AS005	89	44021e2aff8818488b9051b317449fbb	AS005.FCD2AF7.lane6.indexACGACT.cPF.2-4.fastq	67065856	AS005.FCD2AF7.lane6.indexACGACT.cPF.2-4.fastq
+AS008	75	21de425ec105a3a1968ccf4e95e4831e	AS008.FCD2AF7.lane6.indexCGACGT.SF.fastq	57266972	AS008.FCD2AF7.lane6.indexCGACGT.SF.fastq
+AS006	85	661a6219eea9e865bf74e0e5f9b2cf28	AS006.FCD2AF7.lane6.indexATCAGT.cPF.3.fastq	65637536	AS006.FCD2AF7.lane6.indexATCAGT.cPF.3.fastq
+AS007	79	f4483195ccc3419bcb0f9b98e31df936	AS007.FCD2AF7.lane6.indexCAGCAT.cBF.fastq	62684168	AS007.FCD2AF7.lane6.indexCAGCAT.cBF.fastq
+AS007	235496630	6151e2433a1db2d6c88df526e855c2b4	AS007.FCD2AF7.lane6.indexCAGCAT.cBF.uniq.fastq	6952048	AS007.FCD2AF7.lane6.indexCAGCAT.cBF.uniq.fastq
+AS030	61	54f89c1ca0dfb8b0a8fa3aa568de5db5	AS030.FCC2C0P.lane7.indexCAGCAT.fastq	37084708	AS030.FCC2C0P.lane7.indexCAGCAT.fastq
+AS028	65	2042a57e8533a3678253eda208c33928	AS028.FCC2C0P.lane7.indexACGACT.fastq	71360228	AS028.FCC2C0P.lane7.indexACGACT.fastq
+AS031	61	3b409d3b19cf26958cc631a09ae3bb56	AS031.FCC2C0P.lane7.indexCGACGT.fastq	42069084	AS031.FCC2C0P.lane7.indexCGACGT.fastq
+AS029	67	2678e70b27376b448fee15cbe53973cc	AS029.FCC2C0P.lane7.indexATCAGT.fastq	54313660	AS029.FCC2C0P.lane7.indexATCAGT.fastq
+BJ059	5452867422	1328c250eeacdc8e199f9c131f820fb8	BJ059.FCC4J6F.lane5.indexATCAGT.ALL.fastq	160979240	BJ059.FCC4J6F.lane5.indexATCAGT.ALL.fastq
+BJ060	5892555834	e0d16070202fdb066312b8bf9bb58ffb	BJ060.FCC4J6F.lane2.indexATCAGT.ALL.fastq	173966464	BJ060.FCC4J6F.lane2.indexATCAGT.ALL.fastq
+ES001	8150088881	b9e78216697e790cc724735b66001280	ES001_NoIndex_L004_R1.fastq	264974144	ES001_NoIndex_L004_R1.fastq
+ES002	4410720295	45d51f3f732be726408bf995cec89729	ES002_NoIndex_L005_R1.fastq	143395448	ES002_NoIndex_L005_R1.fastq
+md5sum	21	md5sum: 	AH013_FC42WC7_lane4_LdoS-SL.fastq: No such file or directory	wc:	AH013_FC42WC7_lane4_LdoS-SL.fastq: No such file or directory
+AH010	21	a20e1cf4be8208b583d77752acc0211b	AH010_FC42WC7_lane1_LdoS-gDNA.fastq	58855284	AH010_FC42WC7_lane1_LdoS-gDNA.fastq
+AH012	21	977ace1c7dd5872c0e90242941a6a832	AH012_FC42WC7_lane3_LdoS-random.fastq	62948416	AH012_FC42WC7_lane3_LdoS-random.fastq
+AH011	21	040d850ce0f4e88f8a56cc02a2ec7c73	AH011_FC42WC7_lane2_LdoS-NSR.fastq	47014980	AH011_FC42WC7_lane2_LdoS-NSR.fastq
+BJ030	7650932613	890945b440e11aee94df84dc2dbd67c0	BJ030.FCD268T.lane7.indexCAGCAT.ALL.fastq	225875924	BJ030.FCD268T.lane7.indexCAGCAT.ALL.fastq
+BJ032	8282291161	e32752746ff47a304535ac75dba1ead0	BJ032.FCD268T.lane6.indexCGACGT.ALL.fastq	244514840	BJ032.FCD268T.lane6.indexCGACGT.ALL.fastq
+BJ029	6198541729	74a1f3b6abd9d22b619e133e209d792b	BJ029.FCD268T.lane6.indexCAGCAT.ALL.fastq	182996772	BJ029.FCD268T.lane6.indexCAGCAT.ALL.fastq
+BJ031	6578192001	a1c1c1b38693ab35e3a122647d0af0e0	BJ031.FCD268T.lane7.indexCGACGT.ALL.fastq	194205532	BJ031.FCD268T.lane7.indexCGACGT.ALL.fastq
+md5sum	19	md5sum: 	AH094_FCB0AUN_lane1_LbrM-WT_procyc-SL.fastq: No such file or directory	wc:	AH094_FCB0AUN_lane1_LbrM-WT_procyc-SL.fastq: No such file or directory
+md5sum	19	md5sum: 	AH097_FCB0AUN_lane4_LbrM-ago1KO_metacyc-SL.fastq: No such file or directory	wc:	AH097_FCB0AUN_lane4_LbrM-ago1KO_metacyc-SL.fastq: No such file or directory
+md5sum	19	md5sum: 	AH096_FCB0AUN_lane3_LbrM-ago1KO_procyc-SL.fastq: No such file or directory	wc:	AH096_FCB0AUN_lane3_LbrM-ago1KO_procyc-SL.fastq: No such file or directory
+md5sum	19	md5sum: 	AH095_FCB0AUN_lane2_LbrM-WT_metacyc-SL.fastq: No such file or directory	wc:	AH095_FCB0AUN_lane2_LbrM-WT_metacyc-SL.fastq: No such file or directory
+AH098	34	f98f3e23b37a35a3db4704fa3d87c73d	AH098_FCC039W_lane1_LmjF-fragRNA.fastq	29226108	AH098_FCC039W_lane1_LmjF-fragRNA.fastq
+AS031	61	3c1f01376f80bbb9f63b687627cadcb7	AS031.FCC2BV9.lane7.indexCGACGT.fastq	169640	AS031.FCC2BV9.lane7.indexCGACGT.fastq
+AS029	67	6d139310601fcfa1361c107a6910a791	AS029.FCC2BV9.lane7.indexATCAGT.fastq	263980	AS029.FCC2BV9.lane7.indexATCAGT.fastq
+AS028	65	ee53273739f5e4cbf2a1a1a719f8c8d0	AS028.FCC2BV9.lane7.indexACGACT.fastq	229368	AS028.FCC2BV9.lane7.indexACGACT.fastq
+AS030	61	9cca19079487199f12b817d260b95126	AS030.FCC2BV9.lane7.indexCAGCAT.fastq	144968	AS030.FCC2BV9.lane7.indexCAGCAT.fastq
+md5sum	19	md5sum: 	AH062_FC62J25_lane4_LbrM_ago1PNA-SL.fastq: No such file or directory	wc:	AH062_FC62J25_lane4_LbrM_ago1PNA-SL.fastq: No such file or directory
+md5sum	19	md5sum: 	AH060_FC62J25_lane2_LbrM_metacyc-SL.fastq: No such file or directory	wc:	AH060_FC62J25_lane2_LbrM_metacyc-SL.fastq: No such file or directory
+md5sum	19	md5sum: 	AH059_FC62J25_lane1_LbrM_procyc-SL.fastq: No such file or directory	wc:	AH059_FC62J25_lane1_LbrM_procyc-SL.fastq: No such file or directory
+md5sum	19	md5sum: 	AH061_FC62J25_lane3_LbrM_ago1log-SL.fastq: No such file or directory	wc:	AH061_FC62J25_lane3_LbrM_ago1log-SL.fastq: No such file or directory
+BJ033	7605044998	69c0f2389e2c49cb9037c4be2a949f70	BJ033.FCC2DWT.lane5.indexATCAGT.ALL.fastq	224523500	BJ033.FCC2DWT.lane5.indexATCAGT.ALL.fastq
+BJ034	5330619855	bb415343517e6947da69c6c9b1019078	BJ034.FCC2DWT.lane6.indexATCAGT.ALL.fastq	157363488	BJ034.FCC2DWT.lane6.indexATCAGT.ALL.fastq
+BJ035	6139929888	ed510503cd1fbc3b42699fdee9b28787	BJ035.FCC2DWT.lane6.indexCAGCAT.ALL.fastq	181255692	BJ035.FCC2DWT.lane6.indexCAGCAT.ALL.fastq
+BJ036	6878681719	527b7bcf71fa35713accd054f02ecc80	BJ036.FCC2DWT.lane5.indexCAGCAT.ALL.fastq	203078964	BJ036.FCC2DWT.lane5.indexCAGCAT.ALL.fastq
+AS020	43	2a46143ae9efd1a3389c05fce8eab319	AS020.FCD2AF7.lane5.indexTNACCA.Mouse.fastq	9462840	AS020.FCD2AF7.lane5.indexTNACCA.Mouse.fastq
+DS-85825_ACTGAT_L006_R1_fastq	12665323950	24ffc668b7ac64d53258921cd4fd603e	DS-85825_ACTGAT_L006_R1.fastq	193001632	DS-85825_ACTGAT_L006_R1.fastq
+DS-85825_ACTGAT_L006_R2_fastq	12665323950	a755ad215ab425488f942ab99e5d2091	DS-85825_ACTGAT_L006_R2.fastq	193001632	DS-85825_ACTGAT_L006_R2.fastq
+BJ037	7376922941	59ef2118f0f5f4ac2e366bbca2031f50	BJ037.FCC2DWT.lane4.indexCGACGT.ALL.fastq	217791380	BJ037.FCC2DWT.lane4.indexCGACGT.ALL.fastq
+BJ038	6303281862	61ed28b671b691e74de5d5f6f06e9a96	BJ038.FCC2DWT.lane4.indexGCAGCT.ALL.fastq	186094440	BJ038.FCC2DWT.lane4.indexGCAGCT.ALL.fastq

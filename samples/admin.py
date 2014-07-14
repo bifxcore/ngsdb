@@ -2,48 +2,69 @@ from django.contrib import admin
 from samples.models import *
 from django.forms import forms
 from django.contrib import admin
+from django.contrib.auth.models import User
 
 
 
 class SampleAdmin(admin.ModelAdmin):
-    list_display = ('sampleid', 'sampletype', 'organism', 'lifestage', 'genotype', 'collaborator', 'treatment', 'sample_quantity', 'bioanalyzer_analysis', 'label_ontube', 'freezer_location', 'sample_notes')
+    readonly_fields = ("author_modified", "date_modified")
+    fieldsets = (
+        ('Sample', {'fields':('sampleid', 'sampletype', 'collaborator', 'label_ontube')}),
+        ('Sample Source Information', {'fields':('organism', 'genotype', 'lifestage', 'growthphase', 'phenotype', 'is_clonal', 'culture_method', 'treatment', 'time_after_treatment', 'source', 'sourcename'), 'classes': ('grp-collapse grp-close',),}),
+        ('Sample Isolation Information', {'fields':('isolation_method', 'collected_at', 'collected_on', 'collected_by', 'collected_by_emailid'), 'classes': ('grp-collapse grp-close',),}),
+        ('Storage Information', {'fields':('date_received', 'sample_concentration', 'sample_volume', 'sample_quantity', 'parent_sampleid', 'sample_dilution', 'freezer_location', 'biological_replicate_of'), 'classes': ('grp-collapse grp-close',),}),
+        ('Other/QC Information', {'fields':('bioanalyzer_analysis', 'sample_notes', 'author_modified'), 'classes': ('grp-collapse grp-close',),}),
+    )
+
+    list_display = ('sampleid', 'sampletype', 'collaborator', 'organism', 'lifestage', 'genotype', 'growthphase', 'culture_method', 'treatment', 'time_after_treatment', 'sample_quantity', 'bioanalyzer_file_link', 'label_ontube', 'freezer_location', 'sample_notes')
     list_filter = ['sampletype', 'organism', 'lifestage', 'collaborator', 'treatment']
-    search_fields = ['sampleid', 'sampletype', 'organism', 'lifestage', 'growthphase', 'phenotype', 'genotype', 'collaborator', 'source', 'collected_by', 'treatment', 'isolation_method', 'sample_quantity', 'biological_replicate_of', 'bioanalyzer_analysis', 'label_ontube', 'freezer_location', 'sample_notes']
+    search_fields = ['sampleid', 'sampletype', 'organism__organismcode', 'lifestage__lifestage', 'growthphase__growthphase', 'phenotype', 'genotype__genotype', 'collaborator__firstname', 'collaborator__lastname', 'source', 'collected_by', 'treatment', 'isolation_method', 'sample_quantity', 'biological_replicate_of', 'bioanalyzer_analysis', 'label_ontube', 'freezer_location', 'sample_notes']
+    list_editable = ('growthphase', 'culture_method', 'lifestage', 'treatment', 'time_after_treatment')
+    # todo remove editable list once aarthi is done
+
+    def save_model(self, request, obj, form, change):
+        obj.author_modified = request.user
+        obj.save()
+
 admin.site.register(Sample, SampleAdmin)
 
 class LibraryAdmin(admin.ModelAdmin):
-    #def save_model(self, request, obj, form, change):
+    readonly_fields = ("date_modified", "date_created", "author_modified")
 
-        #Over rides default save_model() to insert logged in user from User table (request.user)
-        #get inserted into author_modified
+    #fieldsets = (
+    #    ('Library', {'fields':('library_code', 'author', 'collaborator')}),
+    #    ('Sample Information', {'fields': ('sampleid', 'biosample', 'bioproject'), 'classes': ('grp-collapse grp-close',), }),
+    #    ('Library Construction', {'fields': ('librarytype', 'template_material', 'protocol', 'protocol_notes', 'library_creation_date', 'submitted_for_sequencing_on', 'library_gelimage'), 'classes': ('grp-collapse grp-close',), }),
+    #    ('Sequencing Information', {'fields': ('sequence_downloaded_on', 'flowcell_number', 'lane_number', 'index_sequence', 'fastqfile_name', 'fastqfile_readcount', 'fastqfile_size_inbytes', 'fastqfile_md5sum', 'experiment_notes'), 'classes': ('grp-collapse grp-close',), }),
+    #    ('Analysis Information', {'fields': ('reference_genome', 'reference_genome_version', 'note_for_analysis'), 'classes': ('grp-collapse grp-close',), }),
+    #    ('Data Tracking', {'fields': ('date_created', 'date_modified', 'author_modified'), 'classes': ('grp-collapse grp-close',), })
+    #)
+    list_display = ('library_code', 'librarytype', 'organism', 'protocol', 'template_material', 'reference_genome', 'collaborator', 'bioproject', 'library_creation_date', 'sequence_downloaded_on', 'flowcell_number', 'lane_number', 'index_sequence', 'fastqfile_name', 'fastqfile_readcount')
+    list_filter = ['collaborator', 'librarytype__type', 'author__designation', 'organism__organismcode', 'lifestage', 'phenotype', 'genotype', 'growthphase', 'template_material', 'reference_genome']
+    search_fields = ['collaborator__firstname', 'collaborator__lastname', 'librarytype__type', 'author__designation', 'author__lastname', 'author__firstname', 'experiment_notes', 'protocol_notes', 'bioproject__bioproject_code', 'bioproject__bioproject_code', 'biosample__biosample_code', 'protocol__protocol_name', 'library_code', 'flowcell_number', 'index_sequence']
+    list_editable = ('protocol', 'template_material')
+    # todo remove editable list once aarthi is done
+    # todo uncomment after all uploading of libraries
 
-        #if getattr(obj, 'author', None) is None:
-        #    obj.author_modified = request.user
-        #obj.save()
-
-    # format the display in the admin form #for individual gene
-    readonly_fields = ("date_modified", "date_created")
-
-    fieldsets = (
-        ('Library', {'fields':('library_code', 'author', 'collaborator')}),
-        ('Sample Information', {'fields': ('sampleid', 'biosample', 'bioproject'), 'classes': ('grp-collapse grp-open',), }),
-        ('Library Construction', {'fields': ('librarytype', 'template_material', 'protocol', 'protocol_notes', 'library_creation_date', 'submitted_for_sequencing_on', 'library_gelimage'), 'classes': ('grp-collapse grp-open',), }),
-        ('Sequencing Information', {'fields': ('sequence_downloaded_on', 'flowcell_number', 'lane_number', 'index_sequence', 'experiment_notes'), 'classes': ('grp-collapse grp-open',), }),
-        ('Analysis Information', {'fields': ('reference_genome', 'reference_genome_version', 'note_for_analysis'), 'classes': ('grp-collapse grp-open',), }),
-        ('Data Tracking', {'fields': ('date_created', 'date_modified', 'author_modified'), 'classes': ('grp-collapse grp-open',), })
-    )
-
-    list_display = ('library_code', 'sample_name', 'sampleid', 'librarytype', 'organism', 'lifestage', 'phenotype', 'genotype', 'growthphase', 'treatment', 'template_material', 'reference_genome', 'collaborator', 'bioproject', 'sample_name', 'rna_id', 'library_creation_date', 'sequence_downloaded_on', 'flowcell_number','lane_number', 'index_sequence')
-    list_filter = ['collaborator', 'librarytype__type', 'author__designation', 'organism__organismcode', 'lifestage', 'phenotype', 'genotype', 'growthphase', 'template_material', 'reference_genome', ]
-    search_fields = ['collaborator__firstname', 'rna_id', 'collaborator__lastname', 'librarytype__type', 'author__designation', 'author__lastname', 'author__firstname', 'organism__organismcode', 'organism__species', 'organism__genus', 'experiment_notes', 'sample_notes',  'protocol_notes', 'lifestage__lifestage', 'growthphase__growthphase', 'phenotype__phenotype', 'genotype__genotype',  'bioproject__bioproject_code', 'bioproject__bioproject_code', 'biosample__biosample_code', 'protocol__protocol_name', 'library_code', 'flowcell_number', 'index_sequence',]
+    def save_model(self, request, obj, form, change):
+        obj.author_modified = request.user
+        obj.save()
 
 admin.site.register(Library, LibraryAdmin)
 
-admin.site.register(Genome)
-admin.site.register(Bioproject)
-admin.site.register(Biosample)
-admin.site.register(Protocol)
+
+class BioprojctAdmin(admin.ModelAdmin):
+
+    list_display=('bioproject_code', 'organisms', 'notes')
+
+admin.site.register(Bioproject, BioprojctAdmin)
+
+class BiosampleAdmin(admin.ModelAdmin):
+    list_display=('biosample_code', 'organisms', 'notes')
+admin.site.register(Biosample, BiosampleAdmin)
+
 admin.site.register(Source)
+admin.site.register(Genome)
 
 
 

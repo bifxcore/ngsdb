@@ -13,6 +13,15 @@ from django.contrib.auth.models import User
 from ngsdbview.validators import *
 #import fields import *
 
+EXPERIMENT_TYPE_CHOICES = (
+    ('SL', 'SL'),
+    ('RNAseq', 'RNAseq'),
+    ('RiboProf', 'RiboProf'),
+    ('DNAseq', 'DNAseq'),
+    ('mixed', 'mixed')
+)
+
+
 class Author(models.Model):
     author_id = models.AutoField(primary_key=True)
     firstname = models.CharField(max_length=45)
@@ -31,11 +40,17 @@ class Librarytype(models.Model):
 
 class Protocol(models.Model):
     protocol_id = models.AutoField(primary_key=True)
-    name = models.CharField(unique=True, max_length=50)
-    sopfile = models.FileField(upload_to="protocols")
+    protocol_name = models.CharField(unique=True, max_length=50)
+    protocol_file = models.FileField(upload_to="protocols")
+    protocol_link = models.URLField(max_length=1000, blank=True)
     notes = models.CharField(max_length=400, default=None)
+
+    class Meta:
+        ordering = ['protocol_name']
+
     def __unicode__(self):
-        return str(self.name)
+        return str(self.protocol_name)
+
 
 class Seqtech(models.Model):
     seqtech_id = models.AutoField(primary_key=True)
@@ -46,6 +61,10 @@ class Lifestage(models.Model):
     lifestage_id = models.AutoField(primary_key=True)
     lifestage = models.CharField(unique=True, max_length=45)
     notes = models.CharField(max_length=400, default=None)
+    class Meta:
+        ordering = ['lifestage']
+        verbose_name_plural="Lifecycle stages"
+
     def __unicode__(self):
         return str(self.lifestage)
 
@@ -59,6 +78,10 @@ class Phenotype(models.Model):
 class Growthphase(models.Model):
     growthphase = models.CharField(unique=True, max_length=100)
     notes = models.CharField(max_length=400, default=None, blank=True)
+
+    class Meta:
+        ordering = ['growthphase']
+
     def __unicode__(self):
         return unicode(self.growthphase)
 
@@ -66,6 +89,10 @@ class Growthphase(models.Model):
 class Genotype(models.Model):
     genotype = models.CharField(unique=True, max_length=45)
     notes = models.CharField(max_length=45, default=None, blank=True)
+
+    class Meta:
+        ordering = ['genotype']
+
     def __unicode__(self):
         return unicode(self.genotype)
 
@@ -95,8 +122,6 @@ class Organism(models.Model):
     genus = models.CharField(max_length=45)
     species = models.CharField(max_length=45)
     strain = models.CharField(max_length=45)
-    isolate = models.CharField(max_length=45)
-    source = models.CharField(max_length=100)
     def __unicode__(self):
         return unicode(self.organismcode)
 
@@ -176,6 +201,7 @@ class Library(models.Model):
         return str(self.librarycode)
     class Meta:
         permissions = (("view_library", "Can see the library"),)
+        verbose_name_plural="Libraries"
 
 def get_libraryfile_upload_destination(instance, filename):
     return "libraryfiles/{id}/{file}".format(id=instance.library.librarycode, file=filename)
@@ -365,9 +391,14 @@ class Geneidmap(models.Model):
 class Experiment(models.Model):
     experiment_id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=25, db_index=True)
+    type = models.CharField(max_length=25, choices=EXPERIMENT_TYPE_CHOICES)
     description = models.CharField(max_length=100)
     notes = models.TextField()
     libraries = models.ManyToManyField(Library)
+    date_created = models.DateTimeField(auto_now_add=True)
+    date_modified = models.DateTimeField(auto_now=True)
+    author_modified = models.ForeignKey(User)
+
     def __unicode__(self):
         return str(self.name)
 
