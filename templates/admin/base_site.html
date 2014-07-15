@@ -108,6 +108,7 @@
            <li><a href="/admin/samples/bioproject/"><span>Bioprojects</span></a> </li>
            <li><a href="/admin/ngsdbview/organism/"><span>Organisms</span></a> </li>
            <li class='last'><a href="/admin/samples/genome/"><span>Genomes</span></a> </li>
+           <li class='last'><a href="/snpdb/snp/"><span>SNPs</span></a> </li>
        </ul>
    </li>
 
@@ -135,6 +136,17 @@
                     <li class="first"><a href="/ngsdbview/listexperiments/"><span>to list all Experiments</span></a></li>
                     <li class="last"><a href="/ngsdbview/analyzeexperiments/"><span>for an Experiment</span></a></li>
 
+                </ul>
+            </li>
+           <li class='has-sub'><a href="/ngsdbview/listexperiments/"><span>Query SNP DB</span></a>
+                <ul>
+                   <li class="first" role="presentation"><a role="menuitem" href="/snpdb/gene-snps"> Query Gene for Snps</a></li>
+                   <li role="presentation"><a role="menuitem" href="/snpdb/multi-gene-snps"> Query Mulit-Genes for Snps</a></li>
+                   <li role="presentation"><a role="menuitem" href="/snpdb/multi-gene-library-snps"> Query Mulit-Genes and Multi Library for Snps</a></li>
+                   <li role="presentation"><a role="menuitem" href="/snpdb/library-chromosome-snps">Query Chromosome and Library for Snps</a></li>
+                   <li role="presentation"><a role="menuitem" href="/snpdb/library-gene-snps">Query Gene and Library for Snps</a></li>
+                   <li role="presentation"><a role="menuitem" href="/snpdb/compare-gene-lib">Multi-Library Comparison on Gene</a></li>
+                   <li class="last" role="presentation"><a role="menuitem" href="/snpdb/compare-libs">Compare Two Libraries</a></li>
                 </ul>
             </li>
 
@@ -189,6 +201,41 @@
                 <li><a href="/ngsdbview/pair_libraries/"><span>pair_libraries</span></a></li>
                 <li><a href="/ngsdbview/alignstats/"><span>Alignstats</span></a></li>
                 <li><a href="/ngsdbview//"><span>Menus</span></a></li>
+            </ul>
+          </li>
+      </ul>
+   </li>
+   <li>
+    <li class='has-sub'><a href="/snpdb/snp/"><span>SNP DB</span></a>
+      <ul>
+         <li class='has-sub'><a href="/ngsdbview/listlibraries/"><span>List All</span></a>
+            <ul>
+               <li role="presentation" id="snp"><a role="menuitem" href="/snpdb/snp">SNP</a></li>
+               <li role="presentation" id="snptype"><a role="menuitem" href="/snpdb/snptype">SNP Type</a></li>
+               <li role="presentation" id="statistics"><a role="menuitem" href="/snpdb/statistics">Statistics</a></li>
+               <li role="presentation" id="effect"><a role="menuitem" href="/snpdb/effect">Effect</a></li>
+               <li role="presentation" id="filter"><a role="menuitem" href="/snpdb/filter">Filter</a></li>
+            </ul>
+          </li>
+
+         <li class='has-sub'><a href="/ngsdbview/listlibraries/"><span>Gene Level Queries</span></a>
+            <ul>
+               <li class="first" role="presentation"><a role="menuitem" href="/snpdb/gene-snps"> Query Gene for Snps</a></li>
+               <li role="presentation"><a role="menuitem" href="/snpdb/multi-gene-snps"> Query Mulit-Genes for Snps</a></li>
+               <li role="presentation"><a role="menuitem" href="/snpdb/multi-gene-library-snps"> Query Mulit-Genes and Multi Library for Snps</a></li>
+               <li role="presentation"><a role="menuitem" href="/snpdb/library-gene-snps">Query Gene and Library for Snps</a></li>
+            </ul>
+         <li class='has-sub'><a href="/ngsdbview/listlibraries/"><span>Library Level Queries</span></a>
+            <ul>
+               <li role="presentation"><a role="menuitem" href="/snpdb/compare-gene-lib">Multi-Library Comparison on Gene</a></li>
+               <li class="last" role="presentation"><a role="menuitem" href="/snpdb/compare-libs">Compare Two Libraries</a></li>
+               <li role="presentation"><a role="menuitem" href="/snpdb/library-chromosome-snps">Query Chromosome and Library for Snps</a></li>
+            </ul>
+          </li>
+          <li class='has-sub'><a href="/ngsdbview/listlibraries/"><span>Summary Level Views</span></a>
+            <ul>
+                <li role="presentation"><a role="menuitem" href="/snpdb/library-snp-summary">Library Level Summary</a></li>
+                <li role="presentation"><a role="menuitem" href="/snpdb/chromosome-library-snp-summary">Chromosome Level Summary</a></li>
             </ul>
           </li>
       </ul>

@@ -1,13 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
 {% extends "snpdb/dashboard.html" %}
-
-{% block content %}
+{% load static %}
+{% load staticfiles %}
 {% load display_rows %}
 
-<div class="page-header text-header" style="padding-left:30px">
-    <h1>Difference Between Libraries</h1>
-    <h4>Find snps present in Library 1 not present in Library 2</h4>
+{% block title %}
+    SNP Summary
+{% endblock %}
+
+{% block breadcrumbs %}
+{% endblock %}
+
+{% block bootstrap %}
+<style type="text/css">
+   body { background: antiquewhite; }
+</style>
+
+<div class="container-fluid">
+	<div class="page-header text-header" style="padding-left:30px; margin-top:10px; padding-bottom:0px">
+    	<h1 style="padding-bottom:0px;">Difference Between Libraries</h1>
+    	<h2 style="padding-top:5px">Find snps present in Library 1 not present in Library 2</h2>
+	</div>
 </div>
 
 
@@ -24,7 +38,7 @@
                     <label class="sr-only" for="library">Library 2</label>
                     <input type="text" class="form-control" name="lib2" placeholder="library 2">
                 </div>
-                <button class="btn btn-primary" type="submit"  style="margin-left:0px; width:75px; vertical-align:middle; padding: 0px">Search</button>
+                <button class="btn btn-sample" type="submit"  style="margin-left:0px; width:75px; vertical-align:middle; padding: 0px">Search</button>
             </form>
         </ul>
     </div>
@@ -32,40 +46,17 @@
 
 <div class="container-fluid" style="padding-bottom:30px">
     <div class="form">
-            {% for group in results|group_by:6 %}
-                <div class="form-group">
-                    {% for obj in group %}
-                        <label class="col-md-2">{{ obj.effect_string }}</label>
-                    {% endfor %}
-                </div>
-            {% endfor %}
+        {% for group in results|group_by:6 %}
+            <div class="form-group">
+                {% for obj in group %}
+                    <label class="col-sm-2">{{ obj.librarycode }}      </label>
+                {% endfor %}
+            </div>
+        {% endfor %}
     </div>
 </div>
+
 </body>
+{%endblock%}
 
-<div class="container-fluid" style="padding-bottom:30px">
-    <div class="pagination">
-        <ul class="pagination">
-            {% if results.has_previous %}
-                <li><a href="?page={{ results.previous_page_number }}">&laquo;</a></li>
-            {% else %}
-                <li class="disabled"><a href="#">&laquo;</a></li>
-            {%  endif %}
-
-            {% for page in paginator.page_range %}
-                {% if page <= toolbar_max and page > toolbar_min and page != results.number %}
-                        <li><a href="?page={{ page }}">{{ page }}</a></li>
-                {% elif page == results.number %}
-                    <li class="active"><a href="?page={{ results.number }}">{{ results.number }}</a></li>
-                {% endif %}
-            {% endfor %}
-
-            {% if results.has_next %}
-                <li><a href="?page={{ results.next_page_number }}">&raquo;</a></li>
-            {% endif %}
-        </ul>
-    </div>
-</div>
-
-{% endblock %}
 </html>

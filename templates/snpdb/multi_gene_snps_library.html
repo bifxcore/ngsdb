@@ -1,24 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
-{% extends "snpdb/dashboard.html" %}
 
-{% block content %}
+{% extends "snpdb/dashboard.html" %}
+{% load static %}
+{% load staticfiles %}
 {% load display_rows %}
 
-<div class="page-header text-header" style="padding-left:30px">
-    <h1>Snps found in Genes and Libraries</h1>
+{% block title %}
+    Snps found in Genes and Libraries
+{% endblock %}
+
+{% block breadcrumbs %}
+{% endblock %}
+
+{% block bootstrap %}
+<style type="text/css">
+   body { background: antiquewhite; }
+</style>
+
+<div class="container-fluid">
+	<div class="page-header text-header" style="padding-left:30px; margin-top:10px; padding-bottom:0px">
+    	<h1 style="padding-bottom:0px;">Snps found in Genes and Libraries</h1>
+	</div>
 </div>
 
 
 <body>
 
-<div class="container" style="padding-bottom:30px">
+<div class="container-fluid" style="padding-bottom:30px">
     <div class="collapse navbar-collapse navbar-ex1-collapse">
         <ul class="nav navbar-nav">
             <form class="form-horizontal" role="form" id='search' action='/snpdb/multi-gene-library-snps/search' method="get">
                 <div class="form-group">
                     <textarea class="form-control" rows="3" name="s" placeholder="gene ids"></textarea>
-                    <p class="help-block">Please separate Ids by commmas, semicolons, spaces, or newline.</p>
+                    <p class="help-block">Please separate Ids by commas, semicolons, spaces, or newline.</p>
                 </div>
                 <div class="form-group">
                     {% for group in libraries|group_by:16 %}
@@ -32,7 +47,7 @@
                     {% endfor %}
                 </div>
                 <div class="form-group">
-                    <button class="btn btn-primary" type="submit"  style="margin-left:0px; width:75px; vertical-align:middle; padding: 0px">Search</button>
+                    <button class="btn btn-sample" type="submit"  style="margin-left:0px; width:75px; vertical-align:middle; padding: 0px">Search</button>
                 </div>
             </form>
         </ul>
@@ -53,28 +68,44 @@
 
 </body>
 
-
-<div class="pagination">
-    <ul class="pagination pull-lefLdBPK_013360.1t">
-        {% if genes.has_previous %}
-            <li><a href="?page={{  genes.previous_page_number }}">&laquo;</a></li>
-        {% else %}
-            <li class="disabled"><a href="#">&laquo;</a></li>
-        {%  endif %}
-
-        {% for page in paginator.page_range %}
-            {% if page <= toolbar_max and page > toolbar_min and page != genes.number %}
-                    <li><a href="?page={{  page  }}">{{ page }}</a></li>
-            {% elif page == genes.number %}
-                <li class="active"><a href="?page={{  genes.number }}">{{ genes.number }}</a></li>
+<div class="container-fluid" style="padding-bottom:30px">
+    <div class="ngsdb pagination">
+        <ul class="ngsdb">
+            {% if genes.has_previous %}
+                {% if selection %}
+                    <li><a href="?page={{ genes.previous_page_number }}&s={{filter_on}}&att={{selection}}">&laquo;</a></li>
+                {% else %}
+                    <li><a href="?page={{ genes.previous_page_number }}">&laquo;</a></li>
+                {% endif %}
+            {% else %}
+                <li class="disabled"><a href="#">&laquo;</a></li>
             {% endif %}
-        {% endfor %}
 
-        {% if genes.has_next %}
-            <li><a href="?page={{ genes.next_page_number }}">&raquo;</a></li>
-        {% endif %}
-    </ul>
-</div>
+            {% for page in paginator.page_range %}
+                {% if page <= toolbar_max and page > toolbar_min and page != genes.number %}
+                    {% if selection %}
+                        <li><a href="?page={{ page }}&s={{filter_on}}&att={{selection}}">{{page}}</a></li>
+                    {% else %}
+                        <li><a href="?page={{ page }}">{{page}}</a></li>
+                    {% endif %}
+                {% elif page == genes.number %}
+                    {% if selection %}
+                        <li class="active"><a href="?page={{ genes.number }}&s={{filter_on}}&att={{selection}}">{{genes.number}}</a></li>
+                    {% else %}
+                        <li class="active"><a href="?page={{ genes.number }}">{{genes.number}}</a></li>
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+
+            {% if genes.has_next %}
+               {% if selection %}
+                    <li><a href="?page={{ genes.next_page_number }}&s={{filter_on}}&att={{selection}}">&raquo;</a></li>
+                {% else %}
+                    <li><a href="?page={{ genes.next_page_number }}">&raquo;</a></li>
+                {% endif %}
+            {% endif %}
+        </ul>
+    </div>
 
 {% endblock %}
 </html>

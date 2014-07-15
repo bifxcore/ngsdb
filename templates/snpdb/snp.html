@@ -20,7 +20,7 @@
 <div class="container-fluid">
 	<div class="page-header text-header" style="padding-left:30px; margin-top:10px; padding-bottom:0px">
     	<h1 style="padding-bottom:0px;">SNP Summary</h1>
-    	<h2 style="padding-top:5px">There are {{ count }} snps. </h2>
+    	<h2 style="padding-top:5px">There are {{ count }} snps.</h2>
 	</div>
 </div>
 
@@ -28,10 +28,10 @@
 <div class="container-fluid">
     <div class="collapse navbar-collapse">
         <ul class="nav navbar-nav">
-            <form class="form-inline navbar-left" role="form" id='search' action='/snpdb/snp/search' method="get" style="padding-bottom:30px">
+            <form class="form-inline navbar-left" role="form" id='search' action='/snpdb/snp/search' style="padding-bottom: 30px;" method="get" style="padding-bottom:30px">
                 <div class="form-group">
                     <input type="text" class="form-control" name="s" placeholder="search">
-                    <select class="selectpicker show-tick" data-style="btn-large btn-default" name="att" title='Search Option'>
+                    <select class="selectpicker show-tick" data-style="btn-large btn-default" name="att">
                         <option value="snp_position">SNP Position</option>
                         <option value="result">Result</option>
                         <option value="ref_base">Reference Base</option>
@@ -41,13 +41,12 @@
                         <option value="library">Library</option>
                         <option value="chromosome__chromosome_name">Chromosome</option>
                     </select>
-                    <button class="btn btn-primary" type="submit"  style="margin-left:0px; width:75px; vertical-align:middle; padding: 0px">Search</button>
+                    <button class="btn btn-sample" type="submit"  style="margin-left:0px; width:75px; vertical-align:middle; padding: 0px">Search</button>
                 </div>
             </form>
         </ul>
     </div>
 </div>
-</body>
 
 <div class="container-fluid" style="padding-bottom:30px">
 	<table class="table table-condensed table-hover" style="table-layout: fixed; word-wrap: break-word;">
@@ -83,43 +82,44 @@
 </div>
 </body>
 
-
-<div class="pagination">
-    <ul class="pagination">
-        {% if snps.has_previous %}
-            {% if selection %}
-                <li><a href="?page={{ snps.previous_page_number }}&s={{filter_on}}&att={{selection}}">&laquo;</a></li>
-            {% else %}
-                <li><a href="?page={{ snps.previous_page_number }}">&laquo;</a></li>
-            {% endif %}
-        {% else %}
-            <li class="disabled"><a href="#">&laquo;</a></li>
-        {% endif %}
-
-        {% for page in paginator.page_range %}
-            {% if page <= toolbar_max and page > toolbar_min and page != snps.number %}
+<div class="container-fluid" style="padding-bottom: 30px">
+    <div class="ngsdb pagination">
+        <ul class="ngsdb">
+            {% if snps.has_previous %}
                 {% if selection %}
-                    <li><a href="?page={{ page }}&s={{filter_on}}&att={{selection}}">{{page}}</a></li>
+                    <li><a href="?page={{ snps.previous_page_number }}&s={{filter_on}}&att={{selection}}">&laquo;</a></li>
                 {% else %}
-                    <li><a href="?page={{ page }}">{{page}}</a></li>
+                    <li><a href="?page={{ snps.previous_page_number }}">&laquo;</a></li>
                 {% endif %}
-            {% elif page == snps.number %}
-                {% if selection %}
-                    <li><a href="?page={{ snps.number }}&s={{filter_on}}&att={{selection}}">{{snps.number}}</a></li>
-                {% else %}
-                    <li><a href="?page={{ snps.number }}">{{snps.number}}</a></li>
-                {% endif %}
-            {% endif %}
-        {% endfor %}
-
-        {% if snps.has_next %}
-           {% if selection %}
-                <li><a href="?page={{ snps.next_page_number }}&s={{filter_on}}&att={{selection}}">&raquo;</a></li>
             {% else %}
-                <li><a href="?page={{ snps.next_page_number }}">&raquo;</a></li>
+                <li class="disabled"><a href="#">&laquo;</a></li>
             {% endif %}
-        {% endif %}
-    </ul>
+
+            {% for page in paginator.page_range %}
+                {% if page <= toolbar_max and page > toolbar_min and page != snps.number %}
+                    {% if selection %}
+                        <li><a href="?page={{ page }}&s={{filter_on}}&att={{selection}}">{{page}}</a></li>
+                    {% else %}
+                        <li><a href="?page={{ page }}">{{page}}</a></li>
+                    {% endif %}
+                {% elif page == snps.number %}
+                    {% if selection %}
+                        <li class="active"><a href="?page={{ snps.number }}&s={{filter_on}}&att={{selection}}">{{snps.number}}</a></li>
+                    {% else %}
+                        <li class="active"><a href="?page={{ snps.number }}">{{snps.number}}</a></li>
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+
+            {% if snps.has_next %}
+               {% if selection %}
+                    <li><a href="?page={{ snps.next_page_number }}&s={{filter_on}}&att={{selection}}">&raquo;</a></li>
+                {% else %}
+                    <li><a href="?page={{ snps.next_page_number }}">&raquo;</a></li>
+                {% endif %}
+            {% endif %}
+        </ul>
+    </div>
 </div>
 
 {% endblock %}

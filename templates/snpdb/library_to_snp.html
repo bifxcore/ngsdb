@@ -1,19 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
 {% extends "snpdb/dashboard.html" %}
+{% load static %}
+{% load staticfiles %}
 {% load display_rows %}
 
-{% block content %}
-<div class="container" style="padding-bottom:30px">
+{% block title %}
+    Gene and Library Query
+{% endblock %}
 
-<div class="page-header text-header" style="padding-left:30px">
-    <h1>Gene and Library Query</h1>
+{% block breadcrumbs %}
+{% endblock %}
+
+{% block bootstrap %}
+<style type="text/css">
+   body { background: antiquewhite; }
+</style>
+
+<div class="container-fluid">
+	<div class="page-header text-header" style="padding-left:30px; margin-top:10px; padding-bottom:0px">
+    	<h1 style="padding-bottom:0px;">Gene and Library Query</h1>
+	</div>
 </div>
-</div>
+
 
 
 <body>
-<div class="container" style="padding-bottom:30px">
+<div class="container-fluid" style="padding-bottom:30px">
     <div class="collapse navbar-collapse navbar-ex1-collapse">
         <ul class="nav navbar-nav">
             <form class="form-inline" role="form" id='search' action='/snpdb/library-gene-snps/search' method="get">
@@ -25,13 +38,13 @@
                     <label class="sr-only" for="library_code">librarycode</label>
                     <input type="text" class="form-control" name="lib" placeholder="library code">
                 </div>
-                <button class="btn btn-primary" type="submit"  style="margin-left:0px; width:75px; vertical-align:middle; padding: 0px">Search</button>
+                <button class="btn btn-sample" type="submit"  style="margin-left:0px; width:75px; vertical-align:middle; padding: 0px">Search</button>
             </form>
         </ul>
     </div>
 </div>
 
-<div class="container" style="padding-bottom:30px">
+<div class="container-fluid" style="padding-bottom:30px">
     <div class="form">
         {% for group in results|group_by:6 %}
             <div class="form-group">
@@ -44,9 +57,9 @@
 </div>
 </body>
 
-<div class="container" style="padding-bottom:30px">
-    <div class="pagination">
-        <ul class="pagination pull-right">
+<div class="container-fluid" style="padding-bottom:30px">
+    <div class="ngsdb pagination">
+        <ul class="ngsdb">
             {% if results.has_previous %}
                 <li><a href="?page={{  results.previous_page_number }}">&laquo;</a></li>
             {% else %}

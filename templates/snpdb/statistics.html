@@ -3,8 +3,6 @@
 
 {% extends "snpdb/dashboard.html" %}
 
-{% block content %}
-
 <script type="text/javascript">
     $(document).ready(function(){
         $('.selectpicker').selectpicker();
@@ -19,12 +17,21 @@
 </script>
 
 
-<div class="page-header text-header" style="padding-left:30px">
-    <h1>SNP Statistics</h1>
+{% block bootstrap %}
+<style type="text/css">
+    body { background:antiquewhite; }
+</style>
+
+<div class="container-fluid">
+	<div class="page-header text-header" style="padding-left:30px; margin-top:10px; padding-bottom:0px">
+    	<h1 style="padding-bottom:0px;">SNP Statistics</h1>
+	</div>
 </div>
 
+
 <body>
-<div class="collapse navbar-collapse navbar-ex1-collapse">
+<div class="container-fluid">
+<div class="collapse navbar-collapse">
     <ul class="nav navbar-nav">
         <form class="form-inline" role="form" id='search' action='/snpdb/statistics/search' style="padding-bottom: 30px;" method="get">
             <div class="form-group">
@@ -36,15 +43,16 @@
                     <option value="stats_cvterm">Statistic</option>
                     <option value="cv_value">Value</option>
                 </select>
-                <button class="btn btn-primary" type="submit"  style="margin-left:0px; width:75px; vertical-align:middle; padding: 0px">Search</button>
+                <button class="btn btn-sample" type="submit"  style="margin-left:0px; width:75px; vertical-align:middle; padding: 0px">Search</button>
             </div>
         </form>
     </ul>
 </div>
+</div>
 </body>
 
 
-<div class="container" style="padding-bottom:30px">
+<div class="container-fluid" style="padding-bottom:30px">
 <table class="table table-condensed table-hover" style="table-layout: fixed; word-wrap: break-word;">
       <thead>
     <tr>
@@ -67,6 +75,7 @@
 </table>
 </div>
 
+<div class="container-fluid">
 <div class="pagination">
     <ul class="pagination">
         {% if statistic.has_previous %}
@@ -103,6 +112,7 @@
             {% endif %}
         {% endif %}
     </ul>
+</div>
 </div>
 
 {% endblock %}

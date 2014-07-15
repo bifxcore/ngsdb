@@ -1,19 +1,31 @@
 <!DOCTYPE html>
 <html lang="en">
 {% extends "snpdb/dashboard.html" %}
-
-{% block content %}
+{% load static %}
+{% load staticfiles %}
 {% load display_rows %}
 
+{% block title %}
+    Chromosome and Library Query
+{% endblock %}
+
+{% block breadcrumbs %}
+{% endblock %}
+
+{% block bootstrap %}
+<style type="text/css">
+   body { background: antiquewhite; }
+</style>
+
 <div class="container-fluid">
-    <div class="page-header text-header" style="padding-left:30px">
-        <h1>Chromosome and Library Query</h1>
-    </div>
+	<div class="page-header text-header" style="padding-left:30px; margin-top:10px; padding-bottom:0px">
+    	<h1 style="padding-bottom:0px;">Chromosome and Library Query</h1>
+	</div>
 </div>
 
 
 <body>
-<div class="container-fluid" style="padding-bottom:30px">
+<div class="container-fluid">
     <div class="collapse navbar-collapse">
         <ul class="nav navbar-nav">
        <form class="form-inline navbar-left" role="form" id='search'  action='/snpdb/chromosome-library-snps-summary/search' method="get" style="padding-bottom: 30px">

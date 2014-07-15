@@ -1,23 +1,38 @@
 <!DOCTYPE html>
 <html lang="en">
 {% extends "snpdb/dashboard.html" %}
+{% load static %}
+{% load staticfiles %}
 
-{% block content %}
-<div class="page-header text-header" style="padding-left:30px">
-    <h1>Gene and Library Query Results</h1>
-    <h4>There are {{ count }} snps found in both {{library}} and {{chromosome}}. </h4>
+{% block title %}
+    SNP Summary
+{% endblock %}
+
+{% block breadcrumbs %}
+{% endblock %}
+
+{% block bootstrap %}
+<style type="text/css">
+   body { background: antiquewhite; }
+</style>
+
+<div class="container-fluid">
+	<div class="page-header text-header" style="padding-left:30px; margin-top:10px; padding-bottom:0px">
+    	<h1 style="padding-bottom:0px;">Gene and Library Query Results</h1>
+    	<h2 style="padding-top:5px">There are {{ count }} snps found in both {{library}} and {{chromosome}}. </h2>
+	</div>
 </div>
 
 <body>
-<div class="container" style="padding-bottom:30px">
-<div class="collapse navbar-collapse navbar-ex1-collapse">
+<div class="container-fluid" style="padding-bottom:30px">
+<div class="collapse navbar-collapse">
     <ul class="nav navbar-nav">
-        <form class="form-inline" role="form" id='search' action='/snpdb/gene-snps/search' method="get">
+        <form class="form-inline navbar-left" role="form" id='search' action='/snpdb/gene-snps/search' method="get">
             <div class="form-group">
                 <label class="sr-only" for="chromosome">Chromosome</label>
                 <input type="text" class="form-control" name="s" placeholder="gene id">
             </div>
-            <button class="btn btn-primary" type="submit"  style="margin-left:0px; width:75px; vertical-align:middle; padding: 0px">Search</button>
+            <button class="btn btn-sample" type="submit"  style="margin-left:0px; width:75px; vertical-align:middle; padding: 0px">Search</button>
         </form>
         <div>
             <h5><a href="/snpdb/compare_gene_lib/search?s={{gene}}"Compare Gene across Libraries</h5>
@@ -28,7 +43,7 @@
 
 
 </body>
-<div class="container" style="padding-bottom:30px">
+<div class="container-fluid" style="padding-bottom:30px">
 <table class="table table-condensed table-hover" style="table-layout: fixed; word-wrap: break-word;">
     <thead>
     <tr>
@@ -66,7 +81,7 @@
 </table>
 </div>
 
-<div class="container" style="padding-bottom:30px">
+<div class="container-fluid" style="padding-bottom:30px">
 <div class="pagination">
     <ul class="pagination">
         {% if results.has_previous %}

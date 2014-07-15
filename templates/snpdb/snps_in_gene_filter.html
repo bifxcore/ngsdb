@@ -1,38 +1,54 @@
 <!DOCTYPE html>
 <html lang="en">
+
 {% extends "snpdb/dashboard.html" %}
+{% load static %}
+{% load staticfiles %}
 {% load mathfilters %}
 
-{% block content %}
-<div class="page-header text-header" style="padding-left:30px">
-    <h1>Snps in Genes Query Results</h1>
-    <h4>There are {{ count }} snps within this gene and flanking region. </h4>
+{% block title %}
+    Snps in Genes Query Results
+{% endblock %}
+
+{% block breadcrumbs %}
+{% endblock %}
+
+{% block bootstrap %}
+<style type="text/css">
+   body { background: antiquewhite; }
+</style>
+
+<div class="container-fluid">
+	<div class="page-header text-header" style="padding-left:30px; margin-top:10px; padding-bottom:0px">
+    	<h1 style="padding-bottom:0px;">Snps in Genes Query Results</h1>
+    	<h2 style="padding-top:5px">There are {{ count }} snps within this gene and flanking region.</h2>
+	</div>
 </div>
 
 <body>
-<div class="container" style="padding-bottom:30px">
-<div class="collapse navbar-collapse navbar-ex1-collapse">
-    <ul class="nav navbar-nav">
-        <form class="form-inline" role="form" id='search' action='/snpdb/gene-snps/search' method="get">
-            <div class="form-group">
-                <label class="sr-only" for="gene_id">Gene ID</label>
-                <input type="text" class="form-control" name="s" placeholder="gene id">
-            </div>
-            <select class="form-control" name="f">
-              <option value="0">No Flanking</option>
-              <option value="100">100 bp flanking</option>
-              <option value="200">200 bp flanking</option>
-              <option value="300">300 bp flanking</option>
-              <option value="400">400 bp flanking</option>
-            </select>
-            <button class="btn btn-primary" type="submit"  style="margin-left:0px; width:75px; vertical-align:middle; padding: 0px">Search</button>
-        </form>
-    </ul>
-</div>
+<div class="container- fluid" style="padding-bottom:30px">
+    <div class="collapse navbar-collapse navbar-ex1-collapse">
+        <ul class="nav navbar-nav">
+            <form class="form-inline" role="form" id='search' action='/snpdb/gene-snps/search' method="get">
+                <div class="form-group">
+                    <label class="sr-only" for="gene_id">Gene ID</label>
+                    <input type="text" class="form-control" name="s" placeholder="gene id">
+                </div>
+                <select class="form-control" name="f">
+                  <option value="0">No Flanking</option>
+                  <option value="100">100 bp flanking</option>
+                  <option value="200">200 bp flanking</option>
+                  <option value="300">300 bp flanking</option>
+                  <option value="400">400 bp flanking</option>
+                </select>
+                <button class="btn btn-sample" type="submit"  style="margin-left:0px; width:75px; vertical-align:middle; padding: 0px">Search</button>
+            </form>
+        </ul>
+    </div>
 </div>
 </body>
 
-<div class="container" style="padding-bottom:30px">
+<div class="container-fluid" style="padding-bottom:30px">
 <table class="table table-condensed table-hover" style="table-layout: fixed; word-wrap: break-word;">
     <thead>
     <tr>
@@ -73,28 +89,28 @@
 </table>
 </div>
 
-<div class="container" style="padding-bottom:30px">
-<div class="pagination">
-    <ul class="pagination">
-        {% if results.has_previous %}
-        <li><a href="?page={{  results.previous_page_number }}">&laquo;</a></li>
-        {% else %}
-        <li class="disabled"><a href="#">&laquo;</a></li>
-        {%  endif %}
+<div class="container-fluid" style="padding-bottom:30px">
+    <div class="ngsdb pagination">
+        <ul class="ngsdb">
+            {% if results.has_previous %}
+                <li><a href="?page={{  results.previous_page_number }}">&laquo;</a></li>
+            {% else %}
+                <li class="disabled"><a href="#">&laquo;</a></li>
+            {%  endif %}
 
-        {% for page in paginator.page_range %}
-        {% if page <= toolbar_max and page > toolbar_min and page != results.number %}
-        <li><a href="?page={{  page  }}">{{ page }}</a></li>
-        {% elif page == results.number %}
-        <li class="active"><a href="?page={{  results.number }}">{{ results.number }}</a></li>
-        {% endif %}
-        {% endfor %}
+            {% for page in paginator.page_range %}
+                {% if page <= toolbar_max and page > toolbar_min and page != results.number %}
+                    <li><a href="?page={{  page  }}">{{ page }}</a></li>
+                {% elif page == results.number %}
+                    <li class="active"><a href="?page={{  results.number }}">{{ results.number }}</a></li>
+                {% endif %}
+            {% endfor %}
 
-        {% if results.has_next %}
-        <li><a href="?page={{ results.next_page_number }}">&raquo;</a></li>
-        {% endif %}
-    </ul>
-</div>
+            {% if results.has_next %}
+                <li><a href="?page={{ results.next_page_number }}">&raquo;</a></li>
+            {% endif %}
+        </ul>
+    </div>
 </div>
 
 {% endblock %}

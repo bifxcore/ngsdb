@@ -1,17 +1,30 @@
 {% extends "snpdb/dashboard.html" %}
 {% load url_path %}
 
+{% block title %}
+    SNP Effect
+{% endblock %}
 
-{% block content %}
+{% block breadcrumbs %}
+{% endblock %}
 
-<div class="page-header text-header" style="padding-left:30px">
-    <h1>SNP Effect</h1>
+{% block bootstrap %}
+<style type="text/css">
+    body { background:antiquewhite; }
+</style>
+
+
+<div class="container-fluid">
+	<div class="page-header text-header" style="padding-left:30px; margin-top:10px; padding-bottom:0px">
+    	<h1 style="padding-bottom:0px;">SNP Effect</h1>
+	</div>
 </div>
 
 <body>
-<div class="collapse navbar-collapse navbar-ex1-collapse">
+<div class="container-fluid">
+<div class="collapse navbar-collapse">
     <ul class="nav navbar-nav">
-        <form class="form-inline" role="form" id='search' action='/snpdb/effect/search' method="get">
+        <form class="form-inline" role="form" id='search' action='/snpdb/effect/search' style="padding-bottom: 30px;" method="get">
             <div class="form-group">
                 <label class="sr-only" for="search">Search</label>
                 <input type="text" class="form-control" name="s" placeholder="search">
@@ -22,14 +35,15 @@
                     <option value="effect_string">Effect</option>
                     <option value="effect_group">Effect Group</option>
                 </select>
-                <button class="btn btn-primary" type="submit"  style="margin-left:0px; width:75px; vertical-align:middle; padding: 0px">Search</button>
+                <button class="btn btn-sample" type="submit"  style="margin-left:0px; width:75px; vertical-align:middle; padding: 0px">Search</button>
             </div>
         </form>
     </ul>
 </div>
+</div>
 </body>
 
-<div class="container" style="padding-bottom:30px">
+<div class="container-fluid" style="padding-bottom:30px">
 <table class="table table-condensed table-hover" style="table-layout: fixed; word-wrap: break-word;">
      <thead>
     <tr>
@@ -54,7 +68,7 @@
 </table>
 </div>
 
-
+<div class="container-fluid" style="padding-bottom: 30px">
 <div class="pagination">
     <ul class="pagination">
         {% if snp_effect.has_previous %}
@@ -91,6 +105,7 @@
             {% endif %}
         {% endif %}
     </ul>
+</div>
 </div>
 
 {% endblock %}

@@ -3,13 +3,17 @@
 {% extends "snpdb/dashboard.html" %}
 {% load snp_filters %}
 
-{% block content %}
+{% block bootstrap %}
+<style type="text/css">
+   body { background: antiquewhite; }
+</style>
+
 <div class="container-fluid">
-    <div class="page-header text-header" style="padding-left:30px">
-        <h1>SNPs in Library</h1>
-        <h5> There are {{count}} snps in this library. </h5>
-        <h5> For a list of genes found within this library, follow this <a href="/snpdb/gene-list?lib={{library}}">link</a>.</h5>
-    </div>
+	<div class="page-header text-header" style="padding-left:30px; margin-top:10px; padding-bottom:0px">
+    	<h1 style="padding-bottom:0px;">SNPs in Library</h1>
+    	<h2 style="padding-top:5px">There are {{count}} snps in this library.</h2>
+    	<h2 style="padding-top:5px">For a list of genes found within this library, follow this <a href="/snpdb/gene-list?lib={{library}}">link</a>. </h2>
+	</div>
 </div>
 
 <body>
@@ -17,7 +21,7 @@
 <div class="container-fluid" style="padding-bottom:30px">
     <div class="collapse navbar-collapse navbar-ex1-collapse">
         <ul class="nav navbar-nav">
-            <form class="form-inline" role="form" id='search' action='/snpdb/library-snp-summary/search' method="get">
+            <form class="form-inline" role="form" id='search' action='/snpdb/library-snp-summary/search' style="padding-bottom:30px" method="get">
                 <div class="form-group">
                     <label class="sr-only" for="search">Search</label>
                     <input type="text" class="form-control" name="s" placeholder="search">
@@ -33,7 +37,7 @@
                         <option value="chromosome__chromosome_name">Chromosome</option>
                         <option value="effect__effect_string">Genes</option>
                     </select>
-                    <button class="btn btn-primary" type="submit"  style="margin-left:0px; width:75px; vertical-align:middle; padding: 0px">Search</button>
+                    <button class="btn btn-sample" type="submit"  style="margin-left:0px; width:75px; vertical-align:middle; padding: 0px">Search</button>
                 </div>
             </form>
         </ul>
@@ -98,7 +102,7 @@
 
 <div class="container-fluid" style="padding-bottom:30px">
 
-<div class="pagination">
+<div class="ngsdb pagination">
     <ul class="pagination">
         {% if results.has_previous %}
             <li><a href="?page={{  results.previous_page_number }}">&laquo;</a></li>

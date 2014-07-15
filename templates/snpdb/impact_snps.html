@@ -1,19 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
 {% extends "snpdb/dashboard.html" %}
+{% load static %}
+{% load staticfiles %}
 
+{% block title %}
+    SNP Summary
+{% endblock %}
+
+{% block breadcrumbs %}
+{% endblock %}
+
+{% block bootstrap %}
 <script>
     $('.collapse').collapse()
 </script>
 
+<style type="text/css">
+   body { background: antiquewhite; }
+</style>
 
-{% block content %}
-<div class="container" style="padding-bottom:30px">
-    <div class="page-header text-header" style="padding-left:30px">
-        <h1>Difference Between Libraries</h1>
-        <h4>There are {{ count }} snps found in {{library1}} not found in {{library2}}. </h4>
-    </div>
+<div class="container-fluid">
+	<div class="page-header text-header" style="padding-left:30px; margin-top:10px; padding-bottom:0px">
+    	<h1 style="padding-bottom:0px;">Difference Between Libraries</h1>
+    	<h2 style="padding-top:5px">There are {{ count }} snps found in {{library1}} not found in {{library2}}.</h2>
+	</div>
 </div>
+
 
 <body>
 <div class="container-fluid" style="padding-bottom:30px">
@@ -28,19 +41,17 @@
                     <label class="sr-only" for="library">Library 2</label>
                     <input type="text" class="form-control" name="lib2" placeholder="library 2">
                 </div>
-            <button class="btn btn-primary" type="submit"  style="margin-left:0px; width:75px; vertical-align:middle; padding: 0px">Search</button>
+                <button class="btn btn-sample" type="submit"  style="margin-left:0px; width:75px; vertical-align:middle; padding: 0px">Search</button>
             </form>
         </ul>
     </div>
 </div>
 
-</body>
-
 <div class="container-fluid" style="padding-bottom:30px">
     <div class="row">
         <div class="col-md-6">
-            <div class="panel panel-primary">
-                <div class="panel-heading">
+            <div class="panel panel-primary" style="border-color: #616770;">
+                <div class="panel-heading" style="background-color: #616770; border-color:#616770">
                     <h3 class="panel-title"><a href="/snpdb/impact-snps/search?impact=HIGH&lib1={{library1}}&lib2={{library2}}">High Impact</a></h3>
                 </div>
                 <div class="panel-body">
@@ -60,8 +71,8 @@
             </div>
         </div>
         <div class="col-md-6">
-            <div class="panel panel-primary">
-                <div class="panel-heading">
+            <div class="panel panel-primary" style="border-color: #616770;">
+                <div class="panel-heading" style="background-color: #616770; border-color:#616770">
                     <h3 class="panel-title"><a href="/snpdb/impact-snps/search?impact=LOW&lib1={{library1}}&lib2={{library2}}">Low Impact</a></h3>
                 </div>
                 <div class="panel-body">
@@ -83,8 +94,8 @@
     </div>
     <div class="row">
         <div class="col-md-6">
-            <div class="panel panel-primary">
-                <div class="panel-heading">
+            <div class="panel panel-primary" style="border-color: #616770;">
+                <div class="panel-heading" style="background-color: #616770; border-color:#616770">
                     <h3 class="panel-title"><a href="/snpdb/impact-snps/search?impact=MODERATE&lib1={{library1}}&lib2={{library2}}">Moderate Impact</a></h3>
                 </div>
                 <div class="panel-body">
@@ -104,8 +115,8 @@
             </div>
         </div>
         <div class="col-md-6">
-            <div class="panel panel-primary">
-                <div class="panel-heading">
+            <div class="panel panel-primary" style="border-color: #616770;">
+                <div class="panel-heading" style="background-color: #616770; border-color:#616770">
                     <h3 class="panel-title"><a href="/snpdb/impact-snps/search?impact=MODIFIER&lib1={{library1}}&lib2={{library2}}">Modifier Impact</a></h3>
                 </div>
                 <div class="panel-body">
@@ -130,7 +141,7 @@
 <div class="container-fluid" style="padding-bottom:30px">
     <div class="panel-group" id="accordion">
         <div class="panel panel-default">
-            <div class="panel-heading">
+            <div class="panel-heading"  style="background-color: #616770; color: white; border-color:#616770">
                 <h4 class="panel-title">
                     <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
                         High Impact
@@ -155,7 +166,7 @@
             </div>
         </div>
         <div class="panel panel-default">
-            <div class="panel-heading">
+            <div class="panel-heading" style="background-color: #616770; color: white">
                 <h4 class="panel-title">
                     <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">
                         Moderate Impact
@@ -180,7 +191,7 @@
             </div>
         </div>
         <div class="panel panel-default">
-            <div class="panel-heading">
+            <div class="panel-heading"  style="background-color: #616770; color: white">
                 <h4 class="panel-title">
                     <a data-toggle="collapse" data-parent="#accordion" href="#collapseThree">
                         Low Impact
@@ -204,7 +215,7 @@
                 </div>
             </div>
         </div>  <div class="panel panel-default">
-            <div class="panel-heading">
+            <div class="panel-heading"  style="background-color: #616770; color: white">
                 <h4 class="panel-title">
                     <a data-toggle="collapse" data-parent="#accordion" href="#collapseThree">
                         Modifier Impact
@@ -236,6 +247,8 @@
         </div>
     </div>
 </div>
+
+</body>
 
 
 {% endblock %}

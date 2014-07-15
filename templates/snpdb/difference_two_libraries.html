@@ -1,13 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
 {% extends "snpdb/dashboard.html" %}
+{% load static %}
+{% load staticfiles %}
 
-{% block content %}
-<div class="container" style="padding-bottom:30px">
-    <div class="page-header text-header" style="padding-left:30px">
-        <h1>Difference Between Libraries</h1>
-        <h4>There are {{ count }} snps found in {{library1}} not found in {{library2}}. </h4>
-    </div>
+{% block title %}
+    SNP Summary
+{% endblock %}
+
+{% block breadcrumbs %}
+{% endblock %}
+
+{% block bootstrap %}
+<style type="text/css">
+   body { background: antiquewhite; }
+</style>
+
+<div class="container-fluid">
+	<div class="page-header text-header" style="padding-left:30px; margin-top:10px; padding-bottom:0px">
+    	<h1 style="padding-bottom:0px;">Difference Between Libraries</h1>
+    	<h2 style="padding-top:5px">There are {{ count }} snps found in {{library1}} not found in {{library2}}.</h2>
+	</div>
 </div>
 
 <body>
@@ -23,7 +36,7 @@
                     <label class="sr-only" for="library">Library 2</label>
                     <input type="text" class="form-control" name="lib2" placeholder="library 2">
                 </div>
-                <button class="btn btn-primary" type="submit"  style="margin-left:0px; width:75px; vertical-align:middle; padding: 0px">Search</button>
+                <button class="btn btn-sample" type="submit"  style="margin-left:0px; width:75px; vertical-align:middle; padding: 0px">Search</button>
             </form>
         </ul>
     </div>
@@ -65,8 +78,8 @@
 </div>
 
 <div class="container" style="padding-bottom:30px">
-    <div class="pagination">
-        <ul class="pagination">
+    <div class="ngsdb pagination">
+        <ul class="ngsdb">
             {% if results.has_previous %}
                 <li><a href="?page={{  results.previous_page_number }}">&laquo;</a></li>
             {% else %}

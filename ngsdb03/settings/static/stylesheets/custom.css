@@ -127,3 +127,124 @@ header#grp-header {
         color: white;
     }
 }
+
+
+/*search color */
+.btn-sample {
+    color: #ffffff;
+    background-color: #465160;
+    border-color: #465160;
+    -webkit-font-smoothing: antialiased;
+}
+
+.btn-sample:hover,
+.btn-sample:focus,
+.btn-sample:active,
+.btn-sample.active,
+.open .dropdown-toggle.btn-sample {
+    color: #ffffff;
+    background-color: #3A414C;
+    border-color: #465160;
+}
+
+.btn-sample:active,
+.btn-sample.active,
+.open .dropdown-toggle.btn-sample {
+    background-image: none;
+}
+
+.btn-sample.disabled,
+.btn-sample[disabled],
+fieldset[disabled] .btn-sample,
+.btn-sample.disabled:hover,
+.btn-sample[disabled]:hover,
+fieldset[disabled] .btn-sample:hover,
+.btn-sample.disabled:focus,
+.btn-sample[disabled]:focus,
+fieldset[disabled] .btn-sample:focus,
+.btn-sample.disabled:active,
+.btn-sample[disabled]:active,
+fieldset[disabled] .btn-sample:active,
+.btn-sample.disabled.active,
+.btn-sample[disabled].active,
+fieldset[disabled] .btn-sample.active {
+    background-color: #465160;
+    border-color: #465160;
+}
+
+.btn-sample .badge {
+    color: #465160;
+    background-color: #ffffff;
+}
+
+
+
+
+/* pagination theme */
+.ngsdb{
+  height: 36px;
+  margin: 18px 0;
+  color:white;
+}
+.ngsdb ul {
+  display: inline-block;
+  *display: inline;
+  /* IE7 inline-block hack */
+  color: white;
+  *zoom: 1;
+  background-color: #3A414C;
+  margin-left: 0;
+  margin-bottom: 0;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+  -webkit-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  -moz-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+.ngsdb li {
+  display: inline;
+  color: white;
+}
+.ngsdb a {
+  float: left;
+  padding: 0 14px;
+  line-height: 34px;
+  text-decoration: none;
+  border: 1px solid #ddd;
+  border-left-width: 0;
+  color:white;
+}
+.ngsdb a:hover,
+.ngsdb .active a {
+  color:white;
+  background-color: #616770;
+}
+.ngsdb .active a {
+  color: white;
+  cursor: default;
+}
+.ngsdb .disabled span,
+.ngsdb .disabled a,
+.ngsdb .disabled a:hover {
+  color: #999999;
+  background-color: transparent;
+  cursor: default;
+}
+.ngsdb li:first-child a {
+  border-left-width: 1px;
+  -webkit-border-radius: 3px 0 0 3px;
+  -moz-border-radius: 3px 0 0 3px;
+  border-radius: 3px 0 0 3px;
+}
+.ngsdb li:last-child a {
+  -webkit-border-radius: 0 3px 3px 0;
+  -moz-border-radius: 0 3px 3px 0;
+  border-radius: 0 3px 3px 0;
+}
+.ngsdb .pagination-centered {
+  text-align: center;
+}
+.ngsdb .pagination-right {
+  text-align: right;
+}

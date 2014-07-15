@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+
+{% extends "snpdb/dashboard.html" %}
+{% load static %}
+{% load staticfiles %}
+
+{% block title %}
+    Gene Summary
+{% endblock %}
+
+{% block breadcrumbs %}
+{% endblock %}
+
+{% block bootstrap %}
+<style type="text/css">
+   body { background: antiquewhite; }
+</style>
+
+<div class="container-fluid">
+	<div class="page-header text-header" style="padding-left:30px; margin-top:10px; padding-bottom:0px">
+    	<h1 style="padding-bottom:0px;">Gene Summary</h1>
+	</div>
+</div>
+
+<body>
+<div class="container-fluid">
+    <div class="collapse navbar-collapse">
+        <ul class="nav navbar-nav">
+            <form class="form-inline navbar-left" role="form" id='search' action='/snpdb/snp/search' style="padding-bottom: 30px;" method="get" style="padding-bottom:30px">
+                <div class="form-group">
+                    <input type="text" class="form-control" name="s" placeholder="search">
+                    <select class="selectpicker show-tick" data-style="btn-large btn-default" name="att" title='Search Option'>
+                        <option value="feature_id">Feature Id</option>
+                        <option value="featuretype">Feature Type</option>
+                        <option value="genome">Genome</option>
+                        <option value="chromosome">Chromosome</option>
+                        <option value="gene">Gene</option>
+                        <option value="fmin">Fmin</option>
+                        <option value="fmax">Fmax</option>
+                        <option value="strand">Strand</option>
+                        <option value="phase">Phase</option>
+                        <option value="geneproduct">Gene Product</option>
+                        <option value="annotation">Annotation</option>
+                        <option value="na_seq">NA Seq</option>
+                        <option value="aa_seq">AA Seq</option>
+                    </select>
+                    <button class="btn btn-sample" type="submit"  style="margin-left:0px; width:75px; vertical-align:middle; padding: 0px">Search</button>
+                </div>
+            </form>
+        </ul>
+    </div>
+</div>
+
+<div class="container-fluid" style="padding-bottom:30px">
+	<table class="table table-condensed table-hover" style="table-layout: fixed; word-wrap: break-word;">
+    	<thead>
+    	<tr>
+        	<th class=" text-center"><a href={{ filter_urls.feature_id }}>Feature ID</a></th>
+        	<th class=" text-center"><a href={{ filter_urls.feature_type }}>Feature Type</a></th>
+        	<th class=" text-center"><a href={{ filter_urls.genome }}>Genome</a></th>
+        	<th class=" text-center"><a href={{ filter_urls.chromosome }}>Chromosome</a></th>
+        	<th class=" text-center"><a href={{ filter_urls.gene }}>Gene</a></th>
+        	<th class=" text-center"><a href={{ filter_urls.fmin }}>Fmin</a></th>
+        	<th class=" text-center"><a href={{ filter_urls.fmax }}>Fmax</a></th>
+        	<th class=" text-center"><a href={{ filter_urls.strand }}>Strand</a></th>
+        	<th class=" text-center"><a href={{ filter_urls.phase }}>Phase</a></th>
+        	<th class=" text-center"><a href={{ filter_urls.geneproduct }}>Gene Product</a></th>
+        	<th class=" text-center"><a href={{ filter_urls.annotation }}>Annotation</a></th>
+        	<th class=" text-center"><a href={{ filter_urls.na_seq }}>NA Seq</a></th>
+        	<th class=" text-center"><a href={{ filter_urls.aa_seq }}>AA Seq</a></th>
+    	</tr>
+    	</thead>
+    	<tbody>
+    	<tr>
+        	{% for each in results %}
+        		<td class="text-center">{{ each.feature_id }}</td>
+        		<td class="text-center">{{ each.featuretype }}</td>
+        		<td class="text-center">{{ each.genome_id }}</td>
+        		<td class="text-center">{{ each.chromosome }}</td>
+        		<td class="text-center">{{ each.geneid }}</td>
+        		<td class="text-center">{{ each.fmin }}</td>
+        		<td class="text-center">{{ each.fmax }}</td>
+        		<td class="text-center">{{ each.strand }}</td>
+        		<td class="text-center">{{ each.phase }}</td>
+        		<td class="text-center">{{ each.geneproduct }}</td>
+        		<td class="text-center">{{ each.annotation }}</td>
+        		<td class="text-center">{{ each.na_seq }}</td>
+        		<td class="text-center">{{ each.aa_seq }}</td>
+    	</tr>
+    	{% endfor %}
+    	</tbody>
+	</table>
+</div>
+</body>
+
+<div class="container-fluid" style="padding-bottom:30px">
+<div class="ngsdb pagination">
+    <ul class="ngsdb">
+        {% if snps.has_previous %}
+            {% if selection %}
+                <li><a href="?page={{ snps.previous_page_number }}&s={{filter_on}}&att={{selection}}">&laquo;</a></li>
+            {% else %}
+                <li><a href="?page={{ snps.previous_page_number }}">&laquo;</a></li>
+            {% endif %}
+        {% else %}
+            <li class="disabled"><a href="#">&laquo;</a></li>
+        {% endif %}
+
+        {% for page in paginator.page_range %}
+            {% if page <= toolbar_max and page > toolbar_min and page != snps.number %}
+                {% if selection %}
+                    <li><a href="?page={{ page }}&s={{filter_on}}&att={{selection}}">{{page}}</a></li>
+                {% else %}
+                    <li><a href="?page={{ page }}">{{page}}</a></li>
+                {% endif %}
+            {% elif page == snps.number %}
+                {% if selection %}
+                    <li><a href="?page={{ snps.number }}&s={{filter_on}}&att={{selection}}">{{snps.number}}</a></li>
+                {% else %}
+                    <li><a href="?page={{ snps.number }}">{{snps.number}}</a></li>
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+
+        {% if snps.has_next %}
+           {% if selection %}
+                <li><a href="?page={{ snps.next_page_number }}&s={{filter_on}}&att={{selection}}">&raquo;</a></li>
+            {% else %}
+                <li><a href="?page={{ snps.next_page_number }}">&raquo;</a></li>
+            {% endif %}
+        {% endif %}
+    </ul>
+</div>
+</div>
+
+{% endblock %}
+</html>

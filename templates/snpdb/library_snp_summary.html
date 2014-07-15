@@ -2,12 +2,26 @@
 <html lang="en">
 {% extends "snpdb/dashboard.html" %}
 {% load mathfilters %}
+{% load static %}
+{% load staticfiles %}
 
-{% block content %}
+{% block title %}
+    Library Summary
+{% endblock %}
+
+{% block breadcrumbs %}
+{% endblock %}
+
+{% block bootstrap %}
+
+<style type="text/css">
+   body { background: antiquewhite; }
+</style>
+
 <div class="container-fluid">
-    <div class="page-header text-header" style="padding-left:30px">
+    <div class="page-header text-header" style="padding-left:30px margin-top:10px; padding-bottom:0px">
         <h1>Library Summary</h1>
-        <h4>There are {{ count }} libraries with SNP data. </h4>
+        <h2>There are {{ count }} libraries with SNP data. </h2>
     </div>
 </div>
 
@@ -20,7 +34,7 @@
                     <label class="sr-only" for="library_id">Library</label>
                     <input type="text" class="form-control" name="lib" placeholder="library code">
                 </div>
-                <button id="submit" class="btn btn-primary" style="margin-left:0px; width:75px; vertical-align:middle; padding: 0px" type="submit">Search</button>
+                <button id="submit" class="btn btn-sample" style="margin-left:0px; width:75px; vertical-align:middle; padding: 0px" type="submit">Search</button>
             </form>
         </ul>
     </div>

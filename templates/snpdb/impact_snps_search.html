@@ -3,85 +3,100 @@
 
 {% extends "snpdb/dashboard.html" %}
 {% load snp_filters %}
+{% load static %}
+{% load staticfiles %}
 
-{% block body %}
-<div class="page-header text-header" style="padding-left:30px">
-    <h1>SNP Summary</h1>
-    <h4>There are {{ count }} snps. </h4>
+{% block title %}
+    Impact SNPs
+{% endblock %}
+
+
+{% block bootstrap %}
+<style type="text/css">
+    body { background:antiquewhite; }
+</style>
+
+<div class="container-fluid">
+	<div class="page-header text-header" style="padding-left:30px; margin-top:10px; padding-bottom:0px">
+    	<h1 style="padding-bottom:0px;">SNP Summary</h1>
+    	<h2 style="padding-top:5px">There are {{ count }} snps. </h2>
+	</div>
 </div>
 
 <body>
-<div class="collapse navbar-collapse navbar-ex1-collapse">
-    <ul class="nav navbar-nav">
-        <form class="form-inline" role="form" id='search' action='/snpdb/snp/search' method="get">
-            <div class="form-group">
-                <label class="sr-only" for="search">Search</label>
-                <input type="text" class="form-control" name="s" placeholder="search">
-                <select class="selectpicker show-tick" data-style="btn-large btn-default" name="att" title='Search Option'>
-                    <option value="snp_position">SNP Position</option>
-                    <option value="result">Result</option>
-                    <option value="ref_base">Reference Base</option>
-                    <option value="alt_base">Alternative Base</option>
-                    <option value="heterozygosity">Heterozygosity</option>
-                    <option value="quality">Quality</option>
-                    <option value="library">Library</option>
-                    <option value="chromosome__chromosome_name">Chromosome</option>
-                    <option value="effect__effect_string">Effect Impact</option>
-                    <option value="effect__effect_class">Effect</option>
-                </select>
-                <button class="btn btn-primary" type="submit"  style="margin-left:0px; width:75px; vertical-align:middle; padding: 0px">Search</button>
-            </div>
-        </form>
-    </ul>
+<div class="container-fluid">
+    <div class="collapse navbar-collapse">
+        <ul class="nav navbar-nav">
+            <form class="form-inline" role="form" id='search' action='/snpdb/impact-snps/search' style="padding-bottom: 30px;" method="get">
+                <div class="form-group">
+                    <label class="sr-only" for="search">Search</label>
+                    <input type="text" class="form-control" name="s" placeholder="search">
+                    <select class="selectpicker show-tick" data-style="btn-large btn-default" name="att" title='Search Option'>
+                        <option value="snp_position">SNP Position</option>
+                        <option value="result">Result</option>
+                        <option value="ref_base">Reference Base</option>
+                        <option value="alt_base">Alternative Base</option>
+                        <option value="heterozygosity">Heterozygosity</option>
+                        <option value="quality">Quality</option>
+                        <option value="library">Library</option>
+                        <option value="chromosome__chromosome_name">Chromosome</option>
+                        <option value="effect__effect_string">Effect Impact</option>
+                        <option value="effect__effect_class">Effect</option>
+                    </select>
+                    <button class="btn btn-primary" type="submit"  style="margin-left:0px; width:75px; vertical-align:middle; padding: 0px">Search</button>
+                </div>
+            </form>
+        </ul>
+    </div>
+</div>
+
+<div class="container-fluid" style="padding-bottom:30px">
+    <table class="table table-condensed table-hover" style="table-layout: fixed; word-wrap: break-word;">
+        <thead>
+        <tr>
+            <th class=" text-center"><a href={{ filter_urls.snp_id }}>SNP ID</a></th>
+            <th class=" text-center"><a href={{ filter_urls.snp_position }}>Position</a></th>
+            <th class=" text-center"><a href={{ filter_urls.result }}>Result</a></th>
+            <th class=" text-center"><a href={{ filter_urls.ref_base }}>Reference Base</a></th>
+            <th class=" text-center"><a href={{ filter_urls.alt_base }}>Alternate Base</a></th>
+            <th class=" text-center"><a href={{ filter_urls.heterozygosity }}>Heterozygosity</a></th>
+            <th class=" text-center"><a href={{ filter_urls.quality }}>Quality</a></th>
+            <th class=" text-center"><a href={{ filter_urls.library__librarycode }}>Library</a></th>
+            <th class=" text-center"><a href={{ filter_urls.chromosome__chromosome_name }}>Chromosome</a></th>
+            <th class=" text-center"><a href={{ filter_urls.effect_string }}>Effect Impact</a></th>
+            <th class=" text-center"><a href={{ filter_urls.effect_class }}>Effect</a></th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            {% for each in results %}
+                {% if each.snp_id %}
+                    <td class="text-center">{{ each.snp_id }}</td>
+                    <td class="text-center">{{ each.snp_position }}</td>
+                    <td class="text-center">{{ each.result_id }}</td>
+                    <td class="text-center">{{ each.ref_base }}</td>
+                    <td class="text-center">{{ each.alt_base }}</td>
+                    <td class="text-center">{{ each.heterozygosity }}</td>
+                    <td class="text-center">{{ each.quality }}</td>
+                    <td class="text-center">{{ each.library__librarycode }}</td>
+                    <td class="text-center">{{ each.chromosome__chromosome_name }}</td>
+                    <td class="text-center">
+                    {% if each.effect__effect_string|get_type %}
+                        {% for effect in each.effect__effect_string %}
+                            <a href="/snpdb/gene-feature?geneid={{ effect }}">{{effect}}</a>
+                        {% endfor %}
+                    {% else %}
+                        <a href="/snpdb/gene-feature?geneid={{ each.effect__effect_string }}">{{ each.effect__effect_string }}</a>
+                    {% endif %}
+                    </td>
+                    <td class="text-center">{{ each.effect__effect_class|title }}</td>
+                {% endif %}
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
 </div>
 </body>
-
-
-<table class="table table-condensed table-hover" style="table-layout: fixed; word-wrap: break-word;">
-    <thead>
-    <tr>
-        <th class=" text-center"><a href={{ filter_urls.snp_id }}>SNP ID</a></th>
-        <th class=" text-center"><a href={{ filter_urls.snp_position }}>Position</a></th>
-        <th class=" text-center"><a href={{ filter_urls.result }}>Result</a></th>
-        <th class=" text-center"><a href={{ filter_urls.ref_base }}>Reference Base</a></th>
-        <th class=" text-center"><a href={{ filter_urls.alt_base }}>Alternate Base</a></th>
-        <th class=" text-center"><a href={{ filter_urls.heterozygosity }}>Heterozygosity</a></th>
-        <th class=" text-center"><a href={{ filter_urls.quality }}>Quality</a></th>
-        <th class=" text-center"><a href={{ filter_urls.library__librarycode }}>Library</a></th>
-        <th class=" text-center"><a href={{ filter_urls.chromosome__chromosome_name }}>Chromosome</a></th>
-        <th class=" text-center"><a href={{ filter_urls.effect_string }}>Effect Impact</a></th>
-        <th class=" text-center"><a href={{ filter_urls.effect_class }}>Effect</a></th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr>
-        {% for each in results %}
-            {% if each.snp_id %}
-                <td class="text-center">{{ each.snp_id }}</td>
-                <td class="text-center">{{ each.snp_position }}</td>
-                <td class="text-center">{{ each.result_id }}</td>
-                <td class="text-center">{{ each.ref_base }}</td>
-                <td class="text-center">{{ each.alt_base }}</td>
-                <td class="text-center">{{ each.heterozygosity }}</td>
-                <td class="text-center">{{ each.quality }}</td>
-                <td class="text-center">{{ each.library__librarycode }}</td>
-                <td class="text-center">{{ each.chromosome__chromosome_name }}</td>
-                <td class="text-center">
-                {% if each.effect__effect_string|get_type %}
-                    {% for effect in each.effect__effect_string %}
-                        {{ effect }}
-                    {% endfor %}
-                {% else %}
-                    {{ each.effect__effect_string }}
-                {% endif %}
-                </td>
-                <td class="text-center">{{ each.effect__effect_class|title }}</td>
-            {% endif %}
-        </tr>
-    {% endfor %}
-    </tbody>
-</table>
-
 
 <div class="pagination">
     <ul class="pagination">
