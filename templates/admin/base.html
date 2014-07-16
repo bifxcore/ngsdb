@@ -96,15 +96,17 @@
         </script>
 
         <script>
-           $(document).ready(function() {
-               $('.nav li a').click(function() {
-                   if(!$(this).parent('li').hasClass('active')) {
-                       $(this).parent.parent.find('li.active').removeClass('active');
-                       $(this).parent.('li').addClass(('active'));
-                   };
-               });
-           });
+            $(document).ready(function(){
+                $('li.dropdown-submenu [data-toggle=dropdown]').on('click', function(event) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    $(this).parent().siblings().removeClass('open');
+                    $(this).parent().toggleClass('open');
+                });
+            });
         </script>
+
+
     {% endblock %}
     <!-- EXTRAHEAD -->
     {% block extrahead %}{% endblock %}

@@ -18,10 +18,8 @@
         <h1 id="grp-admin-title">{% if grappelli_admin_title %}{{ grappelli_admin_title }}{% else %}{% get_admin_title %}{% endif %}</h1>
     </div>
 
+
 <!-- Username & links area-->
-
-
-
 {% if user.is_active and user.is_staff%}
     <ul id="grp-user-tools">
     <div id="user-tools">
@@ -88,53 +86,8 @@
     {% endif %}
 {% endblock %}
 
-<!-- Links for naviation -->
+<!-- Links for navigation -->
 {% block nav-global %}
-<script>
-$('ul.dropdown-menu').on('click', function(event) {
-    // Avoid following the href location when clicking
-    event.preventDefault();
-    // Avoid having the menu to close when clicking
-    event.stopPropagation();
-    // If a menu is already open we close it
-    $('ul.dropdown-menu [data-toggle=dropdown]').parent().removeClass('open');
-    // opening the one you clicked on
-    $(this).parent().addClass('open');
-
-    var menu = $(this).parent().find("ul");
-    var menupos = menu.offset();
-
-    if ((menupos.left + menu.width()) + 30 > $(window).width()) {
-        var newpos = - menu.width();
-    } else {
-        var newpos = $(this).parent().width();
-    }
-    menu.css({ left:newpos });
-});
-</script>
-
-<script>
-$('li.dropdown-submenu [data-toggle=dropdown]').on('click', function(event) {
-    // Avoid following the href location when clicking
-    event.preventDefault();
-    // Avoid having the menu to close when clicking
-    event.stopPropagation();
-    // If a menu is already open we close it
-    $('ul.dropdown-menu [data-toggle=dropdown]').parent().removeClass('open');
-    // opening the one you clicked on
-    $(this).addClass('open');
-
-    var menu = $(this).parent().find("ul");
-    var menupos = menu.offset();
-
-    if ((menupos.left + menu.width()) + 30 > $(window).width()) {
-        var newpos = - menu.width();
-    } else {
-        var newpos = $(this).parent().width();
-    }
-    menu.css({ left:newpos });
-});
-</script>
 
 <div class="navbar navbar-custom" role="navigation">
     <div class="container-fluid">
@@ -143,9 +96,9 @@ $('li.dropdown-submenu [data-toggle=dropdown]').on('click', function(event) {
                 <li class='active' class="menu-item"><a href="/ngsdbview/dashboard/">Home</a></li>
                 {% if user.is_active %}
                 <!-- New Menu starts -->
-                <li class="dropdown menu-item">
+                <li class="dropdown">
                     <a class="dropdown-toggle" data-toggle="dropdown" id="listall"  href="/samples/librarylist/">List All <b class="caret"></b></a>
-                    <ul id="dropdown_listall" class="dropdown-menu">
+                    <ul class="dropdown-menu">
                         <li class="menu-item"><a href="/admin/samples/sample/">Samples</a></li>
                         <li class="menu-item"><a href="/admin/samples/library/">Libraries</a></li>
                         <li class="menu-item"><a href="/admin/samples/library/">Analyses</a></li>
@@ -161,7 +114,7 @@ $('li.dropdown-submenu [data-toggle=dropdown]').on('click', function(event) {
                 <li class="dropdown">
                     <a class="dropdown-toggle" data-toggle="dropdown" href="/samples/librarylist/">Query<b class="caret"></b></a>
                     <ul class="dropdown-menu">
-                        <li class="menu-item dropdown dropdown-submenu">
+                        <li class="dropdown dropdown-submenu">
                             <a class="dropdown-toggle" data-toggle="dropdown" href="/ngsdbview/get_results_for_gene/">Query Splice Leader</a>
                             <ul class="dropdown-menu">
                                 <li class="menu-item"><a href="/ngsdbview/listexperiments/">Query RiboProf DB</a></li>
@@ -169,21 +122,21 @@ $('li.dropdown-submenu [data-toggle=dropdown]').on('click', function(event) {
                                 <li class="menu-item"><a href="/ngsdbview/listexperiments/">Query SNP DB</a></li>
                             </ul>
                         </li>
-                        <li class="menu-item dropdown dropdown-submenu">
+                        <li class="dropdown dropdown-submenu">
                             <a class="dropdown-toggle" data-toggle="dropdown" href="/ngsdbview/listexperiments/">Query RiboProf DB</a>
                             <ul id="queryRiboProf" class="dropdown-menu" role="menu">
                                 <li class="menu-item"><a href="/ngsdbview/listexperiments/">to list all Experiments</a></li>
                                 <li class="menu-item"><a href="/ngsdbview/analyzeexperiments/">for an Experiment</a></li>
                             </ul>
                         </li>
-                        <li class="menu-item dropdown dropdown-submenu">
+                        <li class="dropdown dropdown-submenu">
                             <a class="dropdown-toggle" data-toggle="dropdown" href="/ngsdbview/listexperiments/">Query Across SL and RiboProf</a>
                             <ul id="querySL-RiboProf" class="dropdown-menu">
                                 <li class="menu-item"><a href="/ngsdbview/listexperiments/">to list all Experiments</a></li>
                                 <li class="menu-item"><a href="/ngsdbview/analyzeexperiments/">for an Experiment</a></li>
                             </ul>
                         </li>
-                        <li class="menu-item dropdown dropdown-submenu">
+                        <li class="dropdown dropdown-submenu">
                             <a class="dropdown-toggle" data-toggle="dropdown" href="/ngsdbview/listexperiments/">Query SNP DB</a>
                             <ul id="querySNP" class="dropdown-menu">
                                 <li class="menu-item" role="presentation"><a role="menuitem" href="/snpdb/gene-snps"> Query Gene for Snps</a></li>
@@ -206,7 +159,7 @@ $('li.dropdown-submenu [data-toggle=dropdown]').on('click', function(event) {
                                 <li><a href="/admin/samples/sample/">Fully Editable</a></li>
                             </ul>
                         </li>
-                        <li class="menu-item dropdown dropdown-submenu">
+                        <li class="dropdown dropdown-submenu">
                             <a class="dropdown-toggle" data-toggle="dropdown" href="/samples/librarylist/">List Libraries</a>
                             <ul id="listlibraries" class="dropdown-menu" role="menu">
                                 <li><a href="/admin/samples/library/">Fully Editable</a></li>
@@ -225,7 +178,7 @@ $('li.dropdown-submenu [data-toggle=dropdown]').on('click', function(event) {
                                 <li class="last"><a href="/ngsdbview/ngsdbview_result/">List Analyses</a></li>
                             </ul>
                         </li>
-                        <li class="menu-item dropdown dropdown-submenu">
+                        <li class="dropdown dropdown-submenu">
                             <a class="dropdown-toggle" data-toggle="dropdown" href="/ngsdbview/listlibraries/">Gene Level Queries</a>
                             <ul id="genelevel" class="dropdown-menu" role="menu">
                                 <li><a href="/ngsdbview/get_results_for_gene/">Query for a Gene</a></li>
@@ -233,7 +186,7 @@ $('li.dropdown-submenu [data-toggle=dropdown]').on('click', function(event) {
                                 <li><a href="/ngsdbview/query_multigenes_multilibs/">Query for Multi-Gene Multi-Libs</a></li>
                             </ul>
                         </li>
-                        <li class="menu-item dropdown dropdown-submenu">
+                        <li class="dropdown dropdown-submenu">
                             <a class="dropdown-toggle" data-toggle="dropdown" href="/ngsdbview/listlibraries/">Library Level Queries</a>
                             <ul id="librarylevel" class="dropdown-menu" role="menu">
                                 <li><a href="/ngsdbview/get_results_for_library/">Query a Library</a></li>
@@ -241,7 +194,7 @@ $('li.dropdown-submenu [data-toggle=dropdown]').on('click', function(event) {
                                 <li><a href="/ngsdbview/get_sitecount_majorpc_forlibs/">get_sitecount_majorpc_forlibs</a></li>
                             </ul>
                         </li>
-                        <li class="menu-item dropdown dropdown-submenu">
+                        <li class="dropdown dropdown-submenu">
                             <a class="dropdown-toggle" data-toggle="dropdown" href="/ngsdbview/listlibraries/">Others</a>
                             <ul id="others" class="dropdown-menu" role="menu">
                                 <li><a href="/ngsdbview/pair_libraries/">pair_libraries</a></li>
@@ -254,7 +207,7 @@ $('li.dropdown-submenu [data-toggle=dropdown]').on('click', function(event) {
                 <li class="dropdown">
                     <a class="dropdown-toggle" data-toggle="dropdown" id="snpdb"  href="/samples/librarylist/">SNP DB<b class="caret"></b></a>
                     <ul id="snps" class="dropdown-menu" role="menu">
-                        <li class="menu-item dropdown dropdown-submenu">
+                        <li class="dropdown dropdown-submenu">
                             <a class="dropdown-toggle" data-toggle="dropdown" href="/samples/librarylist/">List All</a>
                             <ul id="listtables" class="dropdown-menu" role="menu">
                                 <li role="presentation" id="snpview"><a role="menuitem" href="/snpdb/snp">SNP</a></li>
@@ -264,7 +217,7 @@ $('li.dropdown-submenu [data-toggle=dropdown]').on('click', function(event) {
                                 <li role="presentation" id="filter"><a role="menuitem" href="/snpdb/filter">Filter</a></li>
                             </ul>
                         </li>
-                        <li class="menu-item dropdown dropdown-submenu">
+                        <li class="dropdown dropdown-submenu">
                             <a class="dropdown-toggle" data-toggle="dropdown" href="/samples/librarylist/">Gene Level Queries</a>
                             <ul id="gene" class="dropdown-menu" role="menu">
                                 <li class="first" role="presentation"><a role="menuitem" href="/snpdb/gene-snps"> Query Gene for Snps</a></li>
@@ -273,7 +226,7 @@ $('li.dropdown-submenu [data-toggle=dropdown]').on('click', function(event) {
                                 <li role="presentation"><a role="menuitem" href="/snpdb/library-gene-snps">Query Gene and Library for Snps</a></li>
                             </ul>
                         </li>
-                        <li class="menu-item dropdown dropdown-submenu">
+                        <li class="dropdown dropdown-submenu">
                             <a class="dropdown-toggle" data-toggle="dropdown" href="/samples/librarylist/">Library Level Queries</a>
                             <ul id="library" class="dropdown-menu" role="menu">
                                 <li class="first" role="presentation"><a role="menuitem" href="/snpdb/gene-snps"> Query Gene for Snps</a></li>
@@ -282,7 +235,7 @@ $('li.dropdown-submenu [data-toggle=dropdown]').on('click', function(event) {
                                 <li role="presentation"><a role="menuitem" href="/snpdb/library-gene-snps">Query Gene and Library for Snps</a></li>
                             </ul>
                         </li>
-                        <li class="menu-item dropdown dropdown-submenu">
+                        <li class="dropdown dropdown-submenu">
                             <a class="dropdown-toggle" data-toggle="dropdown" href="/samples/librarylist/">Summary Level Queries</a>
                             <ul id="summary" class="dropdown-menu" role="menu">
                                 <li role="presentation"><a role="menuitem" href="/snpdb/library-snp-summary">Library Level Summary</a></li>
