@@ -27,7 +27,7 @@ class ListLibForm(forms.Form):
     libcode = forms.CharField(max_length=20, label='Library Code', required=False)
 
 
-def ListLibraries(request, libtype):
+def ListLibraries(request, libtype, analysis_status):
     #gets user and the libraries the user has permission to
     [user, availlibids] = getlibraries(request)
     kwargs={}
@@ -43,10 +43,20 @@ def ListLibraries(request, libtype):
     # kwargs['autocomdesignation'] = constructAutocomplete('authordesignation', list(set(authors)))
 
     # Default display
+    # Get all available libs
     availlibs = Library.objects.filter(id__in=availlibids)
-    if libtype != 'ALL':
+    # Filter for libtype
+    if libtype != 'all':
         availlibs = availlibs.filter(librarytype__type=libtype)
 
+    # Filter for analysis_status
+    if analysis_status == 'analysed':
+        pass
+    elif analysis_status == 'all':
+        pass
+    else:
+        pass
+    #todo: add the code once EVERYTHING is linked to Samples.Library
     kwargs['availlibs']=availlibs
 
     # filter based on user's input via form
