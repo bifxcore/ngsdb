@@ -1,0 +1,150 @@
+{%extends "admin/base_site.html"%}
+
+<link rel="stylesheet" type="text/css" href="/media/css/style.css" >
+<link rel="stylesheet" type="text/css" href="/media/css/tabstyle.css" >
+
+
+{%block content%}
+{# Listen for click on toggle checkbox #}
+  <script language="JavaScript">
+    function toggle(source) {
+        checkboxes = document.getElementsByName('resid');
+        for(var i=0, n=checkboxes.length;i<n;i++) {
+            checkboxes[i].checked = source.checked;
+        }
+    }
+</script>
+
+
+{% block body %}
+<FORM action="." method="post">
+{% csrf_token %}
+
+    {# Display results...#}
+{% load ngsdbview_extras %}
+
+
+{%  if allres  %}
+<h1>QUERY:</h1>
+<div>
+    <h2>Query Gene Id(s):</h2>
+    <TABLE><TR><TD>
+     {{ geneid }}<br />
+    <input type="hidden" name="geneid" value={{ geneid }}>
+    </TD></TR></TABLE>
+
+    <h2>Target Libraries:</h2>
+
+    <TABLE id="viewtable">
+        <thead>
+        <TR>
+        <TH><input type="checkbox" onClick="toggle(this)" />  Result Ids</TH>
+        <TH>Library Code</TH>
+        <TH>Library Type</TH>
+        <TH>Library Constructed on</TH>
+        <TH>Lifestage</TH>
+        <TH>Phenotype</TH>
+        <TH>Genome Aligned to</TH>
+        <TH>Genome version</TH>
+        <TH>Genome source</TH>
+        <TH>View Analysis Steps</TH>
+        </TR>
+        </thead>
+        <tbody>
+        {% for res in allres %}
+            {% for lib in res.libraries.all %}
+                <TR><TD><input type="checkbox" name="resid" value = {{ res.result_id }} >{{ res.result_id }}</TD>
+                <TD>{{ lib.librarycode }}</TD>
+                <TD>{{ lib.librarytype }}</TD>
+                <TD>{{ lib.organism.organismcode }}</TD>
+                <TD>{{ lib.lifestage.lifestage }}</TD>
+                <TD>{{ lib.phenotype.phenotype }}</TD>
+                <TD>{{ res.genome.organism.organismcode }}</TD>
+                <TD>{{ res.genome.version }}</TD>
+                <TD>{{ res.genome.source }}</TD>
+                <TD><a href="/ngsdbview/list_analysis_steps/{{ res.result_id }}/" target="_blank">View Analysis Steps</a></TD>
+
+                </TR>
+            {% endfor %}
+
+        {% endfor %}
+        </tbody>
+    </TABLE>
+</div>
+</P></P>
+
+{# Printing result table #}
+{% if slsreadcount %}
+<h1>Result:</h1>
+<h2>Splice Leader Raw Read Counts across the gene:</h2>
+    *Interval => the position replative to A of start ATG codon
+
+    <TABLE id="viewtable">
+        <TR  >{# printing first header intervel #}
+            <TH>Interval*</TH>
+            {% for pos in ordposlist %}
+                <TH bgcolor="#ff7f50">{{ interval|hash:pos }}</TH>
+            {% endfor %}
+        </TR>
+        <TR>{# printing second header position #}
+            <TH>Base Position</TH>
+            {% for pos in ordposlist %}
+                <TH bgcolor="#deb887">{{ pos }}</TH>
+            {% endfor %}
+        </TR>
+        {# print data #}
+
+        {% for resid, posdic in slsreadcount.items %}
+            <TR>
+                <TH bgcolor="#deb887"> {{ libcodes|hash:resid }}</TH>
+                {% for pos in ordposlist %}
+
+                    {% if pos ==  majorsitepos|hash:165 %}
+                    <TH>{{ posdic|hash:pos }} {{ majorsitepos|hash:resid }}</TH>
+                    {% else %}
+                    <TD>{{ posdic|hash:pos }}</TD>
+                    {% endif %}
+                {% endfor %}
+            </TR>
+
+        {% endfor %}
+
+
+    </TABLE>
+
+{%  endif %}
+
+
+<TABLE>
+  <TR>
+	<TD>
+	    <input type="submit" name="level2" value="Submit" />
+    </TD>
+  </TR>
+</TABLE>
+</form>
+
+{% if slsreadcount %}
+
+
+{% endif %}
+
+{% else %}
+{# display the empty form  #}
+
+<TABLE>
+ 	<TR>
+		<TD>
+
+				{{ form.as_table }}
+		</TD>
+		<TD>
+			<input type="submit"  name="level1" value="Submit" />	  
+			</form>
+		</TD>
+  </TR>
+</TABLE>
+
+{% endif %}
+{% endblock %}
+{% endblock %}

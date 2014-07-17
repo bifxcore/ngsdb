@@ -27,7 +27,7 @@ class ListAnalysesForm(forms.Form):
     #iscurrentfield = forms.BooleanField(label='Current?', required=False,initial=True)
     #isobsfield = forms.BooleanField(label='Obsolete?', required=False, initial=False)
 
-class GetResultsForGeneForm(forms.Form):
+class SearchForGeneForm(forms.Form):
     geneid = forms.CharField(max_length=20, error_messages={'required': 'Please enter a Gene Id'})
 
 class AnalyzeExperimentFrom(forms.Form):
@@ -673,19 +673,19 @@ def GetAlignStats(request):
     return render_to_response('ngsdbview/get_align_stats.html',kwargs, context_instance=RequestContext(request))
 
 
-def GetResultsForGene(request):
+def SearchForGene(request):
     '''
         Get results for one single gene from multiple libraries
     '''
     #gets user and the libraries the user has permission to
     [user, availlibids] = getlibraries(request)
     kwargs={}
-    kwargs['title']='Query a Gene:'
+    kwargs['title']='Search For a Gene:'
     kwargs['listoflinks']=listoflinks
     kwargs['user']=user
 
     if request.method == 'POST':
-        form = GetResultsForGeneForm(request.POST) #bound form
+        form = SearchForGeneForm(request.POST) #bound form
         if form.is_valid():
             if 'resid' in request.POST:
                 geneid = form.cleaned_data['geneid']
@@ -707,7 +707,6 @@ def GetResultsForGene(request):
                         int = getIntervalsForGeneResid(request, geneid, resid, pos)
                         if int != "NA":
                             interval[pos]=int
-                print interval
                 # get ordered list of positions (using just first of resids)
                 ordposlist =  sorted(slsreadcount[slsreadcount.keys()[0]].keys())
 
@@ -715,7 +714,7 @@ def GetResultsForGene(request):
                 slsiteobjs = slsiteobjs.filter(rank=1)
                 for slsiteobj in slsiteobjs:
                     majorsitepos[slsiteobj.result_id] = slsiteobj.position
-                print majorsitepos
+
                 kwargs['majorsitepos']=majorsitepos
                 kwargs['allres']=allres
                 kwargs['geneid']=geneid
@@ -736,10 +735,10 @@ def GetResultsForGene(request):
             kwargs['form']=form
 
     else:
-        form = GetResultsForGeneForm() #unbound form
+        form = SearchForGeneForm() #unbound form
         kwargs['form']=form
 
-    return render_to_response('ngsdbview/get_results_for_gene.html',kwargs, context_instance=RequestContext(request))
+    return render_to_response('ngsdbview/search_for_gene.html',kwargs, context_instance=RequestContext(request))
 
 def GetResultsForMultiGenesMultiLib(request):
     '''
