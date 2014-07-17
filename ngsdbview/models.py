@@ -409,14 +409,13 @@ class Experiment(models.Model):
 
 from django.db import models
 from django.contrib.auth.models import User
-from django.db.models.signals import post_save
 
 class UserProfile(models.Model):
     """This class extends User to add new fields and function definitions"""
     # This field is required.
     id = models.AutoField(primary_key=True)
     user = models.OneToOneField(User)
-    libraries = models.ManyToManyField(Library,default=['AH006'])
+    libraries = models.ManyToManyField('samples.Library',default=['AH006'])
     def __unicode__(self):
         return str(self.user)
 
@@ -425,7 +424,6 @@ def create_user_profile(sender, instance, created, **kwargs):
     if created:
         UserProfile.objects.create(user=instance)
 
-#post_save.connect(create_user_profile, sender=User)
 
 
 #========================================================

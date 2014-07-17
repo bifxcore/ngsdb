@@ -16,7 +16,7 @@ urlpatterns = patterns('',
     # Gowthaman's views
     url(r'^$', 'ngsdbview.views02.Dashboard'),
     url(r'^dashboard/','ngsdbview.views02.Dashboard'),
-    url(r'^listlibraries/','ngsdbview.views02.ListLibraries'),
+    url(r'^listlibraries/(?P<result_id>.+)/','ngsdbview.views02.ListLibraries'),
     url(r'^listanalyses/','ngsdbview.views02.ListAnalyses'),
     url(r'^listexperiments/','ngsdbview.views02.ListExperiments'),
     url(r'^get_results_for_gene/','ngsdbview.views02.GetResultsForGene'),

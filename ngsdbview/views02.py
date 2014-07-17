@@ -111,6 +111,11 @@ def GetLibcodesForResid(request, resid):
     libcodes = Result.objects.get(pk=resid).libraries.all().values_list('librarycode', flat=True)
     return libcodes
 
+def GetLibcodesForLibids(request, libids):
+    '''get all library codes for the give libid(s)'''
+    libcodes = Library.objects.filter(librarycode__in=libcodes).values_list("library_id", flat=True)
+    return libcodes
+
 def GetResidForLibcodeGenomeid(request, libcode, genomeid):
     '''get result id for the combination of library code and genomeid'''
     resultobj = Result.objects.filter(libraries__librarycode=libcode).filter(genome=genomeid).filter(is_current=True)
@@ -396,7 +401,7 @@ def Dashboard(request):
 
 
 
-def ListLibraries(request):
+def ListLibraries(request, libtype):
     #gets user and the libraries the user has permission to
     [user, availlibids] = getlibraries(request)
     kwargs={}
