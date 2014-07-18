@@ -18,13 +18,10 @@
 
 
 {% block bootstrap %}
-<style type="text/css">
-   body { background: #F4F1EC; }
-</style>
 
 <div class="container-fluid">
 	<div class="page-header text-header" style="padding-left:30px; margin-top:10px; padding-bottom:0px">
-    	<h1 style="padding-bottom:0px;">SNP Statistics</h1>
+    	<h1 class="header" style="padding-bottom:0px;">SNP Statistics</h1>
 	</div>
 </div>
 
@@ -76,8 +73,8 @@
 </div>
 
 <div class="container-fluid">
-<div class="pagination">
-    <ul class="pagination">
+<div class="ngsdb pagination">
+    <ul class="ngsdb">
         {% if statistic.has_previous %}
             {% if selection %}
                 <li><a href="?page={{ statistic.previous_page_number }}&s={{filter_on}}&att={{selection}}">&laquo;</a></li>
