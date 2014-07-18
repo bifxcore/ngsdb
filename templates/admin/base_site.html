@@ -119,6 +119,7 @@
        </ul>
    </li>
 
+   <!--
    <li class='has-sub'><a href="/samples/librarylist/"><span>Query</span></a>
        <ul>
             <li class='has-sub'><a href="/ngsdbview/search_for_gene/"><span>Query Splice Leader DB</span></a>
@@ -133,8 +134,8 @@
             </li>
             <li class='has-sub'><a href="/ngsdbview/listexperiments/"><span>Query RiboProf DB</span></a>
                 <ul>
-                    <li class="first"><a href="/ngsdbview/listexperiments/"><span>to list all Experiments</span></a></li>
                     <li class="last"><a href="/ngsdbview/analyzeexperiments/"><span>for an Experiment</span></a></li>
+                    <li class="first"><a href="/ngsdbview/listexperiments/"><span>to list all Experiments</span></a></li>
 
                 </ul>
             </li>
@@ -148,9 +149,12 @@
 
        </ul>
    </li>
+   -->
    <!-- New Menu ends -->
 
-
+    <li>
+       <a href="/ngsdbview/alignstats/"><span>Alignment Statistics</span></a>
+   </li>
 
    <li class='has-sub'><a href=""><span>Splice Leader</span></a>
       <ul>
@@ -158,33 +162,31 @@
          <li><a href="/samples/listlibraries/SL/analysed/"><span>List SL Libs. Analysed and Loaded</span></a></li>
          <li><a href="/ngsdbview/search_for_gene/"><span>Query a Gene across ALL Libs.</span></a></li>
          <li><a href="/ngsdbview/query_multigenes/"><span>Query Genes across one Lib.</span></a></li>
+         <li><a href="/ngsdbview/query_multigenes_multilibs/"><span>Query Genes across many Libs</span></a></li>
+         <li><a href="/ngsdbview/get_results_for_library/"><span>Query a Library</span></a></li>
+         <!--<li><a href="/ngsdbview/Get_sites_forlib/"><span>Get Sites from a Library</span></a></li> -->
+         <!--<li><a href="/ngsdbview/get_sitecount_majorpc_forlibs/"><span>get_sitecount_majorpc_forlibs</span></a></li>-->
 
-          <li class='has-sub'><a href="/ngsdbview/listlibraries/"><span>Gene Level Queries</span></a>
-            <ul>
-                 <li class="first"><a href="/ngsdbview/search_for_gene/"><span>Query for a Gene</span></a></li>
-                 <li><a href="/ngsdbview/query_multigenes/"><span>Query for Multi-Gene One-Lib</span></a></li>
-                 <li class="last"><a href="/ngsdbview/query_multigenes_multilibs/"><span>Query for Multi-Gene Multi-Libs</span></a></li>
-             </ul>
-         <li class='has-sub'><a href="/ngsdbview/listlibraries/"><span>Library Level Queries</span></a>
-            <ul>
-                <li class="first"><a href="/ngsdbview/get_results_for_library/"><span>Query a Library</span></a></li>
-                <li><a href="/ngsdbview/Get_sites_forlib/"><span>Get Sites from a Library</span></a></li>
-                <li><a href="/ngsdbview/get_sitecount_majorpc_forlibs/"><span>get_sitecount_majorpc_forlibs</span></a></li>
-            </ul>
-          </li>
-          <li class='has-sub'><a href="/ngsdbview/listlibraries/"><span>Others</span></a>
+          <!--<li class='has-sub'><a href="/ngsdbview/listlibraries/"><span>Others</span></a>
             <ul>
 
                 <li><a href="/ngsdbview/pair_libraries/"><span>pair_libraries</span></a></li>
                 <li><a href="/ngsdbview/alignstats/"><span>Alignstats</span></a></li>
                 <li><a href="/ngsdbview//"><span>Menus</span></a></li>
             </ul>
+            -->
           </li>
       </ul>
    </li>
-   <li>
-       <a href="/ngsdbview/alignstats/"><span>Alignment Statistics</span></a>
+
+   <li class='has-sub'><a href=""><span>Ribo Prof</span></a>
+      <ul>
+          <li class="first"><a href="/ngsdbview/listexperiments/"><span>List all Experiments</span></a></li>
+          <li class="last"><a href="/ngsdbview/analyzeexperiments/"><span>Analyze an Experiment</span></a></li>
+      </ul>
    </li>
+   <li class='has-sub'><a href=""><span>SNP DB</span></a></li>
+
    <!-- Admin links on menu bar -->
    <li class='has-sub'><a href="/samples/librarylist/"><span>Admin</span></a>
        <ul>

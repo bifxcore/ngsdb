@@ -231,6 +231,23 @@ def string2list(request, string):
 
     return list1
 
+
+def getLibGroupStru(request):
+    gpstru = {}
+    libtypes = Librarytype.objects.all().values_list("type", flat=True)
+    refgenomes = Genome.objects.all().values_list("reference_code", flat=True)
+    organisms = Organism.objects.all().values_list("organismcode", flat=True)
+
+    gpstru['libtype'] = libtypes
+    gpstru['refgenome'] = refgenomes
+    gpstru['organism'] = organisms
+
+    return gpstru
+
+
+def groupLibcodeByCategory(request, gpstru, availlibcodes):
+    availlibs = Library.objects.filter(library_code__in=availlibcodes)
+
 #============================================================================#
 # View functions
 #============================================================================#
@@ -750,6 +767,8 @@ def GetResultsForMultiGenesMultiLib(request):
     kwargs['listoflinks']=listoflinks
     kwargs['user']=user
 
+    gpstru = getLibGroupStru(request)
+
     # for autocomplete lib codes
     availlibcodes = Library.objects.filter(library_id__in=availlibids).values_list('librarycode', flat=True)
     autoclibcodes = constructAutocomplete('libcode',availlibcodes)
@@ -810,6 +829,7 @@ def GetResultsForMultiGenesMultiLib(request):
         form = GetResultsForMultiGenesMultiLibForm() #unbound form
         kwargs['form']=form
         kwargs['availlibcodes']=availlibcodes
+        print availlibcodes
     return render_to_response('ngsdbview/get_results_for_multigenes_multilibs.html',kwargs, context_instance=RequestContext(request))
 
 def GetResultsForMultiGenes(request):
