@@ -135,6 +135,7 @@ def dashboard(request):
 	                                                   })
 
 
+
 def effect(request):
 	order_by = request.GET.get('order_by', 'effect')
 	current_url = request.get_full_path()
