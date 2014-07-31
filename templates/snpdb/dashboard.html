@@ -10,6 +10,7 @@
 <link href="/static/stylesheets/menu.css" rel="stylesheet" type="text/css" media="screen">
 <link href="/static/stylesheets/custom.css" rel="stylesheet" type="text/css" media="screen">
 
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
 
 {% block title %}    {{ title }} | {% trans 'Django site admin' %}
 {% endblock %}
@@ -291,11 +292,64 @@
 </div>
 {% endblock nav-global %}
 
+
 <!-- content title -->
 {% block content_title %}
     {% if title %}
         <header><h1>{{ title }}</h1></header>
     {% endif %}
+{% endblock %}
+
+{% block bootstrap %}
+    <div class="container-fluid">
+        <div class="page-header text-header" style="padding-left:30px; margin-top:10px; padding-bottom:0px">
+            <h1 class="header" style="padding-bottom:0px;">SNP Dashboard</h1>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+        <div class="col-md-4">
+            <table class="table table-condensed table-hover" style="table-layout: fixed; word-wrap: break-word;">
+                <thead>
+                <tr>
+                    <th class="col-md-2 text-center"><a href={{ filter_urls.library__librarycode }}>Library Code</a></th>
+                    <th class="col-md-2 text-center"><a href={{ filter_urls.result_id }}>SNP Count</a></th>
+                </tr>
+                </thead>
+                <tbody>
+                    {% for each in lib_count %}
+                        <td class="text-center">{{ each.library__librarycode}}</td>
+                        <td class="text-center">{{ each.snp_id__count}}</td>
+                </tr>
+                {% endfor %}
+                <td class="text-center" style="font-size:14px"><strong>Total</strong></td>
+                <td class="text-center" style="vertical-align: middle">{{ lib_snp_total }}</td>
+                </tbody>
+            </table>
+            <img src="{{ snps_by_library }}" class="image-responsive center-block"/>
+        </div>
+        <div class="col-md-4">
+            <table class="table table-condensed table-hover" style="table-layout: fixed; word-wrap: break-word;">
+                <thead>
+                <tr>
+                    <th class="col-md-2 text-center"><a href={{ filter_urls.library__organism__organismcode }}>Organism</a></th>
+                    <th class="col-md-2 text-center"><a href={{ filter_urls.result_id }}>SNP Count</a></th>
+                </tr>
+                </thead>
+                <tbody>
+                    {% for each in org_count %}
+                        <td class="text-center">{{ each.library__organism__organismcode}}</td>
+                        <td class="text-center">{{ each.snp_id__count}}</td>
+                </tr>
+                {% endfor %}
+                <td class="text-center" style="font-size:14px"><strong>Total</strong></td>
+                <td class="text-center" style="vertical-align: middle">{{ org_snp_total }}</td>
+                </tbody>
+            </table>
+            <img src="{{ snps_by_organism }}" class="image-responsive center-block"/>
+        </div>
+    </div>
+
 {% endblock %}
 
 

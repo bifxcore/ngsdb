@@ -9,7 +9,7 @@ from ngsdbview.models import *
 from django.contrib.admin.widgets import FilteredSelectMultiple
 from django.contrib.auth.models import User
 
-from  ngsdbview.viewtools import *
+from ngsdbview.viewtools import *
 
 import math
 

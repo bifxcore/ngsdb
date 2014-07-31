@@ -27,14 +27,14 @@
         <strong>{% filter force_escape %}{% firstof user.first_name user.username %}{% endfilter %}</strong>.
             {%if user.username != 'guest' %}
             {% if password_change_url %}
-                <a href="{{ password_change_url }}">
+                <a href="{{ password_change_url }}"></a>
             {% else %}
                 <a href="{{ root_path }}password_change/">
             {% endif %}
                 {% trans 'Change password' %}</a> /
                 	{% url 'admin:logout' as logout_url %}
                 	{% if logout_url %}
-                    		<a href="{{ logout_url }}">
+                    		<a href="{{ logout_url }}"></a>
                 	{% else %}
                     		<a href="{{ root_path }}logout/">
                 	{% endif %}
@@ -45,7 +45,7 @@
 
         <!-- contact/about us -->
         <div id="general-links">
-            <a href="/">{% trans 'Home' %}<B>|</B>
+            <a href="/">{% trans 'Home' %}</a><B>|</B>
             <a href="/ngsdbview/aboutus">About Us</a><B>|</B>
             <a href="/ngsdbview/contact">Contact Us</a><B>|</B>
             <a href="https://jira.sbri.org/browse/NGS-279">Log Issues</a>
