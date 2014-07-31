@@ -3,6 +3,8 @@
 {% load snp_filters %}
 {% load display_rows %}
 {% load staticfiles %}
+<link rel="stylesheet" type="text/css" href="/media/css/style.css" >
+<link rel="stylesheet" type="text/css" href="/media/css/tabstyle.css" >
 
 <link href="https://posonline.googlecode.com/files/jquery-ui-1.8.18.custom.css" rel="stylesheet" type="text/css" media="screen" />
 <link href="/static/grappelli/stylesheets/screen.css" rel="stylesheet" type="text/css" media="screen" />
@@ -222,6 +224,7 @@
                         <li class="dropdown-submenu">
                             <a href="/samples/librarylist/">List All</a>
                             <ul id="listtables" class="dropdown-menu" role="menu">
+                                <li role="presentation" id="dashboard"><a role="menuitem" href="/snpdb/">Dashboard</a></li>
                                 <li role="presentation" id="snpview"><a role="menuitem" href="/snpdb/snp">SNP</a></li>
                                 <li role="presentation" id="snptype"><a role="menuitem" href="/snpdb/snptype">SNP Type</a></li>
                                 <li role="presentation" id="statistics"><a role="menuitem" href="/snpdb/statistics">Statistics</a></li>
@@ -308,45 +311,198 @@
     </div>
 
     <div class="container-fluid">
-        <div class="col-md-4">
-            <table class="table table-condensed table-hover" style="table-layout: fixed; word-wrap: break-word;">
-                <thead>
-                <tr>
-                    <th class="col-md-2 text-center"><a href={{ filter_urls.library__librarycode }}>Library Code</a></th>
-                    <th class="col-md-2 text-center"><a href={{ filter_urls.result_id }}>SNP Count</a></th>
-                </tr>
-                </thead>
-                <tbody>
-                    {% for each in lib_count %}
-                        <td class="text-center">{{ each.library__librarycode}}</td>
-                        <td class="text-center">{{ each.snp_id__count}}</td>
-                </tr>
-                {% endfor %}
-                <td class="text-center" style="font-size:14px"><strong>Total</strong></td>
-                <td class="text-center" style="vertical-align: middle">{{ lib_snp_total }}</td>
-                </tbody>
-            </table>
-            <img src="{{ snps_by_library }}" class="image-responsive center-block"/>
+        <div class="row">
+            <div class="col-md-5">
+                <div class="panel panel-primary" style="border-color: #616770;">
+                    <div class="panel-heading" style="background-color: #616770; border-color:#616770">
+                        <h3 class="panel-title">SNPs by Library</h3>
+                    </div>
+                    <div class="panel-body">
+                        <table class="table table-condensed table-hover" style="table-layout: fixed; word-wrap: break-word;">
+                            <thead>
+                            <tr>
+                                <th class="col-md-2 text-center"><a href={{ filter_urls.library__librarycode }}>Library Code</a></th>
+                                <th class="col-md-2 text-center"><a href={{ filter_urls.result_id }}>SNP Count</a></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                                {% for each in lib_count %}
+                                    <td class="text-center">{{ each.library__librarycode}}</td>
+                                    <td class="text-center">{{ each.snp_id__count}}</td>
+                            </tr>
+                                {% endfor %}
+                            <td class="text-center" style="font-size:14px"><strong>Total</strong></td>
+                            <td class="text-center" style="vertical-align: middle">{{ totals.0 }}</td>
+                            </tbody>
+                        </table>
+                        <img src="{{ images.0 }}" class="image-responsive center-block"/>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-5">
+                <div class="panel panel-primary" style="border-color: #616770;">
+                    <div class="panel-heading" style="background-color: #616770; border-color:#616770">
+                        <h3 class="panel-title">SNPs by Organism</h3>
+                    </div>
+                    <div class="panel-body">
+                        <table class="table table-condensed table-hover" style="table-layout: fixed; word-wrap: break-word;">
+                            <thead>
+                            <tr>
+                                <th class="col-md-2 text-center"><a href={{ filter_urls.library__organism__organismcode }}>Organism</a></th>
+                                <th class="col-md-2 text-center"><a href={{ filter_urls.result_id }}>SNP Count</a></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                                {% for each in org_count %}
+                                    <td class="text-center">{{ each.library__organism__organismcode}}</td>
+                                    <td class="text-center">{{ each.snp_id__count}}</td>
+                            </tr>
+                                {% endfor %}
+                            <td class="text-center" style="font-size:14px"><strong>Total</strong></td>
+                            <td class="text-center" style="vertical-align: middle">{{ totals.1 }}</td>
+                            </tbody>
+                        </table>
+                        <img src="{{ images.1 }}" class="image-responsive center-block"/>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-5">
+                <div class="panel panel-primary" style="border-color: #616770;">
+                    <div class="panel-heading" style="background-color: #616770; border-color:#616770">
+                        <h3 class="panel-title">SNPs by Moderate Impact</h3>
+                    </div>
+                    <div class="panel-body">
+                        <table class="table table-condensed table-hover" style="table-layout: fixed; word-wrap: break-word;">
+                            <thead>
+                            <tr>
+                                <th class="col-md-2 text-center"><a href={{ filter_urls.library__organism__organismcode }}>Organism</a></th>
+                                <th class="col-md-2 text-center"><a href={{ filter_urls.result_id }}>SNP Count</a></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                                {% for each in moderate_count %}
+                                    <td class="text-center">{{ each.effect_class}}</td>
+                                    <td class="text-center">{{ each.snp__count}}</td>
+                            </tr>
+                                {% endfor %}
+                            <td class="text-center" style="font-size:14px"><strong>Total</strong></td>
+                            <td class="text-center" style="vertical-align: middle">{{ totals.5 }}</td>
+                            </tbody>
+                        </table>
+                        <img src="{{ images.5 }}" class="image-responsive center-block"/>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="col-md-4">
-            <table class="table table-condensed table-hover" style="table-layout: fixed; word-wrap: break-word;">
-                <thead>
-                <tr>
-                    <th class="col-md-2 text-center"><a href={{ filter_urls.library__organism__organismcode }}>Organism</a></th>
-                    <th class="col-md-2 text-center"><a href={{ filter_urls.result_id }}>SNP Count</a></th>
-                </tr>
-                </thead>
-                <tbody>
-                    {% for each in org_count %}
-                        <td class="text-center">{{ each.library__organism__organismcode}}</td>
-                        <td class="text-center">{{ each.snp_id__count}}</td>
-                </tr>
-                {% endfor %}
-                <td class="text-center" style="font-size:14px"><strong>Total</strong></td>
-                <td class="text-center" style="vertical-align: middle">{{ org_snp_total }}</td>
-                </tbody>
-            </table>
-            <img src="{{ snps_by_organism }}" class="image-responsive center-block"/>
+        <div class="row">
+            <div class="col-md-5" style="padding-top: 30px">
+                <div class="panel panel-primary" style="border-color: #616770;">
+                    <div class="panel-heading" style="background-color: #616770; border-color:#616770">
+                        <h3 class="panel-title">SNPs by Impact</h3>
+                    </div>
+                    <div class="panel-body">
+                        <table class="table table-condensed table-hover" style="table-layout: fixed; word-wrap: break-word;">
+                            <thead>
+                            <tr>
+                                <th class="col-md-2 text-center"><a href={{ filter_urls.effect_string }}>Impact</a></th>
+                                <th class="col-md-2 text-center"><a href={{ filter_urls.snp__count }}>SNP Count</a></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                                {% for each in impact_count %}
+                                    <td class="text-center">{{ each.effect_string}}</td>
+                                    <td class="text-center">{{ each.snp__count}}</td>
+                            </tr>
+                                {% endfor %}
+                            <td class="text-center" style="font-size:14px"><strong>Total</strong></td>
+                            <td class="text-center" style="vertical-align: middle">{{ totals.2 }}</td>
+                            </tbody>
+                        </table>
+                        <img src="{{ images.2 }}" class="image-responsive center-block"/>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-5" style="padding-top: 30px">
+                <div class="panel panel-primary" style="border-color: #616770;">
+                    <div class="panel-heading" style="background-color: #616770; border-color:#616770">
+                        <h3 class="panel-title">SNPs by High Impact</h3>
+                    </div>
+                    <div class="panel-body">
+                        <table class="table table-condensed table-hover" style="table-layout: fixed; word-wrap: break-word;">
+                            <thead>
+                            <tr>
+                                <th class="col-md-2 text-center"><a href={{ filter_urls.effect_string }}>Impact Effect</a></th>
+                                <th class="col-md-2 text-center"><a href={{ filter_urls.snp__count }}>SNP Count</a></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                                {% for each in high_count %}
+                                    <td class="text-center">{{ each.effect_class}}</td>
+                                    <td class="text-center">{{ each.snp__count}}</td>
+                            </tr>
+                                {% endfor %}
+                            <td class="text-center" style="font-size:14px"><strong>Total</strong></td>
+                            <td class="text-center" style="vertical-align: middle">{{ totals.3 }}</td>
+                            </tbody>
+                        </table>
+                        <img src="{{ images.3 }}" class="image-responsive center-block"/>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-5" style="padding-top: 30px">
+                <div class="panel panel-primary" style="border-color: #616770;">
+                    <div class="panel-heading" style="background-color: #616770; border-color:#616770">
+                        <h3 class="panel-title">SNPs by Low Impact</h3>
+                    </div>
+                    <div class="panel-body">
+                        <table class="table table-condensed table-hover" style="table-layout: fixed; word-wrap: break-word;">
+                            <thead>
+                            <tr>
+                                <th class="col-md-2 text-center"><a href={{ filter_urls.effect_string }}>Impact Effect</a></th>
+                                <th class="col-md-2 text-center"><a href={{ filter_urls.snp__count }}>SNP Count</a></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                                {% for each in low_count %}
+                                    <td class="text-center">{{ each.effect_class}}</td>
+                                    <td class="text-center">{{ each.snp__count}}</td>
+                            </tr>
+                                {% endfor %}
+                            <td class="text-center" style="font-size:14px"><strong>Total</strong></td>
+                            <td class="text-center" style="vertical-align: middle">{{ totals.4 }}</td>
+                            </tbody>
+                        </table>
+                        <img src="{{ images.4 }}" class="image-responsive center-block"/>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-5" style="padding-top: 30px">
+                <div class="panel panel-primary" style="border-color: #616770;">
+                    <div class="panel-heading" style="background-color: #616770; border-color:#616770">
+                        <h3 class="panel-title">SNPs by Modifier Impact</h3>
+                    </div>
+                    <div class="panel-body">
+                        <table class="table table-condensed table-hover" style="table-layout: fixed; word-wrap: break-word;">
+                            <thead>
+                            <tr>
+                                <th class="col-md-2 text-center"><a href={{ filter_urls.effect_string }}>Impact Effect</a></th>
+                                <th class="col-md-2 text-center"><a href={{ filter_urls.snp__count }}>SNP Count</a></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                                {% for each in modifier_count %}
+                                    <td class="text-center">{{ each.effect_class}}</td>
+                                    <td class="text-center">{{ each.snp__count}}</td>
+                            </tr>
+                                {% endfor %}
+                            <td class="text-center" style="font-size:14px"><strong>Total</strong></td>
+                            <td class="text-center" style="vertical-align: middle">{{ totals.5 }}</td>
+                            </tbody>
+                        </table>
+                        <img src="{{ images.5 }}" class="image-responsive center-block"/>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
