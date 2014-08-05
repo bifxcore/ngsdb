@@ -7,16 +7,25 @@ from django_boolean_sum import BooleanSum
 from templatetags.snp_filters import *
 from django.template import RequestContext
 from GChartWrapper import *
+from collections import *
+import subprocess
 
+low_effects = ["SYNONYMOUS_START", "NON_SYNONYMOUS_START", "START_GAINED", "SYNONYMOUS_CODING", "SYNONYMOUS_STOP"]
+high_effects = ["SPLICE_SITE_ACCEPTOR", "SPLICE_SITE_DONOR", "START_LOST", "EXON_DELETED", "FRAME_SHIFT", "STOP_GAINED", "STOP_LOST", "RARE_AMINO_ACI"]
+moderate_effects = ["NON_SYNONYMOUS_CODING", "CODON_CHANGE", "CODON_INSERTION", "CODON_CHANGE_PLUS_CODON_INSERTION",
+                    "CODON_DELETION", "CODON_CHANGE_PLUS_CODON_DELETION", "UTR_5_DELETED", "UTR_3_DELETED"]
+modifier_effects = ["UTR_5_PRIME", "UTR_3_PRIME", "REGULATION", "UPSTREAM", "DOWNSTREAM", "GENE", "TRANSCRIPT", "EXON",
+                    "INTRON_CONSERVED", "INTRON", "INTRAGENIC", "INTERGENIC", "INTERGENIC_CONSERVED", "NONE", "CHROMOSOME", "CUSTOM", "CDS"]
 
 def dashboard(request):
+	print "Here!"
 	title = "SNP Dashboard"
 	lib_count = SNP.objects.values("library__librarycode").distinct().annotate(Count('snp_id'))
 	lib_snps = []
 	lib_labels = []
 	lib_legend = []
 	lib_snp_total = 0
-	for each in lib_count:
+	for each in lib_count.iterator():
 		lib_snps.append(each['snp_id__count'])
 		lib_snp_total += each['snp_id__count']
 		lib_legend.append(each['library__librarycode'])
@@ -26,12 +35,14 @@ def dashboard(request):
 	snps_by_library = Pie([lib_labels]).label(*lib_labels).legend(*lib_legend).color("919dab", "D2E3F7",
 	                                                                                 "658CB9", "88BBF7",
 	                                                                                 "666E78").size(450,200)
+	print "Graph1"
+
 	org_count = SNP.objects.values("library__organism__organismcode").distinct().annotate(Count('snp_id'))
 	org_snps = []
 	org_labels = []
 	org_legend = []
 	org_snp_total = 0
-	for each in org_count:
+	for each in org_count.iterator():
 		org_snps.append(each['snp_id__count'])
 		org_snp_total += each['snp_id__count']
 		org_legend.append(each['library__organism__organismcode'])
@@ -41,99 +52,88 @@ def dashboard(request):
 	snps_by_organism = Pie(org_labels).label(*org_labels).legend(*org_legend).color("919dab", "D2E3F7",
 	                                                                                "658CB9", "88BBF7",
 	                                                                                "666E78").size(450,200)
-	high_count = Effect.objects.values("effect_class").filter(effect_id=1, effect_string="HIGH").distinct().annotate(Count('snp'))
-	high_snp = []
+	print "Graph2"
+	high = Effect.objects.values_list("effect_class", flat=True).filter(effect_id=1, effect_string="HIGH")
+	high_count = defaultdict(int)
+	for i in high:
+		high_count[i] += 1
 	high_labels = []
-	high_legend = []
-	high_snp_total = 0
-	for each in high_count:
-		high_snp.append(each['snp__count'])
-		high_snp_total += each['snp__count']
-		high_legend.append(each['effect_class'])
-	for x in high_snp:
+	high_snp_total = sum(high_count.values())
+	for x in high_count.values():
 		percentage = float(x)/float(high_snp_total)*100
 		high_labels.append(round(percentage,2))
-	snps_by_high_impact = Pie(high_labels).label(*high_labels).legend(*high_legend).color("919dab", "D2E3F7",
-	                                                                                      "658CB9", "88BBF7",
-	                                                                                      "666E78").size(450,200)
-	impact_count = Effect.objects.values("effect_string").filter(effect_id=1).distinct().annotate(Count('snp'))
-	impact_snp = []
+	snps_by_high_impact = Pie(high_labels).label(*high_labels).legend(*high_count.keys()).color("919dab", "D2E3F7",
+	                                                                                            "658CB9", "88BBF7",
+	                                                                                            "666E78").size(450,200)
+	print "Graph3"
+	impact = Effect.objects.values_list("effect_string", flat=True).filter(effect_id=1)
+	impact_count = defaultdict(int)
+	for i in impact:
+		impact_count[i] += 1
 	impact_labels = []
-	impact_legend = []
-	impact_snp_total = 0
-	for each in impact_count:
-		impact_snp.append(each['snp__count'])
-		impact_snp_total += each['snp__count']
-		impact_legend.append(each['effect_string'])
-	for x in impact_snp:
+	impact_snp_total = sum(impact_count.values())
+	for x in impact_count.values():
 		percentage = float(x)/float(impact_snp_total)*100
 		impact_labels.append(round(percentage,2))
-	snps_by_impact = Pie(impact_labels).label(*impact_labels).legend(*impact_legend).color("919dab", "D2E3F7",
-	                                                                                       "658CB9", "88BBF7",
-	                                                                                       "666E78").size(450,200)
-	low_count = Effect.objects.values("effect_class").filter(effect_id=1, effect_string="LOW").distinct().annotate(Count('snp'))
-	low_snp = []
+	snps_by_impact = Pie(impact_labels).label(*impact_labels).legend(*impact_count.keys()).color("919dab", "D2E3F7",
+	                                                                                             "658CB9", "88BBF7",
+	                                                                                             "666E78").size(450,200)
+
+	print "Graph4"
+	low = Effect.objects.values_list("effect_class", flat=True).filter(effect_id=1, effect_string="LOW")
+	low_count = defaultdict(int)
+	for i in low:
+		low_count[i] += 1
 	low_labels = []
-	low_legend = []
-	low_snp_total = 0
-	for each in low_count:
-		low_snp.append(each['snp__count'])
-		low_snp_total += each['snp__count']
-		low_legend.append(each['effect_class'])
-	for x in low_snp:
+	low_snp_total = sum(low_count.values())
+	for x in impact_count.values():
 		percentage = float(x)/float(low_snp_total)*100
 		low_labels.append(round(percentage,2))
-	snps_by_low = Pie(low_labels).label(*low_labels).legend(*low_legend).color("919dab", "D2E3F7",
-	                                                                           "658CB9", "88BBF7",
-	                                                                           "666E78").size(450,200)	
-	moderate_count = Effect.objects.values("effect_class").filter(effect_id=1, effect_string="MODERATE").distinct().annotate(Count('snp'))
-	moderate_snp = []
+	snps_by_low = Pie(low_labels).label(*low_labels).legend(*impact_count.keys()).color("919dab", "D2E3F7",
+	                                                                                    "658CB9", "88BBF7",
+	                                                                                    "666E78").size(450,200)
+	print "Graph5"
+	moderate = Effect.objects.values_list("effect_class", flat=True).filter(effect_id=1, effect_string="MODERATE")
+	moderate_count= defaultdict(int)
+	for i in moderate:
+		moderate_count[i] += 1
 	moderate_labels = []
-	moderate_legend = []
-	moderate_snp_total = 0
-	for each in moderate_count:
-		moderate_snp.append(each['snp__count'])
-		moderate_snp_total += each['snp__count']
-		moderate_legend.append(each['effect_class'])
-	for x in moderate_snp:
+	moderate_snp_total = sum(moderate_count.values())
+	for x in moderate_count.values():
 		percentage = float(x)/float(moderate_snp_total)*100
 		moderate_labels.append(round(percentage,2))
-	snps_by_moderate = Pie(moderate_labels).label(*moderate_labels).legend(*moderate_legend).color("919dab", "D2E3F7",
-	                                                                           "658CB9", "88BBF7",
-	                                                                           "666E78").size(450,200)
-	modifier_count = Effect.objects.values("effect_class").filter(effect_id=1, effect_string="MODIFIER").distinct().annotate(Count('snp'))
-	modifier_snp = []
+	snps_by_moderate = Pie(moderate_labels).label(*moderate_labels).legend(*moderate_count.keys()).color("919dab", "D2E3F7",
+	                                                                                                     "658CB9", "88BBF7",
+	                                                                                                     "666E78").size(550,200)
+	print "Graph6"
+	modifier = Effect.objects.values_list("effect_class", flat=True).filter(effect_id=1, effect_string="MODIFIER")
+	modifier_count = defaultdict(int)
+	for i in modifier:
+		modifier_count[i] += 1
 	modifier_labels = []
-	modifier_legend = []
-	modifier_snp_total = 0
-	for each in modifier_count:
-		modifier_snp.append(each['snp__count'])
-		modifier_snp_total += each['snp__count']
-		modifier_legend.append(each['effect_class'])
-	for x in modifier_snp:
+	modifier_snp_total = sum(modifier_count.values())
+	for x in modifier_count.values():
 		percentage = float(x)/float(modifier_snp_total)*100
 		modifier_labels.append(round(percentage,2))
-	snps_by_modifier = Pie(modifier_labels).label(*modifier_labels).legend(*modifier_legend).color("919dab", "D2E3F7",
-	                                                                           "658CB9", "88BBF7",
-	                                                                           "666E78").size(450,200)
-
+	snps_by_modifier = Pie(modifier_labels).label(*modifier_labels).legend(*modifier_count.keys()).color("919dab", "D2E3F7",
+	                                                                                                     "658CB9", "88BBF7",
+	                                                                                                     "666E78").size(450,200)
 
 	totals = [lib_snp_total, org_snp_total, impact_snp_total, high_snp_total, low_snp_total, moderate_snp_total, modifier_snp_total]
 	images = [snps_by_library, snps_by_organism, snps_by_impact, snps_by_high_impact, snps_by_low, snps_by_moderate, snps_by_modifier]
 	print "made it here"
-	print impact_count, org_count, impact_count, high_count, low_count, moderate_count, modifier_count
+	print type(moderate_count)
 	return render_to_response('snpdb/dashboard.html', {"images": images,
 	                                                   "title": title,
 	                                                   "totals": totals,
 	                                                   "lib_count": lib_count,
 	                                                   "org_count": org_count,
-	                                                   "impact_count": impact_count,
-	                                                   "high_count": high_count,
-	                                                   "low_count": low_count,
-	                                                   "moderate_count": moderate_count,
-	                                                   "modifier_count": modifier_count,
+	                                                   "impact_count": dict(impact_count),
+	                                                   "high_count": dict(high_count),
+	                                                   "low_count": dict(low_count),
+	                                                   "moderate_count": dict(moderate_count),
+	                                                   "modifier_count": dict(modifier_count),
 	                                                   })
-
 
 
 def effect(request):
@@ -569,7 +569,6 @@ def compare_gene_lib_filter_results_effect(request):
 # Returns the list of genes found within the selected libraries.
 # todo need to change view so that all library snps align. Look at gene LdBPK_292260.1 as an example (across all libs).
 # todo need to change so that it references effect table rather than feature table
-# todo need to change so that vcftools are used for comparison.
 def compare_gene_lib_filter_results(request):
 	order_by = request.GET.get('order_by', 'library__librarycode')
 	gene = request.GET.get('s')
@@ -1239,35 +1238,56 @@ def compare_two_libraries(request):
 	                                                               "toolbar_min": toolbar_min})
 
 
+#todo change so analysis is done through vcftools
 def difference_two_libraries(request):
 	library1 = request.GET.get('lib1')
 	library2 = request.GET.get('lib2')
 
-	snp2 = SNP.objects.filter(library__librarycode=library2).values_list('snp_position',
-	                                                                     'chromosome__chromosome_name')
-	snp1 = SNP.objects.filter(library__librarycode=library1).values_list('snp_position',
-	                                                                     'chromosome__chromosome_name')
-	difference = set(snp1).difference(set(snp2))
-	snps = []
-	for x in difference:
-		keys = ['snp_position', 'chromosome__chromosome_name']
-		snps.append(dict(zip(keys, x)))
+	test = subprocess.check_call(["""bcftools isec /Users/mcobb/ngsdb/NeedUpload/%s_gatk.snpEff.vcf.gz /Users/mcobb/ngsdb/NeedUpload/%s_gatk.snpEff.vcf.gz -p /Users/mcobb/ngsdb/vcftools/bcftools_isec_snpEff_%s_%s""" % (library1, library2, library1, library2)],
+	                             shell=True)
 
-	snp_ids = []
-	for each in snps:
-		ids = SNP.objects.values_list('snp_id', flat=True).filter(library__librarycode=library1, snp_position=each['snp_position'],
-		                                                          chromosome__chromosome_name=each['chromosome__chromosome_name'])
-		snp_ids.append(ids)
-	snp_id = [x for sublist in snp_ids for x in sublist]
+	cmd = """cat /Users/mcobb/ngsdb/vcftools/bcftools_isec_snpEff_%s_%s/0000.vcf | cut -f 8 | tr ";" "\n" | grep ^EFF= | cut -f 2 -d = | tr "," "\n" | grep %s | wc -l"""
+	modifier = subprocess.Popen(cmd % (library1, library2, "MODIFIER"), shell=True, stdout=subprocess.PIPE)
+	moderate = subprocess.Popen(cmd % (library1, library2, "MODERATE"), shell=True, stdout=subprocess.PIPE)
+	high = subprocess.Popen(cmd % (library1, library2, "HIGH"), shell=True, stdout=subprocess.PIPE)
+	low = subprocess.Popen(cmd % (library1, library2, "LOW"), shell=True, stdout=subprocess.PIPE)
+	total = subprocess.Popen("""grep ^[^#] /Users/mcobb/ngsdb/vcftools/bcftools_isec_snpEff_%s_%s/0000.vcf | wc -l""" % (library1, library2), shell=True, stdout=subprocess.PIPE)
+	counts = [high.communicate()[0].strip(), moderate.communicate()[0].strip(), low.communicate()[0].strip(), modifier.communicate()[0].strip(), total.communicate()[0].strip()]
 
-	snp_impact = Effect.objects.filter(snp__in=snp_id, effect=1).values('effect_string').annotate(snp_count=Count('snp')).order_by('effect_string')
-	effects = Effect.objects.filter(snp__in=snp_id, effect=1).values('effect', 'effect_class',
-	                                                                 'effect_string').annotate(effect_count=Count('snp')).order_by('effect_class')
-	print "got modifier"
-	return render_to_response('snpdb/impact_snps.html', {"effects": effects,
-	                                                     "snp_impact": snp_impact,
+
+	low_counts = defaultdict(int)
+	high_counts = defaultdict(int)
+	moderate_counts = defaultdict(int)
+	modifier_counts = defaultdict(int)
+	for each in low_effects:
+		count_effect_cmd = """cat /Users/mcobb/ngsdb/vcftools/bcftools_isec_snpEff_%s_%s/0000.vcf | cut -f 8 | tr ";" "\n" | grep ^EFF= | cut -f 2 -d = | tr "," "\n" | grep %s | wc -l"""
+		count_effect = subprocess.Popen(count_effect_cmd % (library1, library2, each), shell=True, stdout=subprocess.PIPE)
+		count = count_effect.communicate()[0]
+		low_counts[each] = count.strip()
+	for each in moderate_effects:
+		count_effect_cmd = """cat /Users/mcobb/ngsdb/vcftools/bcftools_isec_snpEff_%s_%s/0000.vcf | cut -f 8 | tr ";" "\n" | grep ^EFF= | cut -f 2 -d = | tr "," "\n" | grep %s | wc -l"""
+		count_effect = subprocess.Popen(count_effect_cmd % (library1, library2, each), shell=True, stdout=subprocess.PIPE)
+		count = count_effect.communicate()[0]
+		moderate_counts[each] = count.strip()
+	for each in modifier_effects:
+		count_effect_cmd = """cat /Users/mcobb/ngsdb/vcftools/bcftools_isec_snpEff_%s_%s/0000.vcf | cut -f 8 | tr ";" "\n" | grep ^EFF= | cut -f 2 -d = | tr "," "\n" | grep %s | wc -l"""
+		count_effect = subprocess.Popen(count_effect_cmd % (library1, library2, each), shell=True, stdout=subprocess.PIPE)
+		count = count_effect.communicate()[0]
+		modifier_counts[each] = count.strip()
+	for each in high_effects:
+		count_effect_cmd = """cat /Users/mcobb/ngsdb/vcftools/bcftools_isec_snpEff_%s_%s/0000.vcf | cut -f 8 | tr ";" "\n" | grep ^EFF= | cut -f 2 -d = | tr "," "\n" | grep %s | wc -l"""
+		count_effect = subprocess.Popen(count_effect_cmd % (library1, library2, each), shell=True, stdout=subprocess.PIPE)
+		count = count_effect.communicate()[0]
+		high_counts[each] = count.strip()
+	return render_to_response('snpdb/impact_snps.html', {"counts": counts,
+	                                                     "low_counts": dict(low_counts),
+	                                                     "high_counts": dict(high_counts),
+	                                                     "moderate_counts": dict(moderate_counts),
+	                                                     "modifier_counts": dict(modifier_counts),
+	                                                     # "snp_impact": snp_impact,
 	                                                     "library1": library1,
 	                                                     "library2": library2})
+
 
 
 def impact_snps(request):

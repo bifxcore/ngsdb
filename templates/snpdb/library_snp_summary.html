@@ -38,35 +38,35 @@
 </body>
 
 <div class="container-fluid">
-   <table class="table table-condensed table-hover table-responsive table-bordered" name="library_comparison" style="table-layout: fixed; word-wrap: break-word;">
+   <table class="table table-condensed table-hover table-responsive table-bordered" name="library_comparison" style="table-layout: fixed; width:100%">
     <thead>
     <tr>
-        <th class="text-center"><a href={{ filter_urls.library__library_id }}>Library ID</a></th>
-        <th class="text-center"><a href={{ filter_urls.library__librarycode }}>Library Code</a></th>
-        <th class="text-center"><a href={{ filter_urls.num_snps }}>SNP Total</a></th>
-        <th class="text-center"><a href={{ filter_urls.hetero }}>Heterozygosity Count</a></th>
-        <th class="text-center"><a href={{ filter_urls.homo }}>Homozygous Count</a></th>
-        <th class="text-center"><a href={{ filter_urls.indel }}>Indel Count</a></th>
-        <th class="text-center"><a href={{ filter_urls.trans }}>Transition Count</a></th>
-        <th class="text-center"><a href={{ filter_urls.transversion }}>Transversion Count</a></th>
-        <th class="text-center"><a href={{ filter_urls.snp_density }}>Snp Density</a></th>
+        <th class="text-center" style="word-wrap: break-word"><a href={{ filter_urls.library__library_id }}>Library ID</a></th>
+        <th class="text-center" style="word-wrap: break-word"><a href={{ filter_urls.library__librarycode }}>Library Code</a></th>
+        <th class="text-center" style="word-wrap: break-word"><a href={{ filter_urls.num_snps }}>SNP Total</a></th>
+        <th class="text-center" style="word-wrap: break-word"><a href={{ filter_urls.hetero }}>Heterozygosity Count</a></th>
+        <th class="text-center" style="word-wrap: break-word"><a href={{ filter_urls.homo }}>Homozygous Count</a></th>
+        <th class="text-center" style="word-wrap: break-word"><a href={{ filter_urls.indel }}>Indel Count</a></th>
+        <th class="text-center" style="word-wrap: break-word"><a href={{ filter_urls.trans }}>Transition Count</a></th>
+        <th class="text-center" style="word-wrap: break-word"><a href={{ filter_urls.transversion }}>Transversion Count</a></th>
+        <th class="text-center" style="word-wrap: break-word"><a href={{ filter_urls.snp_density }}>Snp Density</a></th>
     </tr>
     </thead>
     <tbody>
     <tr>
     {% for each in results %}
-        <td class="text-center"><a href="/snpdb/library-snp-summary/search?lib={{each.library__librarycode}}&count={{each.num_snps}}">{{ each.library_id }}</a></td>
-        <td class="text-center">{{ each.library__librarycode }}</td>
-        <td class="text-center">{{ each.num_snps }}</td>
-        <td class="text-center">{{ each.hetero }}</td>
-        <td class="text-center">{{ each.num_snps|sub:each.hetero }}</td>
-        <td class="text-center">{{ each.indel }}</td>
-        <td class="text-center">{{ each.trans }}</td>
-        <td class="text-center">{{ each.num_snps|sub:each.trans }}</td>
+        <td class="text-center" style="word-wrap: break-word"><a href="/snpdb/library-snp-summary/search?lib={{each.library__librarycode}}&count={{each.num_snps}}">{{ each.library_id }}</a></td>
+        <td class="text-center" style="word-wrap: break-word">{{ each.library__librarycode }}</td>
+        <td class="text-center" style="word-wrap: break-word">{{ each.num_snps }}</td>
+        <td class="text-center" style="word-wrap: break-word">{{ each.hetero }}</td>
+        <td class="text-center" style="word-wrap: break-word">{{ each.num_snps|sub:each.hetero }}</td>
+        <td class="text-center" style="word-wrap: break-word">{{ each.indel }}</td>
+        <td class="text-center" style="word-wrap: break-word">{{ each.trans }}</td>
+        <td class="text-center" style="word-wrap: break-word">{{ each.num_snps|sub:each.trans }}</td>
         {% if each.library__librarysize > 0 %}
-            <td class="text-center">{{ each.num_snps|div:each.library__librarysize }}</td>
+            <td class="text-center" style="word-wrap: break-word">{{ each.num_snps|div:each.library__librarysize|floatformat:-4 }}</td>
         {% else %}
-            <td class="text-center">Library is missing size</td>
+            <td class="text-center" style="word-wrap: break-word">Library is missing size</td>
         {% endif %}
     </tr>
     {% endfor %}

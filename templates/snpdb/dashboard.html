@@ -312,7 +312,7 @@
 
     <div class="container-fluid">
         <div class="row">
-            <div class="col-md-5">
+            <div class="col-md-6">
                 <div class="panel panel-primary" style="border-color: #616770;">
                     <div class="panel-heading" style="background-color: #616770; border-color:#616770">
                         <h3 class="panel-title">SNPs by Library</h3>
@@ -321,8 +321,8 @@
                         <table class="table table-condensed table-hover" style="table-layout: fixed; word-wrap: break-word;">
                             <thead>
                             <tr>
-                                <th class="col-md-2 text-center"><a href={{ filter_urls.library__librarycode }}>Library Code</a></th>
-                                <th class="col-md-2 text-center"><a href={{ filter_urls.result_id }}>SNP Count</a></th>
+                                <th class="col-md-1 text-center"><a href={{ filter_urls.library__librarycode }}>Library Code</a></th>
+                                <th class="col-md-1 text-center"><a href={{ filter_urls.result_id }}>SNP Count</a></th>
                             </tr>
                             </thead>
                             <tbody>
@@ -339,7 +339,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-5">
+            <div class="col-md-6">
                 <div class="panel panel-primary" style="border-color: #616770;">
                     <div class="panel-heading" style="background-color: #616770; border-color:#616770">
                         <h3 class="panel-title">SNPs by Organism</h3>
@@ -348,8 +348,8 @@
                         <table class="table table-condensed table-hover" style="table-layout: fixed; word-wrap: break-word;">
                             <thead>
                             <tr>
-                                <th class="col-md-2 text-center"><a href={{ filter_urls.library__organism__organismcode }}>Organism</a></th>
-                                <th class="col-md-2 text-center"><a href={{ filter_urls.result_id }}>SNP Count</a></th>
+                                <th class="col-md-1 text-center"><a href={{ filter_urls.library__organism__organismcode }}>Organism</a></th>
+                                <th class="col-md-1 text-center"><a href={{ filter_urls.result_id }}>SNP Count</a></th>
                             </tr>
                             </thead>
                             <tbody>
@@ -366,7 +366,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-5">
+            <div class="col-md-6">
                 <div class="panel panel-primary" style="border-color: #616770;">
                     <div class="panel-heading" style="background-color: #616770; border-color:#616770">
                         <h3 class="panel-title">SNPs by Moderate Impact</h3>
@@ -375,14 +375,14 @@
                         <table class="table table-condensed table-hover" style="table-layout: fixed; word-wrap: break-word;">
                             <thead>
                             <tr>
-                                <th class="col-md-2 text-center"><a href={{ filter_urls.library__organism__organismcode }}>Organism</a></th>
-                                <th class="col-md-2 text-center"><a href={{ filter_urls.result_id }}>SNP Count</a></th>
+                                <th class="col-md-1 text-center"><a href={{ filter_urls.library__organism__organismcode }}>Organism</a></th>
+                                <th class="col-md-1 text-center"><a href={{ filter_urls.result_id }}>SNP Count</a></th>
                             </tr>
                             </thead>
                             <tbody>
-                                {% for each in moderate_count %}
-                                    <td class="text-center">{{ each.effect_class}}</td>
-                                    <td class="text-center">{{ each.snp__count}}</td>
+                                {% for key, value in moderate_count.items %}
+                                    <td class="text-center">{{ key }}</td>
+                                    <td class="text-center">{{ value }}</td>
                             </tr>
                                 {% endfor %}
                             <td class="text-center" style="font-size:14px"><strong>Total</strong></td>
@@ -395,7 +395,7 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-md-5" style="padding-top: 30px">
+            <div class="col-md-6" style="padding-top: 30px">
                 <div class="panel panel-primary" style="border-color: #616770;">
                     <div class="panel-heading" style="background-color: #616770; border-color:#616770">
                         <h3 class="panel-title">SNPs by Impact</h3>
@@ -404,14 +404,14 @@
                         <table class="table table-condensed table-hover" style="table-layout: fixed; word-wrap: break-word;">
                             <thead>
                             <tr>
-                                <th class="col-md-2 text-center"><a href={{ filter_urls.effect_string }}>Impact</a></th>
-                                <th class="col-md-2 text-center"><a href={{ filter_urls.snp__count }}>SNP Count</a></th>
+                                <th class="col-md-1 text-center"><a href={{ filter_urls.effect_string }}>Impact</a></th>
+                                <th class="col-md-1 text-center"><a href={{ filter_urls.snp__count }}>SNP Count</a></th>
                             </tr>
                             </thead>
                             <tbody>
-                                {% for each in impact_count %}
-                                    <td class="text-center">{{ each.effect_string}}</td>
-                                    <td class="text-center">{{ each.snp__count}}</td>
+                                {% for key, value in impact_count.items %}
+                                    <td class="text-center">{{ key }}</td>
+                                    <td class="text-center">{{ value }}</td>
                             </tr>
                                 {% endfor %}
                             <td class="text-center" style="font-size:14px"><strong>Total</strong></td>
@@ -422,7 +422,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-5" style="padding-top: 30px">
+            <div class="col-md-6" style="padding-top: 30px">
                 <div class="panel panel-primary" style="border-color: #616770;">
                     <div class="panel-heading" style="background-color: #616770; border-color:#616770">
                         <h3 class="panel-title">SNPs by High Impact</h3>
@@ -431,14 +431,14 @@
                         <table class="table table-condensed table-hover" style="table-layout: fixed; word-wrap: break-word;">
                             <thead>
                             <tr>
-                                <th class="col-md-2 text-center"><a href={{ filter_urls.effect_string }}>Impact Effect</a></th>
-                                <th class="col-md-2 text-center"><a href={{ filter_urls.snp__count }}>SNP Count</a></th>
+                                <th class="col-md-1 text-center"><a href={{ filter_urls.effect_string }}>Impact Effect</a></th>
+                                <th class="col-md-1 text-center"><a href={{ filter_urls.snp__count }}>SNP Count</a></th>
                             </tr>
                             </thead>
                             <tbody>
-                                {% for each in high_count %}
-                                    <td class="text-center">{{ each.effect_class}}</td>
-                                    <td class="text-center">{{ each.snp__count}}</td>
+                                {% for key, value in high_count.items %}
+                                    <td class="text-center">{{ key }}</td>
+                                    <td class="text-center">{{ value }}</td>
                             </tr>
                                 {% endfor %}
                             <td class="text-center" style="font-size:14px"><strong>Total</strong></td>
@@ -449,7 +449,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-5" style="padding-top: 30px">
+            <div class="col-md-6" style="padding-top: 30px">
                 <div class="panel panel-primary" style="border-color: #616770;">
                     <div class="panel-heading" style="background-color: #616770; border-color:#616770">
                         <h3 class="panel-title">SNPs by Low Impact</h3>
@@ -458,14 +458,14 @@
                         <table class="table table-condensed table-hover" style="table-layout: fixed; word-wrap: break-word;">
                             <thead>
                             <tr>
-                                <th class="col-md-2 text-center"><a href={{ filter_urls.effect_string }}>Impact Effect</a></th>
-                                <th class="col-md-2 text-center"><a href={{ filter_urls.snp__count }}>SNP Count</a></th>
+                                <th class="col-md-1 text-center"><a href={{ filter_urls.effect_string }}>Impact Effect</a></th>
+                                <th class="col-md-1 text-center"><a href={{ filter_urls.snp__count }}>SNP Count</a></th>
                             </tr>
                             </thead>
                             <tbody>
-                                {% for each in low_count %}
-                                    <td class="text-center">{{ each.effect_class}}</td>
-                                    <td class="text-center">{{ each.snp__count}}</td>
+                                {% for key, value in low_count.items %}
+                                    <td class="text-center">{{ key }}</td>
+                                    <td class="text-center">{{ value }}</td>
                             </tr>
                                 {% endfor %}
                             <td class="text-center" style="font-size:14px"><strong>Total</strong></td>
@@ -476,7 +476,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-5" style="padding-top: 30px">
+            <div class="col-md-6" style="padding-top: 30px">
                 <div class="panel panel-primary" style="border-color: #616770;">
                     <div class="panel-heading" style="background-color: #616770; border-color:#616770">
                         <h3 class="panel-title">SNPs by Modifier Impact</h3>
@@ -485,21 +485,21 @@
                         <table class="table table-condensed table-hover" style="table-layout: fixed; word-wrap: break-word;">
                             <thead>
                             <tr>
-                                <th class="col-md-2 text-center"><a href={{ filter_urls.effect_string }}>Impact Effect</a></th>
-                                <th class="col-md-2 text-center"><a href={{ filter_urls.snp__count }}>SNP Count</a></th>
+                                <th class="col-md-1 text-center"><a href={{ filter_urls.effect_string }}>Impact Effect</a></th>
+                                <th class="col-md-1 text-center"><a href={{ filter_urls.snp__count }}>SNP Count</a></th>
                             </tr>
                             </thead>
                             <tbody>
-                                {% for each in modifier_count %}
-                                    <td class="text-center">{{ each.effect_class}}</td>
-                                    <td class="text-center">{{ each.snp__count}}</td>
+                                {% for key, value in modifier_count.items %}
+                                    <td class="text-center">{{ key }}</td>
+                                    <td class="text-center">{{ value }}</td>
                             </tr>
                                 {% endfor %}
                             <td class="text-center" style="font-size:14px"><strong>Total</strong></td>
-                            <td class="text-center" style="vertical-align: middle">{{ totals.5 }}</td>
+                            <td class="text-center" style="vertical-align: middle">{{ totals.6 }}</td>
                             </tbody>
                         </table>
-                        <img src="{{ images.5 }}" class="image-responsive center-block"/>
+                        <img src="{{ images.6 }}" class="image-responsive center-block"/>
                     </div>
                 </div>
             </div>

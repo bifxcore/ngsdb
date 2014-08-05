@@ -19,7 +19,7 @@
 <div class="container-fluid">
 	<div class="page-header text-header" style="padding-left:30px; margin-top:10px; padding-bottom:0px">
     	<h1 class="header" style="padding-bottom:0px;">Difference Between Libraries</h1>
-    	<h2 class="header" style="padding-top:5px">There are {{ count }} snps found in {{library1}} not found in {{library2}}.</h2>
+    	<h2 class="header" style="padding-top:5px">There are {{ counts.4 }} snps found in {{library1}} not found in {{library2}}.</h2>
 	</div>
 </div>
 
@@ -52,15 +52,9 @@
                 </div>
                 <div class="panel-body">
                     <ul class="list-group">
-                        {% for each in snp_impact %}
-                            {% if each.effect_string == "HIGH" %}
-                                <li class="list-group-item">Total: {{each.snp_count}}</li>
-                            {% endif %}
-                        {% endfor %}
-                        {% for each in effects %}
-                            {% if each.effect_string == "HIGH"%}
-                                <li class="list-group-item">{{each.effect_class|title}}: {{each.effect_count|title}}</li>
-                            {% endif %}
+                        <li class="list-group-item">Total: {{ counts.0 }}</li>
+                        {% for key, values in high_counts.items %}
+                            <li class="list-group-item">{{ key|title }}: {{ values }}</li>
                         {% endfor %}
                     </ul>
                 </div>
@@ -73,15 +67,9 @@
                 </div>
                 <div class="panel-body">
                     <ul class="list-group">
-                        {% for each in snp_impact %}
-                            {% if each.effect_string == "LOW" %}
-                                <li class="list-group-item">Total: {{each.snp_count}}</li>
-                            {% endif %}
-                        {% endfor %}
-                        {% for each in effects %}
-                            {% if each.effect_string == "LOW"%}
-                                <li class="list-group-item">{{each.effect_class|title}}: {{each.effect_count|title}}</li>
-                            {% endif %}
+                        <li class="list-group-item">Total: {{ counts.2 }}</li>
+                        {% for key, values in low_counts.items %}
+                            <li class="list-group-item">{{ key|title }}: {{ values }}</li>
                         {% endfor %}
                     </ul>
                 </div>
@@ -96,14 +84,10 @@
                 </div>
                 <div class="panel-body">
                     <ul class="list-group">
-                        {% for each in snp_impact %}
-                            {% if each.effect_string == "MODERATE" %}
-                                <li class="list-group-item">Total: {{each.snp_count}}</li>
-                            {% endif %}
-                        {% endfor %}
-                        {% for each in effects %}
-                            {% if each.effect_string == "MODERATE"%}
-                                <li class="list-group-item">{{each.effect_class|title}}: {{each.effect_count|title}}</li>
+                        <li class="list-group-item">Total: {{ counts.1 }}</li>
+                        {% for key, values in moderate_counts.items %}
+                            {% if values != 0 %}
+                                <li class="list-group-item">{{ key|title }}: {{ values }}</li>
                             {% endif %}
                         {% endfor %}
                     </ul>
@@ -117,15 +101,9 @@
                 </div>
                 <div class="panel-body">
                     <ul class="list-group">
-                        {% for each in snp_impact %}
-                            {% if each.effect_string == "MODIFIER" %}
-                                <li class="list-group-item">Total: {{each.snp_count}}</li>
-                            {% endif %}
-                        {% endfor %}
-                        {% for each in effects %}
-                            {% if each.effect_string == "MODIFIER"%}
-                                <li class="list-group-item">{{each.effect_class|title}}: {{each.effect_count|title}}</li>
-                            {% endif %}
+                        <li class="list-group-item">Total: {{ counts.3 }}</li>
+                        {% for key, values in modifier_counts.items %}
+                            <li class="list-group-item">{{ key|title }}: {{ values }}</li>
                         {% endfor %}
                     </ul>
                 </div>

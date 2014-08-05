@@ -1,0 +1,72 @@
+##fileformat=VCFv4.1
+##FILTER=<ID=PASS,Description="All filters passed">
+##FILTER=<ID=LowQual,Description="Low quality">
+##FORMAT=<ID=AD,Number=.,Type=Integer,Description="Allelic depths for the ref and alt alleles in the order listed">
+##FORMAT=<ID=DP,Number=1,Type=Integer,Description="Approximate read depth (reads with MQ=255 or with bad mates are filtered)">
+##FORMAT=<ID=GQ,Number=1,Type=Integer,Description="Genotype Quality">
+##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
+##FORMAT=<ID=PL,Number=G,Type=Integer,Description="Normalized, Phred-scaled likelihoods for genotypes as defined in the VCF specification">
+##INFO=<ID=AC,Number=A,Type=Integer,Description="Allele count in genotypes, for each ALT allele, in the same order as listed">
+##INFO=<ID=AF,Number=A,Type=Float,Description="Allele Frequency, for each ALT allele, in the same order as listed">
+##INFO=<ID=AN,Number=1,Type=Integer,Description="Total number of alleles in called genotypes">
+##INFO=<ID=BaseQRankSum,Number=1,Type=Float,Description="Z-score from Wilcoxon rank sum test of Alt Vs. Ref base qualities">
+##INFO=<ID=DP,Number=1,Type=Integer,Description="Approximate read depth; some reads may have been filtered">
+##INFO=<ID=DS,Number=0,Type=Flag,Description="Were any of the samples downsampled?">
+##INFO=<ID=Dels,Number=1,Type=Float,Description="Fraction of Reads Containing Spanning Deletions">
+##INFO=<ID=FS,Number=1,Type=Float,Description="Phred-scaled p-value using Fisher's exact test to detect strand bias">
+##INFO=<ID=HaplotypeScore,Number=1,Type=Float,Description="Consistency of the site with at most two segregating haplotypes">
+##INFO=<ID=InbreedingCoeff,Number=1,Type=Float,Description="Inbreeding coefficient as estimated from the genotype likelihoods per-sample when compared against the Hardy-Weinberg expectation">
+##INFO=<ID=MLEAC,Number=A,Type=Integer,Description="Maximum likelihood expectation (MLE) for the allele counts (not necessarily the same as the AC), for each ALT allele, in the same order as listed">
+##INFO=<ID=MLEAF,Number=A,Type=Float,Description="Maximum likelihood expectation (MLE) for the allele frequency (not necessarily the same as the AF), for each ALT allele, in the same order as listed">
+##INFO=<ID=MQ,Number=1,Type=Float,Description="RMS Mapping Quality">
+##INFO=<ID=MQ0,Number=1,Type=Integer,Description="Total Mapping Quality Zero Reads">
+##INFO=<ID=MQRankSum,Number=1,Type=Float,Description="Z-score From Wilcoxon rank sum test of Alt vs. Ref read mapping qualities">
+##INFO=<ID=QD,Number=1,Type=Float,Description="Variant Confidence/Quality by Depth">
+##INFO=<ID=RPA,Number=.,Type=Integer,Description="Number of times tandem repeat unit is repeated, for each allele (including reference)">
+##INFO=<ID=RU,Number=1,Type=String,Description="Tandem repeat unit (bases)">
+##INFO=<ID=ReadPosRankSum,Number=1,Type=Float,Description="Z-score from Wilcoxon rank sum test of Alt vs. Ref read position bias">
+##INFO=<ID=STR,Number=0,Type=Flag,Description="Variant is a short tandem repeat">
+##UnifiedGenotyper="analysis_type=UnifiedGenotyper input_file=[ES041_indelRealigned.bam] read_buffer_size=null phone_home=STANDARD gatk_key=null tag=NA read_filter=[] intervals=null excludeIntervals=null interval_set_rule=UNION interval_merging=ALL interval_padding=0 reference_sequence=/nearline/ngs/bowtie2_index/LdoB-TritrypV5p0.fasta nonDeterministicRandomSeed=false disableRandomization=false maxRuntime=-1 maxRuntimeUnits=MINUTES downsampling_type=BY_SAMPLE downsample_to_fraction=null downsample_to_coverage=350 use_legacy_downsampler=false baq=OFF baqGapOpenPenalty=40.0 fix_misencoded_quality_scores=false allow_potentially_misencoded_quality_scores=false performanceLog=null useOriginalQualities=false BQSR=null quantize_quals=0 disable_indel_quals=false emit_original_quals=false preserve_qscores_less_than=6 defaultBaseQualities=-1 validation_strictness=SILENT remove_program_records=false keep_program_records=false unsafe=null num_threads=1 num_cpu_threads_per_data_thread=1 num_io_threads=0 monitorThreadEfficiency=false num_bam_file_handles=null read_group_black_list=null pedigree=[] pedigreeString=[] pedigreeValidationType=STRICT allow_intervals_with_unindexed_bam=false generateShadowBCF=false logging_level=INFO log_to_file=null help=false genotype_likelihoods_model=BOTH pcr_error_rate=1.0E-4 computeSLOD=false annotateNDA=false pair_hmm_implementation=ORIGINAL min_base_quality_score=17 max_deletion_fraction=0.05 min_indel_count_for_genotyping=5 min_indel_fraction_per_sample=0.25 indel_heterozygosity=1.25E-4 indelGapContinuationPenalty=10 indelGapOpenPenalty=45 indelHaplotypeSize=80 indelDebug=false ignoreSNPAlleles=false allReadsSP=false ignoreLaneInfo=false reference_sample_calls=(RodBinding name= source=UNBOUND) reference_sample_name=null sample_ploidy=2 min_quality_score=1 max_quality_score=40 site_quality_prior=20 min_power_threshold_for_calling=0.95 min_reference_depth=100 exclude_filtered_reference_sites=false heterozygosity=0.0010 genotyping_mode=DISCOVERY output_mode=EMIT_VARIANTS_ONLY standard_min_confidence_threshold_for_calling=50.0 standard_min_confidence_threshold_for_emitting=30.0 alleles=(RodBinding name= source=UNBOUND) max_alternate_alleles=6 p_nonref_model=EXACT_INDEPENDENT contamination_fraction_to_filter=0.05 logRemovedReadsFromContaminationFiltering=null exactcallslog=null dbsnp=(RodBinding name= source=UNBOUND) comp=[] out=org.broadinstitute.sting.gatk.io.stubs.VariantContextWriterStub no_cmdline_in_header=org.broadinstitute.sting.gatk.io.stubs.VariantContextWriterStub sites_only=org.broadinstitute.sting.gatk.io.stubs.VariantContextWriterStub bcf=org.broadinstitute.sting.gatk.io.stubs.VariantContextWriterStub debug_file=null metrics_file=null annotation=[] excludeAnnotation=[] filter_mismatching_base_and_quals=false"
+##contig=<ID=Ld33_v01s1,length=1453978>
+##contig=<ID=Ld12_v01s1,length=569561>
+##contig=<ID=Ld08_v01s1,length=505720>
+##contig=<ID=Ld29_v01s1,length=1258350>
+##contig=<ID=Ld10_v01s1,length=558170>
+##contig=<ID=Ld07_v01s1,length=604754>
+##contig=<ID=Ld28_v01s1,length=1171725>
+##contig=<ID=Ld27_v01s1,length=1024085>
+##contig=<ID=Ld16_v01s1,length=698406>
+##contig=<ID=Ld23_v01s1,length=783272>
+##contig=<ID=Ld24_v01s1,length=877124>
+##contig=<ID=Ld34_v01s1,length=1750858>
+##contig=<ID=Ld11_v01s1,length=580223>
+##contig=<ID=Ld02_v01s1,length=334314>
+##contig=<ID=Ld14_v01s1,length=645099>
+##contig=<ID=Ld21_v01s1,length=767234>
+##contig=<ID=Ld25_v01s1,length=897883>
+##contig=<ID=Ld04_v01s1,length=479467>
+##contig=<ID=Ld36_v01s1,length=2713248>
+##contig=<ID=Ld17_v01s1,length=671483>
+##contig=<ID=Ld05_v01s1,length=452426>
+##contig=<ID=Ld13_v01s1,length=649814>
+##contig=<ID=Ld03_v01s1,length=389946>
+##contig=<ID=Ld20_v01s1,length=752621>
+##contig=<ID=Ld18_v01s1,length=735610>
+##contig=<ID=Ld26_v01s1,length=1058259>
+##contig=<ID=Ld22_v01s1,length=704761>
+##contig=<ID=Ld09_v01s1,length=588727>
+##contig=<ID=Ld01_v01s1,length=283432>
+##contig=<ID=Ld31_v01s1,length=1531288>
+##contig=<ID=Ld06_v01s1,length=529559>
+##contig=<ID=Ld15_v01s1,length=618357>
+##contig=<ID=Ld19_v01s1,length=757180>
+##contig=<ID=Ld32_v01s1,length=1559911>
+##contig=<ID=Ld30_v01s1,length=1374157>
+##contig=<ID=Ld35_v01s1,length=2113966>
+##reference=file:///nearline/ngs/bowtie2_index/LdoB-TritrypV5p0.fasta
+##SnpEffVersion="3.3h (build 2013-08-20), by Pablo Cingolani"
+##SnpEffCmd="SnpEff  LdoB_TriTrypV5p0 -s ES041.snpEff_summary.html ES041_gatk.raw.vcf "
+##INFO=<ID=EFF,Number=.,Type=String,Description="Predicted effects for this variant.Format: 'Effect ( Effect_Impact | Functional_Class | Codon_Change | Amino_Acid_change| Amino_Acid_length | Gene_Name | Transcript_BioType | Gene_Coding | Transcript_ID | Exon  | GenotypeNum [ | ERRORS | WARNINGS ] )' ">
+##bcftools_isecVersion=0.2.0-rc11+htslib-0.2.0-rc11
+##bcftools_isecCommand=isec -p /Users/mcobb/ngsdb/vcftools/bcftools_isec_snpEff_ES041_ES042 /Users/mcobb/ngsdb/NeedUpload/ES041_gatk.snpEff.vcf.gz /Users/mcobb/ngsdb/NeedUpload/ES042_gatk.snpEff.vcf.gz
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	296
