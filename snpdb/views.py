@@ -9,6 +9,8 @@ from django.template import RequestContext
 from GChartWrapper import *
 from collections import *
 import subprocess
+import datetime
+from django.views.decorators.csrf import csrf_protect, csrf_exempt
 
 low_effects = ["SYNONYMOUS_START", "NON_SYNONYMOUS_START", "START_GAINED", "SYNONYMOUS_CODING", "SYNONYMOUS_STOP"]
 high_effects = ["SPLICE_SITE_ACCEPTOR", "SPLICE_SITE_DONOR", "START_LOST", "EXON_DELETED", "FRAME_SHIFT", "STOP_GAINED", "STOP_LOST", "RARE_AMINO_ACI"]
@@ -1238,20 +1240,22 @@ def compare_two_libraries(request):
 	                                                               "toolbar_min": toolbar_min})
 
 
-#todo change so analysis is done through vcftools
+#todo add googlecharts to show pie chart of impact types
 def difference_two_libraries(request):
 	library1 = request.GET.get('lib1')
 	library2 = request.GET.get('lib2')
+	print library2
 
-	test = subprocess.check_call(["""bcftools isec /Users/mcobb/ngsdb/NeedUpload/%s_gatk.snpEff.vcf.gz /Users/mcobb/ngsdb/NeedUpload/%s_gatk.snpEff.vcf.gz -p /Users/mcobb/ngsdb/vcftools/bcftools_isec_snpEff_%s_%s""" % (library1, library2, library1, library2)],
+	path = "/Users/mcobb/ngsdb/vcftools/bcftools_isec_snpEff_%s_%s_%s" % (library1, library2, datetime.datetime.utcnow().strftime("%Y-%m-%d"))
+	test = subprocess.check_call(["""bcftools isec /Users/mcobb/ngsdb/NeedUpload/%s_gatk.snpEff.vcf.gz /Users/mcobb/ngsdb/NeedUpload/%s_gatk.snpEff.vcf.gz -p %s""" % (library1, library2, path)],
 	                             shell=True)
 
-	cmd = """cat /Users/mcobb/ngsdb/vcftools/bcftools_isec_snpEff_%s_%s/0000.vcf | cut -f 8 | tr ";" "\n" | grep ^EFF= | cut -f 2 -d = | tr "," "\n" | grep %s | wc -l"""
-	modifier = subprocess.Popen(cmd % (library1, library2, "MODIFIER"), shell=True, stdout=subprocess.PIPE)
-	moderate = subprocess.Popen(cmd % (library1, library2, "MODERATE"), shell=True, stdout=subprocess.PIPE)
-	high = subprocess.Popen(cmd % (library1, library2, "HIGH"), shell=True, stdout=subprocess.PIPE)
-	low = subprocess.Popen(cmd % (library1, library2, "LOW"), shell=True, stdout=subprocess.PIPE)
-	total = subprocess.Popen("""grep ^[^#] /Users/mcobb/ngsdb/vcftools/bcftools_isec_snpEff_%s_%s/0000.vcf | wc -l""" % (library1, library2), shell=True, stdout=subprocess.PIPE)
+	cmd = """cat %s/0000.vcf | cut -f 8 | tr ";" "\n" | grep ^EFF= | cut -f 2 -d = | tr "," "\n" | grep %s | wc -l"""
+	modifier = subprocess.Popen(cmd % (path, "MODIFIER"), shell=True, stdout=subprocess.PIPE)
+	moderate = subprocess.Popen(cmd % (path, "MODERATE"), shell=True, stdout=subprocess.PIPE)
+	high = subprocess.Popen(cmd % (path, "HIGH"), shell=True, stdout=subprocess.PIPE)
+	low = subprocess.Popen(cmd % (path, "LOW"), shell=True, stdout=subprocess.PIPE)
+	total = subprocess.Popen("""grep ^[^#] %s/0000.vcf | wc -l""" % path, shell=True, stdout=subprocess.PIPE)
 	counts = [high.communicate()[0].strip(), moderate.communicate()[0].strip(), low.communicate()[0].strip(), modifier.communicate()[0].strip(), total.communicate()[0].strip()]
 
 
@@ -1260,23 +1264,23 @@ def difference_two_libraries(request):
 	moderate_counts = defaultdict(int)
 	modifier_counts = defaultdict(int)
 	for each in low_effects:
-		count_effect_cmd = """cat /Users/mcobb/ngsdb/vcftools/bcftools_isec_snpEff_%s_%s/0000.vcf | cut -f 8 | tr ";" "\n" | grep ^EFF= | cut -f 2 -d = | tr "," "\n" | grep %s | wc -l"""
-		count_effect = subprocess.Popen(count_effect_cmd % (library1, library2, each), shell=True, stdout=subprocess.PIPE)
+		count_effect_cmd = """cat %s/0000.vcf| cut -f 8 | tr ";" "\n" | grep ^EFF= | cut -f 2 -d = | tr "," "\n" | grep %s | wc -l"""
+		count_effect = subprocess.Popen(count_effect_cmd % (path, each), shell=True, stdout=subprocess.PIPE)
 		count = count_effect.communicate()[0]
 		low_counts[each] = count.strip()
 	for each in moderate_effects:
-		count_effect_cmd = """cat /Users/mcobb/ngsdb/vcftools/bcftools_isec_snpEff_%s_%s/0000.vcf | cut -f 8 | tr ";" "\n" | grep ^EFF= | cut -f 2 -d = | tr "," "\n" | grep %s | wc -l"""
-		count_effect = subprocess.Popen(count_effect_cmd % (library1, library2, each), shell=True, stdout=subprocess.PIPE)
+		count_effect_cmd = """cat %s/0000.vcf | cut -f 8 | tr ";" "\n" | grep ^EFF= | cut -f 2 -d = | tr "," "\n" | grep %s | wc -l"""
+		count_effect = subprocess.Popen(count_effect_cmd % (path, each), shell=True, stdout=subprocess.PIPE)
 		count = count_effect.communicate()[0]
 		moderate_counts[each] = count.strip()
 	for each in modifier_effects:
-		count_effect_cmd = """cat /Users/mcobb/ngsdb/vcftools/bcftools_isec_snpEff_%s_%s/0000.vcf | cut -f 8 | tr ";" "\n" | grep ^EFF= | cut -f 2 -d = | tr "," "\n" | grep %s | wc -l"""
-		count_effect = subprocess.Popen(count_effect_cmd % (library1, library2, each), shell=True, stdout=subprocess.PIPE)
+		count_effect_cmd = """cat %s/0000.vcf | cut -f 8 | tr ";" "\n" | grep ^EFF= | cut -f 2 -d = | tr "," "\n" | grep %s | wc -l"""
+		count_effect = subprocess.Popen(count_effect_cmd % (path, each), shell=True, stdout=subprocess.PIPE)
 		count = count_effect.communicate()[0]
 		modifier_counts[each] = count.strip()
 	for each in high_effects:
-		count_effect_cmd = """cat /Users/mcobb/ngsdb/vcftools/bcftools_isec_snpEff_%s_%s/0000.vcf | cut -f 8 | tr ";" "\n" | grep ^EFF= | cut -f 2 -d = | tr "," "\n" | grep %s | wc -l"""
-		count_effect = subprocess.Popen(count_effect_cmd % (library1, library2, each), shell=True, stdout=subprocess.PIPE)
+		count_effect_cmd = """cat %s/0000.vcf | cut -f 8 | tr ";" "\n" | grep ^EFF= | cut -f 2 -d = | tr "," "\n" | grep %s | wc -l"""
+		count_effect = subprocess.Popen(count_effect_cmd % (path, each), shell=True, stdout=subprocess.PIPE)
 		count = count_effect.communicate()[0]
 		high_counts[each] = count.strip()
 	return render_to_response('snpdb/impact_snps.html', {"counts": counts,
@@ -1284,76 +1288,95 @@ def difference_two_libraries(request):
 	                                                     "high_counts": dict(high_counts),
 	                                                     "moderate_counts": dict(moderate_counts),
 	                                                     "modifier_counts": dict(modifier_counts),
-	                                                     # "snp_impact": snp_impact,
 	                                                     "library1": library1,
-	                                                     "library2": library2})
+	                                                     "library2": library2,
+	                                                     "path": path})
 
 
 
+# todo change so analysis is done through vcftools
+# def impact_snps(request):
+# 	# snp2 = SNP.objects.filter(library__librarycode=library2).values_list('snp_position',
+# 	#                                                                      'chromosome__chromosome_name')
+# 	# snp1 = SNP.objects.filter(library__librarycode=library1).values_list('snp_position',
+# 	#                                                                      'chromosome__chromosome_name')
+# 	# difference = set(snp1).difference(set(snp2))
+# 	# snps = []
+# 	# for x in difference:
+# 	# 	keys = ['snp_position', 'chromosome__chromosome_name']
+# 	# 	snps.append(dict(zip(keys, x)))
+# 	#
+# 	# snp_ids = []
+# 	# for each in snps:
+# 	# 	ids = SNP.objects.values_list('snp_id', flat=True).filter(library__librarycode=library1, snp_position=each['snp_position'],
+# 	# 	                                                          chromosome__chromosome_name=each['chromosome__chromosome_name'])
+# 	# 	snp_ids.append(ids)
+# 	# snp_id = [x for sublist in snp_ids for x in sublist]
+# 	#
+# 	# snps = SNP.objects.filter(snp_id__in=snp_id, effect__effect_string=impact).values_list('snp_id', 'effect__effect_group')
+# 	# groups = []
+# 	# for y in snps:
+# 	# 	keys = ['snp_id', 'effect__effect_group']
+# 	# 	groups.append(dict(zip(keys, y)))
+# 	# genes = []
+# 	# for each in groups:
+# 	# 	genes.append(SNP.objects.filter(**each).values('library', 'library__librarycode', 'snp_id',
+# 	# 	                                               'snp_position', 'ref_base', 'alt_base',
+# 	# 	                                               'heterozygosity', 'quality', 'result_id',
+# 	# 	                                               'chromosome__chromosome_name', 'effect__effect_string',
+# 	# 	                                               'effect__effect_class', 'effect__effect'))
+# 	# print genes[:10]
+# 	# group = [x for sublist in genes for x in sublist]
+# 	# sorted_gene_dict = genes_from_effect(group, library1, order_by)
+# 	# gene_dict = [x for sublist in sorted_gene_dict for x in sublist]
+# 	# print len(filter(None, gene_dict))
+# 	# # new_dict = {k:v for k,v in gene_dict.items() if v}
+# 	# count = len(gene_dict)
+# 	# paginator = Paginator(gene_dict, 200)
+# 	# page = request.GET.get('page')
+# 	#
+# 	# # Calls utils method to append new filters or order_by to the current url
+# 	# filter_urls = build_orderby_urls(request.get_full_path(), ['library', 'library__librarycode', 'snp_id',
+# 	#                                                            'snp_position', 'ref_base', 'alt_base',
+# 	#                                                            'heterozygosity', 'quality',
+# 	#                                                            'chromosome__chromosome_name',
+# 	#                                                            'effect__effect_string'])
+# 	# try:
+# 	# 	results = paginator.page(page)
+# 	# except PageNotAnInteger:
+# 	# 	results = paginator.page(1)
+# 	# except EmptyPage:
+# 	# 	results = paginator.page(paginator.num_pages)
+# 	#
+# 	# toolbar_max = min(results.number + 4, paginator.num_pages)
+# 	# toolbar_min = max(results.number - 4, 0)
+# 	return render_to_response('snpdb/impact_snps_search.html', {"path": path,
+# 	                                                            # "results": results,
+# 	                                                            # "toolbar_max": toolbar_max,
+# 	                                                            # "toolbar_min": toolbar_min,
+# 	                                                            # "count": count,
+# 	                                                            # "filter_urls": filter_urls,
+# 	}, context_instance=RequestContext(request))
+
+# todo change so analysis is done through vcftools
+@csrf_exempt
 def impact_snps(request):
-	order_by = request.GET.get('order_by', 'snp_id').encode("ascii")
-	impact = request.GET.get('impact')
-	library1 = request.GET.get('lib1')
-	library2 = request.GET.get('lib2')
+	csrfContext = RequestContext(request)
+	path = request.POST.get('path')
+	library1 = request.POST.get('lib1')
+	library2 = request.POST.get('lib2')
+	impact = request.POST.get('impact')
 
-	snp2 = SNP.objects.filter(library__librarycode=library2).values_list('snp_position',
-	                                                                     'chromosome__chromosome_name')
-	snp1 = SNP.objects.filter(library__librarycode=library1).values_list('snp_position',
-	                                                                     'chromosome__chromosome_name')
-	difference = set(snp1).difference(set(snp2))
+	cmd = """cat %s/0000.vcf | /usr/local/Cellar/snpeff/3.6c/share/scripts/vcfEffOnePerLine.pl | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar filter "( EFF[*].IMPACT = '%s' )" | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar extractFields - POS REF ALT CHROM EFF[*].GENE EFF[*].EFFECT QUAL"""
+	snps_effect = subprocess.Popen(cmd % (path, impact), shell=True, stdout=subprocess.PIPE)
 	snps = []
-	for x in difference:
-		keys = ['snp_position', 'chromosome__chromosome_name']
-		snps.append(dict(zip(keys, x)))
-
-	snp_ids = []
-	for each in snps:
-		ids = SNP.objects.values_list('snp_id', flat=True).filter(library__librarycode=library1, snp_position=each['snp_position'],
-		                                                          chromosome__chromosome_name=each['chromosome__chromosome_name'])
-		snp_ids.append(ids)
-	snp_id = [x for sublist in snp_ids for x in sublist]
-
-	snps = SNP.objects.filter(snp_id__in=snp_id, effect__effect_string=impact).values_list('snp_id', 'effect__effect_group')
-	groups = []
-	for y in snps:
-		keys = ['snp_id', 'effect__effect_group']
-		groups.append(dict(zip(keys, y)))
-	genes = []
-	for each in groups:
-		genes.append(SNP.objects.filter(**each).values('library', 'library__librarycode', 'snp_id',
-		                                               'snp_position', 'ref_base', 'alt_base',
-		                                               'heterozygosity', 'quality', 'result_id',
-		                                               'chromosome__chromosome_name', 'effect__effect_string',
-		                                               'effect__effect_class', 'effect__effect'))
-	print genes[:10]
-	group = [x for sublist in genes for x in sublist]
-	sorted_gene_dict = genes_from_effect(group, library1, order_by)
-	gene_dict = [x for sublist in sorted_gene_dict for x in sublist]
-	print len(filter(None, gene_dict))
-	# new_dict = {k:v for k,v in gene_dict.items() if v}
-	count = len(gene_dict)
-	paginator = Paginator(gene_dict, 200)
-	page = request.GET.get('page')
-
-	# Calls utils method to append new filters or order_by to the current url
-	filter_urls = build_orderby_urls(request.get_full_path(), ['library', 'library__librarycode', 'snp_id',
-	                                                           'snp_position', 'ref_base', 'alt_base',
-	                                                           'heterozygosity', 'quality',
-	                                                           'chromosome__chromosome_name',
-	                                                           'effect__effect_string'])
-	try:
-		results = paginator.page(page)
-	except PageNotAnInteger:
-		results = paginator.page(1)
-	except EmptyPage:
-		results = paginator.page(paginator.num_pages)
-
-	toolbar_max = min(results.number + 4, paginator.num_pages)
-	toolbar_min = max(results.number - 4, 0)
-	return render_to_response('snpdb/impact_snps_search.html', {"results": results,
-	                                                            "toolbar_max": toolbar_max,
-	                                                            "toolbar_min": toolbar_min,
-	                                                            "count": count,
-	                                                            "filter_urls": filter_urls,
-	                                                            })
+	for line in snps_effect.stdout:
+		if line:
+			if '#POS' not in line:
+				entry = line.split('\t')
+				snps.append(entry)
+	return render_to_response('snpdb/impact_snps_search.html', {"path": path,
+	                                                            "snps": snps,
+	                                                            "library1": library1,
+	                                                            "library2": library2}, csrfContext)
 

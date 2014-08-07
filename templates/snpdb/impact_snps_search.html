@@ -51,7 +51,6 @@
     <table class="table table-condensed table-hover" style="table-layout: fixed; word-wrap: break-word;">
         <thead>
         <tr>
-            <th class=" text-center"><a href={{ filter_urls.snp_id }}>SNP ID</a></th>
             <th class=" text-center"><a href={{ filter_urls.snp_position }}>Position</a></th>
             <th class=" text-center"><a href={{ filter_urls.result }}>Result</a></th>
             <th class=" text-center"><a href={{ filter_urls.ref_base }}>Reference Base</a></th>
@@ -66,28 +65,20 @@
         </thead>
         <tbody>
         <tr>
-            {% for each in results %}
-                {% if each.snp_id %}
-                    <td class="text-center">{{ each.snp_id }}</td>
-                    <td class="text-center">{{ each.snp_position }}</td>
-                    <td class="text-center">{{ each.result_id }}</td>
-                    <td class="text-center">{{ each.ref_base }}</td>
-                    <td class="text-center">{{ each.alt_base }}</td>
-                    <td class="text-center">{{ each.heterozygosity }}</td>
-                    <td class="text-center">{{ each.quality }}</td>
-                    <td class="text-center">{{ each.library__librarycode }}</td>
-                    <td class="text-center">{{ each.chromosome__chromosome_name }}</td>
-                    <td class="text-center">
-                    {% if each.effect__effect_string|get_type %}
-                        {% for effect in each.effect__effect_string %}
-                            <a href="/snpdb/gene-feature?geneid={{ effect }}">{{effect}}</a>
-                        {% endfor %}
-                    {% else %}
-                        <a href="/snpdb/gene-feature?geneid={{ each.effect__effect_string }}">{{ each.effect__effect_string }}</a>
-                    {% endif %}
-                    </td>
-                    <td class="text-center">{{ each.effect__effect_class|title }}</td>
-                {% endif %}
+            {% for each in snps %}
+
+                <td class="text-center">{{ each.0 }}</td>
+                <td class="text-center">{{ each.result_id }}</td>
+                <td class="text-center">{{ each.1 }}</td>
+                <td class="text-center">{{ each.2 }}</td>
+                <td class="text-center">{{ each.heterozygosity }}</td>
+                <td class="text-center">{{ each.6 }}</td>
+                <td class="text-center">{{ library1 }}</td>
+                <td class="text-center">{{ each.3 }}</td>
+                <td class="text-center">
+                    <a href="/snpdb/gene-feature?geneid={{ effect }}">{{each.4}}</a>
+                </td>
+                <td class="text-center">{{ each.5 }}</td>
             </tr>
         {% endfor %}
         </tbody>

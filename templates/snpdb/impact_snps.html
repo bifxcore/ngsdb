@@ -3,6 +3,7 @@
 {% extends "snpdb/dashboard.html" %}
 {% load static %}
 {% load staticfiles %}
+{% load snp_filters %}
 
 {% block title %}
     SNP Summary
@@ -28,7 +29,7 @@
 <div class="container-fluid" style="padding-bottom:30px">
     <div class="collapse navbar-collapse navbar-ex1-collapse">
         <ul class="nav navbar-nav">
-            <form class="form-inline" role="form" id='search' action='/snpdb/snps-in-libx-no-liby/search' method="get">
+            <form class="form-inline" role="form" id='search' action='/snpdb/compare-two-libs/search' method="get">
                 <div class="form-group">
                     <label class="sr-only" for="library">Library 1</label>
                     <input type="text" class="form-control" name="lib1" placeholder="library 1">
@@ -48,13 +49,21 @@
         <div class="col-md-6">
             <div class="panel panel-primary" style="border-color: #616770;">
                 <div class="panel-heading" style="background-color: #616770; border-color:#616770">
-                    <h3 class="panel-title"><a href="/snpdb/impact-snps/search?impact=HIGH&lib1={{library1}}&lib2={{library2}}">High Impact</a></h3>
+                    <form id="form1" action="/snpdb/impact-snps/search" method="post">
+                        <h3 class="panel-title"><a href="javascript:;" onclick="document.getElementById('form1').submit();">High Impact</a></h3>
+                        <input type="hidden" name="path" value="{{path}}">
+                        <input type="hidden" name="impact" value="HIGH">
+                        <input type="hidden" name="lib2" value="{{library2}}">
+                        <input type="hidden" name="lib1" value="{{library1}}">
+                    </form>
                 </div>
                 <div class="panel-body">
                     <ul class="list-group">
                         <li class="list-group-item">Total: {{ counts.0 }}</li>
                         {% for key, values in high_counts.items %}
-                            <li class="list-group-item">{{ key|title }}: {{ values }}</li>
+                            {% if values|zero %}
+                                <li class="list-group-item">{{ key|title }}: {{ values }}</li>
+                            {% endif %}
                         {% endfor %}
                     </ul>
                 </div>
@@ -63,13 +72,15 @@
         <div class="col-md-6">
             <div class="panel panel-primary" style="border-color: #616770;">
                 <div class="panel-heading" style="background-color: #616770; border-color:#616770">
-                    <h3 class="panel-title"><a href="/snpdb/impact-snps/search?impact=LOW&lib1={{library1}}&lib2={{library2}}">Low Impact</a></h3>
+                    <h3 class="panel-title"><a href="/snpdb/impact-snps/search/impact=LOW&lib1={{library1}}&lib2={{library2}}">Low Impact</a></h3>
                 </div>
                 <div class="panel-body">
                     <ul class="list-group">
                         <li class="list-group-item">Total: {{ counts.2 }}</li>
                         {% for key, values in low_counts.items %}
-                            <li class="list-group-item">{{ key|title }}: {{ values }}</li>
+                            {% if values|zero %}
+                                <li class="list-group-item">{{ key|title }}: {{ values }}</li>
+                            {% endif %}
                         {% endfor %}
                     </ul>
                 </div>
@@ -86,9 +97,9 @@
                     <ul class="list-group">
                         <li class="list-group-item">Total: {{ counts.1 }}</li>
                         {% for key, values in moderate_counts.items %}
-                            {% if values != 0 %}
+                            <!--{% if values|zero %}-->
                                 <li class="list-group-item">{{ key|title }}: {{ values }}</li>
-                            {% endif %}
+                            <!--{% endif %}-->
                         {% endfor %}
                     </ul>
                 </div>
@@ -103,7 +114,9 @@
                     <ul class="list-group">
                         <li class="list-group-item">Total: {{ counts.3 }}</li>
                         {% for key, values in modifier_counts.items %}
-                            <li class="list-group-item">{{ key|title }}: {{ values }}</li>
+                            {% if values|zero %}
+                                <li class="list-group-item">{{ key|title }}: {{ values }}</li>
+                            {% endif %}
                         {% endfor %}
                     </ul>
                 </div>
