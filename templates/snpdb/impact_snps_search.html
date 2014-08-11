@@ -52,10 +52,8 @@
         <thead>
         <tr>
             <th class=" text-center"><a href={{ filter_urls.snp_position }}>Position</a></th>
-            <th class=" text-center"><a href={{ filter_urls.result }}>Result</a></th>
             <th class=" text-center"><a href={{ filter_urls.ref_base }}>Reference Base</a></th>
             <th class=" text-center"><a href={{ filter_urls.alt_base }}>Alternate Base</a></th>
-            <th class=" text-center"><a href={{ filter_urls.heterozygosity }}>Heterozygosity</a></th>
             <th class=" text-center"><a href={{ filter_urls.quality }}>Quality</a></th>
             <th class=" text-center"><a href={{ filter_urls.library__librarycode }}>Library</a></th>
             <th class=" text-center"><a href={{ filter_urls.chromosome__chromosome_name }}>Chromosome</a></th>
@@ -68,10 +66,8 @@
             {% for each in snps %}
 
                 <td class="text-center">{{ each.0 }}</td>
-                <td class="text-center">{{ each.result_id }}</td>
                 <td class="text-center">{{ each.1 }}</td>
                 <td class="text-center">{{ each.2 }}</td>
-                <td class="text-center">{{ each.heterozygosity }}</td>
                 <td class="text-center">{{ each.6 }}</td>
                 <td class="text-center">{{ library1 }}</td>
                 <td class="text-center">{{ each.3 }}</td>
