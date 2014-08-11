@@ -178,20 +178,19 @@ fieldset[disabled] .btn-sample.active {
 
 
 /* pagination theme */
-.ngsdb{
+.ngsdb {
   height: 36px;
   margin: 18px 0;
   color: #e7e4db;
 }
 .ngsdb ul {
-  display: inline-block;
+   display: inline-block;
   *display: inline;
   /* IE7 inline-block hack */
   color: #e7e4db;
   *zoom: 1;
   background-color: #636469;
-  margin-left: 0;
-  margin-bottom: 0;
+  margin: 0;
   -webkit-border-radius: 3px;
   -moz-border-radius: 3px;
   border-radius: 3px;
@@ -200,15 +199,14 @@ fieldset[disabled] .btn-sample.active {
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 .ngsdb li {
-  display: inline;
-  color: #e7e4db;
-}
+ display: inline;
+  color: #e7e4db;}
 .ngsdb a {
   float: left;
   padding: 0 14px;
-  line-height: 34px;
+  line-height: 30px;
   text-decoration: none;
-  border: 1px solid #ddd;
+  border: 1px solid black;
   border-left-width: 0;
   color:#e7e4db;
 }
@@ -228,7 +226,7 @@ fieldset[disabled] .btn-sample.active {
   background-color: transparent;
   cursor: default;
 }
-.ngsdb li:first-child a {
+.ngsdb li:first-child {
   border-left-width: 1px;
   -webkit-border-radius: 3px 0 0 3px;
   -moz-border-radius: 3px 0 0 3px;
@@ -239,14 +237,15 @@ fieldset[disabled] .btn-sample.active {
   -moz-border-radius: 0 3px 3px 0;
   border-radius: 0 3px 3px 0;
 }
-.ngsdb .pagination-centered {
+.pagination-centered {
   text-align: center;
 }
-.ngsdb .pagination-right {
+.pagination-right {
   text-align: right;
 }
 
 
+/* Dropdown custom menu*/
 .dropdown-submenu {
     position: relative;
 }
@@ -295,10 +294,76 @@ fieldset[disabled] .btn-sample.active {
     border-radius: 6px 0 6px 6px;
 }
 
-.table tbody tr.info th {
-background-color: #919dab;
+.custom-table {
+    background-color: #636469;
+    border-color: black !important;
 }
 
-.header {
-    color:#465160;
+.custom-table:hover,
+.custom:focus{
+    background-color: #919dab;
+    border-color: black;
 }
+
+
+.custom-table > li > a:hover,
+.custom-table > li > a:focus {
+    background-color: #919dab;
+    color: #e7e4db;
+}
+.custom-table > .active > a,
+.custom-table > .active > a:hover,
+.custom-table > .active > a:focus {
+    color: #e7e4db;
+    background-color: #919dab;
+}
+
+
+/*search color */
+.btn-panel {
+    color: #e7e4db;
+    background-color: #636469;
+    border-color: #636469;
+    -webkit-font-smoothing: antialiased;
+}
+
+.btn-panel:hover,
+.btn-panel:focus,
+.btn-panel:active,
+.btn-panel.active,
+.open .dropdown-toggle.btn-panel {
+    color: #e7e4db;
+    background-color: #919dab;
+    border-color: #919dab;
+}
+
+.btn-panel:active,
+.btn-panel.active,
+.open .dropdown-toggle.btn-panel {
+    background-image: none;
+}
+
+.btn-panel.disabled,
+.btn-panel[disabled],
+fieldset[disabled] .btn-panel,
+.btn-panel.disabled:hover,
+.btn-panel[disabled]:hover,
+fieldset[disabled] .btn-panel:hover,
+.btn-panel.disabled:focus,
+.btn-panel[disabled]:focus,
+fieldset[disabled] .btn-panel:focus,
+.btn-panel.disabled:active,
+.btn-panel[disabled]:active,
+fieldset[disabled] .btn-panel:active,
+.btn-panel.disabled.active,
+.btn-panel[disabled].active,
+fieldset[disabled] .btn-panel.active {
+    background-color: #C8DCE8;
+    border-color: #C8DCE8;
+}
+
+.btn-panel .badge {
+    color: #465160;
+    background-color: #ffffff;
+}
+
