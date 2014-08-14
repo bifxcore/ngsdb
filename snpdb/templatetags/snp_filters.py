@@ -53,6 +53,20 @@ def get_type(value):
 	else:
 		return False
 
+@register.filter
+def get_value_type(value, arg):
+	if arg == 'int':
+		if isinstance(value, int):
+			return True
+		else:
+			return False
+
+
+@register.filter
+def get_type_value(value):
+	print type(value), value
+	return type(value)
+
 
 @register.filter
 def zero(value):
@@ -60,3 +74,12 @@ def zero(value):
 		return False
 	else:
 		return True
+
+@register.filter
+def sum_dict(value):
+	sums = 0
+	for key, val in value:
+		if isinstance(val, int):
+			sums += val
+	return sums
+

@@ -312,7 +312,7 @@
 
     <div class="container-fluid">
         <div class="row">
-            <div class="col-md-6">
+            <div class="col-md-6" style="padding-top: 30px">
                 <div class="panel panel-primary" style="border-color: #616770;">
                     <div class="panel-heading" style="background-color: #616770; border-color:#616770">
                         <h3 class="panel-title">SNPs by Library</h3>
@@ -335,11 +335,11 @@
                             <td class="text-center" style="vertical-align: middle">{{ totals.0 }}</td>
                             </tbody>
                         </table>
-                        <img src="{{ images.0 }}" class="image-responsive center-block"/>
+                        <img src="{% static images.0 %}" class="image-responsive center-block"/>
                     </div>
                 </div>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-6" style="padding-top: 30px">
                 <div class="panel panel-primary" style="border-color: #616770;">
                     <div class="panel-heading" style="background-color: #616770; border-color:#616770">
                         <h3 class="panel-title">SNPs by Organism</h3>
@@ -362,34 +362,7 @@
                             <td class="text-center" style="vertical-align: middle">{{ totals.1 }}</td>
                             </tbody>
                         </table>
-                        <img src="{{ images.1 }}" class="image-responsive center-block"/>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="panel panel-primary" style="border-color: #616770;">
-                    <div class="panel-heading" style="background-color: #616770; border-color:#616770">
-                        <h3 class="panel-title">SNPs by Moderate Impact</h3>
-                    </div>
-                    <div class="panel-body">
-                        <table class="table table-condensed table-hover" style="table-layout: fixed; word-wrap: break-word;">
-                            <thead>
-                            <tr>
-                                <th class="col-md-1 text-center"><a href={{ filter_urls.library__organism__organismcode }}>Organism</a></th>
-                                <th class="col-md-1 text-center"><a href={{ filter_urls.result_id }}>SNP Count</a></th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                                {% for key, value in moderate_count.items %}
-                                    <td class="text-center">{{ key }}</td>
-                                    <td class="text-center">{{ value }}</td>
-                            </tr>
-                                {% endfor %}
-                            <td class="text-center" style="font-size:14px"><strong>Total</strong></td>
-                            <td class="text-center" style="vertical-align: middle">{{ totals.5 }}</td>
-                            </tbody>
-                        </table>
-                        <img src="{{ images.5 }}" class="image-responsive center-block"/>
+                        <img src="{% static images.1 %}" class="image-responsive center-block"/>
                     </div>
                 </div>
             </div>
@@ -410,15 +383,17 @@
                             </thead>
                             <tbody>
                                 {% for key, value in impact_count.items %}
-                                    <td class="text-center">{{ key }}</td>
-                                    <td class="text-center">{{ value }}</td>
+                                    {% if value|get_value_type:'int' %}
+                                        <td class="text-center">{{ key|title }}</td>
+                                        <td class="text-center">{{ value }}</td>
+                                    {% endif %}
                             </tr>
                                 {% endfor %}
                             <td class="text-center" style="font-size:14px"><strong>Total</strong></td>
-                            <td class="text-center" style="vertical-align: middle">{{ totals.2 }}</td>
+                            <td class="text-center" style="vertical-align: middle">{{ impact_count.items|sum_dict }}</td>
                             </tbody>
                         </table>
-                        <img src="{{ images.2 }}" class="image-responsive center-block"/>
+                        <img src="{% static images.2 %}" class="image-responsive center-block"/>
                     </div>
                 </div>
             </div>
@@ -437,15 +412,48 @@
                             </thead>
                             <tbody>
                                 {% for key, value in high_count.items %}
-                                    <td class="text-center">{{ key }}</td>
-                                    <td class="text-center">{{ value }}</td>
+                                    {% if value|get_value_type:'int' %}
+                                        <td class="text-center">{{ key|title }}</td>
+                                        <td class="text-center">{{ value }}</td>
+                                    {% endif %}
                             </tr>
                                 {% endfor %}
                             <td class="text-center" style="font-size:14px"><strong>Total</strong></td>
-                            <td class="text-center" style="vertical-align: middle">{{ totals.3 }}</td>
+                            <td class="text-center" style="vertical-align: middle">{{ high_count.items|sum_dict }}</td>
                             </tbody>
                         </table>
-                        <img src="{{ images.3 }}" class="image-responsive center-block"/>
+                        <img src="{% static images.3 %}" class="image-responsive center-block"/>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6" style="padding-top: 30px">
+                <div class="panel panel-primary" style="border-color: #616770;">
+                    <div class="panel-heading" style="background-color: #616770; border-color:#616770">
+                        <h3 class="panel-title">SNPs by Moderate Impact</h3>
+                    </div>
+                    <div class="panel-body">
+                        <table class="table table-condensed table-hover" style="table-layout: fixed; word-wrap: break-word;">
+                            <thead>
+                            <tr>
+                                <th class="col-md-1 text-center"><a href={{ filter_urls.library__organism__organismcode }}>Organism</a></th>
+                                <th class="col-md-1 text-center"><a href={{ filter_urls.result_id }}>SNP Count</a></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                                {% for key, value in moderate_count.items %}
+                                    {% if value|get_value_type:'int' %}
+                                        <td class="text-center">{{ key|title }}</td>
+                                        <td class="text-center">{{ value }}</td>
+                                    {% endif %}
+                            </tr>
+                                {% endfor %}
+                            <td class="text-center" style="font-size:14px"><strong>Total</strong></td>
+                            <td class="text-center" style="vertical-align: middle">{{ moderate_count.items|sum_dict }}</td>
+                            </tbody>
+                        </table>
+                        <img src="{% static images.5 %}" class="image-responsive center-block"/>
                     </div>
                 </div>
             </div>
@@ -464,50 +472,52 @@
                             </thead>
                             <tbody>
                                 {% for key, value in low_count.items %}
-                                    <td class="text-center">{{ key }}</td>
-                                    <td class="text-center">{{ value }}</td>
+                                    {% if value|get_value_type:'int' %}
+                                        <td class="text-center">{{ key|title }}</td>
+                                        <td class="text-center">{{ value }}</td>
+                                    {% endif %}
                             </tr>
                                 {% endfor %}
                             <td class="text-center" style="font-size:14px"><strong>Total</strong></td>
-                            <td class="text-center" style="vertical-align: middle">{{ totals.4 }}</td>
+                            <td class="text-center" style="vertical-align: middle">{{ low_count.items|sum_dict }}</td>
                             </tbody>
                         </table>
-                        <img src="{{ images.4 }}" class="image-responsive center-block"/>
+                        <img src="{% static images.4 %}" class="image-responsive center-block"/>
                     </div>
                 </div>
             </div>
-            <div class="col-md-6" style="padding-top: 30px">
-                <div class="panel panel-primary" style="border-color: #616770;">
-                    <div class="panel-heading" style="background-color: #616770; border-color:#616770">
-                        <h3 class="panel-title">SNPs by Modifier Impact</h3>
-                    </div>
-                    <div class="panel-body">
-                        <table class="table table-condensed table-hover" style="table-layout: fixed; word-wrap: break-word;">
-                            <thead>
-                            <tr>
-                                <th class="col-md-1 text-center"><a href={{ filter_urls.effect_string }}>Impact Effect</a></th>
-                                <th class="col-md-1 text-center"><a href={{ filter_urls.snp__count }}>SNP Count</a></th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                                {% for key, value in modifier_count.items %}
-                                    <td class="text-center">{{ key }}</td>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6" style="padding-top: 30px">
+            <div class="panel panel-primary" style="border-color: #616770;">
+                <div class="panel-heading" style="background-color: #616770; border-color:#616770">
+                    <h3 class="panel-title">SNPs by Modifier Impact</h3>
+                </div>
+                <div class="panel-body">
+                    <table class="table table-condensed table-hover" style="table-layout: fixed; word-wrap: break-word;">
+                        <thead>
+                        <tr>
+                            <th class="col-md-1 text-center"><a href={{ filter_urls.effect_string }}>Impact Effect</a></th>
+                            <th class="col-md-1 text-center"><a href={{ filter_urls.snp__count }}>SNP Count</a></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                            {% for key, value in modifier_count.items %}
+                                {% if value|get_value_type:'int' %}
+                                    <td class="text-center">{{ key|title }}</td>
                                     <td class="text-center">{{ value }}</td>
-                            </tr>
-                                {% endfor %}
-                            <td class="text-center" style="font-size:14px"><strong>Total</strong></td>
-                            <td class="text-center" style="vertical-align: middle">{{ totals.6 }}</td>
-                            </tbody>
-                        </table>
-                        <img src="{{ images.6 }}" class="image-responsive center-block"/>
-                    </div>
+                                {% endif %}
+                        </tr>
+                            {% endfor %}
+                        <td class="text-center" style="font-size:14px"><strong>Total</strong></td>
+                        <td class="text-center" style="vertical-align: middle">{{ modifier_count.items|sum_dict }}</td>
+                        </tbody>
+                    </table>
+                    <img src="{% static images.6 %}" class="image-responsive center-block"/>
                 </div>
             </div>
         </div>
     </div>
 
 {% endblock %}
-
-
-
-       

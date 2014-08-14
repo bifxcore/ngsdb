@@ -367,3 +367,17 @@ fieldset[disabled] .btn-panel.active {
     background-color: #ffffff;
 }
 
+
+.hidden-inputs {
+    display: none;
+    visibility: hidden;
+    border: 0;
+    margin: 0;
+    padding: 0;
+    width: 0;
+    height: 0;
+    clear: left;
+    margin-left: inherit;
+    overflow: hidden;
+}
+
