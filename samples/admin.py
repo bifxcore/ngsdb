@@ -16,7 +16,7 @@ class SampleAdmin(admin.ModelAdmin):
         ('Other/QC Information', {'fields':('bioanalyzer_analysis', 'sample_notes', 'author_modified'), 'classes': ('grp-collapse grp-close',),}),
     )
 
-    list_display = ('sampleid', 'sampletype', 'collaborator', 'organism', 'lifestage', 'genotype', 'growthphase', 'culture_method', 'treatment', 'time_after_treatment', 'sample_quantity', 'bioanalyzer_file_link', 'label_ontube', 'freezer_location', 'sample_notes')
+    list_display = ('sampleid', 'sampletype', 'collaborator', 'organism', 'lifestage', 'genotype', 'growthphase', 'culture_method', 'treatment', 'time_after_treatment', 'sample_quantity', 'bioanalyzer_file_link', 'label_ontube', 'freezer_location')
     list_filter = ['sampletype', 'organism', 'lifestage', 'collaborator', 'treatment']
     search_fields = ['sampleid', 'sampletype', 'organism__organismcode', 'lifestage__lifestage', 'growthphase__growthphase', 'phenotype', 'genotype__genotype', 'collaborator__firstname', 'collaborator__lastname', 'source', 'collected_by', 'treatment', 'isolation_method', 'sample_quantity', 'biological_replicate_of', 'bioanalyzer_analysis', 'label_ontube', 'freezer_location', 'sample_notes']
     list_editable = ('growthphase', 'culture_method', 'lifestage', 'treatment', 'time_after_treatment')
@@ -63,8 +63,13 @@ class BiosampleAdmin(admin.ModelAdmin):
     list_display=('biosample_code', 'organisms', 'notes')
 admin.site.register(Biosample, BiosampleAdmin)
 
+
+
+class GenomeAdmin(admin.ModelAdmin):
+    list_display=('reference_code', 'genus', 'species', 'strain')
+admin.site.register(Genome, GenomeAdmin)
+
 admin.site.register(Source)
-admin.site.register(Genome)
 
 
 
