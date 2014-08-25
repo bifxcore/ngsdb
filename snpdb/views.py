@@ -41,7 +41,15 @@ def dashboard(request):
 
     path = os.path.abspath(os.path.dirname(__file__))
     chart_path = os.path.join(path, 'gcharts/%s_impact.csv')
+    # image_path = os.path.join(path, 'gcharts/snps_by_%s.png')
     image_path = 'snpdb/snps_by_%s.png'
+    images_path = 'snps_by_%s.png'
+    if os.path.isfile(chart_path % 'high') and os.path.isfile(image_path % 'high'):
+        print "file ", chart_path % 'high', "and file ", image_path % 'high', " was found."
+        pass
+    else:
+        save_snp_dashboard_files(chart_path, image_path)
+    totals = [lib_snp_total, org_snp_total]
 
     #read count files
     high_count = read(chart_path % 'high')
@@ -50,10 +58,9 @@ def dashboard(request):
     modifier_count = read(chart_path % 'modifier')
     impact_count = read(chart_path % 'impact')
 
-    images = [image_path % 'library', image_path % 'organism', image_path % 'impact', image_path % 'high_impact',
-              image_path % 'low_impact', image_path % 'moderate_impact', image_path % 'modifier_impact']
-    print images
-    totals = [lib_snp_total, org_snp_total]
+    images = [images_path % 'library', images_path % 'organism', images_path % 'impact', images_path % 'high',
+              images_path % 'low', images_path % 'moderate', images_path % 'modifier']
+
     return render_to_response('snpdb/dashboard.html', {"title": title,
                                                        "images": images,
                                                        "totals": totals,
@@ -867,14 +874,14 @@ def genes_from_effect(results, library, order_by):
                         snp_dict[each['snp_id']] = each
                 else:
                     snp_dict[each['snp_id']] = each
-                # else:
-                #     if each['snp_id'] in snp_dict:
-                #         pass
-                #     else:
-                #         each["effect__effect_class"] = 'None'
-                #         each["effect__effect_string"] = 'None'
-                #         each["effect__effect"] = 'None'
-                #         snp_dict[each['snp_id']] = each
+                    # else:
+                    #     if each['snp_id'] in snp_dict:
+                    #         pass
+                    #     else:
+                    #         each["effect__effect_class"] = 'None'
+                    #         each["effect__effect_string"] = 'None'
+                    #         each["effect__effect"] = 'None'
+                    #         snp_dict[each['snp_id']] = each
             else:
                 if each['snp_id'] in snp_dict:
                     pass
@@ -1357,128 +1364,151 @@ def read(filename):
 
 
 # unused code.
-#----------------------------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------------------------
 
 # Commands to save the snpdb dashboard pie-charts. Should be run after each vcf import.
-def save_snp_dashboard_files():
+def save_snp_dashboard_files(chart_path, image_path):
+    # Google Chart Images
+    lib_labels = []
+    lib_legend = []
+    org_labels = []
+    org_legend = []
+    impact_labels = []
+    high_labels = []
+    low_labels = []
+    moderate_labels = []
+    modifier_labels = []
+    high_keys = []
+    low_keys = []
+    moderate_keys = []
+    modifier_keys = []
+    impact_keys = []
+    high_values = []
+    low_values = []
+    moderate_values = []
+    modifier_values = []
+    impact_values = []
+
     high = Effect.objects.filter(effect_id=1, effect_string="HIGH").values("effect_class").annotate(Count('snp'))
-    high_fields = high.keys()
-    dump(high, '/Users/mcobb/Documents/djangoProjects/ngsdb03/snpdb/gcharts/high_impact.csv', high_fields)
-    print "file saved"
-    # high_count = defaultdict(int)
-    # for i in high.iterator():
-    # 	high_count[i] += 1
-    # high_snp_total = sum(high_count.values())
+    dump(high, chart_path % 'high')
+    for obj in high.iterator():
+        for key, val in obj.items():
+            high_values.append(val)
+            if val not in high_keys and not isinstance(val, int):
+                high_keys.append(val)
+    high_value = [tuple(high_values[i:i+2]) for i in range(0, len(high_values), 2)]
+    high_snp_total = sum(i[1] for i in high_value)
+    for x in high_value:
+        percentage = float(x[1])/float(high_snp_total)*100
+        high_labels.append(round(percentage, 2))
+    snps_by_high_impact = Pie(high_labels).label(*high_labels).legend(*high_keys).color("919dab", "D2E3F7",
+                                                                                        "658CB9", "88BBF7",
+                                                                                        "666E78").size(450, 200)
+    snps_by_high_impact.image().save(image_path % 'high', 'png')
+    print "high files saved"
 
     impact = Effect.objects.filter(effect_id=1).values("effect_string").annotate(Count('snp'))
-    dump(impact, '/Users/mcobb/Documents/djangoProjects/ngsdb03/snpdb/gcharts/impact_impact.csv')
-    print "file saved"
-    # impact_count = defaultdict(int)
-    # for i in impact.iterator():
-    # 	impact_count[i] += 1
-    # impact_snp_total = sum(impact_count.values())
-    # print "impact_count"
-
+    dump(impact, chart_path % 'impact')
+    for obj in impact.iterator():
+        for key, val in obj.items():
+            print key, val
+            impact_values.append(val)
+            if val not in impact_keys and not isinstance(val, int):
+                impact_keys.append(val)
+    impact_value = [tuple(impact_values[i:i+2]) for i in range(0, len(impact_values), 2)]
+    impact_snp_total = sum(i[1] for i in impact_value)
+    for x in impact_value:
+        percentage = float(x[1])/float(impact_snp_total)*100
+        impact_labels.append(round(percentage,2))
+    snps_by_impact = Pie(impact_labels).label(*impact_labels).legend(*impact_keys).color("919dab", "D2E3F7",
+                                                                                                 "658CB9", "88BBF7",
+                                                                                                 "666E78").size(450, 200)
+    snps_by_impact.image().save(image_path % 'impact', 'png')
+    print "impact files saved"
 
     low = Effect.objects.filter(effect_id=1, effect_string="LOW").values("effect_class").annotate(Count('snp'))
-    dump(low, '/Users/mcobb/Documents/djangoProjects/ngsdb03/snpdb/gcharts/low_impact.csv')
-    print "file saved"
-    # low_count = defaultdict(int)
-    # for i in low.iterator():
-    # 	low_count[i] += 1
-    # print low_count
-    # low_snp_total = sum(low_count.values())
-    # print "low_count"
+    dump(low, chart_path % 'low')
+    for obj in low.iterator():
+        for key, val in obj.items():
+            low_values.append(val)
+            if val not in low_keys and not isinstance(val, int):
+                low_keys.append(val)
+    low_value = [tuple(low_values[i:i+2]) for i in range(0, len(low_values), 2)]
+    low_snp_total = sum(i[1] for i in low_value)
+    for x in low_value:
+        percentage = float(x[1])/float(low_snp_total)*100
+        low_labels.append(round(percentage, 2))
+    snps_by_low = Pie(low_labels).label(*low_labels).legend(*low_keys).color("919dab", "D2E3F7",
+                                                                                        "658CB9", "88BBF7",
+                                                                                        "666E78").size(450, 200)
+    snps_by_low.image().save(image_path % 'low', 'png')
+    print "low files saved"
 
     moderate = Effect.objects.filter(effect_id=1, effect_string="MODERATE").values("effect_class").annotate(Count('snp'))
-    dump(moderate, '/Users/mcobb/Documents/djangoProjects/ngsdb03/snpdb/gcharts/moderate_impact.csv')
-    print "file saved"
-    # moderate_count= defaultdict(int)
-    # for i in moderate.iterator():
-    # 	moderate_count[i] += 1
-    # moderate_snp_total = sum(moderate_count.values())
-    # print "moderate_count"
+    dump(moderate, chart_path % 'moderate')
+    for obj in moderate.iterator():
+        for key, val in obj.items():
+            moderate_values.append(val)
+            if val not in moderate_keys and not isinstance(val, int):
+                moderate_keys.append(val)
+    moderate_value = [tuple(moderate_values[i:i+2]) for i in range(0, len(moderate_values), 2)]
+    moderate_snp_total = sum(i[1] for i in moderate_value)
+    for x in moderate_value:
+        percentage = float(x[1])/float(moderate_snp_total)*100
+        moderate_labels.append(round(percentage, 2))
+    snps_by_moderate = Pie(moderate_labels).label(*moderate_labels).legend(*moderate_keys).color("919dab", "D2E3F7",
+                                                                                                         "658CB9", "88BBF7",
+                                                                                                         "666E78").size(550, 200)
+    snps_by_moderate.image().save(image_path % 'moderate', 'png')
+    print "moderate files saved"
 
     modifier = Effect.objects.filter(effect_id=1, effect_string="MODIFIER").values("effect_class").annotate(Count('snp'))
-    dump(modifier, '/Users/mcobb/Documents/djangoProjects/ngsdb03/snpdb/gcharts/modifier_impact.csv')
-    print "file saved"
-# modifier_count = defaultdict(int)
-# for i in modifier.iterator():
-# 	modifier_count[i] += 1
-# modifier_snp_total = sum(modifier_count.values())
-# print "modifier_count"
+    dump(modifier, chart_path % 'modifier')
+    for obj in modifier.iterator():
+        for key, val in obj.items():
+            modifier_values.append(val)
+            if val not in modifier_keys and not isinstance(val, int):
+                modifier_keys.append(val)
+    modifier_value = [tuple(modifier_values[i:i+2]) for i in range(0, len(modifier_values), 2)]
+    modifier_snp_total = sum(i[1] for i in modifier_value)
+    for x in modifier_value:
+        percentage = float(x[1])/float(modifier_snp_total)*100
+        modifier_labels.append(round(percentage, 2))
+    snps_by_modifier = Pie(modifier_labels).label(*modifier_labels).legend(*modifier_keys).color("919dab", "D2E3F7",
+                                                                                                         "658CB9", "88BBF7",
+                                                                                                         "666E78").size(450, 200)
+    snps_by_modifier.image().save(image_path % 'modifier', 'png')
+    print "modifier files saved"
 
+    lib_count = SNP.objects.values("library__librarycode").distinct().annotate(Count('snp_id'))
+    lib_snps = []
+    lib_snp_total = 0
+    for each in lib_count.iterator():
+        lib_snps.append(each['snp_id__count'])
+        lib_snp_total += each['snp_id__count']
+    for x in lib_snps:
+        percentage = float(x)/float(lib_snp_total)*100
+        lib_labels.append(round(percentage, 2))
+    lib_legend.append(each['library__librarycode'])
+    snps_by_library = Pie([lib_labels]).label(*lib_labels).legend(*lib_legend).color("919dab", "D2E3F7",
+                                                                                     "658CB9", "88BBF7",
+                                                                                     "666E78").size(450, 200)
+    snps_by_library.image()
+    snps_by_library.image().save(image_path % 'library', 'png')
+    print "saved snps_by_library"
 
-""" Google Chart Images
-	# lib_labels = []
-	# lib_legend = []
-	# org_labels = []
-	# org_legend = []
-	# impact_labels = []
-	# high_labels = []
-	# low_labels = []
-	# moderate_labels = []
-	# modifier_labels = []
-
-	# for x in modifier_count.values():
-	# 	percentage = float(x)/float(modifier_snp_total)*100
-	# 	modifier_labels.append(round(percentage,2))
-	# snps_by_modifier = Pie(modifier_labels).label(*modifier_labels).legend(*modifier_count.keys()).color("919dab", "D2E3F7",
-	#                                                                                                      "658CB9", "88BBF7",
-	#                                                                                                      "666E78").size(450,200)
-	# snps_by_modifier.image().save('/Users/mcobb/Documents/djangoProjects/ngsdb03/snpdb/gcharts/snps_by_modifier_impact.png', 'png')
-
-
-	# for x in moderate_count.values():
-	# 	percentage = float(x)/float(moderate_snp_total)*100
-	# 	moderate_labels.append(round(percentage,2))
-	# snps_by_moderate = Pie(moderate_labels).label(*moderate_labels).legend(*moderate_count.keys()).color("919dab", "D2E3F7",
-	#                                                                                                      "658CB9", "88BBF7",
-	#                                                                                                      "666E78").size(550,200)
-	# snps_by_moderate.image().save('/Users/mcobb/Documents/djangoProjects/ngsdb03/snpdb/gcharts/snps_by_moderate_impact.png', 'png')
-
-
-	# for x in lib_snps:
-	# 	percentage = float(x)/float(lib_snp_total)*100
-	# 	lib_labels.append(round(percentage,2))
-	# lib_legend.append(each['library__librarycode'])
-	# snps_by_library = Pie([lib_labels]).label(*lib_labels).legend(*lib_legend).color("919dab", "D2E3F7",
-	#                                                                                  "658CB9", "88BBF7",
-	#                                                                                  "666E78").size(450,200)
-	# snps_by_library.image()
-	# snps_by_library.image().save('/Users/mcobb/Documents/djangoProjects/ngsdb03/snpdb/gcharts/snps_by_library.png', 'png')
-	# print "saved snps_by_library"
-
-	# for x in org_snps:
-	# 	percentage = float(x)/float(org_snp_total)*100
-	# 	org_labels.append(round(percentage,2))
-	# org_legend.append(each['library__organism__organismcode'])
-	# snps_by_organism = Pie(org_labels).label(*org_labels).legend(*org_legend).color("919dab", "D2E3F7",
-	#                                                                                 "658CB9", "88BBF7",
-	#                                                                                 "666E78").size(450,200)
-	# snps_by_organism.image().save('/Users/mcobb/Documents/djangoProjects/ngsdb03/snpdb/gcharts/snps_by_organism.png', 'png')
-
-	# for x in impact_count.values():
-	# 	percentage = float(x)/float(low_snp_total)*100
-	# 	low_labels.append(round(percentage,2))
-	# snps_by_low = Pie(low_labels).label(*low_labels).legend(*impact_count.keys()).color("919dab", "D2E3F7",
-	#                                                                                     "658CB9", "88BBF7",
-	#                                                                                     "666E78").size(450,200)
-	# snps_by_low.image().save('/Users/mcobb/Documents/djangoProjects/ngsdb03/snpdb/gcharts/snps_by_low_impact.png', 'png')
-
-	# for x in impact_count.values():
-	# 	percentage = float(x)/float(impact_snp_total)*100
-	# 	impact_labels.append(round(percentage,2))
-	# snps_by_impact = Pie(impact_labels).label(*impact_labels).legend(*impact_count.keys()).color("919dab", "D2E3F7",
-	#                                                                                              "658CB9", "88BBF7",
-	#                                                                                              "666E78").size(450,200)
-	# snps_by_impact.image().save('/Users/mcobb/Documents/djangoProjects/ngsdb03/snpdb/gcharts/snps_by_impact.png', 'png')
-
-	# for x in high_count.values():
-	# 	percentage = float(x)/float(high_snp_total)*100
-		# high_labels.append(round(percentage,2))
-	# snps_by_high_impact = Pie(high_labels).label(*high_labels).legend(*high_count.keys()).color("919dab", "D2E3F7",
-	#                                                                                             "658CB9", "88BBF7",
-	#                                                                                             "666E78").size(450,200)
-	# snps_by_high_impact.image().save('/Users/mcobb/Documents/djangoProjects/ngsdb03/snpdb/gcharts/snps_by_high_impact.png', 'png')"""
-
+    org_count = SNP.objects.values("library__organism__organismcode").distinct().annotate(Count('snp_id'))
+    org_snps = []
+    org_snp_total = 0
+    for each in org_count.iterator():
+        org_snps.append(each['snp_id__count'])
+        org_snp_total += each['snp_id__count']
+    for x in org_snps:
+        percentage = float(x)/float(org_snp_total)*100
+        org_labels.append(round(percentage, 2))
+    org_legend.append(each['library__organism__organismcode'])
+    snps_by_organism = Pie(org_labels).label(*org_labels).legend(*org_legend).color("919dab", "D2E3F7",
+                                                                                    "658CB9", "88BBF7",
+                                                                                    "666E78").size(450, 200)
+    snps_by_organism.image().save(image_path % 'organism', 'png')
+    print "saved snps_by_organism"

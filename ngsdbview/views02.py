@@ -211,7 +211,7 @@ def CreateAlignstat(request, libcode, resid, returntype):
         'Unaligned in Percentage': unalignedperc,
         'Total Aligned Reads': totalaligned_readcount,
         'Total Aligned in Percentage':str(totalalignedperc) + '(' + str(uniqalignedperc) + str(unalignedperc) + ')',
-    }
+        }
 
     if returntype == 'chart':
         return alinstatpiechart
@@ -312,7 +312,9 @@ def Dashboard(request):
         collaborator = sample.collaborator.firstname + ' ' + sample.collaborator.lastname
         samplecountdic[collaborator] += 1
     kwargs['samplecountdic'] = samplecountdic
-    kwargs['samplecountchart']= Pie(samplecountdic.values()).legend('|'.join(samplecountdic.keys())).size(225,125)
+    kwargs['samplecountchart']= Pie(samplecountdic.values()).legend('|'.join(samplecountdic.keys())).size(225,125).color("919dab", "D2E3F7",
+                                                                                                                         "658CB9", "88BBF7",
+                                                                                                                         "666E78")
     kwargs['samplecounttotal'] = Sample.objects.all().count()
 
     # Sample table by organism
@@ -320,7 +322,9 @@ def Dashboard(request):
     for sample in Sample.objects.all():
         sampleorgcountdic[sample.organism.organismcode] += 1
     kwargs['sampleorgcountdic'] = sampleorgcountdic
-    kwargs['sampleorgcountchart']= Pie(sampleorgcountdic.values()).legend('|'.join(sampleorgcountdic.keys())).size(225,125)
+    kwargs['sampleorgcountchart']= Pie(sampleorgcountdic.values()).legend('|'.join(sampleorgcountdic.keys())).size(225,125).color("919dab", "D2E3F7",
+                                                                                                                                  "658CB9", "88BBF7",
+                                                                                                                                  "666E78")
     kwargs['sampleorgcounttotal'] = Sample.objects.all().count()
 
     # Sample table by type
@@ -328,7 +332,9 @@ def Dashboard(request):
     for sample in Sample.objects.all():
         sampletypecountdic[sample.sampletype] += 1
     kwargs['sampletypecountdic'] = sampletypecountdic
-    kwargs['sampletypecountchart']= Pie(sampletypecountdic.values()).legend('|'.join(sampletypecountdic.keys())).size(225,125)
+    kwargs['sampletypecountchart']= Pie(sampletypecountdic.values()).legend('|'.join(sampletypecountdic.keys())).size(225,125).color("919dab", "D2E3F7",
+                                                                                                                                     "658CB9", "88BBF7",
+                                                                                                                                     "666E78")
     kwargs['sampletypecounttotal'] = Sample.objects.all().count()
 
     # Libraries constructed by collaborator
@@ -338,7 +344,9 @@ def Dashboard(request):
             collaborator = samlib.sampleid.collaborator.firstname + ' ' + samlib.sampleid.collaborator.lastname
             libconstcountdic[collaborator] += 1
     kwargs['libconstcountdic'] = libconstcountdic
-    kwargs['libconstcountchart']= Pie(libconstcountdic.values()).legend('|'.join(libconstcountdic.keys())).size(225,125)
+    kwargs['libconstcountchart']= Pie(libconstcountdic.values()).legend('|'.join(libconstcountdic.keys())).size(225,125).color("919dab", "D2E3F7",
+                                                                                                                               "658CB9", "88BBF7",
+                                                                                                                               "666E78")
     kwargs['libconstcounttotal'] = samplelibrary.objects.all().count()
 
     # Libraries constructed by author
@@ -348,7 +356,9 @@ def Dashboard(request):
             author = samlib.author.firstname + ' ' + samlib.author.lastname
             libauthcountdic[author] += 1
     kwargs['libauthcountdic'] = libauthcountdic
-    kwargs['libauthcountchart']= Pie(libauthcountdic.values()).legend('|'.join(libauthcountdic.keys())).size(225,125)
+    kwargs['libauthcountchart']= Pie(libauthcountdic.values()).legend('|'.join(libauthcountdic.keys())).size(225,125).color("919dab", "D2E3F7",
+                                                                                                                            "658CB9", "88BBF7",
+                                                                                                                            "666E78")
     kwargs['libauthcounttotal'] = samplelibrary.objects.all().count()
 
     # Libraries constructed by organism
@@ -358,7 +368,9 @@ def Dashboard(request):
             org = Sample.objects.get(sampleid=samlib.sampleid).organism.organismcode
             liborgcountdic[org] += 1
     kwargs['liborgcountdic'] = liborgcountdic
-    kwargs['liborgcountchart']= Pie(liborgcountdic.values()).legend('|'.join(liborgcountdic.keys())).size(225,125)
+    kwargs['liborgcountchart']= Pie(liborgcountdic.values()).legend('|'.join(liborgcountdic.keys())).size(225,125).color("919dab", "D2E3F7",
+                                                                                                                         "658CB9", "88BBF7",
+                                                                                                                         "666E78")
     kwargs['liborgcounttotal'] = samplelibrary.objects.all().count()
 
     # Libraries constructed by librarytype
@@ -367,21 +379,31 @@ def Dashboard(request):
         if Sample.objects.filter(sampleid=samlib.sampleid).exists():
             libtypecountdic[samlib.librarytype.type] += 1
     kwargs['libtypecountdic'] = libtypecountdic
-    kwargs['libtypecountchart']= Pie(libtypecountdic.values()).legend('|'.join(libtypecountdic.keys())).size(225,125)
+    kwargs['libtypecountchart']= Pie(libtypecountdic.values()).legend('|'.join(libtypecountdic.keys())).size(225,125).color("919dab", "D2E3F7",
+                                                                                                                            "658CB9", "88BBF7",
+                                                                                                                            "666E78")
     kwargs['libtypecounttotal'] = samplelibrary.objects.all().count()
 
     # Libraries analyzed
     kwargs['libtype']=libtype
-    kwargs['libtypechart'] = Pie(libtype.values()).legend('|'.join(libtype.keys())).size(225,125)
+    kwargs['libtypechart'] = Pie(libtype.values()).legend('|'.join(libtype.keys())).size(225,125).color("919dab", "D2E3F7",
+                                                                                                        "658CB9", "88BBF7",
+                                                                                                        "666E78")
 
     kwargs['libauth']=libauth
-    kwargs['libauthchart'] = Pie(libauth.values()).legend('|'.join(libauth.keys())).size(225,125)
+    kwargs['libauthchart'] = Pie(libauth.values()).legend('|'.join(libauth.keys())).size(225,125).color("919dab", "D2E3F7",
+                                                                                                        "658CB9", "88BBF7",
+                                                                                                        "666E78")
 
     kwargs['collaborators']=collaborators
-    kwargs['collaboratorschart']= Pie(collaborators.values()).legend('|'.join(collaborators.keys())).size(225,125)
+    kwargs['collaboratorschart']= Pie(collaborators.values()).legend('|'.join(collaborators.keys())).size(225,125).color("919dab", "D2E3F7",
+                                                                                                                         "658CB9", "88BBF7",
+                                                                                                                         "666E78")
 
     kwargs['liborg']=liborg
-    kwargs['liborgchart']= Pie(liborg.values()).legend('|'.join(liborg.keys())).size(225,125)
+    kwargs['liborgchart']= Pie(liborg.values()).legend('|'.join(liborg.keys())).size(225,125).color("919dab", "D2E3F7",
+                                                                                                    "658CB9", "88BBF7",
+                                                                                                    "666E78")
 
     anaauth = defaultdict(int)
     resultids = Result.objects.all().values_list('result_id', flat=True)
@@ -390,7 +412,9 @@ def Dashboard(request):
         anaauth[author] += 1
 
     kwargs['anaauth']=anaauth
-    kwargs['anaauthchart']= Pie(anaauth.values()).legend('|'.join(anaauth.keys())).size(225,125)
+    kwargs['anaauthchart']= Pie(anaauth.values()).legend('|'.join(anaauth.keys())).size(225,125).color("919dab", "D2E3F7",
+                                                                                                       "658CB9", "88BBF7",
+                                                                                                       "666E78")
 
     return render_to_response('ngsdbview/dashboard.html',kwargs, context_instance=RequestContext(request))
 
@@ -611,7 +635,7 @@ def GetAlignStats(request):
     if request.method == 'POST':
         form = GetAlignStatsForm(request.POST) #bound form
         if form.is_valid() and 'libcode_genome_version' in request.POST:
-        #alignstat table, chart
+            #alignstat table, chart
             libcode_genome_versions = request.POST.getlist('libcode_genome_version')
 
             alignstatdics = {}
@@ -1064,10 +1088,10 @@ def GetSitecountMajorpcForLibs(request):
 
 
     return render_to_response('ngsdbview/get_sitecount_majorpc_forlibs.html',
-            {'outputdata': outputdata,
-             'genedic': genedic,
-             'residdic': residdic,
-             }, context_instance=RequestContext(request))
+                              {'outputdata': outputdata,
+                               'genedic': genedic,
+                               'residdic': residdic,
+                               }, context_instance=RequestContext(request))
 
 
 

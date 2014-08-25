@@ -1,4 +1,5 @@
 {% extends "admin/base_site.html" %}
+{% load staticfiles %}
 
 {%block content%}
 <link rel="stylesheet" type="text/css" href="/media/css/style.css" >
@@ -11,14 +12,15 @@
 <script language="javascript" type="text/javascript" src="/media/js/jquery.min.js"></script>
 <script language="javascript" type="text/javascript" src="/media/js/jquery-ui-1.8.18.custom.min.js"></script>
 <script type="text/javascript">
-    $(document).ready(function() {
-        /*$("input#id_resultidfield").autocomplete({source: ["c++", "java", "php", "coldfusion", "javascript", "asp", "ruby"]});*/
-        {% autoescape off %}
-            {{ autoclibcodes }}
-        {% endautoescape %}
-    });
+   $(document).ready(function() {
+       /*$("input#id_resultidfield").autocomplete({source: ["c++", "java", "php", "coldfusion", "javascript", "asp", "ruby"]});*/
+       {% autoescape off %}
+           {{ autoclibcodes }}
+       {% endautoescape %}
+   });
 </script>
 <!-- end for autocompletion -->
+
 
 
 <FORM action="." method="post">
@@ -31,63 +33,61 @@
     {% load humanize %}
 
     <!--  second ttable   -->
-    <TABLE id="viewtable">
-        {% for rowtitle in roworder %}
-        <TR>
-            <TH>{{ rowtitle }}</TH>
-            {% for key in alignstatdicshori|hash:rowtitle %}
-            <TD>{{ alignstatdicshori|hash:rowtitle|hash:key|intcomma }}</TD>
+    <div class="container">
+        <table id="viewtable" class="table table-condensed table-hover" style="table-layout: fixed; word-wrap: break-word;">
+            {% for rowtitle in roworder %}
+            <tr>
+                <th>{{ rowtitle }} </th>
+                {% for key in alignstatdicshori|hash:rowtitle %}
+                <td>{{ alignstatdicshori|hash:rowtitle|hash:key|intcomma }}</td>
+                {% endfor %}
+            </tr>
             {% endfor %}
-        </TR>
-        {% endfor %}
-    </TABLE>
+        </table>
+    </div>
 
     {% if alignstatpics %}
     {# display common vertically stacked bar chart #}
-    <TABLE id="viewtable"><TR>
-        <TD><img src="{{ alignstatpics }}" /></TD>
-    </TR></TABLE>
-     {% endif %}
+    <div class="container">
+        <table id="viewtable">
+            <tr><td><img src="{{ alignstatpics }}"</td></tr>
+        </table>
+    </div>
+    {% endif %}
 
 {% else %}
-<TABLE>
-    <TR>
-        <TD>
-            {{ form.as_table }}
-        </TD>
-    </TR>
-
-    <TR>
-        <TD>Library codes:</TD>
-        <TD>
-            <TABLE><TR>Genome and Version:
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <tr>
+                <td> {{ form.as_table }}</td>
+            </tr>
             {% for genome_version, libcodes in genomelibcodemap.items %}
-                <TD>
-                    <TABLE id="viewtable">
-                    <thead>
-                        <TR><TH>
-                            {{ genome_version }}
-                        </TH></TR>
-                    </thead>
-                    <tbody>
-                        {% for libcode in libcodes %}
-                            <TR><TD>
-                                <input type="checkbox" name="libcode_genome_version" value = {{ libcode|add:'_'|add:genome_version }} > {{ libcode }}
-                            </TD></TR>
-                        {% endfor %}
-                    </tbody>
-                    </TABLE>
-                </TD>
+            <div class="col-md-1" style="padding:10">
+                <div class="panel panel-primary" style="border-color: #616770;">
+                    <div class="panel-heading" style="background-color: #616770; border-color:#616770; padding:5">
+                        <h5 class="panel-title" style="font-size:12px;">{{ genome_version }}</h5>
+                    </div>
+                    <div class="panel-body" style="padding:5">
+                        <table class="table borderless" id="viewtable">
+                            <tbody>
+                            <tr>
+                                {% for libcode in libcodes %}
+                                <td class="list-group-item" style="font-size:12px;">
+                                    <input type="checkbox"  name="libcode_genome_version" value={{ libcode|add:'_'|add:genome_version }} style="margin-right:5">{{ libcode }}</input>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
             {% endfor %}
-            </TR></TABLE>
-        </TD>
-    </TR>
-    <TR>
-        <TD>
-            <input type="submit"  name="level1" value="Submit" />
-        </TD>
-    </TR>
-</TABLE>
+        </div>
+    </div>
+    <input type="submit" name="level1" value="Submit" />
+</div>
 </FORM>
 {% endif %}
 {% endblock %}
