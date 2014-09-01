@@ -781,6 +781,8 @@ def SearchForGene(request):
 
     return render_to_response('ngsdbview/search_for_gene.html',kwargs, context_instance=RequestContext(request))
 
+
+#todo Error in view. Need to fix: "Cannot resolve keyword 'reference_code' into field."
 def GetResultsForMultiGenesMultiLib(request):
     '''
         Get results for multiple genes from multiple libraries
