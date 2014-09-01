@@ -3,7 +3,8 @@
 {% load i18n grp_tags %}
 {% load staticfiles %}
 
-<html lang="{{ LANGUAGE_CODE|default:"en-us" }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
+<html lang="{{ LANGUAGE_CODE|default:'en-us' }}">
+{% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
 <head>
     <title style="padding-top: 5">{% block title %}
         {% endblock %}</title>
