@@ -1,0 +1,1 @@
+snpdb is the module that contains all tables related to snp analysis.

@@ -7,6 +7,7 @@ from django import forms
 from django.forms.widgets import RadioSelect, CheckboxSelectMultiple
 from ngsdbview.viewtools import *
 from django.contrib.auth.decorators import login_required
+from samples.models import Library as samplelibrary, Sample
 
 #============================================================================#
 # View forms
@@ -26,7 +27,7 @@ class ListAnalysesForm(forms.Form):
     #iscurrentfield = forms.BooleanField(label='Current?', required=False,initial=True)
     #isobsfield = forms.BooleanField(label='Obsolete?', required=False, initial=False)
 
-class GetResultsForGeneForm(forms.Form):
+class SearchForGeneForm(forms.Form):
     geneid = forms.CharField(max_length=20, error_messages={'required': 'Please enter a Gene Id'})
 
 class AnalyzeExperimentFrom(forms.Form):
@@ -108,6 +109,11 @@ def GetGeneDesForGenomeid(request, genomeid):
 def GetLibcodesForResid(request, resid):
     '''get all library codes for the given resid'''
     libcodes = Result.objects.get(pk=resid).libraries.all().values_list('librarycode', flat=True)
+    return libcodes
+
+def GetLibcodesForLibids(request, libids):
+    '''get all library codes for the give libid(s)'''
+    libcodes = Library.objects.filter(librarycode__in=libcodes).values_list("library_id", flat=True)
     return libcodes
 
 def GetResidForLibcodeGenomeid(request, libcode, genomeid):
@@ -210,7 +216,7 @@ def CreateAlignstat(request, libcode, resid, returntype):
         'Unaligned in Percentage': unalignedperc,
         'Total Aligned Reads': totalaligned_readcount,
         'Total Aligned in Percentage':str(totalalignedperc) + '(' + str(uniqalignedperc) + str(unalignedperc) + ')',
-    }
+        }
 
     if returntype == 'chart':
         return alinstatpiechart
@@ -224,6 +230,23 @@ def string2list(request, string):
     list1 = list(set(list1))
 
     return list1
+
+
+def getLibGroupStru(request):
+    gpstru = {}
+    libtypes = Librarytype.objects.all().values_list("type", flat=True)
+    refgenomes = Genome.objects.all().values_list("reference_code", flat=True)
+    organisms = Organism.objects.all().values_list("organismcode", flat=True)
+
+    gpstru['libtype'] = libtypes
+    gpstru['refgenome'] = refgenomes
+    gpstru['organism'] = organisms
+
+    return gpstru
+
+
+def groupLibcodeByCategory(request, gpstru, availlibcodes):
+    availlibs = Library.objects.filter(library_code__in=availlibcodes)
 
 #============================================================================#
 # View functions
@@ -279,6 +302,7 @@ def Dashboard(request):
 
     libcount = Library.objects.all().count()
     anacount = Result.objects.all().count()
+
     kwargs['libcount'] = libcount
     kwargs['anacount'] = anacount
 
@@ -300,20 +324,108 @@ def Dashboard(request):
         author = Author.objects.filter(library__librarycode=libcode).values_list('designation', flat=True)[0]
         libauth[author] += 1
         (firstname, lastname) = Collaborator.objects.filter(library__librarycode=libcode).values_list('firstname', 'lastname')[0]
-        collaborator = firstname + '_' + lastname
+        collaborator = firstname + ' ' + lastname
         collaborators[collaborator] += 1
 
+
+    # Sample table by collab
+    samplecountdic = defaultdict(int)
+    for sample in Sample.objects.all():
+        collaborator = sample.collaborator.firstname + ' ' + sample.collaborator.lastname
+        samplecountdic[collaborator] += 1
+    kwargs['samplecountdic'] = samplecountdic
+    kwargs['samplecountchart']= Pie(samplecountdic.values()).legend('|'.join(samplecountdic.keys())).size(225,125).color("919dab", "D2E3F7",
+                                                                                                                         "658CB9", "88BBF7",
+                                                                                                                         "666E78")
+    kwargs['samplecounttotal'] = Sample.objects.all().count()
+
+    # Sample table by organism
+    sampleorgcountdic = defaultdict(int)
+    for sample in Sample.objects.all():
+        sampleorgcountdic[sample.organism.organismcode] += 1
+    kwargs['sampleorgcountdic'] = sampleorgcountdic
+    kwargs['sampleorgcountchart']= Pie(sampleorgcountdic.values()).legend('|'.join(sampleorgcountdic.keys())).size(225,125).color("919dab", "D2E3F7",
+                                                                                                                                  "658CB9", "88BBF7",
+                                                                                                                                  "666E78")
+    kwargs['sampleorgcounttotal'] = Sample.objects.all().count()
+
+    # Sample table by type
+    sampletypecountdic = defaultdict(int)
+    for sample in Sample.objects.all():
+        sampletypecountdic[sample.sampletype] += 1
+    kwargs['sampletypecountdic'] = sampletypecountdic
+    kwargs['sampletypecountchart']= Pie(sampletypecountdic.values()).legend('|'.join(sampletypecountdic.keys())).size(225,125).color("919dab", "D2E3F7",
+                                                                                                                                     "658CB9", "88BBF7",
+                                                                                                                                     "666E78")
+    kwargs['sampletypecounttotal'] = Sample.objects.all().count()
+
+    # Libraries constructed by collaborator
+    libconstcountdic = defaultdict(int)
+    for samlib in samplelibrary.objects.all():
+        if Sample.objects.filter(sampleid=samlib.sampleid).exists():
+            collaborator = samlib.sampleid.collaborator.firstname + ' ' + samlib.sampleid.collaborator.lastname
+            libconstcountdic[collaborator] += 1
+    kwargs['libconstcountdic'] = libconstcountdic
+    kwargs['libconstcountchart']= Pie(libconstcountdic.values()).legend('|'.join(libconstcountdic.keys())).size(225,125).color("919dab", "D2E3F7",
+                                                                                                                               "658CB9", "88BBF7",
+                                                                                                                               "666E78")
+    kwargs['libconstcounttotal'] = samplelibrary.objects.all().count()
+
+    # Libraries constructed by author
+    libauthcountdic = defaultdict(int)
+    for samlib in samplelibrary.objects.all():
+        if Sample.objects.filter(sampleid=samlib.sampleid).exists():
+            author = samlib.author.firstname + ' ' + samlib.author.lastname
+            libauthcountdic[author] += 1
+    kwargs['libauthcountdic'] = libauthcountdic
+    kwargs['libauthcountchart']= Pie(libauthcountdic.values()).legend('|'.join(libauthcountdic.keys())).size(225,125).color("919dab", "D2E3F7",
+                                                                                                                            "658CB9", "88BBF7",
+                                                                                                                            "666E78")
+    kwargs['libauthcounttotal'] = samplelibrary.objects.all().count()
+
+    # Libraries constructed by organism
+    liborgcountdic = defaultdict(int)
+    for samlib in samplelibrary.objects.all():
+        if Sample.objects.filter(sampleid=samlib.sampleid).exists():
+            org = Sample.objects.get(sampleid=samlib.sampleid).organism.organismcode
+            liborgcountdic[org] += 1
+    kwargs['liborgcountdic'] = liborgcountdic
+    kwargs['liborgcountchart']= Pie(liborgcountdic.values()).legend('|'.join(liborgcountdic.keys())).size(225,125).color("919dab", "D2E3F7",
+                                                                                                                         "658CB9", "88BBF7",
+                                                                                                                         "666E78")
+    kwargs['liborgcounttotal'] = samplelibrary.objects.all().count()
+
+    # Libraries constructed by librarytype
+    libtypecountdic = defaultdict(int)
+    for samlib in samplelibrary.objects.all():
+        if Sample.objects.filter(sampleid=samlib.sampleid).exists():
+            libtypecountdic[samlib.librarytype.type] += 1
+    kwargs['libtypecountdic'] = libtypecountdic
+    kwargs['libtypecountchart']= Pie(libtypecountdic.values()).legend('|'.join(libtypecountdic.keys())).size(225,125).color("919dab", "D2E3F7",
+                                                                                                                            "658CB9", "88BBF7",
+                                                                                                                            "666E78")
+    kwargs['libtypecounttotal'] = samplelibrary.objects.all().count()
+
+    # Libraries analyzed
     kwargs['libtype']=libtype
-    kwargs['libtypechart'] = Pie(libtype.values()).legend('|'.join(libtype.keys())).size(225,125)
+    kwargs['libtypechart'] = Pie(libtype.values()).legend('|'.join(libtype.keys())).size(225,125).color("919dab", "D2E3F7",
+                                                                                                        "658CB9", "88BBF7",
+                                                                                                        "666E78")
 
     kwargs['libauth']=libauth
-    kwargs['libauthchart'] = Pie(libauth.values()).legend('|'.join(libauth.keys())).size(225,125)
+    kwargs['libauthchart'] = Pie(libauth.values()).legend('|'.join(libauth.keys())).size(225,125).color("919dab", "D2E3F7",
+                                                                                                        "658CB9", "88BBF7",
+                                                                                                        "666E78")
 
     kwargs['collaborators']=collaborators
-    kwargs['collaboratorschart']= Pie(collaborators.values()).legend('|'.join(collaborators.keys())).size(225,125)
+    kwargs['collaboratorschart']= Pie(collaborators.values()).legend('|'.join(collaborators.keys())).size(225,125).color("919dab", "D2E3F7",
+                                                                                                                         "658CB9", "88BBF7",
+                                                                                                                         "666E78")
 
     kwargs['liborg']=liborg
-    kwargs['liborgchart']= Pie(liborg.values()).legend('|'.join(liborg.keys())).size(225,125)
+    kwargs['liborgchart']= Pie(liborg.values()).legend('|'.join(liborg.keys())).size(225,125).color("919dab", "D2E3F7",
+                                                                                                    "658CB9", "88BBF7",
+                                                                                                    "666E78")
 
     anaauth = defaultdict(int)
     resultids = Result.objects.all().values_list('result_id', flat=True)
@@ -322,13 +434,15 @@ def Dashboard(request):
         anaauth[author] += 1
 
     kwargs['anaauth']=anaauth
-    kwargs['anaauthchart']= Pie(anaauth.values()).legend('|'.join(anaauth.keys())).size(225,125)
+    kwargs['anaauthchart']= Pie(anaauth.values()).legend('|'.join(anaauth.keys())).size(225,125).color("919dab", "D2E3F7",
+                                                                                                       "658CB9", "88BBF7",
+                                                                                                       "666E78")
 
     return render_to_response('ngsdbview/dashboard.html',kwargs, context_instance=RequestContext(request))
 
 
 
-def ListLibraries(request):
+def ListLibraries(request, libtype):
     #gets user and the libraries the user has permission to
     [user, availlibids] = getlibraries(request)
     kwargs={}
@@ -430,7 +544,7 @@ def ListExperiments(request):
     allexp = Experiment.objects.all()
     for exp in allexp:
         expname = exp.name
-        expts[expname] = Library.objects.filter(experiment__name=expname)
+        expts[exp] = Library.objects.filter(experiment__name=expname)
 
     kwargs['expts']=expts
 
@@ -464,24 +578,36 @@ def AnalyzeExperiments(request):
             if 'formlevel3' in request.POST:
                 geneidbox = request.POST['geneidbox']
                 geneids = string2list(request, geneidbox)
-                allgenes = Resultsriboprof.objects.filter(result__in=resids).filter(geneid__in=geneids)
                 # readcount data for the table
                 finalcount = {}
                 for geneid in geneids:
-                    resset = allgenes.filter(geneid=geneid)
-                    finalcount[geneid] = resset.values_list('counts_raw', flat=True)
-                    print finalcount
+                    genecounts = []
+
+                    for resid in resids:
+                        resobj = Result.objects.get(result_id=resid)
+                        libtype = resobj.libraries.all()[0].librarytype.type
+                        genecount = ""
+                        if libtype == "ribosomeprofiling":
+                            genecount = Resultsriboprof.objects.get(result=resid, geneid=geneid).counts_raw
+                        elif libtype == "fragRNA":
+                            genecount = Resultsriboprof.objects.get(result=resid, geneid=geneid).counts_raw
+                        elif libtype == "SL":
+                            genecount = Resultslgene.objects.get(result=resid, geneid=geneid)
+                        genecounts.append(genecount)
+                    finalcount[geneid]=genecounts
                 kwargs['finalcount'] = finalcount
+
                 # header data for table
                 headerLib=[]
                 headerGen=[]
-                residsforheader =resset.values_list('result', flat=True)
-                for resid in residsforheader:
+                headerLibtype = []
+                for resid in resids:
                     headerLib.append(GetLibcodesForResid(request, resid)[0])
                     headerGen.append(GetGenomeVersionForResid(request, resid))
+                    headerLibtype.append(Result.objects.get(result_id=resid).libraries.all()[0].librarytype.type)
                 kwargs['headerLib'] = headerLib
                 kwargs['headerGen'] = headerGen
-
+                kwargs['headerLibtype'] = headerLibtype
                 #get list of geneids for tritryplink in comma separated string form
                 kwargs['geneidsfortritryp'] = ','.join(geneids)
 
@@ -531,7 +657,7 @@ def GetAlignStats(request):
     if request.method == 'POST':
         form = GetAlignStatsForm(request.POST) #bound form
         if form.is_valid() and 'libcode_genome_version' in request.POST:
-        #alignstat table, chart
+            #alignstat table, chart
             libcode_genome_versions = request.POST.getlist('libcode_genome_version')
 
             alignstatdics = {}
@@ -588,19 +714,19 @@ def GetAlignStats(request):
     return render_to_response('ngsdbview/get_align_stats.html',kwargs, context_instance=RequestContext(request))
 
 
-def GetResultsForGene(request):
+def SearchForGene(request):
     '''
         Get results for one single gene from multiple libraries
     '''
     #gets user and the libraries the user has permission to
     [user, availlibids] = getlibraries(request)
     kwargs={}
-    kwargs['title']='Query a Gene:'
+    kwargs['title']='Search For a Gene:'
     kwargs['listoflinks']=listoflinks
     kwargs['user']=user
 
     if request.method == 'POST':
-        form = GetResultsForGeneForm(request.POST) #bound form
+        form = SearchForGeneForm(request.POST) #bound form
         if form.is_valid():
             if 'resid' in request.POST:
                 geneid = form.cleaned_data['geneid']
@@ -622,7 +748,6 @@ def GetResultsForGene(request):
                         int = getIntervalsForGeneResid(request, geneid, resid, pos)
                         if int != "NA":
                             interval[pos]=int
-                print interval
                 # get ordered list of positions (using just first of resids)
                 ordposlist =  sorted(slsreadcount[slsreadcount.keys()[0]].keys())
 
@@ -630,7 +755,7 @@ def GetResultsForGene(request):
                 slsiteobjs = slsiteobjs.filter(rank=1)
                 for slsiteobj in slsiteobjs:
                     majorsitepos[slsiteobj.result_id] = slsiteobj.position
-                print majorsitepos
+
                 kwargs['majorsitepos']=majorsitepos
                 kwargs['allres']=allres
                 kwargs['geneid']=geneid
@@ -651,11 +776,13 @@ def GetResultsForGene(request):
             kwargs['form']=form
 
     else:
-        form = GetResultsForGeneForm() #unbound form
+        form = SearchForGeneForm() #unbound form
         kwargs['form']=form
 
-    return render_to_response('ngsdbview/get_results_for_gene.html',kwargs, context_instance=RequestContext(request))
+    return render_to_response('ngsdbview/search_for_gene.html',kwargs, context_instance=RequestContext(request))
 
+
+#todo Error in view. Need to fix: "Cannot resolve keyword 'reference_code' into field."
 def GetResultsForMultiGenesMultiLib(request):
     '''
         Get results for multiple genes from multiple libraries
@@ -665,6 +792,8 @@ def GetResultsForMultiGenesMultiLib(request):
     kwargs['title']='Query set of Libraries:'
     kwargs['listoflinks']=listoflinks
     kwargs['user']=user
+
+    gpstru = getLibGroupStru(request)
 
     # for autocomplete lib codes
     availlibcodes = Library.objects.filter(library_id__in=availlibids).values_list('librarycode', flat=True)
@@ -726,6 +855,7 @@ def GetResultsForMultiGenesMultiLib(request):
         form = GetResultsForMultiGenesMultiLibForm() #unbound form
         kwargs['form']=form
         kwargs['availlibcodes']=availlibcodes
+        print availlibcodes
     return render_to_response('ngsdbview/get_results_for_multigenes_multilibs.html',kwargs, context_instance=RequestContext(request))
 
 def GetResultsForMultiGenes(request):
@@ -984,10 +1114,10 @@ def GetSitecountMajorpcForLibs(request):
 
 
     return render_to_response('ngsdbview/get_sitecount_majorpc_forlibs.html',
-            {'outputdata': outputdata,
-             'genedic': genedic,
-             'residdic': residdic,
-             }, context_instance=RequestContext(request))
+                              {'outputdata': outputdata,
+                               'genedic': genedic,
+                               'residdic': residdic,
+                               }, context_instance=RequestContext(request))
 
 
 

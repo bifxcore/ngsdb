@@ -46,7 +46,7 @@ def getlibraries(request):
         user=request.user
 
     #gets user profile corresponding to user
-    lib_ids = user.get_profile().libraries.values_list('library_id',flat=True)
+    lib_ids = user.get_profile().libraries.values_list('id',flat=True)
 
     #changes queryset into a normal list
     liblist =[]

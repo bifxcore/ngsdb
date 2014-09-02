@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+
+{% extends "snpdb/dashboard.html" %}
+{% load snp_filters %}
+{% load static %}
+{% load staticfiles %}
+
+{% block title %}
+    Impact results
+{% endblock %}
+
+
+{% block bootstrap %}
+
+<div class="container-fluid">
+	<div class="page-header text-header" style="padding-left:30px; margin-top:10px; padding-bottom:0px">
+    	<h1 class="header" style="padding-bottom:0px;">SNP Summary</h1>
+    	<h2 class="header" style="padding-top:5px">There are {{ count }} results. </h2>
+	</div>
+</div>
+
+<body>
+<div class="container-fluid">
+    <div class="collapse navbar-collapse">
+        <ul class="nav navbar-nav">
+            <form class="form-inline" role="form" id='search' action='/snpdb/impact-results/search' style="padding-bottom: 30px;" method="get">
+                <div class="form-group">
+                    <label class="sr-only" for="search">Search</label>
+                    <input type="text" class="form-control" name="s" placeholder="search">
+                    <select class="selectpicker show-tick" data-style="btn-large btn-default" name="att" title='Search Option'>
+                        <option value="snp_position">SNP Position</option>
+                        <option value="result">Result</option>
+                        <option value="ref_base">Reference Base</option>
+                        <option value="alt_base">Alternative Base</option>
+                        <option value="heterozygosity">Heterozygosity</option>
+                        <option value="quality">Quality</option>
+                        <option value="library">Library</option>
+                        <option value="chromosome__chromosome_name">Chromosome</option>
+                        <option value="effect__effect_string">Effect Impact</option>
+                        <option value="effect__effect_class">Effect</option>
+                    </select>
+                    <button class="btn btn-primary" type="submit"  style="margin-left:0px; width:75px; vertical-align:middle; padding: 0px">Search</button>
+                </div>
+            </form>
+        </ul>
+    </div>
+</div>
+
+<div class="container-fluid" style="padding-bottom:30px">
+    <table class="table table-condensed" style="table-layout: fixed; word-wrap: break-word; border-color: black">
+        <tr>
+            <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.snp_position }}>Position</a></th>
+            <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.ref_base }}>Reference Base</a></th>
+            <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.alt_base }}>Alternate Base</a></th>
+            <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.quality }}>Quality</a></th>
+            <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.library__librarycode }}>Library</a></th>
+            <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.chromosome__chromosome_name }}>Chromosome</a></th>
+            <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.effect_string }}>Effect Impact</a></th>
+            <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.effect_class }}>Effect</a></th>
+        </tr>
+        <tbody>
+        <tr>
+            {% for each in results %}
+
+                <td class="text-center">{{ each.0 }}</td>
+                <td class="text-center">{{ each.1 }}</td>
+                <td class="text-center">{{ each.2 }}</td>
+                <td class="text-center">{{ each.6 }}</td>
+                <td class="text-center">{{ library1 }}</td>
+                <td class="text-center">{{ each.3 }}</td>
+                <td class="text-center">
+                    <a href="/snpdb/gene-feature?geneid={{ effect }}">{{each.4}}</a>
+                </td>
+                <td class="text-center">{{ each.5 }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+</body>
+
+
+{% if results.has_next %}
+    <div class="container-fluid">
+        <div class="ngsdb pagination">
+            <ul class="ngsdb">
+                {% if results.has_previous %}
+                    {% if selection %}
+                        <li><a href="?page={{ results.previous_page_number }}&s={{filter_on}}&att={{selection}}">&laquo;</a></li>
+                    {% else %}
+                        <li><a href="?page={{ results.previous_page_number }}">&laquo;</a></li>
+                    {% endif %}
+                {% else %}
+                    <li class="disabled"><a href="#">&laquo;</a></li>
+                {% endif %}
+
+                {% for page in paginator.page_range %}
+                    {% if page <= toolbar_max and page > toolbar_min and page != results.number %}
+                        {% if selection %}
+                            <li><a href="?page={{ page }}&s={{filter_on}}&att={{selection}}">{{page}}</a></li>
+                        {% else %}
+                            <li><a href="?page={{ page }}">{{page}}</a></li>
+                        {% endif %}
+                    {% elif page == results.number %}
+                        {% if selection %}
+                            <li class="active"><a href="?page={{ results.number }}&s={{filter_on}}&att={{selection}}">{{results.number}}</a></li>
+                        {% else %}
+                            <li class="active"><a href="?page={{ results.number }}">{{results.number}}</a></li>
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+
+                {% if results.has_next %}
+                   {% if selection %}
+                        <li><a href="?page={{ results.next_page_number }}&s={{filter_on}}&att={{selection}}">&raquo;</a></li>
+                    {% else %}
+                        <li><a href="?page={{ results.next_page_number }}">&raquo;</a></li>
+                    {% endif %}
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+{% endif %}
+
+{% endblock %}
+</html>

@@ -1,17 +1,80 @@
 from snpdb.models import *
-from django.shortcuts import render_to_response
+from django.shortcuts import render_to_response, render
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from utils import build_orderby_urls
 from django.db.models import *
 from django_boolean_sum import BooleanSum
 from templatetags.snp_filters import *
 from django.template import RequestContext
+from GChartWrapper import *
+from collections import *
+import subprocess
+import datetime
+import os
+import csv
+
+low_effects = ["SYNONYMOUS_START", "NON_SYNONYMOUS_START", "START_GAINED", "SYNONYMOUS_CODING", "SYNONYMOUS_STOP"]
+high_effects = ["SPLICE_SITE_ACCEPTOR", "SPLICE_SITE_DONOR", "START_LOST", "EXON_DELETED", "FRAME_SHIFT", "STOP_GAINED", "STOP_LOST", "RARE_AMINO_ACI"]
+moderate_effects = ["NON_SYNONYMOUS_CODING", "CODON_CHANGE", "CODON_INSERTION", "CODON_CHANGE_PLUS_CODON_INSERTION",
+                    "CODON_DELETION", "CODON_CHANGE_PLUS_CODON_DELETION", "UTR_5_DELETED", "UTR_3_DELETED"]
+modifier_effects = ["UTR_5_PRIME", "UTR_3_PRIME", "REGULATION", "UPSTREAM", "DOWNSTREAM", "GENE", "TRANSCRIPT", "EXON",
+                    "INTRON_CONSERVED", "INTRON", "INTRAGENIC", "INTERGENIC", "INTERGENIC_CONSERVED", "NONE", "CHROMOSOME", "CUSTOM", "CDS"]
 
 
+#todo set up a cron job to auto-create the pie charts and counts weekly/monthly and store them for quicker access.
 def dashboard(request):
-    return render_to_response('snpdb/dashboard.html')
+    title = "SNP Dashboard"
+
+    lib_count = SNP.objects.values("library__librarycode").distinct().annotate(Count('snp_id'))
+    lib_snps = []
+    lib_snp_total = 0
+    for each in lib_count.iterator():
+        lib_snps.append(each['snp_id__count'])
+        lib_snp_total += each['snp_id__count']
+
+    org_count = SNP.objects.values("library__organism__organismcode").distinct().annotate(Count('snp_id'))
+    org_snps = []
+    org_snp_total = 0
+    for each in org_count.iterator():
+        org_snps.append(each['snp_id__count'])
+        org_snp_total += each['snp_id__count']
+
+    path = os.path.abspath(os.path.dirname(__file__))
+    chart_path = os.path.join(path, 'gcharts/%s_impact.csv')
+    # image_path = os.path.join(path, 'gcharts/snps_by_%s.png')
+    image_path = 'snpdb/snps_by_%s.png'
+    images_path = 'snps_by_%s.png'
+    if os.path.isfile(chart_path % 'high') and os.path.isfile(image_path % 'high'):
+        print "file ", chart_path % 'high', "and file ", image_path % 'high', " was found."
+        pass
+    else:
+        save_snp_dashboard_files(chart_path, image_path)
+    totals = [lib_snp_total, org_snp_total]
+
+    #read count files
+    high_count = read(chart_path % 'high')
+    low_count = read(chart_path % 'low')
+    moderate_count = read(chart_path % 'moderate')
+    modifier_count = read(chart_path % 'modifier')
+    impact_count = read(chart_path % 'impact')
+
+    images = [images_path % 'library', images_path % 'organism', images_path % 'impact', images_path % 'high',
+              images_path % 'low', images_path % 'moderate', images_path % 'modifier']
+
+    return render_to_response('snpdb/dashboard.html', {"title": title,
+                                                       "images": images,
+                                                       "totals": totals,
+                                                       "lib_count": lib_count,
+                                                       "org_count": org_count,
+                                                       "impact_count": impact_count,
+                                                       "high_count": high_count,
+                                                       "low_count": low_count,
+                                                       "moderate_count": moderate_count,
+                                                       "modifier_count": modifier_count,
+                                                       },  context_instance=RequestContext(request))
 
 
+# Returns the general effect table view.
 def effect(request):
     order_by = request.GET.get('order_by', 'effect')
     current_url = request.get_full_path()
@@ -27,7 +90,7 @@ def effect(request):
     except PageNotAnInteger:
         snp_effect = paginator.page(1)
     except EmptyPage:
-        effect = paginator.page(paginator.num_pages)
+        snp_effect = paginator.page(paginator.num_pages)
 
     toolbar_max = min(snp_effect.number + 4, paginator.num_pages)
     toolbar_min = max(snp_effect.number - 4, 0)
@@ -41,6 +104,7 @@ def effect(request):
                               context_instance=RequestContext(request))
 
 
+# Returns the general filter table view
 def snp_filter(request):
     order_by = request.GET.get('order_by', 'snp')
     filter_list = Filter.objects.all().order_by(order_by)
@@ -67,6 +131,7 @@ def snp_filter(request):
                                                     "toolbar_min": toolbar_min})
 
 
+# Returns the general SNP table view
 def snp(request):
     order_by = request.GET.get('order_by', 'snp_id')
     snp_list = SNP.objects.values('snp_id', 'snp_position', 'result', 'ref_base', 'alt_base',
@@ -97,6 +162,7 @@ def snp(request):
                                                  "toolbar_min": toolbar_min})
 
 
+# Returns the general SNP Type table view.
 def snp_type(request):
     order_by = request.GET.get('order_by', 'snptype_id')
     snptype_list = SNP_Type.objects.all().order_by(order_by)
@@ -125,6 +191,7 @@ def snp_type(request):
                                                      "toolbar_min": toolbar_min})
 
 
+# Returns the general statistics table view.
 def statistics(request):
     order_by = request.GET.get('order_by', 'stats_id')
     statistic_list = Statistics.objects.all().order_by(order_by)
@@ -154,6 +221,8 @@ def statistics(request):
 
 # Search views
 #---------------------------------------------------------------------------------------------------
+#todo merge filter views with basic views.
+# Returns a view of the Effect table that has been filtered.
 def effect_filter(request):
     selection = request.GET.get('att')
     filter_on = request.GET.get('s')
@@ -188,6 +257,7 @@ def effect_filter(request):
                               context_instance=RequestContext(request))
 
 
+# Returns a view of the SNP table that has been filtered.
 def snp_filter_result(request):
     selection = request.GET.get('att')
     filter_on = request.GET.get('s')
@@ -225,6 +295,7 @@ def snp_filter_result(request):
                               context_instance=RequestContext(request))
 
 
+# Returns a view of the Filter table that has been filtered.
 def filter_filter(request):
     selection = request.GET.get('att')
     filter_on = request.GET.get('s')
@@ -257,6 +328,7 @@ def filter_filter(request):
                                                     "toolbar_min": toolbar_min})
 
 
+# Returns a view of the SNP Type table that has been filtered.
 def snptype_filter(request):
     selection = request.GET.get('att')
     filter_on = request.GET.get('s')
@@ -291,6 +363,7 @@ def snptype_filter(request):
                                                      "toolbar_min": toolbar_min})
 
 
+# Returns a view of the Statistics table that has been filtered.
 def statistics_filter(request):
     selection = request.GET.get('att')
     filter_on = request.GET.get('s')
@@ -448,6 +521,7 @@ def compare_gene_lib_filter_results_effect(request):
 
 # Returns the list of genes found within the selected libraries.
 # todo need to change view so that all library snps align. Look at gene LdBPK_292260.1 as an example (across all libs).
+# todo need to change so that it references effect table rather than feature table
 def compare_gene_lib_filter_results(request):
     order_by = request.GET.get('order_by', 'library__librarycode')
     gene = request.GET.get('s')
@@ -456,12 +530,20 @@ def compare_gene_lib_filter_results(request):
     cds_fmax = Feature.objects.values_list('fmax', flat=True).filter(geneid=gene, featuretype='CDS')[0]
     fmin = Feature.objects.filter(geneid=gene).filter(featuretype='gene').values('fmin')[0]
     fmax = Feature.objects.filter(geneid=gene).filter(featuretype='gene').values('fmax')[0]
+<<<<<<< HEAD
     result_list = SNP.objects.values('snp_id', 'snp_position',
                                      'ref_base', 'alt_base',
                                      'library__librarycode').filter(library__librarycode__in=library,
                                                                     snp_position__range=(Feature.objects.values_list('fmin', flat=True).filter(geneid=gene).filter(featuretype='gene')[0],
                                                                                          Feature.objects.values_list('fmax', flat=True).filter(geneid=gene).filter(featuretype='gene')[0]),
                                                                     chromosome__chromosome_name=Feature.objects.values_list('chromosome', flat=True).filter(geneid=gene).filter(featuretype='gene')[0]).order_by(order_by)
+=======
+    result_list = SNP.objects.values('snp_id', 'snp_position', 'ref_base',
+                                     'alt_base', 'library__librarycode').filter(library__librarycode__in=library,
+                                                                                snp_position__range=(Feature.objects.values_list('fmin', flat=True).filter(geneid=gene).filter(featuretype='gene')[0],
+                                                                                                     Feature.objects.values_list('fmax', flat=True).filter(geneid=gene).filter(featuretype='gene')[0]),
+                                                                                chromosome__chromosome_name=Feature.objects.values_list('chromosome', flat=True).filter(geneid=gene).filter(featuretype='gene')[0]).order_by(order_by)
+>>>>>>> bcb541c09cb6302f0560a0e9b33ea773cce9fd04
 
     snp_group = []
     library_group = []
@@ -510,6 +592,33 @@ def compare_gene_lib_filter_results(request):
                                                                                 "filter_urls": filter_urls,
                                                                                 "toolbar_max": toolbar_max,
                                                                                 "toolbar_min": toolbar_min})
+
+
+# Returns information about a gene through the feature table.
+def gene_feature(request):
+    geneid = request.GET.get('geneid')
+    order_by = request.GET.get('order_by', 'geneid')
+
+    feature = Feature.objects.all().filter(geneid=geneid, featuretype='gene').order_by(order_by)
+    paginator = Paginator(feature, 50)
+    page = request.GET.get('page')
+    filter_urls = build_orderby_urls(request.get_full_path(), ['snp_id', 'snp_position', 'ref_base',
+                                                               'alt_base', 'library__librarycode'])
+    try:
+        results = paginator.page(page)
+    except PageNotAnInteger:
+        results = paginator.page(1)
+    except EmptyPage:
+        results = paginator.page(paginator.num_pages)
+
+    toolbar_max = min(results.number + 4, paginator.num_pages)
+    toolbar_min = max(results.number - 4, 0)
+
+    return render_to_response('snpdb/gene_feature.html', {"geneid": geneid,
+                                                          "results": results,
+                                                          "filter_urls": filter_urls,
+                                                          "toolbar_max": toolbar_max,
+                                                          "toolbar_min": toolbar_min,})
 
 
 # The search view for the user to input a gene. Lists all gene ids for the user to choose from.
@@ -725,6 +834,7 @@ def library_snps(request):
                                      'heterozygosity', 'quality',
                                      'chromosome__chromosome_name', 'effect__effect_string',
                                      'effect__effect_class', 'effect__effect')
+<<<<<<< HEAD
 
     snp_dict = {}
     for each in results:
@@ -767,6 +877,9 @@ def library_snps(request):
                     each["effect__effect"] = 'None'
                     snp_dict[each['snp_id']] = each
     sorted_snp_dict = sorted(snp_dict.items(), key=lambda y: y[1][order_by])
+=======
+    sorted_snp_dict = genes_from_effect(results, library, order_by)
+>>>>>>> bcb541c09cb6302f0560a0e9b33ea773cce9fd04
     paginator = Paginator(sorted_snp_dict, 100)
     page = request.GET.get('page')
 
@@ -794,6 +907,52 @@ def library_snps(request):
                                                           "toolbar_max": toolbar_max,
                                                           "toolbar_min": toolbar_min,
                                                           "count": count})
+
+
+def genes_from_effect(results, library, order_by):
+    snp_dict = {}
+    for each in results:
+        # print each
+        current_genes = []
+        if each['library__librarycode'] == library:
+            if empty_effect(each['effect__effect']) or each['effect__effect'] == 6:
+                # if empty_effect(each['effect__effect_class']) or (each['effect__effect_class'] == ('NON_SYNONYMOUS_CODING' or 'SYNONYMOUS_CODING')):
+                if each['snp_id'] in snp_dict:
+                    for k, v in snp_dict[each['snp_id']].iteritems():
+                        if k == 'effect__effect_string':
+                            if type(v) is list:
+                                for x in v:
+                                    current_genes.append(str(x).decode('UTF8').strip())
+                            else:
+                                current_genes.append(str(v).decode('UTF8'))
+                    if each['effect__effect_string'] in current_genes:
+                        pass
+                    elif snp_dict[each['snp_id']]['effect__effect_string'] == 'None':
+                        snp_dict[each['snp_id']] = each
+                    else:
+                        current_genes.append(str(each['effect__effect_string']).strip())
+                        each['effect__effect_string'] = current_genes
+                        snp_dict[each['snp_id']] = each
+                else:
+                    snp_dict[each['snp_id']] = each
+                    # else:
+                    #     if each['snp_id'] in snp_dict:
+                    #         pass
+                    #     else:
+                    #         each["effect__effect_class"] = 'None'
+                    #         each["effect__effect_string"] = 'None'
+                    #         each["effect__effect"] = 'None'
+                    #         snp_dict[each['snp_id']] = each
+            else:
+                if each['snp_id'] in snp_dict:
+                    pass
+                else:
+                    each["effect__effect_class"] = 'None'
+                    each["effect__effect_string"] = 'None'
+                    each["effect__effect"] = 'None'
+                    snp_dict[each['snp_id']] = each
+    sorted_snp_dict = sorted(snp_dict.items(), key=lambda x: x[1][order_by])
+    return sorted_snp_dict
 
 
 # Returns snps found in a library and chromosome.
@@ -862,11 +1021,12 @@ def chromosome_library_snp_summary_filter(request):
     order_by = request.GET.get('order_by', 'chromosome__chromosome_name')
     library = request.GET.get('lib')
     results = SNP.objects.values('chromosome__chromosome_name', 'library__librarysize',
-                                 'library_id', 'library__librarycode').filter(library__librarycode=library).distinct().annotate(num_snps=Count('snp_id'),
-                                                                                                                                hetero=BooleanSum('heterozygosity'),
-                                                                                                                                indel=BooleanSum('snp_type__indel'),
-                                                                                                                                trans=BooleanSum('snp_type__transition')).order_by(order_by)
+                                 'library_id', 'library__librarycode').filter(library__librarycode=library).annotate(num_snps=Count('snp_id'),
+                                                                                                                     hetero=BooleanSum('heterozygosity'),
+                                                                                                                     indel=BooleanSum('snp_type__indel'),
+                                                                                                                     trans=BooleanSum('snp_type__transition'))
     result_list = results.order_by(order_by)
+    print result_list
     paginator = Paginator(result_list, 50)
     page = request.GET.get('page')
 
@@ -1025,6 +1185,7 @@ def multi_gene_library_snps(request):
 
     return render_to_response('snpdb/multi_gene_snps_library.html', {"genes": genes,
                                                                      "libraries": libraries,
+                                                                     "paginator": paginator,
                                                                      "toolbar_max": toolbar_max,
                                                                      "toolbar_min": toolbar_min})
 
@@ -1034,6 +1195,10 @@ def multi_gene_library_snps_filter(request):
     gene = request.GET.get('s')
     libraries = request.GET.getlist('check')
     genes = gene.split()
+<<<<<<< HEAD
+=======
+    # libraries = library.split()
+>>>>>>> bcb541c09cb6302f0560a0e9b33ea773cce9fd04
 
     result_list = SNP.objects.filter(effect__effect_id=6, effect__effect_string__in=genes,
                                      library__librarycode__in=libraries,
@@ -1070,8 +1235,14 @@ def multi_gene_library_snps_filter(request):
                                                                              "count": count})
 
 
+<<<<<<< HEAD
 def difference_two_libraries(request):
     lib_list = Library.objects.values('librarycode').distinct()
+=======
+# Displays the search page to compare two libraries for unique and similar snps.
+def compare_two_libraries(request):
+    lib_list = Library.objects.values('librarycode')
+>>>>>>> bcb541c09cb6302f0560a0e9b33ea773cce9fd04
     page = request.GET.get('page')
     paginator = Paginator(lib_list, 120)
 
@@ -1089,10 +1260,129 @@ def difference_two_libraries(request):
                                                                    "toolbar_min": toolbar_min})
 
 
+<<<<<<< HEAD
 def difference_two_libraries_filter(request):
+=======
+#todo add googlecharts to show pie chart of impact types
+#todo add a link to shared snps.
+# Uses bcftools and SnpSift to identify snps that are unique between multiple libraries. This information is organized by impact type.
+def difference_two_libraries(request):
+>>>>>>> bcb541c09cb6302f0560a0e9b33ea773cce9fd04
     library1 = request.GET.get('lib1')
     library2 = request.GET.get('lib2')
+    dir = os.path.abspath(os.path.dirname(__file__))
+    vcf_path = os.path.join(dir, 'vcf_files')
+    path = os.path.join(vcf_path, 'bcftools_isec_snpEff_%s_%s_%s' % (library1, library2, datetime.datetime.utcnow().strftime("%Y-%m-%d")))
+    if os.path.isdir(path):
+        print "file already present"
+        pass
+    else:
+        print "initial analysis being ran"
+        test = subprocess.check_call(["""bcftools isec %s/%s_gatk.snpEff.vcf.gz %s/%s_gatk.snpEff.vcf.gz -p %s""" % (vcf_path, library1, vcf_path, library2, path)],
+                                     shell=True)
+    cmd = """cat %s/0000.vcf | cut -f 8 | tr ";" "\n" | grep ^EFF= | cut -f 2 -d = | tr "," "\n" | grep %s | wc -l"""
+    modifier = subprocess.Popen(cmd % (path, "MODIFIER"), shell=True, stdout=subprocess.PIPE)
+    moderate = subprocess.Popen(cmd % (path, "MODERATE"), shell=True, stdout=subprocess.PIPE)
+    high = subprocess.Popen(cmd % (path, "HIGH"), shell=True, stdout=subprocess.PIPE)
+    low = subprocess.Popen(cmd % (path, "LOW"), shell=True, stdout=subprocess.PIPE)
+    total = subprocess.Popen("""grep ^[^#] %s/0000.vcf | wc -l""" % path, shell=True, stdout=subprocess.PIPE)
+    counts = [high.communicate()[0].strip(), moderate.communicate()[0].strip(), low.communicate()[0].strip(), modifier.communicate()[0].strip(), total.communicate()[0].strip()]
 
+    low_counts = defaultdict(int)
+    high_counts = defaultdict(int)
+    moderate_counts = defaultdict(int)
+    modifier_counts = defaultdict(int)
+    for each in low_effects:
+        count_effect_cmd = """cat %s/0000.vcf| cut -f 8 | tr ";" "\n" | grep ^EFF= | cut -f 2 -d = | tr "," "\n" | grep %s | wc -l"""
+        count_effect = subprocess.Popen(count_effect_cmd % (path, each), shell=True, stdout=subprocess.PIPE)
+        count = count_effect.communicate()[0]
+        low_counts[each] = count.strip()
+    for each in moderate_effects:
+        count_effect_cmd = """cat %s/0000.vcf | cut -f 8 | tr ";" "\n" | grep ^EFF= | cut -f 2 -d = | tr "," "\n" | grep %s | wc -l"""
+        count_effect = subprocess.Popen(count_effect_cmd % (path, each), shell=True, stdout=subprocess.PIPE)
+        count = count_effect.communicate()[0]
+        moderate_counts[each] = count.strip()
+    for each in modifier_effects:
+        count_effect_cmd = """cat %s/0000.vcf | cut -f 8 | tr ";" "\n" | grep ^EFF= | cut -f 2 -d = | tr "," "\n" | grep %s | wc -l"""
+        count_effect = subprocess.Popen(count_effect_cmd % (path, each), shell=True, stdout=subprocess.PIPE)
+        count = count_effect.communicate()[0]
+        modifier_counts[each] = count.strip()
+    for each in high_effects:
+        count_effect_cmd = """cat %s/0000.vcf | cut -f 8 | tr ";" "\n" | grep ^EFF= | cut -f 2 -d = | tr "," "\n" | grep %s | wc -l"""
+        count_effect = subprocess.Popen(count_effect_cmd % (path, each), shell=True, stdout=subprocess.PIPE)
+        count = count_effect.communicate()[0]
+        high_counts[each] = count.strip()
+
+
+    cmd2 = """cat %s/0001.vcf | cut -f 8 | tr ";" "\n" | grep ^EFF= | cut -f 2 -d = | tr "," "\n" | grep %s | wc -l"""
+    modifier2 = subprocess.Popen(cmd2 % (path, "MODIFIER"), shell=True, stdout=subprocess.PIPE)
+    moderate2 = subprocess.Popen(cmd2 % (path, "MODERATE"), shell=True, stdout=subprocess.PIPE)
+    high2 = subprocess.Popen(cmd2 % (path, "HIGH"), shell=True, stdout=subprocess.PIPE)
+    low2 = subprocess.Popen(cmd2 % (path, "LOW"), shell=True, stdout=subprocess.PIPE)
+    total2 = subprocess.Popen("""grep ^[^#] %s/0001.vcf | wc -l""" % path, shell=True, stdout=subprocess.PIPE)
+    counts2 = [high2.communicate()[0].strip(), moderate2.communicate()[0].strip(), low2.communicate()[0].strip(), modifier2.communicate()[0].strip(), total2.communicate()[0].strip()]
+
+
+    low_counts2 = defaultdict(int)
+    high_counts2 = defaultdict(int)
+    moderate_counts2 = defaultdict(int)
+    modifier_counts2 = defaultdict(int)
+    for each in low_effects:
+        count_effect_cmd = """cat %s/0001.vcf| cut -f 8 | tr ";" "\n" | grep ^EFF= | cut -f 2 -d = | tr "," "\n" | grep %s | wc -l"""
+        count_effect = subprocess.Popen(count_effect_cmd % (path, each), shell=True, stdout=subprocess.PIPE)
+        count = count_effect.communicate()[0]
+        low_counts2[each] = count.strip()
+    for each in moderate_effects:
+        count_effect_cmd = """cat %s/0001.vcf | cut -f 8 | tr ";" "\n" | grep ^EFF= | cut -f 2 -d = | tr "," "\n" | grep %s | wc -l"""
+        count_effect = subprocess.Popen(count_effect_cmd % (path, each), shell=True, stdout=subprocess.PIPE)
+        count = count_effect.communicate()[0]
+        moderate_counts2[each] = count.strip()
+    for each in modifier_effects:
+        count_effect_cmd = """cat %s/0001.vcf | cut -f 8 | tr ";" "\n" | grep ^EFF= | cut -f 2 -d = | tr "," "\n" | grep %s | wc -l"""
+        count_effect = subprocess.Popen(count_effect_cmd % (path, each), shell=True, stdout=subprocess.PIPE)
+        count = count_effect.communicate()[0]
+        modifier_counts2[each] = count.strip()
+    for each in high_effects:
+        count_effect_cmd = """cat %s/0001.vcf | cut -f 8 | tr ";" "\n" | grep ^EFF= | cut -f 2 -d = | tr "," "\n" | grep %s | wc -l"""
+        count_effect = subprocess.Popen(count_effect_cmd % (path, each), shell=True, stdout=subprocess.PIPE)
+        count = count_effect.communicate()[0]
+        high_counts2[each] = count.strip()
+    return render_to_response('snpdb/impact_snps.html', {"counts": counts,
+                                                         "counts2": counts2,
+                                                         "low_counts": dict(low_counts),
+                                                         "high_counts": dict(high_counts),
+                                                         "moderate_counts": dict(moderate_counts),
+                                                         "modifier_counts": dict(modifier_counts),
+                                                         "low_counts2": dict(low_counts2),
+                                                         "high_counts2": dict(high_counts2),
+                                                         "moderate_counts2": dict(moderate_counts2),
+                                                         "modifier_counts2": dict(modifier_counts2),
+                                                         "library1": library1,
+                                                         "library2": library2,
+                                                         "path": path}, context_instance=RequestContext(request))
+
+
+#todo flag snps with multiple alternates
+# Lists identified snps (those found to be unique for a library) by their impact type. Passed from difference_two_libraries
+def impact_snps(request):
+    path = request.POST.get('path')
+    library1 = request.POST.get('lib1')
+    library2 = request.POST.get('lib2')
+    impact = request.POST.get('impact')
+
+    cmd = """cat %s/0000.vcf | /usr/local/Cellar/snpeff/3.6c/share/scripts/vcfEffOnePerLine.pl | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar filter "( EFF[*].IMPACT = '%s' )" | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar extractFields - POS REF ALT CHROM EFF[*].GENE EFF[*].EFFECT QUAL"""
+    snps_effect = subprocess.Popen(cmd % (path, impact), shell=True, stdout=subprocess.PIPE)
+    snps = []
+    for line in snps_effect.stdout:
+        if line:
+            if '#POS' not in line:
+                entry = line.split('\t')
+                snps.append(entry)
+    count = len(snps)
+    paginator = Paginator(snps, 200)
+    page = request.GET.get('page')
+
+<<<<<<< HEAD
     snp2 = SNP.objects.values('library__librarycode', 'snp_position',
                               'chromosome__chromosome_name').filter(library__librarycode=library2).distinct()
 
@@ -1185,12 +1475,20 @@ def impact_snps(request):
                                                                'heterozygosity', 'quality',
                                                                'chromosome__chromosome_name', 'effect__effect_string',
                                                                'effect__effect_class', 'effect__effect', 'result_id'])
+=======
+    # Calls utils method to append new filters or order_by to the current url
+    filter_urls = build_orderby_urls(request.get_full_path(), ['library', 'snp_position', 'ref_base',
+                                                               'quality', 'alt_base',
+                                                               'chromosome__chromosome_name',
+                                                               'effect__effect_string'])
+>>>>>>> bcb541c09cb6302f0560a0e9b33ea773cce9fd04
     try:
         results = paginator.page(page)
     except PageNotAnInteger:
         results = paginator.page(1)
     except EmptyPage:
         results = paginator.page(paginator.num_pages)
+<<<<<<< HEAD
 
     toolbar_max = min(results.number + 4, paginator.num_pages)
     toolbar_min = max(results.number - 4, 0)
@@ -1204,4 +1502,198 @@ def impact_snps(request):
                                                                 "toolbar_min": toolbar_min})
 
 
+=======
+>>>>>>> bcb541c09cb6302f0560a0e9b33ea773cce9fd04
 
+    toolbar_max = min(results.number + 4, paginator.num_pages)
+    toolbar_min = max(results.number - 4, 0)
+    c ={"path": path,
+        "results": results,
+        "library1": library1,
+        "library2": library2,
+        "filter_urls": filter_urls,
+        "toolbar_max": toolbar_max,
+        "toolbar_min": toolbar_min,
+        "count": count, }
+    return render_to_response('snpdb/impact_snps_search.html', c, context_instance=RequestContext(request))
+
+
+# Dumps a queryset into a csv file.
+def dump(qs, outfile_path):
+    writer = csv.writer(open(outfile_path, 'w'))
+    keys = []
+    values = []
+    for obj in qs:
+        for key, val in obj.items():
+            values.append(val)
+            if key not in keys:
+                keys.append(key)
+    value = [tuple(values[i:i+2]) for i in range(0, len(values), 2)]
+    writer.writerow(keys)
+    for each in value:
+        writer.writerow(each)
+
+
+# Reads a csv file and converts the data back into a dictionary.
+def read(filename):
+    impact_dict = {}
+    for each in csv.reader(open(filename)):
+        key = each[0]
+        value = each[1]
+        try:
+            impact_dict[key] = int(value)
+        except ValueError:
+            impact_dict[key] = value
+            pass
+    return impact_dict
+
+
+# unused code.
+#----------------------------------------------------------------------------------------------------------------------
+
+# Commands to save the snpdb dashboard pie-charts. Should be run after each vcf import.
+def save_snp_dashboard_files(chart_path, image_path):
+    # Google Chart Images
+    lib_labels = []
+    lib_legend = []
+    org_labels = []
+    org_legend = []
+    impact_labels = []
+    high_labels = []
+    low_labels = []
+    moderate_labels = []
+    modifier_labels = []
+    high_keys = []
+    low_keys = []
+    moderate_keys = []
+    modifier_keys = []
+    impact_keys = []
+    high_values = []
+    low_values = []
+    moderate_values = []
+    modifier_values = []
+    impact_values = []
+
+    high = Effect.objects.filter(effect_id=1, effect_string="HIGH").values("effect_class").annotate(Count('snp'))
+    dump(high, chart_path % 'high')
+    for obj in high.iterator():
+        for key, val in obj.items():
+            high_values.append(val)
+            if val not in high_keys and not isinstance(val, int):
+                high_keys.append(val)
+    high_value = [tuple(high_values[i:i+2]) for i in range(0, len(high_values), 2)]
+    high_snp_total = sum(i[1] for i in high_value)
+    for x in high_value:
+        percentage = float(x[1])/float(high_snp_total)*100
+        high_labels.append(round(percentage, 2))
+    snps_by_high_impact = Pie(high_labels).label(*high_labels).legend(*high_keys).color("919dab", "D2E3F7",
+                                                                                        "658CB9", "88BBF7",
+                                                                                        "666E78").size(450, 200)
+    snps_by_high_impact.image().save(image_path % 'high', 'png')
+    print "high files saved"
+
+    impact = Effect.objects.filter(effect_id=1).values("effect_string").annotate(Count('snp'))
+    dump(impact, chart_path % 'impact')
+    for obj in impact.iterator():
+        for key, val in obj.items():
+            print key, val
+            impact_values.append(val)
+            if val not in impact_keys and not isinstance(val, int):
+                impact_keys.append(val)
+    impact_value = [tuple(impact_values[i:i+2]) for i in range(0, len(impact_values), 2)]
+    impact_snp_total = sum(i[1] for i in impact_value)
+    for x in impact_value:
+        percentage = float(x[1])/float(impact_snp_total)*100
+        impact_labels.append(round(percentage,2))
+    snps_by_impact = Pie(impact_labels).label(*impact_labels).legend(*impact_keys).color("919dab", "D2E3F7",
+                                                                                                 "658CB9", "88BBF7",
+                                                                                                 "666E78").size(450, 200)
+    snps_by_impact.image().save(image_path % 'impact', 'png')
+    print "impact files saved"
+
+    low = Effect.objects.filter(effect_id=1, effect_string="LOW").values("effect_class").annotate(Count('snp'))
+    dump(low, chart_path % 'low')
+    for obj in low.iterator():
+        for key, val in obj.items():
+            low_values.append(val)
+            if val not in low_keys and not isinstance(val, int):
+                low_keys.append(val)
+    low_value = [tuple(low_values[i:i+2]) for i in range(0, len(low_values), 2)]
+    low_snp_total = sum(i[1] for i in low_value)
+    for x in low_value:
+        percentage = float(x[1])/float(low_snp_total)*100
+        low_labels.append(round(percentage, 2))
+    snps_by_low = Pie(low_labels).label(*low_labels).legend(*low_keys).color("919dab", "D2E3F7",
+                                                                                        "658CB9", "88BBF7",
+                                                                                        "666E78").size(450, 200)
+    snps_by_low.image().save(image_path % 'low', 'png')
+    print "low files saved"
+
+    moderate = Effect.objects.filter(effect_id=1, effect_string="MODERATE").values("effect_class").annotate(Count('snp'))
+    dump(moderate, chart_path % 'moderate')
+    for obj in moderate.iterator():
+        for key, val in obj.items():
+            moderate_values.append(val)
+            if val not in moderate_keys and not isinstance(val, int):
+                moderate_keys.append(val)
+    moderate_value = [tuple(moderate_values[i:i+2]) for i in range(0, len(moderate_values), 2)]
+    moderate_snp_total = sum(i[1] for i in moderate_value)
+    for x in moderate_value:
+        percentage = float(x[1])/float(moderate_snp_total)*100
+        moderate_labels.append(round(percentage, 2))
+    snps_by_moderate = Pie(moderate_labels).label(*moderate_labels).legend(*moderate_keys).color("919dab", "D2E3F7",
+                                                                                                         "658CB9", "88BBF7",
+                                                                                                         "666E78").size(550, 200)
+    snps_by_moderate.image().save(image_path % 'moderate', 'png')
+    print "moderate files saved"
+
+    modifier = Effect.objects.filter(effect_id=1, effect_string="MODIFIER").values("effect_class").annotate(Count('snp'))
+    dump(modifier, chart_path % 'modifier')
+    for obj in modifier.iterator():
+        for key, val in obj.items():
+            modifier_values.append(val)
+            if val not in modifier_keys and not isinstance(val, int):
+                modifier_keys.append(val)
+    modifier_value = [tuple(modifier_values[i:i+2]) for i in range(0, len(modifier_values), 2)]
+    modifier_snp_total = sum(i[1] for i in modifier_value)
+    for x in modifier_value:
+        percentage = float(x[1])/float(modifier_snp_total)*100
+        modifier_labels.append(round(percentage, 2))
+    snps_by_modifier = Pie(modifier_labels).label(*modifier_labels).legend(*modifier_keys).color("919dab", "D2E3F7",
+                                                                                                         "658CB9", "88BBF7",
+                                                                                                         "666E78").size(450, 200)
+    snps_by_modifier.image().save(image_path % 'modifier', 'png')
+    print "modifier files saved"
+
+    lib_count = SNP.objects.values("library__librarycode").distinct().annotate(Count('snp_id'))
+    lib_snps = []
+    lib_snp_total = 0
+    for each in lib_count.iterator():
+        lib_snps.append(each['snp_id__count'])
+        lib_snp_total += each['snp_id__count']
+    for x in lib_snps:
+        percentage = float(x)/float(lib_snp_total)*100
+        lib_labels.append(round(percentage, 2))
+    lib_legend.append(each['library__librarycode'])
+    snps_by_library = Pie([lib_labels]).label(*lib_labels).legend(*lib_legend).color("919dab", "D2E3F7",
+                                                                                     "658CB9", "88BBF7",
+                                                                                     "666E78").size(450, 200)
+    snps_by_library.image()
+    snps_by_library.image().save(image_path % 'library', 'png')
+    print "saved snps_by_library"
+
+    org_count = SNP.objects.values("library__organism__organismcode").distinct().annotate(Count('snp_id'))
+    org_snps = []
+    org_snp_total = 0
+    for each in org_count.iterator():
+        org_snps.append(each['snp_id__count'])
+        org_snp_total += each['snp_id__count']
+    for x in org_snps:
+        percentage = float(x)/float(org_snp_total)*100
+        org_labels.append(round(percentage, 2))
+    org_legend.append(each['library__organism__organismcode'])
+    snps_by_organism = Pie(org_labels).label(*org_labels).legend(*org_legend).color("919dab", "D2E3F7",
+                                                                                    "658CB9", "88BBF7",
+                                                                                    "666E78").size(450, 200)
+    snps_by_organism.image().save(image_path % 'organism', 'png')
+    print "saved snps_by_organism"

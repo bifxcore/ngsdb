@@ -16,10 +16,11 @@ urlpatterns = patterns('',
     # Gowthaman's views
     url(r'^$', 'ngsdbview.views02.Dashboard'),
     url(r'^dashboard/','ngsdbview.views02.Dashboard'),
-    url(r'^listlibraries/','ngsdbview.views02.ListLibraries'),
+    url(r'^listlibraries/(?P<result_id>.+)/','ngsdbview.views02.ListLibraries'),
     url(r'^listanalyses/','ngsdbview.views02.ListAnalyses'),
     url(r'^listexperiments/','ngsdbview.views02.ListExperiments'),
-    url(r'^get_results_for_gene/','ngsdbview.views02.GetResultsForGene'),
+
+    url(r'^search_for_gene/','ngsdbview.views02.SearchForGene'),
     url(r'^query_multigenes/','ngsdbview.views02.GetResultsForMultiGenes'),
     url(r'^query_multigenes_multilibs/','ngsdbview.views02.GetResultsForMultiGenesMultiLib'),
     url(r'^get_results_for_library/','ngsdbview.views02.GetResultsForLibrary'),

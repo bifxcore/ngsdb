@@ -3,8 +3,6 @@
 
 {% extends "snpdb/dashboard.html" %}
 
-{% block content %}
-
 <script type="text/javascript">
     $(document).ready(function(){
         $('.selectpicker').selectpicker();
@@ -19,14 +17,20 @@
 </script>
 
 
-<div class="page-header text-header" style="padding-left:30px">
-    <h1>SNP Statistics</h1>
+{% block bootstrap %}
+
+<div class="container-fluid">
+	<div class="page-header text-header" style="padding-left:30px; margin-top:10px; padding-bottom:0px">
+    	<h1 class="header" style="padding-bottom:0px;">SNP Statistics</h1>
+	</div>
 </div>
 
+
 <body>
-<div class="collapse navbar-collapse navbar-ex1-collapse">
+<div class="container-fluid">
+<div class="collapse navbar-collapse">
     <ul class="nav navbar-nav">
-        <form class="form-inline" role="form" id='search' action='/snpdb/statistics/search' method="get">
+        <form class="form-inline" role="form" id='search' action='/snpdb/statistics/search' style="padding-bottom: 30px;" method="get">
             <div class="form-group">
                 <label class="sr-only" for="search">Search</label>
                 <input type="text" class="form-control" name="s" placeholder="search">
@@ -36,16 +40,18 @@
                     <option value="stats_cvterm">Statistic</option>
                     <option value="cv_value">Value</option>
                 </select>
-                <button class="btn btn-primary" type="submit">Search</button>
+                <button class="btn btn-sample" type="submit"  style="margin-left:0px; width:75px; vertical-align:middle; padding: 0px">Search</button>
             </div>
         </form>
     </ul>
 </div>
+</div>
 </body>
 
 
+<div class="container-fluid" style="padding-bottom:30px">
 <table class="table table-condensed table-hover" style="table-layout: fixed; word-wrap: break-word;">
-    <thead>
+      <thead>
     <tr>
         <th class="text-center text-default"><a href={{ filter_urls.stats_id }}>Statistic ID</a></th>
         <th class="text-center"><a href={{ filter_urls.snp }}>SNP ID</a></th>
@@ -64,10 +70,11 @@
     {% endfor %}
     </tbody>
 </table>
+</div>
 
-
-<div class="pagination">
-    <ul class="pagination">
+<div class="container-fluid">
+<div class="ngsdb pagination">
+    <ul class="ngsdb">
         {% if statistic.has_previous %}
             {% if selection %}
                 <li><a href="?page={{ statistic.previous_page_number }}&s={{filter_on}}&att={{selection}}">&laquo;</a></li>
@@ -102,6 +109,7 @@
             {% endif %}
         {% endif %}
     </ul>
+</div>
 </div>
 
 {% endblock %}

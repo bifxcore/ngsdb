@@ -1,20 +1,26 @@
-<!DOCTYPE html>
-<html lang="en" xmlns="http://www.w3.org/1999/html">
 {% extends "snpdb/dashboard.html" %}
+{% load static %}
+{% load staticfiles %}
 
-{% block content %}
-{% load display_rows %}
+{% block title %}
+    SNP Summary
+{% endblock %}
 
-<div class="container" style="padding-bottom:30px">
-<div class="page-header text-header" style="padding-left:30px">
-    <h1>Genes Found in {{library}}</h1>
-    <h5>There are {{count}} genes.</h5>
-</div>
+{% block breadcrumbs %}
+{% endblock %}
+
+{% block bootstrap %}
+
+<div class="container-fluid">
+	<div class="page-header text-header" style="padding-left:30px; margin-top:10px; padding-bottom:0px">
+    	<h1 class="header" style="padding-bottom:0px;">Genes Found in {{library}}</h1>
+    	<h2 class="header" style="padding-top:5px">There are {{count}} genes.</h2>
+	</div>
 </div>
 
 <body>
 
-<div class="container" style="padding-bottom:30px">
+<div class="container-fluid" style="padding-bottom:30px">
 <table class="table table-condensed table-hover table-responsive" style="table-layout: fixed; word-wrap: break-word;">
     <thead>
     <tr>
@@ -40,9 +46,9 @@
 
 </body>
 
-<div class="container" style="padding-bottom:30px">
-<div class="pagination">
-    <ul class="pagination">
+<div class="container-fluid" style="padding-bottom:30px">
+<div class="ngsdb pagination">
+    <ul class="ngsdb">
         {% if results.has_previous %}
             <li><a href="?page={{  results.previous_page_number }}">&laquo;</a></li>
         {% else %}

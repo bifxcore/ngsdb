@@ -1,65 +1,225 @@
-<!DOCTYPE html>
-<html lang="en">
-
-{% load staticfiles %}
+{% extends "admin/base_site.html" %}
+{% load i18n grp_tags %}
 {% load snp_filters %}
 {% load display_rows %}
-<script src="http://code.jquery.com/jquery-1.10.2.js"></script>
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-<link href="{% static 'bootstrap/dist/css/bootstrap.css' %}" rel="stylesheet" media="screen">
-<script src="{% static 'bootstrap/dist/js/bootstrap.js' %}"></script>
-<link href="{% static 'bootstrap-select/bootstrap-select.css' %}" rel="stylesheet" media="screen">
-<script src="{% static 'bootstrap-select/bootstrap-select.js' %}"></script>
+{% load staticfiles %}
+<link rel="stylesheet" type="text/css" href="/media/css/style.css" >
+<link rel="stylesheet" type="text/css" href="/media/css/tabstyle.css" >
 
-{%  block navagation %}
+<link href="https://posonline.googlecode.com/files/jquery-ui-1.8.18.custom.css" rel="stylesheet" type="text/css" media="screen" />
+<link href="/static/grappelli/stylesheets/screen.css" rel="stylesheet" type="text/css" media="screen" />
 
-<script type="text/javascript">
-    $(document).ready(function(){
-        $(".dropdown-toggle").dropdown();
-    });
-</script>
+<link href="/static/stylesheets/menu.css" rel="stylesheet" type="text/css" media="screen">
+<link href="/static/stylesheets/custom.css" rel="stylesheet" type="text/css" media="screen">
 
-<script type="text/javascript">
-    $(document).ready(function() {
-        $('.selectpicker').selectpicker();
-    });
-</script>
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
 
-<script>
-    $(document).ready(function() {
-        $('.nav li a').click(function() {
-            if(!$(this).parent('li').hasClass('active')) {
-                $(this).parent.parent.find('li.active').removeClass('active');
-                $(this).parent.('li').addClass(('active'));
-            };
-        });
-    });
-</script>
+{% block title %}    {{ title }} | {% trans 'Django site admin' %}
+{% endblock %}
+
+{% block branding %}
+    <h1 id="site-name">{% trans 'Django administration' %}</h1>
+{% endblock %}
+
+<!-- LOGO AND BRANDING -->
+{% block logo-brand %}
+<div id="grp-branding">
+    <div id="logo">
+        <img src="/static/img/logov2.png">
+    </div>
+    <div id="brand">
+        <!-- pulls title from settings.py #} -->
+        <h1 id="grp-admin-title" style="padding-bottom: 0">
+            {% if grappelli_admin_title %}
+                {{ grappelli_admin_title }}
+            {% else %}
+                {% get_admin_title %}
+            {% endif %}
+        </h1>
+    </div>
+</div>
+
+<!-- Username & links area-->
 
 
-<div class='navbar navbar-inverse navbar-default' role="navigation">
+{% if user.is_active and user.is_staff%}
+    <ul id="grp-user-tools">
+    <div id="user-tools">
+        {% trans 'Welcome,' %}
+        <strong>{% filter force_escape %}{% firstof user.first_name user.username %}{% endfilter %}</strong>.
+            {%if user.username != 'guest' %}
+            {% if password_change_url %}
+                <a href="{{ password_change_url }}">
+            {% else %}
+                <a href="{{ root_path }}password_change/">
+            {% endif %}
+                {% trans 'Change password' %}</a> /
+                	{% url 'admin:logout' as logout_url %}
+                	{% if logout_url %}
+                    		<a href="{{ logout_url }}">
+                	{% else %}
+                    		<a href="{{ root_path }}logout/">
+                	{% endif %}
+                	{% trans 'Log out' %}</a>
+               {%else%}
+              		<a href="/admin/">{% trans 'Log In' %}</a>
+               {%endif%}
+
+        <!-- contact/about us -->
+        <div id="general-links">
+            <a href="/">{% trans 'Home' %}</a><B>|</B>
+            <a href="/ngsdbview/aboutus">About Us</a><B>|</B>
+            <a href="/ngsdbview/contact">Contact Us</a><B>|</B>
+            <a href="https://jira.sbri.org/browse/NGS-279">Log Issues</a>
+        </div>
+        <!-- Admin links -->
+        </br>
+        <div id="admin-links">    <P>
+            <B> Add A New</B>
+            <a href="/admin/samples/sample/add/">Sample</a><B>|</B>
+            <a href="/admin/samples/library/add/">Library</a><B>|</B>
+            <a href="/admin/auth/user/add/">User </a><B>|</B>
+            <a href="/admin/">Admin</a>
+        </div>
+        <div id="admin-links">    <P>
+            <B> List All</B>
+            <a href="/admin/samples/sample/">Samples</a><B>|</B>
+            <a href="/admin/samples/library/">Libraries</a><B>|</B>
+            <a href="/admin/auth/user/">Users </a><B></B>
+        </div>
+
+
+        <div id="admin-docs">
+        {% if docsroot %}
+            <a href="{{ docsroot }}">{% trans 'Documentation' %}</a>
+        {% endif %}
+        </div>
+    </div>
+    </ul>
+{% endif %}
+
+</div>
+{% endblock logo-brand %}
+
+
+{% block nav-global %}
+<div class="navbar navbar-custom" role="navigation">
     <div class="container-fluid">
         <div class="navbar-header">
             <ul class="nav navbar-nav">
-                <li class="active" id="home"><a href="/snpdb">Home</a></li>
+                <li class='active' class="menu-item"><a href="/ngsdbview/dashboard/">Home</a></li>
+
+                <!-- New Menu starts -->
                 <li class="dropdown">
-                    <a class="dropdown-toggle" data-toggle="dropdown" id="search_dropdown" href="#">Tables <b class="caret"></b></a>
-                    <ul id="dropdown" class="dropdown-menu" role="menu">
-                        <li role="presentation" id="snp"><a role="menuitem" href="/snpdb/snp">SNP</a></li>
-                        <li role="presentation" id="snptype"><a role="menuitem" href="/snpdb/snptype">SNP Type</a></li>
-                        <li role="presentation" id="statistics"><a role="menuitem" href="/snpdb/statistics">Statistics</a></li>
-                        <li role="presentation" id="effect"><a role="menuitem" href="/snpdb/effect">Effect</a></li>
-                        <li role="presentation" id="filter"><a role="menuitem" href="/snpdb/filter">Filter</a></li>
+                    <a class="dropdown-toggle" data-toggle="dropdown" id="listall"  href="/samples/librarylist/">List All <b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                        <li class="menu-item"><a href="/admin/samples/sample/">Samples</a></li>
+                        <li class="menu-item"><a href="/admin/samples/library/">Libraries</a></li>
+                        <li class="menu-item"><a href="/admin/samples/library/">Analyses</a></li>
+                        <li class="menu-item"><a href="/ngsdbview/listexperiments/">Experiments</a> </li>
+                        <li class="menu-item"><a href="/admin/ngsdbview/experiment/">Add Experiments</a></li>
+                        <li class="menu-item"><a href="/admin/ngsdbview/collaborator/">Collaborators</a></li>
+                        <li class="menu-item"><a href="/admin/samples/bioproject/">Bioprojects</a></li>
+                        <li class="menu-item"><a href="/admin/ngsdbview/organism/">Organisms</a></li>
+                        <li class="menu-item"><a href="/admin/samples/genome/">Genomes</a></li>
+                        <li class="menu-item"><a href="/snpdb/snp">SNPs</a></li>
                     </ul>
                 </li>
                 <li class="dropdown">
-                    <a class="dropdown-toggle" data-toggle="dropdown" id="search_dropdown" href="#">Summary Views <b class="caret"></b></a>
-                    <ul id="dropdown" class="dropdown-menu" role="menu">
-                        <li role="presentation"><a role="menuitem" href="/snpdb/library-snp-summary">Library Level Summary</a></li>
-                        <li role="presentation"><a role="menuitem" href="/snpdb/chromosome-library-snp-summary">Chromosome Level Summary</a></li>
+                    <a class="dropdown-toggle" data-target="#" data-toggle="dropdown" href="/samples/librarylist/">Query<b class="caret"></b></a>
+                    <ul class="dropdown-menu multi-level" role="menu">
+                        <li class="dropdown-submenu">
+                            <a href="/ngsdbview/get_results_for_gene/">Query Splice Leader</a>
+                            <ul class="dropdown-menu">
+                                <li class="menu-item"><a tabindex="-1" href="/ngsdbview/listexperiments/">Query RiboProf DB</a></li>
+                                <li class="menu-item"><a tabindex="-1" href="/ngsdbview/listexperiments/">Query Across SL and RiboProf</a></li>
+                                <li class="menu-item"><a tabindex="-1" href="/ngsdbview/listexperiments/">Query SNP DB</a></li>
+                            </ul>
+                        </li>
+                        <li class="dropdown-submenu">
+                            <a href="/ngsdbview/listexperiments/">Query RiboProf DB</a>
+                            <ul id="queryRiboProf" class="dropdown-menu" role="menu">
+                                <li class="menu-item"><a href="/ngsdbview/listexperiments/">to list all Experiments</a></li>
+                                <li class="menu-item"><a href="/ngsdbview/analyzeexperiments/">for an Experiment</a></li>
+                            </ul>
+                        </li>
+                        <li class="dropdown-submenu">
+                            <a href="/ngsdbview/listexperiments/">Query Across SL and RiboProf</a>
+                            <ul id="querySL-RiboProf" class="dropdown-menu">
+                                <li class="menu-item"><a tabindex="-1" href="/ngsdbview/listexperiments/">to list all Experiments</a></li>
+                                <li class="menu-item"><a tabindex="-1" href="/ngsdbview/analyzeexperiments/">for an Experiment</a></li>
+                            </ul>
+                        </li>
+                        <li class="dropdown-submenu">
+                            <a href="/ngsdbview/listexperiments/">Query SNP DB</a>
+                            <ul id="querySNP" class="dropdown-menu">
+                                <li class="menu-item" role="presentation"><a role="menuitem" href="/snpdb/gene-snps"> Query Gene for Snps</a></li>
+                                <li class="menu-item" role="presentation"><a role="menuitem" href="/snpdb/multi-gene-snps"> Query Mulit-Genes for Snps</a></li>
+                                <li class="menu-item" role="presentation"><a role="menuitem" href="/snpdb/multi-gene-library-snps"> Query Mulit-Genes and Multi Library for Snps</a></li>
+                                <li class="menu-item" role="presentation"><a role="menuitem" href="/snpdb/library-chromosome-snps">Query Chromosome and Library for Snps</a></li>
+                                <li class="menu-item" role="presentation"><a role="menuitem" href="/snpdb/library-gene-snps">Query Gene and Library for Snps</a></li>
+                                <li class="menu-item" role="presentation"><a role="menuitem" href="/snpdb/compare-gene-lib">Multi-Library Comparison on Gene</a></li>
+                                <li class="menu-item" role="presentation"><a role="menuitem" href="/snpdb/compare-libs">Compare Two Libraries</a></li>
+                            </ul>
+                        </li>
                     </ul>
                 </li>
                 <li class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown" id="samplesdb"  href="/samples/librarylist/">Samples DB<b class="caret"></b></a>
+                    <ul id="samples" class="dropdown-menu" role="menu">
+                        <li class="dropdown-submenu">
+                            <a href="/samples/librarylist/">List Samples</a>
+                            <ul id="listsamples" class="dropdown-menu" role="menu">
+                                <li><a href="/admin/samples/sample/">Fully Editable</a></li>
+                            </ul>
+                        </li>
+                        <li class="dropdown-submenu">
+                            <a href="/samples/librarylist/">List Libraries</a>
+                            <ul id="listlibraries" class="dropdown-menu" role="menu">
+                                <li><a href="/admin/samples/library/">Fully Editable</a></li>
+                                <li><a href="/samples/librarylist/">Slim Viewonly</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown" id="sldb"  href="/ngsdbview/listlibraries/">Splice Leader<b class="caret"></b></a>
+                    <ul id="sl" class="dropdown-menu" role="menu">
+                        <li class="dropdown-submenu">
+                            <a href="/ngsdbview/listlibraries/">List All</a>
+                            <ul id="list-samples" class="dropdown-menu" role="menu">
+                                <li><a href="/ngsdbview/listlibraries/">List Libraries</a></li>
+                                <li class="last"><a href="/ngsdbview/ngsdbview_result/">List Analyses</a></li>
+                            </ul>
+                        </li>
+                        <li class="dropdown-submenu">
+                            <a href="/ngsdbview/listlibraries/">Gene Level Queries</a>
+                            <ul id="genelevel" class="dropdown-menu" role="menu">
+                                <li><a href="/ngsdbview/get_results_for_gene/">Query for a Gene</a></li>
+                                <li><a href="/ngsdbview/query_multigenes/">Query for Multi-Gene One-Lib</a></li>
+                                <li><a href="/ngsdbview/query_multigenes_multilibs/">Query for Multi-Gene Multi-Libs</a></li>
+                            </ul>
+                        </li>
+                        <li class="dropdown-submenu">
+                            <a href="/ngsdbview/listlibraries/">Library Level Queries</a>
+                            <ul id="librarylevel" class="dropdown-menu" role="menu">
+                                <li><a href="/ngsdbview/get_results_for_library/">Query a Library</a></li>
+                                <li><a href="/ngsdbview/Get_sites_forlib/">Get Sites from a Library</a></li>
+                                <li><a href="/ngsdbview/get_sitecount_majorpc_forlibs/">get_sitecount_majorpc_forlibs</a></li>
+                            </ul>
+                        </li>
+                        <li class="dropdown-submenu">
+                            <a href="/ngsdbview/listlibraries/">Others</a>
+                            <ul id="others" class="dropdown-menu" role="menu">
+                                <li><a href="/ngsdbview/pair_libraries/">pair_libraries</a></li>
+                                <li><a href="/ngsdbview/alignstats/">Alignstats</a></li>
+                                <li><a href="/ngsdbview//">Menus</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+<<<<<<< HEAD
                     <a class="dropdown-toggle" data-toggle="dropdown" id="search_dropdown" href="#">Search <b class="caret"></b></a>
                     <ul id="dropdown" class="dropdown-menu" role="menu">
                         <li role="presentation"><a role="menuitem" href="/snpdb/gene-snps"> Query Gene for Snps</a></li>
@@ -69,31 +229,302 @@
                         <li role="presentation"><a role="menuitem" href="/snpdb/library-gene-snps">Query Gene and Library for Snps</a></li>
                         <li role="presentation"><a role="menuitem" href="/snpdb/compare-gene-lib">Multi-Library Comparison on Gene</a></li>
                         <li role="presentation"><a role="menuitem" href="/snpdb/difference-two-libraries">Query for Difference Between Two Libraries</a></li>
+=======
+                    <a class="dropdown-toggle" data-toggle="dropdown" id="snpdb"  href="/samples/librarylist/">SNP DB<b class="caret"></b></a>
+                    <ul id="snps" class="dropdown-menu" role="menu">
+                        <li class="dropdown-submenu">
+                            <a href="/samples/librarylist/">List All</a>
+                            <ul id="listtables" class="dropdown-menu" role="menu">
+                                <li role="presentation" id="dashboard"><a role="menuitem" href="/snpdb/">Dashboard</a></li>
+                                <li role="presentation" id="snpview"><a role="menuitem" href="/snpdb/snp">SNP</a></li>
+                                <li role="presentation" id="snptype"><a role="menuitem" href="/snpdb/snptype">SNP Type</a></li>
+                                <li role="presentation" id="statistics"><a role="menuitem" href="/snpdb/statistics">Statistics</a></li>
+                                <li role="presentation" id="effect"><a role="menuitem" href="/snpdb/effect">Effect</a></li>
+                                <li role="presentation" id="filter"><a role="menuitem" href="/snpdb/filter">Filter</a></li>
+                            </ul>
+                        </li>
+                        <li class="dropdown-submenu">
+                            <a href="/samples/librarylist/">Gene Level Queries</a>
+                            <ul id="gene" class="dropdown-menu" role="menu">
+                                <li class="first" role="presentation"><a role="menuitem" href="/snpdb/gene-snps"> Query Gene for Snps</a></li>
+                                <li role="presentation"><a role="menuitem" href="/snpdb/multi-gene-snps"> Query Mulit-Genes for Snps</a></li>
+                                <li role="presentation"><a role="menuitem" href="/snpdb/multi-gene-library-snps"> Query Mulit-Genes and Multi Library for Snps</a></li>
+                                <li role="presentation"><a role="menuitem" href="/snpdb/library-gene-snps">Query Gene and Library for Snps</a></li>
+                            </ul>
+                        </li>
+                        <li class="dropdown-submenu">
+                            <a href="/samples/librarylist/">Library Level Queries</a>
+                            <ul id="library" class="dropdown-menu" role="menu">
+                                <li class="first" role="presentation"><a role="menuitem" href="/snpdb/gene-snps"> Query Gene for Snps</a></li>
+                                <li role="presentation"><a role="menuitem" href="/snpdb/multi-gene-snps"> Query Mulit-Genes for Snps</a></li>
+                                <li role="presentation"><a role="menuitem" href="/snpdb/multi-gene-library-snps"> Query Mulit-Genes and Multi Library for Snps</a></li>
+                                <li role="presentation"><a role="menuitem" href="/snpdb/library-gene-snps">Query Gene and Library for Snps</a></li>
+                            </ul>
+                        </li>
+                        <li class="dropdown-submenu">
+                            <a href="/samples/librarylist/">Summary Level Queries</a>
+                            <ul id="summary" class="dropdown-menu" role="menu">
+                                <li role="presentation"><a role="menuitem" href="/snpdb/library-snp-summary">Library Level Summary</a></li>
+                                <li role="presentation"><a role="menuitem" href="/snpdb/chromosome-library-snp-summary">Chromosome Level Summary</a></li>
+                            </ul>
+                        </li>
+>>>>>>> bcb541c09cb6302f0560a0e9b33ea773cce9fd04
                     </ul>
                 </li>
+                <li class="dropdown">
+                    <a href="/ngsdbview/alignstats/">Alignment Statistics</a>
+                </li>
+                <li class="dropdown">
+                <a class="dropdown-toggle" data-toggle="dropdown" id="admin"  href="/samples/librarylist/">Admin<b class="caret"></b></a>
+                    <ul id="admin_list" class="dropdown-menu" role="menu">
+                        <li class="dropdown-submenu">
+                            <a href="#">User Management</a>
+                            <ul id="user_management" class="dropdown-menu" role="menu">
+                                <li><a href="/admin/auth/user/add/">Add New User</a></li>
+                                <li><a href="/admin/auth/user/">Edit Existing User</a></li>
+                                <li><a href="/admin/auth/user/">Assign Libraries to User</a></li>
+                            </ul>
+                        </li>
+                        <li class="dropdown-submenu">
+                            <a href="#">Sample Management</a>
+                            <ul id="sample_management" class="dropdown-menu" role="menu">
+                                <li><a href="/admin/samples/library/add/">Add a Library</a></li>
+                                <li><a href="/admin/samples/library/">Edit Existing Libraries</a></li>
+                                <li><a href="/admin/samples/sample/add/">Add a Sample</a></li>
+                                <li><a href="/admin/samples/sample/">Edit Existing Samples</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+
+                <li>
+                    <a href="/ngsdbview/contact/">Contact</a>
+                </li>
             </ul>
+
         </div>
     </div>
 </div>
+{% endblock nav-global %}
 
-{%  endblock %}
 
-{%  block content %}
-<div class="page-header text-header" style="padding-left:30px">
-    <h1>SNP Database</h1>
-</div>
+<!-- content title -->
+{% block content_title %}
+    {% if title %}
+        <header><h1>{{ title }}</h1></header>
+    {% endif %}
+{% endblock %}
 
-<div id='content' class="row">
-    <div class='container'>
-        <h2>Main Content Section</h2>
-        <body class="font-size-medium">
-        <p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi. Nam liber tempor cum soluta nobis eleifend option congue nihil imperdiet doming id quod mazim placerat facer possim assum.<p>
-        <p>Typi non habent claritatem insitam; est usus legentis in iis qui facit eorum claritatem. Investigationes demonstraverunt lectores legere me lius quod ii legunt saepius. Claritas est etiam processus dynamicus, qui sequitur mutationem consuetudium lectorum. Mirum est notare quam littera gothica, quam nunc putamus parum claram, anteposuerit litterarum formas humanitatis per seacula quarta decima et quinta decima. Eodem modo typi, qui nunc nobis videntur parum clari, fiant sollemnes in futurum.</p>
-        </body>
+{% block bootstrap %}
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-6" style="padding-top: 30px">
+                <div class="panel panel-primary" style="border-color: #616770;">
+                    <div class="panel-heading" style="background-color: #616770; border-color:#616770">
+                        <h3 class="panel-title">SNPs by Library</h3>
+                    </div>
+                    <div class="panel-body">
+                        <table class="table table-condensed table-hover" style="table-layout: fixed; word-wrap: break-word;">
+                            <thead>
+                            <tr>
+                                <th class="col-md-1 text-center"><a href={{ filter_urls.library__librarycode }}>Library Code</a></th>
+                                <th class="col-md-1 text-center"><a href={{ filter_urls.result_id }}>SNP Count</a></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                                {% for each in lib_count %}
+                                    <td class="text-center">{{ each.library__librarycode}}</td>
+                                    <td class="text-center">{{ each.snp_id__count}}</td>
+                            </tr>
+                                {% endfor %}
+                            <td class="text-center" style="font-size:14px"><strong>Total</strong></td>
+                            <td class="text-center" style="vertical-align: middle">{{ totals.0 }}</td>
+                            </tbody>
+                        </table>
+                        <img src="{% static images.0 %}" class="image-responsive center-block"/>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6" style="padding-top: 30px">
+                <div class="panel panel-primary" style="border-color: #616770;">
+                    <div class="panel-heading" style="background-color: #616770; border-color:#616770">
+                        <h3 class="panel-title">SNPs by Organism</h3>
+                    </div>
+                    <div class="panel-body">
+                        <table class="table table-condensed table-hover" style="table-layout: fixed; word-wrap: break-word;">
+                            <thead>
+                            <tr>
+                                <th class="col-md-1 text-center"><a href={{ filter_urls.library__organism__organismcode }}>Organism</a></th>
+                                <th class="col-md-1 text-center"><a href={{ filter_urls.result_id }}>SNP Count</a></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                                {% for each in org_count %}
+                                    <td class="text-center">{{ each.library__organism__organismcode}}</td>
+                                    <td class="text-center">{{ each.snp_id__count}}</td>
+                            </tr>
+                                {% endfor %}
+                            <td class="text-center" style="font-size:14px"><strong>Total</strong></td>
+                            <td class="text-center" style="vertical-align: middle">{{ totals.1 }}</td>
+                            </tbody>
+                        </table>
+                        <img src="{% static images.1 %}" class="image-responsive center-block"/>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6" style="padding-top: 30px">
+                <div class="panel panel-primary" style="border-color: #616770;">
+                    <div class="panel-heading" style="background-color: #616770; border-color:#616770">
+                        <h3 class="panel-title">SNPs by Impact</h3>
+                    </div>
+                    <div class="panel-body">
+                        <table class="table table-condensed table-hover" style="table-layout: fixed; word-wrap: break-word;">
+                            <thead>
+                            <tr>
+                                <th class="col-md-1 text-center"><a href={{ filter_urls.effect_string }}>Impact</a></th>
+                                <th class="col-md-1 text-center"><a href={{ filter_urls.snp__count }}>SNP Count</a></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                                {% for key, value in impact_count.items %}
+                                    {% if value|get_value_type:'int' %}
+                                        <td class="text-center">{{ key|title }}</td>
+                                        <td class="text-center">{{ value }}</td>
+                                    {% endif %}
+                            </tr>
+                                {% endfor %}
+                            <td class="text-center" style="font-size:14px"><strong>Total</strong></td>
+                            <td class="text-center" style="vertical-align: middle">{{ impact_count.items|sum_dict }}</td>
+                            </tbody>
+                        </table>
+                        <img src="{% static images.2 %}" class="image-responsive center-block"/>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6" style="padding-top: 30px">
+                <div class="panel panel-primary" style="border-color: #616770;">
+                    <div class="panel-heading" style="background-color: #616770; border-color:#616770">
+                        <h3 class="panel-title">SNPs by High Impact</h3>
+                    </div>
+                    <div class="panel-body">
+                        <table class="table table-condensed table-hover" style="table-layout: fixed; word-wrap: break-word;">
+                            <thead>
+                            <tr>
+                                <th class="col-md-1 text-center"><a href={{ filter_urls.effect_string }}>Impact Effect</a></th>
+                                <th class="col-md-1 text-center"><a href={{ filter_urls.snp__count }}>SNP Count</a></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                                {% for key, value in high_count.items %}
+                                    {% if value|get_value_type:'int' %}
+                                        <td class="text-center">{{ key|title }}</td>
+                                        <td class="text-center">{{ value }}</td>
+                                    {% endif %}
+                            </tr>
+                                {% endfor %}
+                            <td class="text-center" style="font-size:14px"><strong>Total</strong></td>
+                            <td class="text-center" style="vertical-align: middle">{{ high_count.items|sum_dict }}</td>
+                            </tbody>
+                        </table>
+                        <img src="{% static images.3 %}" class="image-responsive center-block"/>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6" style="padding-top: 30px">
+                <div class="panel panel-primary" style="border-color: #616770;">
+                    <div class="panel-heading" style="background-color: #616770; border-color:#616770">
+                        <h3 class="panel-title">SNPs by Moderate Impact</h3>
+                    </div>
+                    <div class="panel-body">
+                        <table class="table table-condensed table-hover" style="table-layout: fixed; word-wrap: break-word;">
+                            <thead>
+                            <tr>
+                                <th class="col-md-1 text-center"><a href={{ filter_urls.library__organism__organismcode }}>Organism</a></th>
+                                <th class="col-md-1 text-center"><a href={{ filter_urls.result_id }}>SNP Count</a></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                                {% for key, value in moderate_count.items %}
+                                    {% if value|get_value_type:'int' %}
+                                        <td class="text-center">{{ key|title }}</td>
+                                        <td class="text-center">{{ value }}</td>
+                                    {% endif %}
+                            </tr>
+                                {% endfor %}
+                            <td class="text-center" style="font-size:14px"><strong>Total</strong></td>
+                            <td class="text-center" style="vertical-align: middle">{{ moderate_count.items|sum_dict }}</td>
+                            </tbody>
+                        </table>
+                        <img src="{% static images.5 %}" class="image-responsive center-block"/>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6" style="padding-top: 30px">
+                <div class="panel panel-primary" style="border-color: #616770;">
+                    <div class="panel-heading" style="background-color: #616770; border-color:#616770">
+                        <h3 class="panel-title">SNPs by Low Impact</h3>
+                    </div>
+                    <div class="panel-body">
+                        <table class="table table-condensed table-hover" style="table-layout: fixed; word-wrap: break-word;">
+                            <thead>
+                            <tr>
+                                <th class="col-md-1 text-center"><a href={{ filter_urls.effect_string }}>Impact Effect</a></th>
+                                <th class="col-md-1 text-center"><a href={{ filter_urls.snp__count }}>SNP Count</a></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                                {% for key, value in low_count.items %}
+                                    {% if value|get_value_type:'int' %}
+                                        <td class="text-center">{{ key|title }}</td>
+                                        <td class="text-center">{{ value }}</td>
+                                    {% endif %}
+                            </tr>
+                                {% endfor %}
+                            <td class="text-center" style="font-size:14px"><strong>Total</strong></td>
+                            <td class="text-center" style="vertical-align: middle">{{ low_count.items|sum_dict }}</td>
+                            </tbody>
+                        </table>
+                        <img src="{% static images.4 %}" class="image-responsive center-block"/>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-</div>
-{%  endblock %}
+    <div class="row">
+        <div class="col-md-6" style="padding-top: 30px">
+            <div class="panel panel-primary" style="border-color: #616770;">
+                <div class="panel-heading" style="background-color: #616770; border-color:#616770">
+                    <h3 class="panel-title">SNPs by Modifier Impact</h3>
+                </div>
+                <div class="panel-body">
+                    <table class="table table-condensed table-hover" style="table-layout: fixed; word-wrap: break-word;">
+                        <thead>
+                        <tr>
+                            <th class="col-md-1 text-center"><a href={{ filter_urls.effect_string }}>Impact Effect</a></th>
+                            <th class="col-md-1 text-center"><a href={{ filter_urls.snp__count }}>SNP Count</a></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                            {% for key, value in modifier_count.items %}
+                                {% if value|get_value_type:'int' %}
+                                    <td class="text-center">{{ key|title }}</td>
+                                    <td class="text-center">{{ value }}</td>
+                                {% endif %}
+                        </tr>
+                            {% endfor %}
+                        <td class="text-center" style="font-size:14px"><strong>Total</strong></td>
+                        <td class="text-center" style="vertical-align: middle">{{ modifier_count.items|sum_dict }}</td>
+                        </tbody>
+                    </table>
+                    <img src="{% static images.6 %}" class="image-responsive center-block"/>
+                </div>
+            </div>
+        </div>
+    </div>
 
-
-
-</html>
+{% endblock %}

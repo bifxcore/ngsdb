@@ -2,59 +2,71 @@
 <html lang="en">
 {% extends "snpdb/dashboard.html" %}
 {% load mathfilters %}
+{% load static %}
+{% load staticfiles %}
 
-{% block content %}
-<div class="page-header text-header" style="padding-left:30px">
-    <h1>Library Summary</h1>
-    <h4>There are {{ count }} libraries with SNP data. </h4>
+{% block title %}
+    Library Summary
+{% endblock %}
+
+{% block breadcrumbs %}
+{% endblock %}
+
+{% block bootstrap %}
+
+<div class="container-fluid">
+    <div class="page-header text-header" style="padding-left:30px margin-top:10px; padding-bottom:0px">
+        <h1 class="header" style="padding-bottom: 0px">Library Summary</h1>
+        <h2 class="header" style="padding-top: 5px;">There are {{ count }} libraries with SNP data. </h2>
+    </div>
 </div>
 
 <body>
-<div class="container" style="padding-bottom:30px">
-<div class="collapse navbar-collapse navbar-ex1-collapse">
-    <ul class="nav navbar-nav">
-        <form class="form-inline" role="form" id='search' action='/snpdb/library-snp-summary/search' method="get">
-            <div class="form-group">
-                <label class="sr-only" for="library_id">Library</label>
-                <input type="text" class="form-control" name="lib" placeholder="library code">
-            </div>
-            <button id="submit" class="btn btn-primary" type="submit">Search</button>
-        </form>
-    </ul>
-</div>
+<div class="container-fluid" style="padding-bottom:30px">
+    <div class="collapse navbar-collapse">
+        <ul class="nav navbar-nav">
+            <form class="form-inline navbar-left" role="form" id='search' action='/snpdb/library-snp-summary/search' method="get">
+                <div class="form-group">
+                    <label class="sr-only" for="library_id">Library</label>
+                    <input type="text" class="form-control" name="lib" placeholder="library code">
+                </div>
+                <button id="submit" class="btn btn-sample" style="margin-left:0px; width:75px; vertical-align:middle; padding: 0px" type="submit">Search</button>
+            </form>
+        </ul>
     </div>
+</div>
 </body>
 
 <div class="container-fluid">
-   <table class="table table-condensed table-hover table-responsive table-bordered" name="library_comparison" style="table-layout: fixed; word-wrap: break-word;">
+   <table class="table table-condensed table-hover table-responsive table-bordered" name="library_comparison" style="table-layout: fixed; width:100%">
     <thead>
     <tr>
-        <th class="text-center"><a href={{ filter_urls.library__library_id }}>Library ID</a></th>
-        <th class="text-center"><a href={{ filter_urls.library__librarycode }}>Library Code</a></th>
-        <th class="text-center"><a href={{ filter_urls.num_snps }}>SNP Total</a></th>
-        <th class="text-center"><a href={{ filter_urls.hetero }}>Heterozygosity Count</a></th>
-        <th class="text-center"><a href={{ filter_urls.homo }}>Homozygous Count</a></th>
-        <th class="text-center"><a href={{ filter_urls.indel }}>Indel Count</a></th>
-        <th class="text-center"><a href={{ filter_urls.trans }}>Transition Count</a></th>
-        <th class="text-center"><a href={{ filter_urls.transversion }}>Transversion Count</a></th>
-        <th class="text-center"><a href={{ filter_urls.snp_density }}>Snp Density</a></th>
+        <th class="text-center" style="word-wrap: break-word"><a href={{ filter_urls.library__library_id }}>Library ID</a></th>
+        <th class="text-center" style="word-wrap: break-word"><a href={{ filter_urls.library__librarycode }}>Library Code</a></th>
+        <th class="text-center" style="word-wrap: break-word"><a href={{ filter_urls.num_snps }}>SNP Total</a></th>
+        <th class="text-center" style="word-wrap: break-word"><a href={{ filter_urls.hetero }}>Heterozygosity Count</a></th>
+        <th class="text-center" style="word-wrap: break-word"><a href={{ filter_urls.homo }}>Homozygous Count</a></th>
+        <th class="text-center" style="word-wrap: break-word"><a href={{ filter_urls.indel }}>Indel Count</a></th>
+        <th class="text-center" style="word-wrap: break-word"><a href={{ filter_urls.trans }}>Transition Count</a></th>
+        <th class="text-center" style="word-wrap: break-word"><a href={{ filter_urls.transversion }}>Transversion Count</a></th>
+        <th class="text-center" style="word-wrap: break-word"><a href={{ filter_urls.snp_density }}>Snp Density</a></th>
     </tr>
     </thead>
     <tbody>
     <tr>
     {% for each in results %}
-        <td class="text-center"><a href="/snpdb/library-snp-summary/search?lib={{each.library__librarycode}}&count={{each.num_snps}}">{{ each.library_id }}</a></td>
-        <td class="text-center">{{ each.library__librarycode }}</td>
-        <td class="text-center">{{ each.num_snps }}</td>
-        <td class="text-center">{{ each.hetero }}</td>
-        <td class="text-center">{{ each.num_snps|sub:each.hetero }}</td>
-        <td class="text-center">{{ each.indel }}</td>
-        <td class="text-center">{{ each.trans }}</td>
-        <td class="text-center">{{ each.num_snps|sub:each.trans }}</td>
+        <td class="text-center" style="word-wrap: break-word"><a href="/snpdb/library-snp-summary/search?lib={{each.library__librarycode}}&count={{each.num_snps}}">{{ each.library_id }}</a></td>
+        <td class="text-center" style="word-wrap: break-word">{{ each.library__librarycode }}</td>
+        <td class="text-center" style="word-wrap: break-word">{{ each.num_snps }}</td>
+        <td class="text-center" style="word-wrap: break-word">{{ each.hetero }}</td>
+        <td class="text-center" style="word-wrap: break-word">{{ each.num_snps|sub:each.hetero }}</td>
+        <td class="text-center" style="word-wrap: break-word">{{ each.indel }}</td>
+        <td class="text-center" style="word-wrap: break-word">{{ each.trans }}</td>
+        <td class="text-center" style="word-wrap: break-word">{{ each.num_snps|sub:each.trans }}</td>
         {% if each.library__librarysize > 0 %}
-            <td class="text-center">{{ each.num_snps|div:each.library__librarysize }}</td>
+            <td class="text-center" style="word-wrap: break-word">{{ each.num_snps|div:each.library__librarysize|floatformat:-4 }}</td>
         {% else %}
-            <td class="text-center">Library is missing size</td>
+            <td class="text-center" style="word-wrap: break-word">Library is missing size</td>
         {% endif %}
     </tr>
     {% endfor %}
@@ -63,9 +75,9 @@
 </div>
 
 
-<div class="container" style="padding-bottom:30px">
-<div class="pagination">
-    <ul class="pagination">
+<div class="container-fluid" style="padding-bottom:30px">
+<div class="ngsdb pagination">
+    <ul class="ngsdb">
         {% if results.has_previous %}
         <li><a href="?page={{  results.previous_page_number }}">&laquo;</a></li>
         {% else %}

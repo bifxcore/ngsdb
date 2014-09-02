@@ -13,8 +13,8 @@ class Chromosome(models.Model):
 class Effect(models.Model):
     snp = models.ForeignKey('SNP')
     effect = models.ForeignKey('Effect_CV')
-    effect_class = models.CharField(max_length=45)
-    effect_string = models.CharField(max_length=45)
+    effect_class = models.TextField()
+    effect_string = models.TextField()
     effect_group = models.IntegerField()
 
 
@@ -34,7 +34,7 @@ class Filter_CV(models.Model):
     filter_cv_id = models.AutoField(primary_key=True)
     filter_type = models.TextField()
 
-
+#todo Change library reference to samples.Library. Need to wait on Gowthaman to fix library-result table.
 class SNP(models.Model):
     snp_id = models.AutoField(primary_key=True)
     snp_position = models.IntegerField()

@@ -1,18 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
 {% extends "snpdb/dashboard.html" %}
-
-{% block content %}
+{% load static %}
+{% load staticfiles %}
 {% load display_rows %}
 
-<div class="page-header text-header" style="padding-left:30px">
-    <h1>Library Comparison on Gene</h1>
-    <h4>There are {{ count }} genes in the database. </h4>
+{% block title %}
+    Library Comparison on Gene
+{% endblock %}
+
+{% block breadcrumbs %}
+{% endblock %}
+
+{% block bootstrap %}
+
+<div class="container-fluid">
+	<div class="page-header text-header" style="padding-left:30px; margin-top:10px; padding-bottom:0px">
+    	<h1 class="header" style="padding-bottom:0px;">Library Comparison on Gene</h1>
+    	<h2 class="header" style="padding-top:5px">There are {{ count }} genes in the database. </h2>
+	</div>
 </div>
 
-
 <body>
-<div class="container" style="padding-bottom:30px">
+<div class="container-fluid" style="padding-bottom:30px">
 <div class="collapse navbar-collapse navbar-ex1-collapse">
     <ul class="nav navbar-nav">
         <form class="form-inline" role="form" id='search' action='/snpdb/compare-gene-lib/search' method="get">
@@ -20,13 +30,13 @@
                 <label class="sr-only" for="gene">Gene</label>
                 <input type="text" class="form-control" name="s" placeholder="gene">
             </div>
-            <button id="submit" class="btn btn-primary" type="submit">Search</button>
+            <button class="btn btn-sample" type="submit"  style="margin-left:0px; width:75px; vertical-align:middle; padding: 0px">Search</button>
         </form>
     </ul>
 </div>
 </div>
 
-<div class="container" style="padding-bottom:30px">
+<div class="container-fluid" style="padding-bottom:30px">
 
 <div class="form">
         {% for group in results|group_by:6 %}
@@ -40,9 +50,9 @@
 </div>
 </body>
 
-<div class="container" style="padding-bottom:30px">
-    <div class="pagination">
-        <ul class="pagination">
+<div class="container-fluid" style="padding-bottom:30px">
+    <div class="ngsdb pagination">
+        <ul class="ngsdb">
             {% if results.has_previous %}
                 <li><a href="?page={{ results.previous_page_number }}">&laquo;</a></li>
             {% else %}

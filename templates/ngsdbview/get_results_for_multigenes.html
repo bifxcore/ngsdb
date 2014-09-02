@@ -7,6 +7,7 @@
 <!-- for css -->
 
 {% block body %}
+    {% load humanize %}
 
     <!-- for autocompletion -->
     <link href="/media/css/jquery-ui-1.8.18.custom.css" rel="stylesheet" type="text/css"/>
@@ -27,7 +28,8 @@
 
         {% csrf_token %}
         {% load ngsdbview_extras %}
-
+        <h1>Query:</h1>
+        <div class="query">
         {# Table to display a bound form #}
         {{ form.as_table }}
 
@@ -54,7 +56,7 @@
                         <TD>{{ res.genome.organism.organismcode }}</TD>
                         <TD>{{ res.genome.version }}</TD>
                         <TD>{{ res.genome.source }}</TD>
-                        <TD><a href="/ngsdb/list_analysis_steps/{{ res.result_id }}/" target="_blank">View Analysis Steps</a></TD>
+                        <TD><a href="/ngsdbview/list_analysis_steps/{{ res.result_id }}/" target="_blank">View Analysis Steps</a></TD>
                     </TR>
                 {% endfor %}
 
@@ -62,7 +64,10 @@
         </TABLE>
 
         <input type="submit"  name="level" value="Submit" />
+        </div>
     </FORM>
+    <div class="results">
+    <h1>Result:</h1>
 
     {# Table for align stat and pie chart #}
     {% if alignstatdic %}
@@ -106,7 +111,7 @@
         </TR></TABLE>
 
         <TABLE id= "viewtable">
-            <TR>
+            <TR bgcolor="#deb887">
                     <TH>Sl. No.</TH>
                     <TH>External Links</TH>
                     <TH>Geneid</TH>
@@ -122,25 +127,25 @@
             </TR>
             {% for geneobj in allgenes %}
             <TR>
-                <TD>{{ forloop.counter }}</TD>
+                <TD bgcolor="#deb887">{{ forloop.counter }}</TD>
                 <TD><a href="http://tritrypdb.org/tritrypdb/showRecord.do?name=GeneRecordClasses.GeneRecordClass&project_id=TriTrypDB&source_id={{ geneobj.geneid }}" target="_blank">TriTrypDB</a>
                             &nbsp;<a href="http://www.genedb.org/gene/{{ geneobj.geneid }} " target="_blank">GeneDB</a>
                 </TD>
                 <TD>{{geneobj.geneid}}</TD>
-                <TD>{{ geneobj.rank }}</TD>
+                <TD>{{geneobj.rank}}</TD>
                 <TD>{{geneobj.genestrand}}</TD>
                 <TD>{{geneobj.chromosome}}</TD>
-                <TD>{{geneobj.position}}</TD>
-                <TD>{{geneobj.readcount}}</TD>
-                <TD>{{geneobj.slpercent}}</TD>
+                <TD>{{geneobj.position|intcomma}}</TD>
+                <TD>{{geneobj.readcount|intcomma}}</TD>
+                <TD>{{geneobj.slpercent|floatformat:"1"}}</TD>
                 <TD>{{geneobj.intervallength}}</TD>
-                <TD>{{geneobj.cdsstart}}</TD>
-                <TD>{{geneobj.cdsend}}</TD>
+                <TD>{{geneobj.cdsstart|intcomma}}</TD>
+                <TD>{{geneobj.cdsend|intcomma}}</TD>
             </TR>
             {% endfor %}
         </TABLE>
     {% endif %}
-
+    </div>
 {% else %}
 
 <FORM action="." method="post">

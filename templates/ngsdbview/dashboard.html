@@ -8,72 +8,343 @@
 
 
 <!-- Master table for the page layout-->
-<TABLE>
-    <TR>
-        <TD>
-            <TABLE id="viewtable">
-                <TR><TH>Collaborator Name</TH><TH>Lib. Count</TH></TR>
-                {% for name in collaborators %}
-                    <TR><TD>{{ name }}</TD><TD> {{ collaborators|hash:name }}</TD></TR>
-                {% endfor %}
-                <TR><TD><img src="{{ collaboratorschart }}" /></TD></TR>
-            </TABLE>
-        </TD>
-        <TD>
-            <TABLE id="viewtable">
-                <TR><TH>Organism</TH><TH>Library count</TH></TR>
-                {% for org in liborg %}
-                    <TR><TD>{{ org }}</TD><TD> {{ liborg|hash:org }}</TD></TR>
-                {% endfor %}
-                <TR><TD><img src="{{ liborgchart }}" /></TD></TR>
-            </TABLE>
-        </TD>
-    </TR>
-    <TR>
-        <TD>
-            <TABLE id="viewtable">
-                <TR><TH>Library Type</TH><TH>Count</TH></TR>
-                {% for type in libtype %}
-                <TR><TD>{{ type }}</TD><TD> {{ libtype|hash:type }}</TD></TR>
-                {% endfor %}
-                <TR><TD><img src="{{ libtypechart }}" /></TD></TR>
-            </TABLE>
-        </TD>
-        <TD>
-            <TABLE id="viewtable">
-                <TR><TH>Library Author</TH><TH>Count</TH></TR>
-                {% for auth in libauth %}
-                <TR><TD>{{ auth }}</TD><TD> {{ libauth|hash:auth }}</TD></TR>
-                {% endfor %}
-                <TR><TD><img src="{{ libauthchart }}" /></TD></TR>
-            </TABLE>
-        </TD>
-    </TR>
-    <TR>
-        <TD>
-            <TABLE id="viewtable">
-                <TR><TH>Category</TH><TH>Count</TH></TR>
-                <TR><TD>No. Of Libraries Loaded</TD><TD>{{ libcount }}</TD></TR>
-                <TR><TD>No. Of Analyis Loaded</TD><TD>{{ anacount }}</TD></TR>
-                <TR><TD><img src="{{ analysedlibschart }}" /></TD></TR>
-            </TABLE>
-        </TD>
-        <TD>
-            <TABLE id="viewtable">
-                <TR><TH>Analysis Author</TH><TH>Count</TH></TR>
-                {% for auth in anaauth %}
-                <TR><TD>{{ auth }}</TD><TD> {{ anaauth|hash:auth }}</TD></TR>
-                {% endfor %}
-                <TR><TD><img src="{{ anaauthchart }}" /></TD></TR>
-        </TD>
-    </TR>
-<!--
-    <TR>
-        <TD></TD>
-        <TD></TD>
-    </TR>
--->
-</TABLE>
+<div class="container-fluid">
+    <div class="row">
+        <div class="panel panel-primary" style="border-color: #616770;">
+            <div class="panel-heading" style="background-color: #616770; border-color:#616770">
+                <h3 class="panel-title" id="viewtable">Samples in Database</h3>
+            </div>
+            <div class="panel-body">
+                <div class="col-md-4" style="padding-top: 30px">
+                    <table class="table table-condensed table-hover" style="table-layout: fixed; word-wrap: break-word;">
+                        <thead>
+                            <tr>
+                                <th class="col-md-1 text-center">Collaborator Name</th>
+                                <th class="col-md-1 text-center"># Samples</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for name in samplecountdic %}
+                            <tr>
+                                <td class="text-center">{{ name }}</td>
+                                <td class="text-center">{{ samplecountdic|hash:name }}</td>
+                            {% endfor %}
+                            </tr>
+                            <tr id="sumrow">
+                                <td class="col-md-1 text-center">Total</td>
+                                <td class="col-md-1 text-center"> {{ samplecounttotal }}</td>
+                            </tr>
+                            <tr>
+                                <td><img src="{{ samplecountchart }}" /></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-md-4" style="padding-top: 30px">
+                    <table class="table table-condensed table-hover" style="table-layout: fixed; word-wrap: break-word;">
+                        <thead>
+                            <tr>
+                                <th class="col-md-1 text-center">Organism Code</th>
+                                <th class="col-md-1 text-center"># Samples</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for name in sampleorgcountdic %}
+                            <tr>
+                                <td class="text-center">{{ name }}</td>
+                                <td class="text-center">{{ sampleorgcountdic|hash:name }}</td>
+                            {% endfor %}
+                            </tr>
+                            <tr id="sumrow">
+                                <td class="col-md-1 text-center">Total</td>
+                                <td class="col-md-1 text-center"> {{ sampleorgcounttotal }}</td>
+                            </tr>
+                            <tr>
+                                <td><img src="{{ sampleorgcountchart }}" /></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-md-4" style="padding-top: 30px">
+                    <table class="table table-condensed table-hover" style="table-layout: fixed; word-wrap: break-word;">
+                        <thead>
+                            <tr>
+                                <th class="col-md-1 text-center">Sample Type</th>
+                                <th class="col-md-1 text-center"># Samples</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for name in sampletypecountdic %}
+                            <tr>
+                                <td class="text-center">{{ name }}</td>
+                                <td class="text-center">{{ sampletypecountdic|hash:name }}</td>
+                            {% endfor %}
+                            </tr>
+                            <tr id="sumrow">
+                                <td class="col-md-1 text-center">Total</td>
+                                <td class="col-md-1 text-center"> {{ sampletypecounttotal }}</td>
+                            </tr>
+                            <tr>
+                                <td><img src="{{ sampletypecountchart }}" /></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="panel panel-primary" style="border-color: #616770;">
+            <div class="panel-heading" style="background-color: #616770; border-color:#616770">
+                <h3 class="panel-title" id="viewtable">Libraries Constructed</h3>
+            </div>
+            <div class="panel-body">
+                <div class="col-md-3" style="padding-top: 30px">
+                    <table class="table table-condensed table-hover" style="table-layout: fixed; word-wrap: break-word;">
+                        <thead>
+                            <tr>
+                                <th class="col-md-1 text-center">Collaborator Name</th>
+                                <th class="col-md-1 text-center"># Libraries</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for name in libconstcountdic %}
+                            <tr>
+                                <td class="text-center">{{ name }}</td>
+                                <td class="text-center">{{ libconstcountdic|hash:name }}</td>
+                            {% endfor %}
+                            </tr>
+                            <tr id="sumrow">
+                                <thead class="col-md-1 text-center">Total</thead>
+                                <td class="col-md-1 text-center"> {{ libconstcounttotal }}</td>
+                            </tr>
+                            <tr>
+                                <td><img src="{{ libconstcountchart }}" /></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-md-3" style="padding-top: 30px">
+                    <table class="table table-condensed table-hover" style="table-layout: fixed; word-wrap: break-word;">
+                        <thead>
+                            <tr>
+                                <th class="col-md-1 text-center">Author Name</th>
+                                <th class="col-md-1 text-center"># Libraries</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for name in libauthcountdic %}
+                            <tr>
+                                <td class="text-center">{{ name }}</td>
+                                <td class="text-center">{{ libauthcountdic|hash:name }}</td>
+                            {% endfor %}
+                            </tr>
+                            <tr id="sumrow">
+                                <td class="col-md-1 text-center">Total</td>
+                                <td class="col-md-1 text-center"> {{ libauthcounttotal }}</td>
+                            </tr>
+                            <tr>
+                                <td><img src="{{ libauthchart }}" /></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-md-3" style="padding-top: 30px">
+                    <table class="table table-condensed table-hover" style="table-layout: fixed; word-wrap: break-word;">
+                        <thead>
+                            <tr>
+                                <th class="col-md-1 text-center">Organism Code</th>
+                                <th class="col-md-1 text-center"># Libraries</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for name in liborgcountdic %}
+                            <tr>
+                                <td class="text-center">{{ name }}</td>
+                                <td class="text-center">{{ liborgcountdic|hash:name }}</td>
+                            {% endfor %}
+                            </tr>
+                            <tr id="sumrow">
+                                <td class="col-md-1 text-center">Total</td>
+                                <td class="col-md-1 text-center"> {{ liborgcounttotal }}</td>
+                            </tr>
+                            <tr>
+                                <td><img src="{{ liborgcountchart }}" /></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-md-3" style="padding-top: 30px">
+                    <table class="table table-condensed table-hover" style="table-layout: fixed; word-wrap: break-word;">
+                        <thead>
+                            <tr>
+                                <th class="col-md-1 text-center">Library Type</th>
+                                <th class="col-md-1 text-center"># Libraries</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for name in libtypecountdic %}
+                            <tr>
+                                <td class="text-center">{{ name }}</td>
+                                <td class="text-center">{{ libtypecountdic|hash:name }}</td>
+                            {% endfor %}
+                            </tr>
+                            <tr id="sumrow">
+                                <td class="col-md-1 text-center">Total</td>
+                                <td class="col-md-1 text-center"> {{ libtypecounttotal }}</td>
+                            </tr>
+                            <tr>
+                                <td><img src="{{ libtypecountchart }}" /></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="panel panel-primary" style="border-color: #616770;">
+            <div class="panel-heading" style="background-color: #616770; border-color:#616770">
+                <h3 class="panel-title" id="viewtable">Libraries Analysed and Loaded</h3>
+            </div>
+            <div class="panel-body">
+                <div class="col-md-3" style="padding-top: 30px">
+                    <table class="table table-condensed table-hover" style="table-layout: fixed; word-wrap: break-word;">
+                        <thead>
+                            <tr>
+                                <th class="col-md-1 text-center">Collaborator Name</th>
+                                <th class="col-md-1 text-center">Lib. Count</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for name in collaborators %}
+                            <tr>
+                                <td class="text-center">{{ name }}</td>
+                                <td class="text-center">{{ collaborators|hash:name }}</td>
+                            {% endfor %}
+                            </tr>
+                            <tr>
+                                <td><img src="{{ collaboratorschart }}" /></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-md-3" style="padding-top: 30px">
+                    <table class="table table-condensed table-hover" style="table-layout: fixed; word-wrap: break-word;">
+                        <thead>
+                            <tr>
+                                <th class="col-md-1 text-center">Organism</th>
+                                <th class="col-md-1 text-center"># Library Count</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for name in liborg %}
+                                <td class="text-center">{{ name }}</td>
+                                <td class="text-center">{{ liborg|hash:name }}</td>
+                        </tr>
+                            {% endfor %}
+                            <tr>
+                                <td><img src="{{ liborgcountchart }}" /></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-md-3" style="padding-top: 30px">
+                    <table class="table table-condensed table-hover" style="table-layout: fixed; word-wrap: break-word;">
+                        <thead>
+                            <tr>
+                                <th class="col-md-1 text-center">Library Type</th>
+                                <th class="col-md-1 text-center">Count</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for name in libtype %}
+                                <td class="text-center">{{ name }}</td>
+                                <td class="text-center">{{ libtype|hash:name }}</td>
+                        </tr>
+                            {% endfor %}
+                        <tr>
+                            <td><img src="{{ libtypechart }}" /></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-md-3" style="padding-top: 30px">
+                    <table class="table table-condensed table-hover" style="table-layout: fixed; word-wrap: break-word;">
+                        <thead>
+                            <tr>
+                                <th class="col-md-1 text-center">Library Author</th>
+                                <th class="col-md-1 text-center">Count</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for name in libauth %}
+                                <td class="text-center">{{ name }}</td>
+                                <td class="text-center">{{ libauth|hash:name }}</td>
+                        </tr>
+                            {% endfor %}
+                            <tr>
+                                <td><img src="{{ libauthchart }}" /></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="panel panel-primary" style="border-color: #616770;">
+            <div class="panel-heading" style="background-color: #616770; border-color:#616770">
+                <h3 class="panel-title" id="viewtable">Libraries Analysed and Loaded</h3>
+            </div>
+            <div class="panel-body">
+                <div class="col-md-3" style="padding-top: 30px">
+                    <table class="table table-condensed table-hover" style="table-layout: fixed; word-wrap: break-word;">
+                        <thead>
+                            <tr>
+                                <th class="col-md-1 text-center">Category</th>
+                                <th class="col-md-1 text-center">Count</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>No. Of Libraries Loaded</td>
+                                <td>{{ libcount }}</td>
+                            </tr>
+                            <tr>
+                                <td>No. of Analysis Loaded</td>
+                                <td>{{ anacount }}</td>
+                            </tr>
+                            <tr>
+                                <td><img src="{{ analysedlibschart }}" /></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-md-3" style="padding-top: 30px">
+                    <table class="table table-condensed table-hover" style="table-layout: fixed; word-wrap: break-word;">
+                        <thead>
+                            <tr>
+                                <th class="col-md-1 text-center">Analysis Author</th>
+                                <th class="col-md-1 text-center">Count</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for name in anaauth %}
+                                <td class="text-center">{{ name }}</td>
+                                <td class="text-center">{{ anaauth|hash:name }}</td>
+                        </tr>
+                            {% endfor %}
+                            <tr>
+                                <td><img src="{{ anaauthchart }}" /></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 
 {% endblock %}

@@ -6,8 +6,8 @@
 - Add filtering options for query result pages
 - Need to debug Library Comparison on Gene when there is no CDS region defined. Try catch needed.
 - Identify regions not present in reference but are present in query genome
-- List snps found within one library but not second
 - Add effect type to tables
+- Figure out how to pass is_active to views.
 
 
 

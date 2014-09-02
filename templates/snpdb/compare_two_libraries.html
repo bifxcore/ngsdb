@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 {% extends "snpdb/dashboard.html" %}
-
-{% block content %}
+{% load static %}
+{% load staticfiles %}
 {% load display_rows %}
 
+<<<<<<< HEAD
 <script>
     $.each($('#libraries a.accordion-toggle'), function(i, link){
         var $collapsible = $('#collapse' + id_of_a_bean); // Let's be thorough
@@ -25,6 +26,22 @@
 <div class="page-header text-header" style="padding-left:30px">
     <h1>Difference Between Libraries</h1>
     <h4>Find snps present in Library 1 not present in Library 2</h4>
+=======
+{% block title %}
+    SNP Summary
+{% endblock %}
+
+{% block breadcrumbs %}
+{% endblock %}
+
+{% block bootstrap %}
+
+<div class="container-fluid">
+	<div class="page-header text-header" style="padding-left:30px; margin-top:10px; padding-bottom:0px">
+    	<h1 class="header" style="padding-bottom:0px;">Difference Between Libraries</h1>
+    	<h2 class="header" style="padding-top:5px">Find snps present in Library 1 not present in Library 2</h2>
+	</div>
+>>>>>>> bcb541c09cb6302f0560a0e9b33ea773cce9fd04
 </div>
 
 
@@ -32,7 +49,11 @@
 <div class="container-fluid" style="padding-bottom:30px">
     <div class="collapse navbar-collapse navbar-ex1-collapse">
         <ul class="nav navbar-nav">
+<<<<<<< HEAD
             <form class="form-inline" role="form" id='search' action='/snpdb/difference-two-libraries/search' method="get">
+=======
+            <form class="form-inline" role="form" id='search' action='/snpdb/compare-two-libs/search' method="get">
+>>>>>>> bcb541c09cb6302f0560a0e9b33ea773cce9fd04
                 <div class="form-group">
                     <label class="sr-only" for="library">Library 1</label>
                     <input type="text" class="form-control" name="lib1" placeholder="library 1">
@@ -41,13 +62,14 @@
                     <label class="sr-only" for="library">Library 2</label>
                     <input type="text" class="form-control" name="lib2" placeholder="library 2">
                 </div>
-                <button id="submit" class="btn btn-primary" type="submit">Search</button>
+                <button class="btn btn-sample" type="submit"  style="margin-left:0px; width:75px; vertical-align:middle; padding: 0px">Search</button>
             </form>
         </ul>
     </div>
 </div>
 
 <div class="container-fluid" style="padding-bottom:30px">
+<<<<<<< HEAD
     <div class="panel-group" id="accordion">
         <div class="panel panel-default">
             <div class="panel-heading">
@@ -79,21 +101,20 @@
             {% else %}
                 <li class="disabled"><a href="#">&laquo;</a></li>
             {%  endif %}
-
-            {% for page in paginator.page_range %}
-                {% if page <= toolbar_max and page > toolbar_min and page != results.number %}
-                        <li><a href="?page={{ page }}">{{ page }}</a></li>
-                {% elif page == results.number %}
-                    <li class="active"><a href="?page={{ results.number }}">{{ results.number }}</a></li>
-                {% endif %}
-            {% endfor %}
-
-            {% if results.has_next %}
-                <li><a href="?page={{ results.next_page_number }}">&raquo;</a></li>
-            {% endif %}
-        </ul>
+=======
+    <div class="form">
+        {% for group in results|group_by:6 %}
+            <div class="form-group">
+                {% for obj in group %}
+                    <label class="col-sm-2">{{ obj.librarycode }}      </label>
+                {% endfor %}
+            </div>
+        {% endfor %}
     </div>
 </div>
+>>>>>>> bcb541c09cb6302f0560a0e9b33ea773cce9fd04
 
-{% endblock %}
+</body>
+{%endblock%}
+
 </html>

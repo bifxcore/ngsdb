@@ -14,7 +14,7 @@ EMAIL_PORT = 1025
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'ngsdb03i',                      # Or path to database file if using sqlite3.
+        'NAME': 'ngsdb03l',                      # Or path to database file if using sqlite3.
         # The following settings are not used with sqlite3:
         'USER': 'ngsdb03',
         'PASSWORD': 'ngsdb03',
@@ -29,4 +29,8 @@ MIDDLEWARE_CLASSES += ("debug_toolbar.middleware.DebugToolbarMiddleware", )
 
 DEBUG_TOOLBAR_CONFIG = {
     "INTERCEPT_REDIRECTS" : False
+}
+
+DATABASE_OPTIONS = {
+    "connect_timeout": 200,
 }
