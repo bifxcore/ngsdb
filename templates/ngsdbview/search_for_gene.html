@@ -25,103 +25,111 @@
 
 
 {%  if allres  %}
-<h1>QUERY:</h1>
 <div>
-    <h2>Query Gene Id(s):</h2>
-    <TABLE><TR><TD>
-     {{ geneid }}<br />
+    <div class="container-fluid">
+        <h1>QUERY:</h1>
+        <div class="form-group">
+            <dl class="dl-horizontal">
+                <dt><h2>Query Gene Id(s):</h2></dt>
+                <dd>{{ geneid }}</dd>
+            </dl>
+        </div>
+    </div>
+
+
     <input type="hidden" name="geneid" value={{ geneid }}>
-    </TD></TR></TABLE>
 
+    <div class="container-fluid" style="padding-bottom: 30px">
     <h2>Target Libraries:</h2>
-
-    <TABLE id="viewtable">
+    <table class="table table-condensed table-hover table-bordered" style="table-layout: fixed; word-wrap: break-word;" id="viewtable">
         <thead>
-        <TR>
-        <TH><input type="checkbox" onClick="toggle(this)" />  Result Ids</TH>
-        <TH>Library Code</TH>
-        <TH>Library Type</TH>
-        <TH>Library Constructed on</TH>
-        <TH>Lifestage</TH>
-        <TH>Phenotype</TH>
-        <TH>Genome Aligned to</TH>
-        <TH>Genome version</TH>
-        <TH>Genome source</TH>
-        <TH>View Analysis Steps</TH>
-        </TR>
+        <tr>
+            <td class="text-center" bgcolor="#919dab"><input type="checkbox" style="margin-right:15px" onClick="toggle(this)"/>Result Ids</td>
+            <td class="text-center" bgcolor="#919dab">Library Code</td>
+            <td class="text-center" bgcolor="#919dab">Library Type</td>
+            <td class="text-center" bgcolor="#919dab">Library Constructed on</td>
+            <td class="text-center" bgcolor="#919dab">Lifestage</td>
+            <td class="text-center" bgcolor="#919dab">Phenotype</td>
+            <td class="text-center" bgcolor="#919dab">Genome Aligned to</td>
+            <td class="text-center" bgcolor="#919dab">Genome version</td>
+            <td class="text-center" bgcolor="#919dab">Genome source</td>
+            <td class="text-center" bgcolor="#919dab">View Analysis Steps</td>
+        </tr>
         </thead>
         <tbody>
+        <tr>
         {% for res in allres %}
             {% for lib in res.libraries.all %}
-                <TR><TD><input type="checkbox" name="resid" value = {{ res.result_id }} >{{ res.result_id }}</TD>
-                <TD>{{ lib.librarycode }}</TD>
-                <TD>{{ lib.librarytype }}</TD>
-                <TD>{{ lib.organism.organismcode }}</TD>
-                <TD>{{ lib.lifestage.lifestage }}</TD>
-                <TD>{{ lib.phenotype.phenotype }}</TD>
-                <TD>{{ res.genome.organism.organismcode }}</TD>
-                <TD>{{ res.genome.version }}</TD>
-                <TD>{{ res.genome.source }}</TD>
-                <TD><a href="/ngsdbview/list_analysis_steps/{{ res.result_id }}/" target="_blank">View Analysis Steps</a></TD>
-
-                </TR>
+                <td class="text-center"><input type="checkbox" name="resid" style="margin-right:15px" value = {{ res.result_id }} >{{ res.result_id }}</td>
+                <td class="text-center">{{ lib.librarycode }}</td>
+                <td class="text-center">{{ lib.librarytype }}</td>
+                <td class="text-center">{{ lib.organism.organismcode }}</td>
+                <td class="text-center">{{ lib.lifestage.lifestage }}</td>
+                <td class="text-center">{{ lib.phenotype.phenotype }}</td>
+                <td class="text-center">{{ res.genome.organism.organismcode }}</td>
+                <td class="text-center">{{ res.genome.version }}</td>
+                <td class="text-center">{{ res.genome.source }}</td>
+                <td class="text-center"><a href="/ngsdbview/list_analysis_steps/{{ res.result_id }}/" target="_blank">View Analysis Steps</a></td>
+        </tr>
             {% endfor %}
-
         {% endfor %}
         </tbody>
-    </TABLE>
+    </table>
 </div>
-</P></P>
+</div>
 
 {# Printing result table #}
 {% if slsreadcount %}
-<h2>Splice Leader Raw Read Counts across the gene:</h2>
-    *Interval => the position replative to A of start ATG codon
+<div>
+    <div class="container-fluid">
+        <dl>
+            <dt><h2>Splice Leader Raw Read Counts across the gene:</h2></dt>
+            <dd>*Interval => the position replative to A of start ATG codon</dd>
+        </dl>
+    </div>
 
-    <TABLE id="viewtable">
-        <TR  >{# printing first header intervel #}
-            <TH>Interval*</TH>
+<div class="container-fluid">
+    <table class="table table-condensed table-bordered" style="table-layout: fixed; word-wrap: break-word;" id="viewtable">
+        <thead>
+        <tr>
+            <td class="text-center" bgcolor="#919dab">Interval*</td>
             {% for pos in ordposlist %}
-                <TH bgcolor="#ff7f50">{{ interval|hash:pos }}</TH>
+                <td class="text-center" bgcolor="#919dab">{{ interval|hash:pos }}</td>
             {% endfor %}
-        </TR>
-        <TR>{# printing second header position #}
-            <TH>Base Position</TH>
+        </tr>
+        <tr>
+            <td class="text-center" bgcolor="#919dab">Base Position</td>
             {% for pos in ordposlist %}
-                <TH bgcolor="#deb887">{{ pos }}</TH>
+                <td class="text-center" bgcolor="#919dab">{{ pos }}</td>
             {% endfor %}
-        </TR>
-        {# print data #}
-
+        </tr>
+        </thead>
+        <tbody>
         {% for resid, posdic in slsreadcount.items %}
-            <TR>
-                <TH bgcolor="#deb887"> {{ libcodes|hash:resid }}</TH>
+            <tr>
+                <td class="text-center" bgcolor="#919dab"> {{ libcodes|hash:resid }}</td>
                 {% for pos in ordposlist %}
-
                     {% if pos ==  majorsitepos|hash:165 %}
-                    <TH>{{ posdic|hash:pos }} {{ majorsitepos|hash:resid }}</TH>
+                    <th class="text-center">{{ posdic|hash:pos }} {{ majorsitepos|hash:resid }}</th>
                     {% else %}
-                    <TD>{{ posdic|hash:pos }}</TD>
+                    <td class="text-center">{{ posdic|hash:pos }}</td>
                     {% endif %}
                 {% endfor %}
-            </TR>
-
+            </tr>
         {% endfor %}
+        </tbody>
+    </table>
+</div>
 
-
-    </TABLE>
 
 {%  endif %}
 
+<div class="container-fluid">
+    <div class="form-group">
+        <button class="btn btn-sample" type="submit" name="level2" style="margin-left:0px; width:75px; vertical-align:middle; padding: 0px">Submit</button>
+    </div>
+</div>
 
-<TABLE>
-  <TR>
-	<TD>
-	    <input type="submit" name="level2" value="Submit" />
-    </TD>
-  </TR>
-</TABLE>
-</form>
 
 {% if slsreadcount %}
 
@@ -138,7 +146,7 @@
 				{{ form.as_table }}
 		</TD>
 		<TD>
-			<input type="submit"  name="level1" value="Submit" />	  
+            <button class="btn btn-sample" type="submit" name="level1" style="margin-left: 0px; width:75px; vertical-align: middle; padding-bottom: 0px;">Submit</button>
 			</form>
 		</TD>
   </TR>
