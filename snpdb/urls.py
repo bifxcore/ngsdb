@@ -12,6 +12,7 @@ urlpatterns = patterns('',
                        url(r'^effect/search', 'snpdb.views.effect_filter'),
                        url(r'^filter/search', 'snpdb.views.filter_filter'),
                        url(r'^gene-snps/search', 'snpdb.views.gene_snps_filter'),
+                       url(r'^test', 'snpdb.views.effects_by_vcf'),
 
                        url(r'^impact2/search', 'snpdb.views.impact_snps2'),
                        url(r'^impact-snps/search', 'snpdb.views.impact_snps'),

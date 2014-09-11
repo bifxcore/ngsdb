@@ -1,5 +1,5 @@
 from snpdb.models import *
-from django.shortcuts import render_to_response, render
+from django.shortcuts import render_to_response
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from utils import build_orderby_urls
 from django.db.models import *
@@ -12,9 +12,10 @@ import subprocess
 import datetime
 import os
 import csv
+import vcf
 
 low_effects = ["SYNONYMOUS_START", "NON_SYNONYMOUS_START", "START_GAINED", "SYNONYMOUS_CODING", "SYNONYMOUS_STOP"]
-high_effects = ["SPLICE_SITE_ACCEPTOR", "SPLICE_SITE_DONOR", "START_LOST", "EXON_DELETED", "FRAME_SHIFT", "STOP_GAINED", "STOP_LOST", "RARE_AMINO_ACI"]
+high_effects = ["SPLICE_SITE_ACCEPTOR", "SPLICE_SITE_DONOR", "START_LOST", "EXON_DELETED", "FRAME_SHIFT", "STOP_GAINED", "STOP_LOST", "RARE_AMINO_ACID"]
 moderate_effects = ["NON_SYNONYMOUS_CODING", "CODON_CHANGE", "CODON_INSERTION", "CODON_CHANGE_PLUS_CODON_INSERTION",
                     "CODON_DELETION", "CODON_CHANGE_PLUS_CODON_DELETION", "UTR_5_DELETED", "UTR_3_DELETED"]
 modifier_effects = ["UTR_5_PRIME", "UTR_3_PRIME", "REGULATION", "UPSTREAM", "DOWNSTREAM", "GENE", "TRANSCRIPT", "EXON",
@@ -928,14 +929,14 @@ def genes_from_effect(results, library, order_by):
 						snp_dict[each['snp_id']] = each
 				else:
 					snp_dict[each['snp_id']] = each
-					# else:
-					#     if each['snp_id'] in snp_dict:
-					#         pass
-					#     else:
-					#         each["effect__effect_class"] = 'None'
-					#         each["effect__effect_string"] = 'None'
-					#         each["effect__effect"] = 'None'
-					#         snp_dict[each['snp_id']] = each
+				# else:
+				#     if each['snp_id'] in snp_dict:
+				#         pass
+				#     else:
+				#         each["effect__effect_class"] = 'None'
+				#         each["effect__effect_string"] = 'None'
+				#         each["effect__effect"] = 'None'
+				#         snp_dict[each['snp_id']] = each
 			else:
 				if each['snp_id'] in snp_dict:
 					pass
@@ -1276,16 +1277,16 @@ def difference_two_libraries(request):
 	high_counts2 = defaultdict(int)
 	moderate_counts2 = defaultdict(int)
 	modifier_counts2 = defaultdict(int)
-	for each in low_effects:
-		count_effect_cmd = """cat %s/0000.vcf| cut -f 8 | tr ";" "\n" | grep ^EFF= | cut -f 2 -d = | tr "," "\n" | grep %s | wc -l"""
-		count_effect = subprocess.Popen(count_effect_cmd % (path, each), shell=True, stdout=subprocess.PIPE)
-		count = count_effect.communicate()[0]
-		count_effect_cmd2 = """cat %s/0001.vcf| cut -f 8 | tr ";" "\n" | grep ^EFF= | cut -f 2 -d = | tr "," "\n" | grep %s | wc -l"""
-		count_effect2 = subprocess.Popen(count_effect_cmd2 % (path, each), shell=True, stdout=subprocess.PIPE)
-		count2 = count_effect2.communicate()[0]
-		low_counts[each] = count.strip()
-		low_counts2[each] = count2.strip()
-	print "low effects counted"
+	# for each in low_effects:
+	# 	count_effect_cmd = """cat %s/0000.vcf| cut -f 8 | tr ";" "\n" | grep ^EFF= | cut -f 2 -d = | tr "," "\n" | grep %s | wc -l"""
+	# 	count_effect = subprocess.Popen(count_effect_cmd % (path, each), shell=True, stdout=subprocess.PIPE)
+	# 	count = count_effect.communicate()[0]
+	# 	count_effect_cmd2 = """cat %s/0001.vcf| cut -f 8 | tr ";" "\n" | grep ^EFF= | cut -f 2 -d = | tr "," "\n" | grep %s | wc -l"""
+	# 	count_effect2 = subprocess.Popen(count_effect_cmd2 % (path, each), shell=True, stdout=subprocess.PIPE)
+	# 	count2 = count_effect2.communicate()[0]
+	# 	low_counts[each] = count.strip()
+	# 	low_counts2[each] = count2.strip()
+	# print "low effects counted"
 	for each in moderate_effects:
 		count_effect_cmd = """cat %s/0000.vcf | cut -f 8 | tr ";" "\n" | grep ^EFF= | cut -f 2 -d = | tr "," "\n" | grep %s | wc -l"""
 		count_effect = subprocess.Popen(count_effect_cmd % (path, each), shell=True, stdout=subprocess.PIPE)
@@ -1296,15 +1297,15 @@ def difference_two_libraries(request):
 		moderate_counts[each] = count.strip()
 		moderate_counts2[each] = count2.strip()
 	print "moderate effects counted"
-	for each in modifier_effects:
-		count_effect_cmd = """cat %s/0000.vcf | cut -f 8 | tr ";" "\n" | grep ^EFF= | cut -f 2 -d = | tr "," "\n" | grep %s | wc -l"""
-		count_effect = subprocess.Popen(count_effect_cmd % (path, each), shell=True, stdout=subprocess.PIPE)
-		count = count_effect.communicate()[0]
-		modifier_counts[each] = count.strip()
-		count_effect_cmd2 = """cat %s/0001.vcf | cut -f 8 | tr ";" "\n" | grep ^EFF= | cut -f 2 -d = | tr "," "\n" | grep %s | wc -l"""
-		count_effect2 = subprocess.Popen(count_effect_cmd2 % (path, each), shell=True, stdout=subprocess.PIPE)
-		count2 = count_effect2.communicate()[0]
-		modifier_counts2[each] = count2.strip()
+	# for each in modifier_effects:
+	# 	count_effect_cmd = """cat %s/0000.vcf | cut -f 8 | tr ";" "\n" | grep ^EFF= | cut -f 2 -d = | tr "," "\n" | grep %s | wc -l"""
+	# 	count_effect = subprocess.Popen(count_effect_cmd % (path, each), shell=True, stdout=subprocess.PIPE)
+	# 	count = count_effect.communicate()[0]
+	# 	modifier_counts[each] = count.strip()
+	# 	count_effect_cmd2 = """cat %s/0001.vcf | cut -f 8 | tr ";" "\n" | grep ^EFF= | cut -f 2 -d = | tr "," "\n" | grep %s | wc -l"""
+	# 	count_effect2 = subprocess.Popen(count_effect_cmd2 % (path, each), shell=True, stdout=subprocess.PIPE)
+	# 	count2 = count_effect2.communicate()[0]
+	# 	modifier_counts2[each] = count2.strip()
 	for each in high_effects:
 		count_effect_cmd = """cat %s/0000.vcf | cut -f 8 | tr ";" "\n" | grep ^EFF= | cut -f 2 -d = | tr "," "\n" | grep %s | wc -l"""
 		count_effect = subprocess.Popen(count_effect_cmd % (path, each), shell=True, stdout=subprocess.PIPE)
@@ -1324,35 +1325,6 @@ def difference_two_libraries(request):
 	total2 = subprocess.Popen("""grep ^[^#] %s/0001.vcf | wc -l""" % path, shell=True, stdout=subprocess.PIPE)
 	counts2 = [high2.communicate()[0].strip(), moderate2.communicate()[0].strip(), low2.communicate()[0].strip(), modifier2.communicate()[0].strip(), total2.communicate()[0].strip()]
 
-
-	# low_counts2 = defaultdict(int)
-	# high_counts2 = defaultdict(int)
-	# moderate_counts2 = defaultdict(int)
-	# modifier_counts2 = defaultdict(int)
-	# for each in low_effects:
-	#     count_effect_cmd = """cat %s/0001.vcf| cut -f 8 | tr ";" "\n" | grep ^EFF= | cut -f 2 -d = | tr "," "\n" | grep %s | wc -l"""
-	#     count_effect = subprocess.Popen(count_effect_cmd % (path, each), shell=True, stdout=subprocess.PIPE)
-	#     count = count_effect.communicate()[0]
-	#     low_counts2[each] = count.strip()
-	# print "low_effects counted"
-	# for each in moderate_effects:
-	# 	count_effect_cmd = """cat %s/0001.vcf | cut -f 8 | tr ";" "\n" | grep ^EFF= | cut -f 2 -d = | tr "," "\n" | grep %s | wc -l"""
-	# 	count_effect = subprocess.Popen(count_effect_cmd % (path, each), shell=True, stdout=subprocess.PIPE)
-	# 	count = count_effect.communicate()[0]
-	# 	moderate_counts2[each] = count.strip()
-	# print "moderate effects counted"
-	# for each in modifier_effects:
-	# 	count_effect_cmd2 = """cat %s/0001.vcf | cut -f 8 | tr ";" "\n" | grep ^EFF= | cut -f 2 -d = | tr "," "\n" | grep %s | wc -l"""
-	# 	count_effect2 = subprocess.Popen(count_effect_cmd2 % (path, each), shell=True, stdout=subprocess.PIPE)
-	# 	count2 = count_effect2.communicate()[0]
-	# 	modifier_counts2[each] = count2.strip()
-	# print "modifier effects counted"
-	# for each in high_effects:
-	# 	count_effect_cmd2 = """cat %s/0001.vcf | cut -f 8 | tr ";" "\n" | grep ^EFF= | cut -f 2 -d = | tr "," "\n" | grep %s | wc -l"""
-	# 	count_effect2 = subprocess.Popen(count_effect_cmd2 % (path, each), shell=True, stdout=subprocess.PIPE)
-	# 	count2 = count_effect2.communicate()[0]
-	# 	high_counts2[each] = count2.strip()
-	# print "high effects counted"
 	return render_to_response('snpdb/impact_snps.html', {"counts": counts,
 	                                                     "counts2": counts2,
 	                                                     "low_counts": dict(low_counts),
@@ -1375,8 +1347,11 @@ def impact_snps(request):
 	library1 = request.POST.get('lib1')
 	library2 = request.POST.get('lib2')
 	impact = request.POST.get('impact')
-
-	cmd = """cat %s/0000.vcf | /usr/local/Cellar/snpeff/3.6c/share/scripts/vcfEffOnePerLine.pl | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar filter "( EFF[*].IMPACT = '%s' )" | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar extractFields - POS REF ALT CHROM EFF[*].GENE EFF[*].EFFECT QUAL"""
+	file = request.POST.get('file')
+	if file == "0000.vcf":
+		cmd = """cat %s/0000.vcf | /usr/local/Cellar/snpeff/3.6c/share/scripts/vcfEffOnePerLine.pl | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar filter "( EFF[*].IMPACT = '%s' )" | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar extractFields - POS REF ALT CHROM EFF[*].GENE EFF[*].EFFECT QUAL"""
+	elif file == "0001.vcf":
+		cmd = """cat %s/0001.vcf | /usr/local/Cellar/snpeff/3.6c/share/scripts/vcfEffOnePerLine.pl | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar filter "( EFF[*].IMPACT = '%s' )" | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar extractFields - POS REF ALT CHROM EFF[*].GENE EFF[*].EFFECT QUAL"""
 	snps_effect = subprocess.Popen(cmd % (path, impact), shell=True, stdout=subprocess.PIPE)
 	snps = []
 	for line in snps_effect.stdout:
@@ -1386,7 +1361,7 @@ def impact_snps(request):
 				snps.append(entry)
 	count = len(snps)
 	paginator = Paginator(snps, 200)
-	page = request.GET.get('page')
+	page = request.POST.get('page')
 
 	# Calls utils method to append new filters or order_by to the current url
 	filter_urls = build_orderby_urls(request.get_full_path(), ['library', 'snp_position', 'ref_base',
@@ -1634,7 +1609,7 @@ def diff_libraries2(request):
 	                                                                 'effect_string').annotate(effect_count=Count('snp')).order_by('effect_class')
 	opp_snp_impact = Effect.objects.filter(snp__in=opp_snp_id, effect=1).values('effect_string').annotate(snp_count=Count('snp')).order_by('effect_string')
 	opp_effects = Effect.objects.filter(snp__in=opp_snp_id, effect=1).values('effect', 'effect_class',
-	                                                                 'effect_string').annotate(effect_count=Count('snp')).order_by('effect_class')
+	                                                                         'effect_string').annotate(effect_count=Count('snp')).order_by('effect_class')
 	print "got modifier"
 	return render_to_response('snpdb/db_impact_snps.html', {"effects": effects,
 	                                                        "opp_effects": opp_effects,
@@ -1642,7 +1617,116 @@ def diff_libraries2(request):
 	                                                        "opp_snp_impact": opp_snp_impact,
 	                                                        "library1": library1,
 	                                                        "library2": library2})
-	# "count": count})
+# "count": count})
+
+
+def effects_by_vcf(request):
+	library1 = request.GET.get('lib1')
+	library2 = request.GET.get('lib2')
+	dir = os.path.abspath(os.path.dirname(__file__))
+	vcf_path = os.path.join(dir, 'vcf_files')
+	path = os.path.join(vcf_path, 'bcftools_isec_snpEff_%s_%s_%s' % (library1, library2, datetime.datetime.utcnow().strftime("%Y-%m-%d")))
+	if os.path.isdir(path):
+		print "file already present"
+		pass
+	else:
+		print "initial analysis being ran"
+		test = subprocess.check_call(["""bcftools isec %s/%s_gatk.snpEff.vcf.gz %s/%s_gatk.snpEff.vcf.gz -p %s""" % (vcf_path, library1, vcf_path, library2, path)],
+		                             shell=True)
+
+	vcf_reader = vcf.Reader(open ('%s/0000.vcf' % path, 'r'))
+	high_effects = defaultdict(int)
+	moderate_effects = defaultdict(int)
+	modifier_effects = defaultdict(int)
+	low_effects = defaultdict(int)
+	total_counts = [0, 0, 0, 0, 0]
+	for record in vcf_reader:
+		effects = record.INFO['EFF']
+		#Keeps track of what effect type each snp has. [high, moderate, low, modifier]
+		impact_counts = [0, 0, 0, 0]
+		#Places each type of impact into dictionary of the effect. SNPs with multiple impacts will have all impacts accounted for in the impact total.
+		# i.e, SNPs with Downstream and Upstream effects will results in an addition to both impact counts.
+		for x in effects:
+			impact = x.split('(')[0]
+			effect_list = x.split('(')[1]
+			effect = effect_list.split('|')
+			if effect[0] == "HIGH":
+				impact_counts[0] += 1
+				high_effects[impact] += 1
+			elif effect[0] == "MODERATE":
+				impact_counts[1] += 1
+				moderate_effects[impact] += 1
+			elif effect[0] == "MODIFIER":
+				impact_counts[3] += 1
+				modifier_effects[impact] += 1
+			elif effect[0] == "LOW":
+				impact_counts[2] += 1
+				low_effects[impact] += 1
+
+		#Counts the number of snps effected by each impact type. Snp is only counted once for each impact, i.e. if SNP has two modifying impacts, it is only counted once.
+		total_counts[4] += 1
+		if impact_counts[0] > 0:
+			total_counts[0] += 1
+		if impact_counts[1] > 0:
+			total_counts[1] += 1
+		if impact_counts[2] > 0:
+			total_counts[2] += 1
+		if impact_counts[3] > 0:
+			total_counts[3] += 1
+
+	vcf_reader2 = vcf.Reader(open ('%s/0001.vcf' % path, 'r'))
+	high_effects2 = defaultdict(int)
+	moderate_effects2 = defaultdict(int)
+	modifier_effects2 = defaultdict(int)
+	low_effects2 = defaultdict(int)
+	total_counts2 = [0, 0, 0, 0, 0]
+	for record in vcf_reader2:
+		effects = record.INFO['EFF']
+		#Keeps track of what effect type each snp has. [high, moderate, low, modifier]
+		impact_counts2 = [0, 0, 0, 0]
+		#Places each type of impact into dictionary of the effect. SNPs with multiple impacts will have all impacts accounted for in the impact total.
+		# i.e, SNPs with Downstream and Upstream effects will results in an addition to both impact counts.
+		for x in effects:
+			impact = x.split('(')[0]
+			effect_list = x.split('(')[1]
+			effect = effect_list.split('|')
+			if effect[0] == "HIGH":
+				impact_counts2[0] += 1
+				high_effects2[impact] += 1
+			elif effect[0] == "MODERATE":
+				impact_counts2[1] += 1
+				moderate_effects2[impact] += 1
+			elif effect[0] == "MODIFIER":
+				impact_counts2[3] += 1
+				modifier_effects2[impact] += 1
+			elif effect[0] == "LOW":
+				impact_counts2[2] += 1
+				low_effects2[impact] += 1
+
+		# Counts the number of snps effected by each impact type. Snp is only counted once for each impact, i.e. if SNP has two modifying impacts, it is only counted once.
+		total_counts2[4] += 1
+		if impact_counts2[0] > 0:
+			total_counts2[0] += 1
+		if impact_counts2[1] > 0:
+			total_counts2[1] += 1
+		if impact_counts2[2] > 0:
+			total_counts2[2] += 1
+		if impact_counts2[3] > 0:
+			total_counts2[3] += 1
+	return render_to_response('snpdb/test.html', {"high_effects": dict(high_effects),
+	                                              "moderate_effects": dict(moderate_effects),
+	                                              "modifier_effects": dict(modifier_effects),
+	                                              "low_effects": dict(low_effects),
+	                                              "high_effects2": dict(high_effects2),
+	                                              "moderate_effects2": dict(moderate_effects2),
+	                                              "modifier_effects2": dict(modifier_effects2),
+	                                              "low_effects2": dict(low_effects2),
+	                                              "total_counts": total_counts,
+	                                              "total_counts2": total_counts2,
+	                                              "library1": library1,
+	                                              "library2": library2,
+	                                              "path": path}, context_instance=RequestContext(request))
+
 
 
 def impact_snps2(request):

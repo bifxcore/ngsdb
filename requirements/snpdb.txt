@@ -1,4 +1,8 @@
 -r base.txt
-django_boolean_sum==
-django-mathfilters==
-Pillow==
+django_boolean_sum==0.1
+django-mathfilters==0.2.1
+Pillow==2.5.1
+bcftools==
+numpy==
+matplotlib==
+PyVCF==0.6.7
