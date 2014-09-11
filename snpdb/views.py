@@ -639,7 +639,6 @@ def gene_snps_filter(request):
 	flanks = int(request.GET.get('f'))
 	order_by = request.GET.get('order_by', 'library__librarycode')
 	gene = request.GET.get('s')
-	# fmin_try = Feature.objects.values_list('fmin', flat=True).filter(geneid=gene)
 	try:
 		fmin = Feature.objects.values_list('fmin', flat=True).filter(geneid=gene).distinct()[0]
 		fmax = Feature.objects.values_list('fmax', flat=True).filter(geneid=gene).distinct()[0]
@@ -654,14 +653,12 @@ def gene_snps_filter(request):
 		cds_fmax = 0
 		pass
 	chromosome = Feature.objects.values_list('chromosome', flat=True).filter(geneid=gene)[0]
-	print chromosome
 	result_list = SNP.objects.values('library__librarycode', 'result_id',
 	                                 'chromosome__chromosome_name', 'snp_id',
 	                                 'snp_position', 'ref_base',
 	                                 'alt_base').filter(snp_position__range=(fmin-flanks,
 	                                                                         fmax+flanks),
 	                                                    chromosome__chromosome_name__contains=chromosome).order_by(order_by)
-	print result_list, fmin, fmax
 	count = result_list.count()
 	paginator = Paginator(result_list, 50)
 	page = request.GET.get('page')
