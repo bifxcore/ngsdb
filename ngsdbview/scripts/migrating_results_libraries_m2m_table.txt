@@ -31,3 +31,6 @@ insert into ngsdbview_result_libraries(result_id, library_id) select result_id, 
 # Results in Results table that are NOT linked yet.
 select * from ngsdbview_tempmtom where samples_libid = 0;
 # todo delete the results for these libraries in Results table or add them to samples.library table.
+
+
+

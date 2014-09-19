@@ -204,11 +204,14 @@ class Library(models.Model):
         verbose_name_plural="Libraries"
 
 def get_libraryfile_upload_destination(instance, filename):
-    return "libraryfiles/{id}/{file}".format(id=instance.library.librarycode, file=filename)
+    return "libraryfiles/{id}/{file}".format(id=instance.samplelibrary.library_code, file=filename)
+    #return "libraryfiles/{id}/{file}".format(id=instance.library.librarycode, file=filename)
+    #todo This is modified to pull the library code from samples.library rather than ngsdbview.library
+    # however, working of this needs to be verified
 
 class Libraryfile(models.Model):
     libraryfile_id = models.AutoField(primary_key=True)
-    library = models.ForeignKey(Library)
+    library = models.ForeignKey('samples.Library')
     notes = models.CharField(max_length=1000, default='qc')
     file = models.FileField(upload_to=get_libraryfile_upload_destination)
     def __unicode__(self):
@@ -216,7 +219,7 @@ class Libraryfile(models.Model):
 
 class Libraryprop(models.Model):
     libraryprop_id = models.AutoField(primary_key=True)
-    library = models.ForeignKey(Library)
+    library = models.ForeignKey('samples.Library')
     cvterm = models.ForeignKey(Cvterm)
     value = models.TextField()
     def __unicode__(self):
@@ -224,7 +227,6 @@ class Libraryprop(models.Model):
 
 class Result(models.Model):
     result_id = models.AutoField(primary_key=True)
-    #libraries = models.ManyToManyField(Library)
     libraries = models.ManyToManyField('samples.Library')
     genome = models.ForeignKey(Genome)
     author = models.ForeignKey(Author)
@@ -395,7 +397,7 @@ class Experiment(models.Model):
     type = models.CharField(max_length=25, choices=EXPERIMENT_TYPE_CHOICES)
     description = models.CharField(max_length=100)
     notes = models.TextField()
-    libraries = models.ManyToManyField(Library)
+    libraries = models.ManyToManyField('samples.Library')
     date_created = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)
     author_modified = models.ForeignKey(User)
@@ -406,11 +408,19 @@ class Experiment(models.Model):
 #==============================================
 #==============================================
 # A temp table to change result_libraries from ngsdbview.library to samples.library
+# This table and data are saved to refer back in future for any inconsistencies that may arise.
+
 class Tempmtom(models.Model):
     result_id = models.IntegerField(db_index=True, unique=True)
     ngsdbview_libid = models.IntegerField()
     ngsdbview_libcode = models.CharField(max_length=10, db_index=True)
     samples_libid   = models.IntegerField()
+
+
+class Templibraryprop(models.Model):
+    library_id = models.IntegerField()
+    cvterm_id = models.IntegerField()
+    value = models.TextField()
 
 #==============================================
 #==============================================

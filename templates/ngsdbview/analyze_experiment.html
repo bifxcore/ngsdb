@@ -82,7 +82,7 @@
     <Table><TR><TH>Library Code:</TH>
     <!-- Library codes -->
     {% for lib in allowedlibs %}
-        <TD><input type="checkbox" name="selectlibcodes" value = {{ lib.librarycode }} checked>
+        <TD><input type="checkbox" name="selectlibcodes" value = {{ lib.library_code }} checked>
         <p>
         {{ lib }} </TD>
     {% endfor %}

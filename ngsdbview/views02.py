@@ -538,13 +538,13 @@ def ListExperiments(request):
     kwargs['listoflinks']=listoflinks
     kwargs['user']=user
     # for autocomplete
-    kwargs['autocomexpcodes'] = constructAutocomplete('expts', Experiment.objects.filter(libraries__librarycode__in=availlibids).values_list('name', flat=True))
+    kwargs['autocomexpcodes'] = constructAutocomplete('expts', Experiment.objects.filter(libraries__library_code__in=availlibids).values_list('name', flat=True))
 
     expts = {}
     allexp = Experiment.objects.all()
     for exp in allexp:
         expname = exp.name
-        expts[exp] = Library.objects.filter(experiment__name=expname)
+        expts[exp] = samplelibrary.objects.filter(experiment__name=expname)
 
     kwargs['expts']=expts
 
@@ -556,7 +556,7 @@ def AnalyzeExperiments(request):
         Analyze experiments and the libraries grouped under them
     '''
     [user, availlibids] = getlibraries(request)
-    availlibcodes = Library.objects.filter(library_id__in=availlibids).values_list('librarycode', flat=True)
+    availlibcodes = samplelibrary.objects.filter(id__in=availlibids).values_list('library_code', flat=True)
 
     print user
     print availlibids
@@ -565,7 +565,7 @@ def AnalyzeExperiments(request):
     kwargs['listoflinks']=listoflinks
     kwargs['user']=user
     # for autocomplete
-    kwargs['autocomexpcodes'] = constructAutocomplete('expts', Experiment.objects.filter(libraries__librarycode__in=availlibids).values_list('name', flat=True))
+    kwargs['autocomexpcodes'] = constructAutocomplete('expts', Experiment.objects.filter(libraries__library_code__in=availlibids).values_list('name', flat=True))
 
     if request.method == 'POST':
         form = AnalyzeExperimentFrom(request.POST) # bound form
@@ -617,14 +617,14 @@ def AnalyzeExperiments(request):
 
                 analysisdic = {}
                 for libcode in selectlibcodes:
-                    analysisdic[libcode] = Result.objects.filter(libraries__librarycode=libcode)
+                    analysisdic[libcode] = Result.objects.filter(libraries__library_code=libcode)
                 kwargs['analysisdic'] = analysisdic
                 kwargs['form']=form
 
             elif 'experiment_name' in request.POST:
                 experiment_name = form.cleaned_data['experiment_name']
-                allowedlibs = Library.objects.filter(experiment__name=experiment_name).filter(librarycode__in=availlibcodes)
-                notallowedlibs =  Library.objects.filter(experiment__name=experiment_name).exclude(librarycode__in=availlibcodes)
+                allowedlibs = Library.objects.filter(experiment__name=experiment_name).filter(library_code__in=availlibcodes)
+                notallowedlibs =  Library.objects.filter(experiment__name=experiment_name).exclude(library_code__in=availlibcodes)
                 kwargs['step1']="step1"
                 kwargs['allowedlibs']=allowedlibs
                 kwargs['notallowedlibs']=notallowedlibs
