@@ -224,7 +224,8 @@ class Libraryprop(models.Model):
 
 class Result(models.Model):
     result_id = models.AutoField(primary_key=True)
-    libraries = models.ManyToManyField(Library)
+    #libraries = models.ManyToManyField(Library)
+    libraries = models.ManyToManyField('samples.Library')
     genome = models.ForeignKey(Genome)
     author = models.ForeignKey(Author)
     is_current = models.BooleanField(default="True")
@@ -401,6 +402,15 @@ class Experiment(models.Model):
 
     def __unicode__(self):
         return str(self.name)
+
+#==============================================
+#==============================================
+# A temp table to change result_libraries from ngsdbview.library to samples.library
+class Tempmtom(models.Model):
+    result_id = models.IntegerField(db_index=True, unique=True)
+    ngsdbview_libid = models.IntegerField()
+    ngsdbview_libcode = models.CharField(max_length=10, db_index=True)
+    samples_libid   = models.IntegerField()
 
 #==============================================
 #==============================================

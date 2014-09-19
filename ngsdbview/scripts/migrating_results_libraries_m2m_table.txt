@@ -1,0 +1,33 @@
+# Following code in django shell Pulls all the data from results2library M2M table which originally links results and ngsdbview.library
+# and pulls corresponding library ids in samples.libraryid and creates a new table with all that info.
+# This table serves as temp reservoir (so called temp mtom) from where the data copied to newly clreated m2m table command for that is below
+#
+# All this is happening in ngsdb03aa database (cloned from ngsdb03l on 18Sep2014 11:11 AM)
+#
+
+from ngsdbview.models import *
+from ngsdbview.models import Library as ngsdbviewlib
+from samples.models import Library as sampleslib
+resultids = Result.objects.all().values_list("result_id", flat=True)
+resultids
+
+for resultid in resultids:
+     ngsdbview_libid=0
+     ngsdbview_libcode=0
+     samples_libid=0
+     if Result.objects.filter(result_id=resultid)[0].libraries.all().exists():
+             ngsdbview_libid = Result.objects.filter(result_id=resultid)[0].libraries.all()[0].library_id
+             ngsdbview_libcode = Result.objects.filter(result_id=resultid)[0].libraries.all()[0].librarycode
+             if sampleslib.objects.filter(library_code=ngsdbview_libcode).exists():
+                     samples_libid = sampleslib.objects.filter(library_code=ngsdbview_libcode)[0].id
+     print resultid, ngsdbview_libid, ngsdbview_libcode, samples_libid
+     newobj = Tempmtom(result_id=resultid, ngsdbview_libid=ngsdbview_libid, ngsdbview_libcode=ngsdbview_libcode,samples_libid=samples_libid)
+     newobj.save()
+
+
+# Command to copy data from tempm2m table to real m2m table. now linking results table to samples.library
+insert into ngsdbview_result_libraries(result_id, library_id) select result_id, samples_libid from ngsdbview_tempmtom where samples_libid != 0
+
+# Results in Results table that are NOT linked yet.
+select * from ngsdbview_tempmtom where samples_libid = 0;
+# todo delete the results for these libraries in Results table or add them to samples.library table.
