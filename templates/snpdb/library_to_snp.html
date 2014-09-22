@@ -46,7 +46,7 @@
         {% for group in results|group_by:6 %}
             <div class="form-group">
                 {% for obj in group %}
-                    <label class="col-sm-2">{{ obj.librarycode }}      </label>
+                    <label class="col-sm-2">{{ obj.library_code }}      </label>
                 {% endfor %}
             </div>
         {% endfor %}

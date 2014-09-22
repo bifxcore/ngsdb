@@ -64,12 +64,12 @@ PROJECT_DIR = os.path.dirname(__file__)
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/var/www/example.com/media/"
-MEDIA_ROOT = ''
+MEDIA_ROOT = os.path.join(PROJECT_DIR, 'media')
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash.
 # Examples: "http://example.com/media/", "http://media.example.com/"
-MEDIA_URL = '/media/'
+MEDIA_URL = 'media/'
 
 # Absolute path to the directory static files should be collected to.
 # Don't put anything in this directory yourself; store your static files
@@ -86,10 +86,8 @@ STATICFILES_DIRS = (
     os.path.join(PROJECT_DIR, 'static'),
     os.path.join(os.path.dirname(__file__), 'static'),
     # os.path.join(os.path.dirname(__file__))
-    # "/Users/mcobb/Documents/djangoProjects/ngsdb03/common_static",
     # "/Users/gramasamy/djcode/ngsdb03/static",
     # "/opt/django-sites/ngsdb/ngsdb03/static",
-    # "/Volumes/mcobb$/Documents/djangoProjects/ngsdb03/static"
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.

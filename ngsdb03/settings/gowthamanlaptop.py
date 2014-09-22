@@ -13,6 +13,10 @@ EMAIL_PORT = 1025
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
+<<<<<<< HEAD
+        'NAME': 'ngsdb03i',                      # Or path to database file if using sqlite3.
+=======
+>>>>>>> 7fce8f1cab9e8f969574d508664153680f061982
         'NAME': 'ngsdb03l',                      # Or path to database file if using sqlite3.
         # The following settings are not used with sqlite3:
         'USER': 'ngsdb03',

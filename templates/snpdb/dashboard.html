@@ -40,6 +40,8 @@
 </div>
 
 <!-- Username & links area-->
+
+
 {% if user.is_active and user.is_staff%}
     <ul id="grp-user-tools">
     <div id="user-tools">
@@ -100,6 +102,200 @@
 {% endblock logo-brand %}
 
 
+{% block nav-global %}
+<div class="navbar navbar-custom" role="navigation">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav">
+                <li class='active' class="menu-item"><a href="/ngsdbview/dashboard/">Home</a></li>
+
+                <!-- New Menu starts -->
+                <li class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown" id="listall"  href="/samples/librarylist/">List All <b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                        <li class="menu-item"><a href="/admin/samples/sample/">Samples</a></li>
+                        <li class="menu-item"><a href="/admin/samples/library/">Libraries</a></li>
+                        <li class="menu-item"><a href="/admin/samples/library/">Analyses</a></li>
+                        <li class="menu-item"><a href="/ngsdbview/listexperiments/">Experiments</a> </li>
+                        <li class="menu-item"><a href="/admin/ngsdbview/experiment/">Add Experiments</a></li>
+                        <li class="menu-item"><a href="/admin/ngsdbview/collaborator/">Collaborators</a></li>
+                        <li class="menu-item"><a href="/admin/samples/bioproject/">Bioprojects</a></li>
+                        <li class="menu-item"><a href="/admin/ngsdbview/organism/">Organisms</a></li>
+                        <li class="menu-item"><a href="/admin/samples/genome/">Genomes</a></li>
+                        <li class="menu-item"><a href="/snpdb/snp">SNPs</a></li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a class="dropdown-toggle" data-target="#" data-toggle="dropdown" href="/samples/librarylist/">Query<b class="caret"></b></a>
+                    <ul class="dropdown-menu multi-level" role="menu">
+                        <li class="dropdown-submenu">
+                            <a href="/ngsdbview/get_results_for_gene/">Query Splice Leader</a>
+                            <ul class="dropdown-menu">
+                                <li class="menu-item"><a tabindex="-1" href="/ngsdbview/listexperiments/">Query RiboProf DB</a></li>
+                                <li class="menu-item"><a tabindex="-1" href="/ngsdbview/listexperiments/">Query Across SL and RiboProf</a></li>
+                                <li class="menu-item"><a tabindex="-1" href="/ngsdbview/listexperiments/">Query SNP DB</a></li>
+                            </ul>
+                        </li>
+                        <li class="dropdown-submenu">
+                            <a href="/ngsdbview/listexperiments/">Query RiboProf DB</a>
+                            <ul id="queryRiboProf" class="dropdown-menu" role="menu">
+                                <li class="menu-item"><a href="/ngsdbview/listexperiments/">to list all Experiments</a></li>
+                                <li class="menu-item"><a href="/ngsdbview/analyzeexperiments/">for an Experiment</a></li>
+                            </ul>
+                        </li>
+                        <li class="dropdown-submenu">
+                            <a href="/ngsdbview/listexperiments/">Query Across SL and RiboProf</a>
+                            <ul id="querySL-RiboProf" class="dropdown-menu">
+                                <li class="menu-item"><a tabindex="-1" href="/ngsdbview/listexperiments/">to list all Experiments</a></li>
+                                <li class="menu-item"><a tabindex="-1" href="/ngsdbview/analyzeexperiments/">for an Experiment</a></li>
+                            </ul>
+                        </li>
+                        <li class="dropdown-submenu">
+                            <a href="/ngsdbview/listexperiments/">Query SNP DB</a>
+                            <ul id="querySNP" class="dropdown-menu">
+                                <li class="menu-item" role="presentation"><a role="menuitem" href="/snpdb/gene-snps"> Query Gene for Snps</a></li>
+                                <li class="menu-item" role="presentation"><a role="menuitem" href="/snpdb/multi-gene-snps"> Query Mulit-Genes for Snps</a></li>
+                                <li class="menu-item" role="presentation"><a role="menuitem" href="/snpdb/multi-gene-library-snps"> Query Mulit-Genes and Multi Library for Snps</a></li>
+                                <li class="menu-item" role="presentation"><a role="menuitem" href="/snpdb/library-chromosome-snps">Query Chromosome and Library for Snps</a></li>
+                                <li class="menu-item" role="presentation"><a role="menuitem" href="/snpdb/library-gene-snps">Query Gene and Library for Snps</a></li>
+                                <li class="menu-item" role="presentation"><a role="menuitem" href="/snpdb/compare-gene-lib">Multi-Library Comparison on Gene</a></li>
+                                <li class="menu-item" role="presentation"><a role="menuitem" href="/snpdb/compare-libs">Compare Two Libraries</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown" id="samplesdb"  href="/samples/librarylist/">Samples DB<b class="caret"></b></a>
+                    <ul id="samples" class="dropdown-menu" role="menu">
+                        <li class="dropdown-submenu">
+                            <a href="/samples/librarylist/">List Samples</a>
+                            <ul id="listsamples" class="dropdown-menu" role="menu">
+                                <li><a href="/admin/samples/sample/">Fully Editable</a></li>
+                            </ul>
+                        </li>
+                        <li class="dropdown-submenu">
+                            <a href="/samples/librarylist/">List Libraries</a>
+                            <ul id="listlibraries" class="dropdown-menu" role="menu">
+                                <li><a href="/admin/samples/library/">Fully Editable</a></li>
+                                <li><a href="/samples/librarylist/">Slim Viewonly</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown" id="sldb"  href="/ngsdbview/listlibraries/">Splice Leader<b class="caret"></b></a>
+                    <ul id="sl" class="dropdown-menu" role="menu">
+                        <li class="dropdown-submenu">
+                            <a href="/ngsdbview/listlibraries/">List All</a>
+                            <ul id="list-samples" class="dropdown-menu" role="menu">
+                                <li><a href="/ngsdbview/listlibraries/">List Libraries</a></li>
+                                <li class="last"><a href="/ngsdbview/ngsdbview_result/">List Analyses</a></li>
+                            </ul>
+                        </li>
+                        <li class="dropdown-submenu">
+                            <a href="/ngsdbview/listlibraries/">Gene Level Queries</a>
+                            <ul id="genelevel" class="dropdown-menu" role="menu">
+                                <li><a href="/ngsdbview/get_results_for_gene/">Query for a Gene</a></li>
+                                <li><a href="/ngsdbview/query_multigenes/">Query for Multi-Gene One-Lib</a></li>
+                                <li><a href="/ngsdbview/query_multigenes_multilibs/">Query for Multi-Gene Multi-Libs</a></li>
+                            </ul>
+                        </li>
+                        <li class="dropdown-submenu">
+                            <a href="/ngsdbview/listlibraries/">Library Level Queries</a>
+                            <ul id="librarylevel" class="dropdown-menu" role="menu">
+                                <li><a href="/ngsdbview/get_results_for_library/">Query a Library</a></li>
+                                <li><a href="/ngsdbview/Get_sites_forlib/">Get Sites from a Library</a></li>
+                                <li><a href="/ngsdbview/get_sitecount_majorpc_forlibs/">get_sitecount_majorpc_forlibs</a></li>
+                            </ul>
+                        </li>
+                        <li class="dropdown-submenu">
+                            <a href="/ngsdbview/listlibraries/">Others</a>
+                            <ul id="others" class="dropdown-menu" role="menu">
+                                <li><a href="/ngsdbview/pair_libraries/">pair_libraries</a></li>
+                                <li><a href="/ngsdbview/alignstats/">Alignstats</a></li>
+                                <li><a href="/ngsdbview//">Menus</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown" id="snpdb"  href="/samples/librarylist/">SNP DB<b class="caret"></b></a>
+                    <ul id="snps" class="dropdown-menu" role="menu">
+                        <li class="dropdown-submenu">
+                            <a href="/samples/librarylist/">List All</a>
+                            <ul id="listtables" class="dropdown-menu" role="menu">
+                                <li role="presentation" id="dashboard"><a role="menuitem" href="/snpdb/">Dashboard</a></li>
+                                <li role="presentation" id="snpview"><a role="menuitem" href="/snpdb/snp">SNP</a></li>
+                                <li role="presentation" id="snptype"><a role="menuitem" href="/snpdb/snptype">SNP Type</a></li>
+                                <li role="presentation" id="statistics"><a role="menuitem" href="/snpdb/statistics">Statistics</a></li>
+                                <li role="presentation" id="effect"><a role="menuitem" href="/snpdb/effect">Effect</a></li>
+                                <li role="presentation" id="filter"><a role="menuitem" href="/snpdb/filter">Filter</a></li>
+                            </ul>
+                        </li>
+                        <li class="dropdown-submenu">
+                            <a href="/samples/librarylist/">Gene Level Queries</a>
+                            <ul id="gene" class="dropdown-menu" role="menu">
+                                <li class="first" role="presentation"><a role="menuitem" href="/snpdb/gene-snps"> Query Gene for Snps</a></li>
+                                <li role="presentation"><a role="menuitem" href="/snpdb/multi-gene-snps"> Query Mulit-Genes for Snps</a></li>
+                                <li role="presentation"><a role="menuitem" href="/snpdb/multi-gene-library-snps"> Query Mulit-Genes and Multi Library for Snps</a></li>
+                                <li role="presentation"><a role="menuitem" href="/snpdb/library-gene-snps">Query Gene and Library for Snps</a></li>
+                            </ul>
+                        </li>
+                        <li class="dropdown-submenu">
+                            <a href="/samples/librarylist/">Library Level Queries</a>
+                            <ul id="library" class="dropdown-menu" role="menu">
+                                <li class="first" role="presentation"><a role="menuitem" href="/snpdb/gene-snps"> Query Gene for Snps</a></li>
+                                <li role="presentation"><a role="menuitem" href="/snpdb/multi-gene-snps"> Query Mulit-Genes for Snps</a></li>
+                                <li role="presentation"><a role="menuitem" href="/snpdb/multi-gene-library-snps"> Query Mulit-Genes and Multi Library for Snps</a></li>
+                                <li role="presentation"><a role="menuitem" href="/snpdb/library-gene-snps">Query Gene and Library for Snps</a></li>
+                            </ul>
+                        </li>
+                        <li class="dropdown-submenu">
+                            <a href="/samples/librarylist/">Summary Level Queries</a>
+                            <ul id="summary" class="dropdown-menu" role="menu">
+                                <li role="presentation"><a role="menuitem" href="/snpdb/library-snp-summary">Library Level Summary</a></li>
+                                <li role="presentation"><a role="menuitem" href="/snpdb/chromosome-library-snp-summary">Chromosome Level Summary</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a href="/ngsdbview/alignstats/">Alignment Statistics</a>
+                </li>
+                <li class="dropdown">
+                <a class="dropdown-toggle" data-toggle="dropdown" id="admin"  href="/samples/librarylist/">Admin<b class="caret"></b></a>
+                    <ul id="admin_list" class="dropdown-menu" role="menu">
+                        <li class="dropdown-submenu">
+                            <a href="#">User Management</a>
+                            <ul id="user_management" class="dropdown-menu" role="menu">
+                                <li><a href="/admin/auth/user/add/">Add New User</a></li>
+                                <li><a href="/admin/auth/user/">Edit Existing User</a></li>
+                                <li><a href="/admin/auth/user/">Assign Libraries to User</a></li>
+                            </ul>
+                        </li>
+                        <li class="dropdown-submenu">
+                            <a href="#">Sample Management</a>
+                            <ul id="sample_management" class="dropdown-menu" role="menu">
+                                <li><a href="/admin/samples/library/add/">Add a Library</a></li>
+                                <li><a href="/admin/samples/library/">Edit Existing Libraries</a></li>
+                                <li><a href="/admin/samples/sample/add/">Add a Sample</a></li>
+                                <li><a href="/admin/samples/sample/">Edit Existing Samples</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+
+                <li>
+                    <a href="/ngsdbview/contact/">Contact</a>
+                </li>
+            </ul>
+
+        </div>
+    </div>
+</div>
+{% endblock nav-global %}
+
+
 <!-- content title -->
 {% block content_title %}
     {% if title %}
@@ -108,6 +304,7 @@
 {% endblock %}
 
 {% block bootstrap %}
+
     <div class="container-fluid">
         <div class="row">
             <div class="col-md-6" style="padding-top: 30px">

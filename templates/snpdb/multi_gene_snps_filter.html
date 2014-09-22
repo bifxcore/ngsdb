@@ -43,7 +43,7 @@
 <table class="table table-condensed table-hover" style="table-layout: fixed; word-wrap: break-word;">
     <thead>
     <tr>
-        <th class="col-xs-1 text-center"><a href={{ filter_urls.library__librarycode }}>Library Code</a></th>
+        <th class="col-xs-1 text-center"><a href={{ filter_urls.library__library_code }}>Library Code</a></th>
         <th class="col-xs-1 text-center"><a href={{ filter_urls.result_id }}>Result ID</a></th>
         <th class="col-xs-1 text-center"><a href={{ filter_urls.effect__effect_string }}>Gene</a></th>
         <th class="col-xs-1 text-center"><a href={{ filter_urls.chromosome__chromosome_name }}>Chromosome</a></th>
@@ -55,7 +55,7 @@
     </thead>
     <tbody>
         {% for each in results %}
-            <td class="text-center">{{ each.library__librarycode}}</td>
+            <td class="text-center">{{ each.library__library_code}}</td>
             <td class="text-center">{{ each.result_id }}</td>
             <td class="text-center">{{ each.effect__effect_string }}</td>
             <td class="text-center">{{ each.chromosome__chromosome_name }}</td>

@@ -56,7 +56,7 @@
         	<th class="text-center"><a href={{ filter_urls.alt_base }}>Alternate Base</a></th>
         	<th class="text-center"><a href={{ filter_urls.heterozygosity }}>Heterozygosity</a></th>
         	<th class="text-center"><a href={{ filter_urls.quality }}>Quality</a></th>
-        	<th class="text-center"><a href={{ filter_urls.library }}>Library</a></th>
+        	<th class="text-center"><a href={{ filter_urls.library__library_code }}>Library</a></th>
         	<th class="text-center"><a href={{ filter_urls.chromosome__chromosome_name }}>Chromosome</a></th>
     	</tr>
     	</thead>
@@ -70,7 +70,7 @@
         		<td class="text-center">{{ each.alt_base }}</td>
         		<td class="text-center">{{ each.heterozygosity }}</td>
         		<td class="text-center">{{ each.quality }}</td>
-        		<td class="text-center">{{ each.library }}</td>
+        		<td class="text-center">{{ each.library__library_code }}</td>
         		<td class="text-center">{{ each.chromosome__chromosome_name }}</td>
     	</tr>
     	{% endfor %}

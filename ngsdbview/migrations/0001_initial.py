@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import datetime
+from south.utils import datetime_utils as datetime
 from south.db import db
 from south.v2 import SchemaMigration
 from django.db import models
@@ -22,14 +22,16 @@ class Migration(SchemaMigration):
         db.create_table(u'ngsdbview_librarytype', (
             ('librarytype_id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('type', self.gf('django.db.models.fields.CharField')(unique=True, max_length=25)),
+            ('notes', self.gf('django.db.models.fields.TextField')(max_length=400, blank=True)),
         ))
         db.send_create_signal(u'ngsdbview', ['Librarytype'])
 
         # Adding model 'Protocol'
         db.create_table(u'ngsdbview_protocol', (
             ('protocol_id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('name', self.gf('django.db.models.fields.CharField')(unique=True, max_length=50)),
-            ('sopfile', self.gf('django.db.models.fields.files.FileField')(max_length=100)),
+            ('protocol_name', self.gf('django.db.models.fields.CharField')(unique=True, max_length=50)),
+            ('protocol_file', self.gf('django.db.models.fields.files.FileField')(max_length=100)),
+            ('protocol_link', self.gf('django.db.models.fields.URLField')(max_length=1000, blank=True)),
             ('notes', self.gf('django.db.models.fields.CharField')(default=None, max_length=400)),
         ))
         db.send_create_signal(u'ngsdbview', ['Protocol'])
@@ -58,6 +60,22 @@ class Migration(SchemaMigration):
         ))
         db.send_create_signal(u'ngsdbview', ['Phenotype'])
 
+        # Adding model 'Growthphase'
+        db.create_table(u'ngsdbview_growthphase', (
+            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('growthphase', self.gf('django.db.models.fields.CharField')(unique=True, max_length=100)),
+            ('notes', self.gf('django.db.models.fields.CharField')(default=None, max_length=400, blank=True)),
+        ))
+        db.send_create_signal(u'ngsdbview', ['Growthphase'])
+
+        # Adding model 'Genotype'
+        db.create_table(u'ngsdbview_genotype', (
+            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('genotype', self.gf('django.db.models.fields.CharField')(unique=True, max_length=45)),
+            ('notes', self.gf('django.db.models.fields.CharField')(default=None, max_length=45, blank=True)),
+        ))
+        db.send_create_signal(u'ngsdbview', ['Genotype'])
+
         # Adding model 'Collaborator'
         db.create_table(u'ngsdbview_collaborator', (
             ('collaborator_id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
@@ -65,6 +83,9 @@ class Migration(SchemaMigration):
             ('lastname', self.gf('django.db.models.fields.CharField')(max_length=45)),
             ('email', self.gf('django.db.models.fields.EmailField')(unique=True, max_length=100)),
             ('affiliation', self.gf('django.db.models.fields.CharField')(max_length=100)),
+            ('sharepoint_site', self.gf('django.db.models.fields.URLField')(max_length=200, blank=True)),
+            ('ftp_path', self.gf('django.db.models.fields.URLField')(max_length=200, blank=True)),
+            ('ftp_username', self.gf('django.db.models.fields.CharField')(max_length=50, blank=True)),
         ))
         db.send_create_signal(u'ngsdbview', ['Collaborator'])
 
@@ -73,10 +94,8 @@ class Migration(SchemaMigration):
             ('organism_id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('organismcode', self.gf('django.db.models.fields.CharField')(unique=True, max_length=10)),
             ('genus', self.gf('django.db.models.fields.CharField')(max_length=45)),
-            ('speceis', self.gf('django.db.models.fields.CharField')(max_length=45)),
+            ('species', self.gf('django.db.models.fields.CharField')(max_length=45)),
             ('strain', self.gf('django.db.models.fields.CharField')(max_length=45)),
-            ('isolate', self.gf('django.db.models.fields.CharField')(max_length=45)),
-            ('source', self.gf('django.db.models.fields.CharField')(max_length=100)),
         ))
         db.send_create_signal(u'ngsdbview', ['Organism'])
 
@@ -125,7 +144,7 @@ class Migration(SchemaMigration):
             ('definition', self.gf('django.db.models.fields.TextField')()),
             ('dbxref', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['ngsdbview.Dbxref'])),
             ('is_obsolete', self.gf('django.db.models.fields.BooleanField')(default=True)),
-            ('is_relationshiptype', self.gf('django.db.models.fields.BooleanField')(default=False)),
+            ('is_relationshiptype', self.gf('django.db.models.fields.BooleanField')()),
         ))
         db.send_create_signal(u'ngsdbview', ['Cvterm'])
 
@@ -144,6 +163,7 @@ class Migration(SchemaMigration):
         db.create_table(u'ngsdbview_library', (
             ('library_id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('librarycode', self.gf('django.db.models.fields.CharField')(unique=True, max_length=25, db_index=True)),
+            ('samplename', self.gf('django.db.models.fields.CharField')(db_index=True, max_length=25, blank=True)),
             ('author', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['ngsdbview.Author'])),
             ('organism', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['ngsdbview.Organism'])),
             ('lifestage', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['ngsdbview.Lifestage'])),
@@ -197,7 +217,7 @@ class Migration(SchemaMigration):
         db.create_table(m2m_table_name, (
             ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
             ('result', models.ForeignKey(orm[u'ngsdbview.result'], null=False)),
-            ('library', models.ForeignKey(orm[u'ngsdbview.library'], null=False))
+            ('library', models.ForeignKey(orm[u'samples.library'], null=False))
         ))
         db.create_unique(m2m_table_name, ['result_id', 'library_id'])
 
@@ -274,6 +294,18 @@ class Migration(SchemaMigration):
         ))
         db.send_create_signal(u'ngsdbview', ['Resultslgene'])
 
+        # Adding model 'Resultsriboprof'
+        db.create_table(u'ngsdbview_resultsriboprof', (
+            ('resultsriboprof_id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('result', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['ngsdbview.Result'])),
+            ('geneid', self.gf('django.db.models.fields.CharField')(max_length=45, db_index=True)),
+            ('featuretype', self.gf('django.db.models.fields.CharField')(max_length=10, db_index=True)),
+            ('counts_raw', self.gf('django.db.models.fields.DecimalField')(max_digits=10, decimal_places=4)),
+            ('counts_normalized', self.gf('django.db.models.fields.DecimalField')(max_digits=10, decimal_places=4)),
+            ('time_data_loaded', self.gf('django.db.models.fields.DateTimeField')(auto_now=True, blank=True)),
+        ))
+        db.send_create_signal(u'ngsdbview', ['Resultsriboprof'])
+
         # Adding model 'Analysis'
         db.create_table(u'ngsdbview_analysis', (
             ('analysis_id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
@@ -337,6 +369,28 @@ class Migration(SchemaMigration):
         ))
         db.send_create_signal(u'ngsdbview', ['Geneidmap'])
 
+        # Adding model 'Experiment'
+        db.create_table(u'ngsdbview_experiment', (
+            ('experiment_id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('name', self.gf('django.db.models.fields.CharField')(max_length=25, db_index=True)),
+            ('type', self.gf('django.db.models.fields.CharField')(max_length=25)),
+            ('description', self.gf('django.db.models.fields.CharField')(max_length=100)),
+            ('notes', self.gf('django.db.models.fields.TextField')()),
+            ('date_created', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
+            ('date_modified', self.gf('django.db.models.fields.DateTimeField')(auto_now=True, blank=True)),
+            ('author_modified', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.User'])),
+        ))
+        db.send_create_signal(u'ngsdbview', ['Experiment'])
+
+        # Adding M2M table for field libraries on 'Experiment'
+        m2m_table_name = db.shorten_name(u'ngsdbview_experiment_libraries')
+        db.create_table(m2m_table_name, (
+            ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
+            ('experiment', models.ForeignKey(orm[u'ngsdbview.experiment'], null=False)),
+            ('library', models.ForeignKey(orm[u'ngsdbview.library'], null=False))
+        ))
+        db.create_unique(m2m_table_name, ['experiment_id', 'library_id'])
+
         # Adding model 'UserProfile'
         db.create_table(u'ngsdbview_userprofile', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
@@ -349,7 +403,7 @@ class Migration(SchemaMigration):
         db.create_table(m2m_table_name, (
             ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
             ('userprofile', models.ForeignKey(orm[u'ngsdbview.userprofile'], null=False)),
-            ('library', models.ForeignKey(orm[u'ngsdbview.library'], null=False))
+            ('library', models.ForeignKey(orm[u'samples.library'], null=False))
         ))
         db.create_unique(m2m_table_name, ['userprofile_id', 'library_id'])
 
@@ -372,6 +426,12 @@ class Migration(SchemaMigration):
 
         # Deleting model 'Phenotype'
         db.delete_table(u'ngsdbview_phenotype')
+
+        # Deleting model 'Growthphase'
+        db.delete_table(u'ngsdbview_growthphase')
+
+        # Deleting model 'Genotype'
+        db.delete_table(u'ngsdbview_genotype')
 
         # Deleting model 'Collaborator'
         db.delete_table(u'ngsdbview_collaborator')
@@ -427,6 +487,9 @@ class Migration(SchemaMigration):
         # Deleting model 'Resultslgene'
         db.delete_table(u'ngsdbview_resultslgene')
 
+        # Deleting model 'Resultsriboprof'
+        db.delete_table(u'ngsdbview_resultsriboprof')
+
         # Deleting model 'Analysis'
         db.delete_table(u'ngsdbview_analysis')
 
@@ -441,6 +504,12 @@ class Migration(SchemaMigration):
 
         # Deleting model 'Geneidmap'
         db.delete_table(u'ngsdbview_geneidmap')
+
+        # Deleting model 'Experiment'
+        db.delete_table(u'ngsdbview_experiment')
+
+        # Removing M2M table for field libraries on 'Experiment'
+        db.delete_table(db.shorten_name(u'ngsdbview_experiment_libraries'))
 
         # Deleting model 'UserProfile'
         db.delete_table(u'ngsdbview_userprofile')
@@ -468,7 +537,7 @@ class Migration(SchemaMigration):
             'date_joined': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
             'email': ('django.db.models.fields.EmailField', [], {'max_length': '75', 'blank': 'True'}),
             'first_name': ('django.db.models.fields.CharField', [], {'max_length': '30', 'blank': 'True'}),
-            'groups': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['auth.Group']", 'symmetrical': 'False', 'blank': 'True'}),
+            'groups': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'related_name': "u'user_set'", 'blank': 'True', 'to': u"orm['auth.Group']"}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'is_active': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
             'is_staff': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
@@ -476,7 +545,7 @@ class Migration(SchemaMigration):
             'last_login': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
             'last_name': ('django.db.models.fields.CharField', [], {'max_length': '30', 'blank': 'True'}),
             'password': ('django.db.models.fields.CharField', [], {'max_length': '128'}),
-            'user_permissions': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['auth.Permission']", 'symmetrical': 'False', 'blank': 'True'}),
+            'user_permissions': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'related_name': "u'user_set'", 'blank': 'True', 'to': u"orm['auth.Permission']"}),
             'username': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '30'})
         },
         u'contenttypes.contenttype': {
@@ -530,7 +599,10 @@ class Migration(SchemaMigration):
             'collaborator_id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'email': ('django.db.models.fields.EmailField', [], {'unique': 'True', 'max_length': '100'}),
             'firstname': ('django.db.models.fields.CharField', [], {'max_length': '45'}),
-            'lastname': ('django.db.models.fields.CharField', [], {'max_length': '45'})
+            'ftp_path': ('django.db.models.fields.URLField', [], {'max_length': '200', 'blank': 'True'}),
+            'ftp_username': ('django.db.models.fields.CharField', [], {'max_length': '50', 'blank': 'True'}),
+            'lastname': ('django.db.models.fields.CharField', [], {'max_length': '45'}),
+            'sharepoint_site': ('django.db.models.fields.URLField', [], {'max_length': '200', 'blank': 'True'})
         },
         u'ngsdbview.cv': {
             'Meta': {'object_name': 'Cv'},
@@ -545,7 +617,7 @@ class Migration(SchemaMigration):
             'dbxref': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['ngsdbview.Dbxref']"}),
             'definition': ('django.db.models.fields.TextField', [], {}),
             'is_obsolete': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
-            'is_relationshiptype': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'is_relationshiptype': ('django.db.models.fields.BooleanField', [], {}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '1024', 'db_index': 'True'})
         },
         u'ngsdbview.dbxref': {
@@ -554,6 +626,18 @@ class Migration(SchemaMigration):
             'definition': ('django.db.models.fields.TextField', [], {}),
             'name': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '255'}),
             'url': ('django.db.models.fields.CharField', [], {'max_length': '255'})
+        },
+        u'ngsdbview.experiment': {
+            'Meta': {'object_name': 'Experiment'},
+            'author_modified': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['auth.User']"}),
+            'date_created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
+            'date_modified': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
+            'description': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
+            'experiment_id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'libraries': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['ngsdbview.Library']", 'symmetrical': 'False'}),
+            'name': ('django.db.models.fields.CharField', [], {'max_length': '25', 'db_index': 'True'}),
+            'notes': ('django.db.models.fields.TextField', [], {}),
+            'type': ('django.db.models.fields.CharField', [], {'max_length': '25'})
         },
         u'ngsdbview.feature': {
             'Meta': {'object_name': 'Feature'},
@@ -593,6 +677,18 @@ class Migration(SchemaMigration):
             'svnrevision': ('django.db.models.fields.CharField', [], {'max_length': '45'}),
             'version': ('django.db.models.fields.CharField', [], {'max_length': '45'})
         },
+        u'ngsdbview.genotype': {
+            'Meta': {'ordering': "['genotype']", 'object_name': 'Genotype'},
+            'genotype': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '45'}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'notes': ('django.db.models.fields.CharField', [], {'default': 'None', 'max_length': '45', 'blank': 'True'})
+        },
+        u'ngsdbview.growthphase': {
+            'Meta': {'ordering': "['growthphase']", 'object_name': 'Growthphase'},
+            'growthphase': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '100'}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'notes': ('django.db.models.fields.CharField', [], {'default': 'None', 'max_length': '400', 'blank': 'True'})
+        },
         u'ngsdbview.library': {
             'Meta': {'object_name': 'Library'},
             'author': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['ngsdbview.Author']"}),
@@ -610,7 +706,8 @@ class Migration(SchemaMigration):
             'notes': ('django.db.models.fields.CharField', [], {'max_length': '400'}),
             'organism': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['ngsdbview.Organism']"}),
             'phenotype': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['ngsdbview.Phenotype']"}),
-            'protocol': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['ngsdbview.Protocol']"})
+            'protocol': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['ngsdbview.Protocol']"}),
+            'samplename': ('django.db.models.fields.CharField', [], {'db_index': 'True', 'max_length': '25', 'blank': 'True'})
         },
         u'ngsdbview.libraryfile': {
             'Meta': {'object_name': 'Libraryfile'},
@@ -629,10 +726,11 @@ class Migration(SchemaMigration):
         u'ngsdbview.librarytype': {
             'Meta': {'object_name': 'Librarytype'},
             'librarytype_id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'notes': ('django.db.models.fields.TextField', [], {'max_length': '400', 'blank': 'True'}),
             'type': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '25'})
         },
         u'ngsdbview.lifestage': {
-            'Meta': {'object_name': 'Lifestage'},
+            'Meta': {'ordering': "['lifestage']", 'object_name': 'Lifestage'},
             'lifestage': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '45'}),
             'lifestage_id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'notes': ('django.db.models.fields.CharField', [], {'default': 'None', 'max_length': '400'})
@@ -640,11 +738,9 @@ class Migration(SchemaMigration):
         u'ngsdbview.organism': {
             'Meta': {'object_name': 'Organism'},
             'genus': ('django.db.models.fields.CharField', [], {'max_length': '45'}),
-            'isolate': ('django.db.models.fields.CharField', [], {'max_length': '45'}),
             'organism_id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'organismcode': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '10'}),
-            'source': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            'speceis': ('django.db.models.fields.CharField', [], {'max_length': '45'}),
+            'species': ('django.db.models.fields.CharField', [], {'max_length': '45'}),
             'strain': ('django.db.models.fields.CharField', [], {'max_length': '45'})
         },
         u'ngsdbview.phenotype': {
@@ -654,11 +750,12 @@ class Migration(SchemaMigration):
             'phenotype_id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'})
         },
         u'ngsdbview.protocol': {
-            'Meta': {'object_name': 'Protocol'},
-            'name': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '50'}),
+            'Meta': {'ordering': "['protocol_name']", 'object_name': 'Protocol'},
             'notes': ('django.db.models.fields.CharField', [], {'default': 'None', 'max_length': '400'}),
+            'protocol_file': ('django.db.models.fields.files.FileField', [], {'max_length': '100'}),
             'protocol_id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'sopfile': ('django.db.models.fields.files.FileField', [], {'max_length': '100'})
+            'protocol_link': ('django.db.models.fields.URLField', [], {'max_length': '1000', 'blank': 'True'}),
+            'protocol_name': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '50'})
         },
         u'ngsdbview.result': {
             'Meta': {'object_name': 'Result'},
@@ -667,7 +764,7 @@ class Migration(SchemaMigration):
             'genome': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['ngsdbview.Genome']"}),
             'is_current': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
             'is_obsolete': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
-            'libraries': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['ngsdbview.Library']", 'symmetrical': 'False'}),
+            'libraries': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['samples.Library']", 'symmetrical': 'False'}),
             'notes': ('django.db.models.fields.TextField', [], {'default': 'None'}),
             'result_id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'time_data_loaded': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'})
@@ -735,6 +832,16 @@ class Migration(SchemaMigration):
             'slpercent': ('django.db.models.fields.DecimalField', [], {'max_digits': '10', 'decimal_places': '7'}),
             'time_data_loaded': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'})
         },
+        u'ngsdbview.resultsriboprof': {
+            'Meta': {'object_name': 'Resultsriboprof'},
+            'counts_normalized': ('django.db.models.fields.DecimalField', [], {'max_digits': '10', 'decimal_places': '4'}),
+            'counts_raw': ('django.db.models.fields.DecimalField', [], {'max_digits': '10', 'decimal_places': '4'}),
+            'featuretype': ('django.db.models.fields.CharField', [], {'max_length': '10', 'db_index': 'True'}),
+            'geneid': ('django.db.models.fields.CharField', [], {'max_length': '45', 'db_index': 'True'}),
+            'result': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['ngsdbview.Result']"}),
+            'resultsriboprof_id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'time_data_loaded': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'})
+        },
         u'ngsdbview.seqtech': {
             'Meta': {'object_name': 'Seqtech'},
             'name': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '100'}),
@@ -754,8 +861,124 @@ class Migration(SchemaMigration):
         u'ngsdbview.userprofile': {
             'Meta': {'object_name': 'UserProfile'},
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'libraries': ('django.db.models.fields.related.ManyToManyField', [], {'default': '[]', 'to': u"orm['ngsdbview.Library']", 'symmetrical': 'False'}),
+            'libraries': ('django.db.models.fields.related.ManyToManyField', [], {'default': "['AH006']", 'to': u"orm['samples.Library']", 'symmetrical': 'False'}),
             'user': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['auth.User']", 'unique': 'True'})
+        },
+        u'samples.bioproject': {
+            'Meta': {'object_name': 'Bioproject'},
+            'bioproject_code': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '12'}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'notes': ('django.db.models.fields.TextField', [], {'max_length': '400', 'blank': 'True'}),
+            'organisms': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'}),
+            'sharepoint_projectcode': ('django.db.models.fields.CharField', [], {'max_length': '12', 'blank': 'True'})
+        },
+        u'samples.biosample': {
+            'Meta': {'object_name': 'Biosample'},
+            'biosample_code': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '12'}),
+            'collected_on_test': ('django.db.models.fields.DateField', [], {}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'notes': ('django.db.models.fields.TextField', [], {'max_length': '400', 'blank': 'True'}),
+            'organisms': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'})
+        },
+        u'samples.genome': {
+            'Meta': {'object_name': 'Genome'},
+            'dbxref': ('django.db.models.fields.CharField', [], {'max_length': '25'}),
+            'genus': ('django.db.models.fields.CharField', [], {'max_length': '45'}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'isolate': ('django.db.models.fields.CharField', [], {'max_length': '45', 'blank': 'True'}),
+            'reference_code': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '10'}),
+            'source': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'}),
+            'species': ('django.db.models.fields.CharField', [], {'max_length': '45'}),
+            'strain': ('django.db.models.fields.CharField', [], {'max_length': '45', 'blank': 'True'})
+        },
+        u'samples.library': {
+            'Meta': {'object_name': 'Library'},
+            'author': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'ngsdbview.authors'", 'to': u"orm['ngsdbview.Author']"}),
+            'author_modified': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['auth.User']"}),
+            'bioproject': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['samples.Bioproject']"}),
+            'biosample': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['samples.Biosample']"}),
+            'collaborator': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'ngsdbview.collaborator'", 'to': u"orm['ngsdbview.Collaborator']"}),
+            'collected_at': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'}),
+            'collected_by': ('django.db.models.fields.CharField', [], {'max_length': '50', 'blank': 'True'}),
+            'collected_on': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
+            'date_created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
+            'date_modified': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
+            'experiment_notes': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
+            'fastqfile_md5sum': ('django.db.models.fields.CharField', [], {'max_length': '50', 'null': 'True', 'blank': 'True'}),
+            'fastqfile_name': ('django.db.models.fields.CharField', [], {'max_length': '254', 'null': 'True', 'blank': 'True'}),
+            'fastqfile_readcount': ('django.db.models.fields.DecimalField', [], {'null': 'True', 'max_digits': '25', 'decimal_places': '2', 'blank': 'True'}),
+            'fastqfile_size_inbytes': ('django.db.models.fields.DecimalField', [], {'null': 'True', 'max_digits': '50', 'decimal_places': '2', 'blank': 'True'}),
+            'flowcell_number': ('django.db.models.fields.CharField', [], {'max_length': '15', 'blank': 'True'}),
+            'genotype': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'ngsdbview.genotype'", 'to': u"orm['ngsdbview.Genotype']"}),
+            'growthphase': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'ngsdbview.growthphase'", 'to': u"orm['ngsdbview.Growthphase']"}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'index_sequence': ('django.db.models.fields.CharField', [], {'max_length': '25', 'blank': 'True'}),
+            'is_clonal': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'lane_number': ('django.db.models.fields.CharField', [], {'max_length': '3', 'blank': 'True'}),
+            'library_code': ('django.db.models.fields.CharField', [], {'db_index': 'True', 'unique': 'True', 'max_length': '10', 'blank': 'True'}),
+            'library_creation_date': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
+            'library_gelimage': ('django.db.models.fields.files.FileField', [], {'default': "'NA'", 'max_length': '100', 'blank': 'True'}),
+            'librarytype': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'ngsdbview.librarytype'", 'to': u"orm['ngsdbview.Librarytype']"}),
+            'lifestage': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'ngsdbview.lifestage'", 'to': u"orm['ngsdbview.Lifestage']"}),
+            'note_for_analysis': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
+            'organism': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'ngsdbview.organism'", 'to': u"orm['ngsdbview.Organism']"}),
+            'phenotype': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'ngsdbview.phenotype'", 'to': u"orm['ngsdbview.Phenotype']"}),
+            'protocol': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'ngsdbview.protocol'", 'to': u"orm['ngsdbview.Protocol']"}),
+            'protocol_notes': ('django.db.models.fields.TextField', [], {'default': "'None'", 'blank': 'True'}),
+            'reference_genome': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['samples.Genome']"}),
+            'reference_genome_version': ('django.db.models.fields.CharField', [], {'default': "'Latest'", 'max_length': '50', 'blank': 'True'}),
+            'rna_id': ('django.db.models.fields.CharField', [], {'db_index': 'True', 'max_length': '25', 'blank': 'True'}),
+            'sample_name': ('django.db.models.fields.CharField', [], {'db_index': 'True', 'max_length': '25', 'blank': 'True'}),
+            'sample_notes': ('django.db.models.fields.TextField', [], {}),
+            'sampleid': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['samples.Sample']", 'null': 'True'}),
+            'sequence_downloaded_on': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
+            'source': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
+            'submitted_for_sequencing_on': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
+            'template_material': ('django.db.models.fields.CharField', [], {'max_length': '200'}),
+            'treatment': ('django.db.models.fields.CharField', [], {'max_length': '100'})
+        },
+        u'samples.sample': {
+            'Meta': {'object_name': 'Sample'},
+            'author_modified': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['auth.User']"}),
+            'bioanalyzer_analysis': ('django.db.models.fields.files.FileField', [], {'max_length': '100', 'blank': 'True'}),
+            'biological_replicate_of': ('django.db.models.fields.CharField', [], {'default': "'No Replicate'", 'max_length': '25', 'blank': 'True'}),
+            'collaborator': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'ngsdbview.collaboratorS'", 'to': u"orm['ngsdbview.Collaborator']"}),
+            'collected_at': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'}),
+            'collected_by': ('django.db.models.fields.CharField', [], {'max_length': '50', 'blank': 'True'}),
+            'collected_by_emailid': ('django.db.models.fields.EmailField', [], {'max_length': '254', 'blank': 'True'}),
+            'collected_on': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
+            'culture_method': ('django.db.models.fields.CharField', [], {'default': "'axenic-culture'", 'max_length': '100'}),
+            'date_created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
+            'date_modified': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
+            'date_received': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
+            'freezer_location': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'}),
+            'genotype': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'ngsdbview.genotypeS'", 'to': u"orm['ngsdbview.Genotype']"}),
+            'growthphase': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'ngsdbview.growthphaseS'", 'to': u"orm['ngsdbview.Growthphase']"}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'is_clonal': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'isolation_method': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'}),
+            'label_ontube': ('django.db.models.fields.CharField', [], {'db_index': 'True', 'max_length': '250', 'blank': 'True'}),
+            'lifestage': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'ngsdbview.lifestageS'", 'to': u"orm['ngsdbview.Lifestage']"}),
+            'organism': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'ngsdbview.organismS'", 'to': u"orm['ngsdbview.Organism']"}),
+            'parent_sampleid': ('django.db.models.fields.CharField', [], {'db_index': 'True', 'max_length': '25', 'blank': 'True'}),
+            'phenotype': ('django.db.models.fields.CharField', [], {'default': "'wildtype'", 'max_length': '254'}),
+            'sample_concentration': ('django.db.models.fields.DecimalField', [], {'max_digits': '10', 'decimal_places': '4', 'blank': 'True'}),
+            'sample_dilution': ('django.db.models.fields.CharField', [], {'default': "'Original Concentration'", 'max_length': '25', 'blank': 'True'}),
+            'sample_notes': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
+            'sample_quantity': ('django.db.models.fields.DecimalField', [], {'max_digits': '10', 'decimal_places': '4', 'blank': 'True'}),
+            'sample_volume': ('django.db.models.fields.DecimalField', [], {'max_digits': '6', 'decimal_places': '2', 'blank': 'True'}),
+            'sampleid': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '25', 'db_index': 'True'}),
+            'sampletype': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
+            'source': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
+            'sourcename': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['samples.Source']"}),
+            'time_after_treatment': ('django.db.models.fields.CharField', [], {'max_length': '25', 'blank': 'True'}),
+            'treatment': ('django.db.models.fields.CharField', [], {'max_length': '100'})
+        },
+        u'samples.source': {
+            'Meta': {'object_name': 'Source'},
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'name': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '200', 'db_index': 'True'}),
+            'notes': ('django.db.models.fields.TextField', [], {})
         }
     }
 

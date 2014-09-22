@@ -153,10 +153,19 @@
     <li class="dropdown">
         <a class="dropdown-toggle" data-toggle="dropdown" id="samplesdb"  href="/samples/librarylist/">Samples DB<b class="caret"></b></a>
         <ul id="samples" class="dropdown-menu" role="menu">
-            <li class="menu-item"><a href="/admin/samples/sample/">List Samples</a></li>
-            <li class="menu-item"><a href="/admin/samples/sample/add/">Add a New Sample</a></li>
-            <li class="menu-item"><a href="/admin/samples/library/">List Libraries</a></li>
-            <li class="menu-item"><a href="/admin/samples/library/add/">Add a New Library</a></li>
+            <li class="dropdown-submenu">
+                <a href="/samples/librarylist/">List Samples</a>
+                <ul id="listsamples" class="dropdown-menu" role="menu">
+                    <li><a href="/admin/samples/sample/">Fully Editable</a></li>
+                </ul>
+            </li>
+            <li class="dropdown-submenu">
+                <a href="/samples/librarylist/">List Libraries</a>
+                <ul id="listlibraries" class="dropdown-menu" role="menu">
+                    <li><a href="/admin/samples/library/">Fully Editable</a></li>
+                    <li><a href="/samples/librarylist/">Slim Viewonly</a></li>
+                </ul>
+            </li>
         </ul>
     </li>
     <li class="dropdown">
@@ -167,8 +176,6 @@
                 <ul id="list-samples" class="dropdown-menu" role="menu">
                     <!--<li><a href="/ngsdbview/listlibraries/">List Libraries</a></li>-->
                     <li class="last"><a href="/ngsdbview/ngsdbview_result/">List Analyses</a></li>
-                    <li class="last"><a href="/samples/listlibraries/SL/all">List SL Libs. Constructed</a></li>
-                    <li class="last"><a href="/samples/listlibraries/SL/analysed">List SL Libs. Analyzed and Loaded</a></li>
                 </ul>
             </li>
             <li class="dropdown-submenu">
@@ -176,7 +183,6 @@
                 <ul id="genelevel" class="dropdown-menu" role="menu">
                     <!--<li><a href="/ngsdbview/get_results_for_gene/">Query for a Gene</a></li>-->
                     <li><a href="/ngsdbview/query_multigenes/">Query for Multi-Gene One-Lib</a></li>
-                    <li><a href="/ngsdbview/search_for_gene/">Query a Gene across all Libraries</a></li>
                     <li><a href="/ngsdbview/query_multigenes_multilibs/">Query for Multi-Gene Multi-Libs</a></li>
                 </ul>
             </li>
@@ -189,31 +195,29 @@
                 </ul>
             </li>
             <li class="dropdown-submenu">
-                <li class="menu-item"><a href="/ngsdbview/alignstats/">Alignstats</a></li>
+                <a href="/ngsdbview/listlibraries/">Others</a>
+                <ul id="others" class="dropdown-menu" role="menu">
+                    <!--<li><a href="/ngsdbview/pair_libraries/">pair_libraries</a></li>-->
+                    <li><a href="/ngsdbview/alignstats/">Alignstats</a></li>
+                    <!--<li><a href="/ngsdbview//">Menus</a></li>-->
+                </ul>
             </li>
-        </ul>
-    </li>
-    <li class="dropdown">
-        <a class="dropdown-toggle" data-toggle="dropdown" id="rpdb"  href="/ngsdbview/listlibraries/">Ribosome Profile<b class="caret"></b></a>
-        <ul id="riboprof" class="dropdown-menu" role="menu">
-            <li class="menu-item"><a href="/ngsdbview/listexperiments/">List All Experiments</a></li>
-            <li class="menu-item"><a href="/ngsdbview/analyzeexperiments/">Analyze Experiments</a></li>
         </ul>
     </li>
     <li class="dropdown">
         <a class="dropdown-toggle" data-toggle="dropdown" id="snpdb"  href="/samples/librarylist/">SNP DB<b class="caret"></b></a>
         <ul id="snps" class="dropdown-menu" role="menu">
-            <!--<li class="dropdown-submenu">-->
-                <!--<a href="/samples/librarylist/">List All</a>-->
-                <!--<ul id="listtables" class="dropdown-menu" role="menu">-->
-                    <!--<li role="presentation" id="snpdashboard"><a role="menuitem" href="/snpdb/">Dashboard</a></li>-->
-                    <!--<li role="presentation" id="snpview"><a role="menuitem" href="/snpdb/snp">SNP</a></li>-->
-                    <!--<li role="presentation" id="snptype"><a role="menuitem" href="/snpdb/snptype">SNP Type</a></li>-->
-                    <!--<li role="presentation" id="statistics"><a role="menuitem" href="/snpdb/statistics">Statistics</a></li>-->
-                    <!--<li role="presentation" id="effect"><a role="menuitem" href="/snpdb/effect">Effect</a></li>-->
-                    <!--<li role="presentation" id="filter"><a role="menuitem" href="/snpdb/filter">Filter</a></li>-->
-                <!--</ul>-->
-            <!--</li>-->
+            <li class="dropdown-submenu">
+                <a href="/samples/librarylist/">List All</a>
+                <ul id="listtables" class="dropdown-menu" role="menu">
+                    <li role="presentation" id="snpdashboard"><a role="menuitem" href="/snpdb/">Dashboard</a></li>
+                    <li role="presentation" id="snpview"><a role="menuitem" href="/snpdb/snp">SNP</a></li>
+                    <li role="presentation" id="snptype"><a role="menuitem" href="/snpdb/snptype">SNP Type</a></li>
+                    <li role="presentation" id="statistics"><a role="menuitem" href="/snpdb/statistics">Statistics</a></li>
+                    <li role="presentation" id="effect"><a role="menuitem" href="/snpdb/effect">Effect</a></li>
+                    <li role="presentation" id="filter"><a role="menuitem" href="/snpdb/filter">Filter</a></li>
+                </ul>
+            </li>
             <li class="dropdown-submenu">
                 <a href="/samples/librarylist/">Gene Level Queries</a>
                 <ul id="gene" class="dropdown-menu" role="menu">

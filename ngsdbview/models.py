@@ -222,9 +222,10 @@ class Libraryprop(models.Model):
     def __unicode__(self):
         return str(self.libraryprop_id)
 
+#todo decide if result points to ngsdbview.Library or samples.Library
 class Result(models.Model):
     result_id = models.AutoField(primary_key=True)
-    libraries = models.ManyToManyField(Library)
+    libraries = models.ManyToManyField("samples.Library")
     genome = models.ForeignKey(Genome)
     author = models.ForeignKey(Author)
     is_current = models.BooleanField(default="True")

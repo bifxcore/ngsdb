@@ -55,7 +55,7 @@
                 <th class="text-center" id="position"><a href={{ filter_urls.snp_position }}>SNP Position</a></th>
                 {% for each in library_group %}
                 <th class="text-center" id={{each}}>
-                    <div><a href={{ filter_urls.library__librarycode }}> {{each}}</a></div>
+                    <div><a href={{ filter_urls.library__library_code }}>{{each}}</a></div>
                     <div><a href={{ filter_urls.snp_position }}> Base Changes</a></div>
                 </th>
                 {% endfor %}
@@ -72,13 +72,13 @@
                     {% make_list each.snp_position position as some_list %}
                     {% if each.snp_position|integer_comparison:some_list %}
                         {% if each.snp_position >= cds_fmin and each.snp_position <= cds_fmax %}
-                            <td class="text-center success" headers={{each.library__librarycode}}>
-                                <div>{{ each.library__librarycode }}</div>
+                            <td class="text-center success" headers={{each.library__library_code}}>
+                                <div>{{ each.library__library_code }}</div>
                                 <div>{{ each.ref_base}} <span class="glyphicon glyphicon-arrow-right"></span> {{each.alt_base}}</div>
                             </td>
                         {% else %}
-                        <td class="text-center" headers={{each.library__librarycode}}>
-                            <div>{{ each.library__librarycode }}</div>
+                        <td class="text-center" headers={{each.library__library_code}}>
+                            <div>{{ each.library__library_code }}</div>
                             <div>{{ each.ref_base}} <span class="glyphicon glyphicon-arrow-right"></span> {{each.alt_base}}</div>
                         </td>
                         {% endif %}
