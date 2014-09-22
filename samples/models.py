@@ -75,7 +75,7 @@ class Sample(models.Model):
     sampleid = models.CharField(max_length=25, unique=True, db_index=True)
     sampletype = models.CharField(max_length=100, choices=SAMPLE_TYPE_CHOICES)
     label_ontube = models.CharField(max_length=250, db_index=True, blank=True, help_text="Text/Label found on the tube containing sample")
-    organism = models.ForeignKey('ngsdbview.Organism', related_name="ngsdbview.organismS", help_text="The organism/parasite sample is isolated from")
+    organism = models.ForeignKey('ngsdbview.Organism', related_name="sample_organism", help_text="The organism/parasite sample is isolated from")
     lifestage = models.ForeignKey('ngsdbview.Lifestage', related_name="ngsdbview.lifestageS", help_text="Lifecycle stage of the parasites the sample is isolated from", verbose_name="Lifecycle Stage")
     growthphase = models.ForeignKey('ngsdbview.Growthphase', related_name="ngsdbview.growthphaseS")
     phenotype = models.CharField(max_length=254, default="wildtype", help_text="Define the phenotype. e.g., short and round")
@@ -126,7 +126,7 @@ class Library(models.Model):
     biosample = models.ForeignKey(Biosample, help_text="Biosample ID from NCBI")
     sample_name = models.CharField(max_length=25, db_index=True, blank=True, help_text="Sample name from the source")
     rna_id = models.CharField(max_length=25, db_index=True, blank=True)
-    organism = models.ForeignKey('ngsdbview.Organism', related_name="ngsdbview.organism", help_text="The organism sample data derived from")
+    organism = models.ForeignKey('ngsdbview.Organism', related_name="library_organism", help_text="The organism sample data derived from")
     lifestage = models.ForeignKey('ngsdbview.Lifestage', related_name="ngsdbview.lifestage", help_text="Eg., Promastigotes, 10hrs, amastigotes etc")
     growthphase = models.ForeignKey('ngsdbview.Growthphase', related_name="ngsdbview.growthphase")
     phenotype = models.ForeignKey('ngsdbview.Phenotype', related_name="ngsdbview.phenotype", help_text="Eg., Wildtype, Dwarf or Iron depletion etc")
@@ -171,3 +171,8 @@ class Library(models.Model):
 
 
 
+class Test(models.Model):
+    name = models.CharField(max_length=10)
+    organism = models.ForeignKey('ngsdbview.Organism')
+    phenotype = models.ForeignKey('ngsdbview.Phenotype', related_name="testphenotye")
+    growthphase = models.ForeignKey('ngsdbview.Growthphase', related_name="test_growthphase")

@@ -10,6 +10,7 @@ from django.contrib.admin.widgets import FilteredSelectMultiple
 from django.contrib.auth.models import User
 
 from ngsdbview.viewtools import *
+from samples.models import Library as samplelibrary
 
 import math
 
@@ -76,7 +77,7 @@ def ListAnalysisSteps(request, result_id):
 	for id in resultidlist:
 	   resultids.append(id[0])
 
-	libcode = Library.objects.filter(result__result_id=result_id).values_list('librarycode', flat=True)[0]
+	libcode = samplelibrary.objects.filter(result__result_id=result_id).values_list('library_code', flat=True)[0]
 	print libcode
 	kwargs = {
 		'title':'Detailed Analysis Steps for Library: '+ libcode +  ' & Result id: ' + str(result_id),
@@ -125,7 +126,7 @@ def ViewResult(request):
 
 	pagetitle = 'NGSDB Results'
 
-	fields =['result_id','librarycode','organism','lifestage','phenotype','librarytype','genome','notes','is_current','is_obsolete']
+	fields =['result_id','library_code','organism','lifestage','phenotype','librarytype','genome','notes','is_current','is_obsolete']
 	preffields =[]
 	preffnames = []
 	objlist = Result.objects.all()
@@ -139,7 +140,7 @@ def ViewResult(request):
 	autocomplist = []
 	queries = [Q(library_id=alib) for alib in availlibs]
 	query = combineQueries(queries)
-	autocomplist.append((constructAutocomplete('libcodefield',Library.objects.filter(query).values_list('librarycode',flat=True))))
+	autocomplist.append((constructAutocomplete('libcodefield',samplelibrary.objects.filter(query).values_list('library_code',flat=True))))
 	#construct queries to filter by
 	queries = [Q(libraries__library_id=alib) for alib in availlibs]
 	query = combineQueries(queries)
@@ -178,8 +179,8 @@ def ViewResult(request):
 
 			if libcodefield:
 				#objlist =  objlist.filter(libraryresult__library__librarycode__icontains=libcodefield)
-				objlist =  objlist.filter(libraries__librarycode__icontains=libcodefield)
-				searchdisp = searchdisp + '[' + libcodefield + '] in field [librarycode]'
+				objlist =  objlist.filter(libraries__library_code__icontains=libcodefield)
+				searchdisp = searchdisp + '[' + libcodefield + '] in field [library_code]'
 				if_inputs=1
 			if resultidfield:
 				objlist =  objlist.filter(result_id__icontains=resultidfield)
@@ -238,7 +239,7 @@ def ViewResult(request):
 		mylist['is_obsolete'].append(obj.is_obsolete)
 		mylist['organism'].append(obj.genome.organism.organismcode)
 		mylist['genome'].append(obj.genome.source + " " + obj.genome.version)
-		mylist['librarycode'].append(obj.libraries.all()[0].librarycode)
+		mylist['librarycode'].append(obj.libraries.all()[0].library_code)
 		mylist['librarytype'].append(obj.libraries.all()[0].librarytype.type)
 		mylist['lifestage'].append(obj.libraries.all()[0].lifestage.lifestage)
 		mylist['phenotype'].append(obj.libraries.all()[0].phenotype)
@@ -285,27 +286,27 @@ def ViewLib(request):
 
 	#NEED TO EDIT THESE 2 TOGETHER
 	#preffields =['author','downloaddate','collaborator'] # if blank will display all fields, can also set order with this list
-	preffields =['author','colloborator','downloaddate','organism','phenotype','notes','flowcell','librarycode','librarysize','librarytype']
+	preffields =['author','colloborator','downloaddate','organism','phenotype','notes','flowcell','library_code','librarysize','librarytype']
 	preffnames = []
 	fields = getFieldsFrom(Library, preffields) #gets fields from the library, if preffields sets returns without doing anything
-	objlist = Library.objects.all()
+	objlist = samplelibrary.objects.all()
 
 	autocomplist = []
 	#construct queries to filter by
 	queries = [Q(library_id=alib) for alib in availlibs]
 	query = combineQueries(queries)
-	autocomplist.append((constructAutocomplete('libcodefield',Library.objects.filter(query).values_list('librarycode',flat=True))))
+	autocomplist.append((constructAutocomplete('libcodefield',samplelibrary.objects.filter(query).values_list('library_code',flat=True))))
 	#this filters library then gets to organism objects by foreign key
 	queries = [Q(library_id=alib) for alib in availlibs]
 	query = combineQueries(queries)
-	availorgs = Library.objects.filter(query).values_list('organism',flat=True)
+	availorgs = samplelibrary.objects.filter(query).values_list('organism',flat=True)
 	queries = [Q(organism_id=ao) for ao in availorgs]
 	query = combineQueries(queries)
 	autocomplist.append((constructAutocomplete('organismcodefield',Organism.objects.filter(query).values_list('organismcode',flat=True))))
 	#this filters for authordesignationfield
 	queries = [Q(library_id=alib) for alib in availlibs]
 	query = combineQueries(queries)
-	availauths = Library.objects.filter(query).values_list('author',flat=True)
+	availauths = samplelibrary.objects.filter(query).values_list('author',flat=True)
 	queries = [Q(author_id=ao) for ao in availauths]
 	query = combineQueries(queries)
 	autocomplist.append((constructAutocomplete('authordesignationfield',Author.objects.filter(query).values_list('designation',flat=True))))
@@ -333,8 +334,8 @@ def ViewLib(request):
 			origlen = len(searchdisp)
 
 			if libcodefield:
-				objlist =  objlist.filter(librarycode__icontains=libcodefield)
-				searchdisp = searchdisp + '[' + libcodefield + '] in field [librarycode]'
+				objlist =  objlist.filter(library_code__icontains=libcodefield)
+				searchdisp = searchdisp + '[' + libcodefield + '] in field [library_code]'
 			if organismcodefield:
 				objlist =  objlist.filter(organism__organismcode__icontains=organismcodefield)
 				if len(searchdisp)>origlen:    searchdisp += ', '
