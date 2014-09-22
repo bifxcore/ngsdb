@@ -89,3 +89,12 @@ class VCF_Files(models.Model):
 	vcf_md5sum = models.CharField(max_length=50, blank=True, null=True)
 	date_uploaded = models.DateTimeField(auto_now_add=True)
 	date_modified = models.DateTimeField(auto_now=True)
+
+
+class CNV(models.Model):
+	cnv_id = models.AutoField(primary_key=True)
+	chromosome = models.ForeignKey('Chromosome')
+	coordinate = models.IntegerField()
+	CNV_value = models.IntegerField()
+	library = models.ForeignKey('samples.Library')
+	result = models.ForeignKey('ngsdbview.Result')
