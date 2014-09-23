@@ -54,7 +54,7 @@
     </thead>
     <tbody>
     <tr>
-    {% for each in results %}
+    {% for each in result %}
         <td class="text-center" style="word-wrap: break-word"><a href="/snpdb/library-snp-summary/search?lib={{each.library__librarycode}}&count={{each.num_snps}}">{{ each.library_id }}</a></td>
         <td class="text-center" style="word-wrap: break-word">{{ each.library__library_code }}</td>
         <td class="text-center" style="word-wrap: break-word">{{ each.num_snps }}</td>
@@ -63,8 +63,8 @@
         <td class="text-center" style="word-wrap: break-word">{{ each.indel }}</td>
         <td class="text-center" style="word-wrap: break-word">{{ each.trans }}</td>
         <td class="text-center" style="word-wrap: break-word">{{ each.num_snps|sub:each.trans }}</td>
-        {% if each.library__librarysize > 0 %}
-            <td class="text-center" style="word-wrap: break-word">{{ each.num_snps|div:each.library__librarysize|floatformat:-4 }}</td>
+        {% if each.fmax__sum > 0 %}
+            <td class="text-center" style="word-wrap: break-word">{{ each.num_snps|div:each.fmax__sum|floatformat:-4 }}</td>
         {% else %}
             <td class="text-center" style="word-wrap: break-word">Library is missing size</td>
         {% endif %}

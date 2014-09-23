@@ -49,5 +49,6 @@ urlpatterns = patterns('',
                       url(r'^snptype', 'snpdb.views.snp_type'),
                       url(r'^snp','snpdb.views.snp'),
                       url(r'^statistics', 'snpdb.views.statistics'),
+                      url(r'^contigs', 'snpdb.views.get_chromosome_size'),
                       url(r'^$', 'snpdb.views.dashboard'),
                       )
