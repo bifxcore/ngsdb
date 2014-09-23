@@ -88,7 +88,7 @@ def get_libgenome_dic(request, libcodes):
 
 def get_genomes_for_lib(request, lib):
     dic = {}
-    genomeobjs = Result.objects.filter(libraries__librarycode=lib).filter(is_current=True)
+    genomeobjs = Result.objects.filter(libraries__library_code=lib).filter(is_current=True)
     for genomeobj in genomeobjs:
         dic[genomeobj.genome.organism.organismcode]= genomeobj.genome.source + genomeobj.genome.version
     return dic
@@ -108,23 +108,23 @@ def GetGeneDesForGenomeid(request, genomeid):
 
 def GetLibcodesForResid(request, resid):
     '''get all library codes for the given resid'''
-    libcodes = Result.objects.get(pk=resid).libraries.all().values_list('librarycode', flat=True)
+    libcodes = Result.objects.get(pk=resid).libraries.all().values_list('library_code', flat=True)
     return libcodes
 
 def GetLibcodesForLibids(request, libids):
     '''get all library codes for the give libid(s)'''
-    libcodes = Library.objects.filter(librarycode__in=libcodes).values_list("library_id", flat=True)
+    libcodes = samplelibrary.objects.filter(library_code__in=libcodes).values_list("id", flat=True)
     return libcodes
 
 def GetResidForLibcodeGenomeid(request, libcode, genomeid):
     '''get result id for the combination of library code and genomeid'''
-    resultobj = Result.objects.filter(libraries__librarycode=libcode).filter(genome=genomeid).filter(is_current=True)
+    resultobj = Result.objects.filter(libraries__library_code=libcode).filter(genome=genomeid).filter(is_current=True)
     resid=resultobj[0].result_id
     return resid
 
 def GetResidForLibcodeGenomeVersion(request, libcode, genomecode, genomeversion):
     '''get result id for the combination of genomecode and geneome version'''
-    resultobj = Result.objects.filter(libraries__librarycode=libcode).filter(genome__organism__organismcode=genomecode).filter(genome__version=genomeversion).filter(is_current=True)
+    resultobj = Result.objects.filter(libraries__library_code=libcode).filter(genome__organism__organismcode=genomecode).filter(genome__version=genomeversion).filter(is_current=True)
     resid=resultobj[0].result_id
     return resid
 
@@ -132,7 +132,7 @@ def GroupLibcodesByGenome(request, libcodes):
     '''group given list of library codes by genome(and version) it aligned against'''
     genomelibcodemap = {}
     for libcode in libcodes:
-        resultobjs = Result.objects.filter(libraries__librarycode=libcode).filter(is_current=True)
+        resultobjs = Result.objects.filter(libraries__library_code=libcode).filter(is_current=True)
         for resultobj in resultobjs:
             #key is organism_version
             key = resultobj.genome.organism.organismcode+'_'+resultobj.genome.version
@@ -186,7 +186,7 @@ def getIntervalsForGeneResid(request, geneid, resid, pos):
 
 def CreateAlignstat(request, libcode, resid, returntype):
     '''get lib size, mapping counts for pie chart'''
-    libsize = Library.objects.filter(librarycode=libcode).values_list('librarysize', flat=True)[0]
+    libsize = samplelibrary.objects.filter(library_code=libcode).values_list('fastqfile_readcount', flat=True)[0]
     considered_reads = Resultprop.objects.filter(result__result_id=resid).filter(cvterm__name="number_reads_considered_for_alignment").values_list('value', flat=True)[0]
     uniquely_aligned_readcount = Resultprop.objects.filter(result__result_id=resid).filter(cvterm__name="number_reads_aligned_uniquely_to_reference_genome").values_list('value', flat=True)[0]
     unaligned_readcount = Resultprop.objects.filter(result__result_id=resid).filter(cvterm__name="number_reads_failed_to_align_to_reference_genome").values_list('value', flat=True)[0]
@@ -266,7 +266,7 @@ def PairLibraries(request):
 
     #
     # for autocomplete lib codes
-    availlibcodes = Library.objects.filter(library_id__in=availlibids).values_list('librarycode', flat=True)
+    availlibcodes = samplelibrary.objects.filter(id__in=availlibids).values_list('library_code', flat=True)
     autoclibcodes = constructAutocomplete('libcode',availlibcodes)
     kwargs['autoclibcodes'] = autoclibcodes
 
@@ -300,7 +300,7 @@ def Dashboard(request):
     kwargs['listoflinks']=listoflinks
     kwargs['title']="Dashboard"
 
-    libcount = Library.objects.all().count()
+    libcount = samplelibrary.objects.all().count()
     anacount = Result.objects.all().count()
 
     kwargs['libcount'] = libcount
@@ -315,18 +315,17 @@ def Dashboard(request):
     libauth = defaultdict(int)
     collaborators = defaultdict(int)
 
-    libcodes = Library.objects.all().values_list('librarycode', flat=True)
-    for libcode in libcodes:
-        org = Organism.objects.filter(library__librarycode=libcode).values_list('organismcode', flat=True)[0]
+    # Collect Org, type and author for each of the libraries loaded.
+    libs = samplelibrary.objects.all()
+    for lib in libs:
+        org = lib.organism.organismcode
         liborg[org] += 1
-        type = Librarytype.objects.filter(library__librarycode=libcode).values_list('type', flat=True)[0]
+        type = lib.librarytype.type
         libtype[type] += 1
-        author = Author.objects.filter(library__librarycode=libcode).values_list('designation', flat=True)[0]
+        author = lib.author.designation
         libauth[author] += 1
-        (firstname, lastname) = Collaborator.objects.filter(library__librarycode=libcode).values_list('firstname', 'lastname')[0]
-        collaborator = firstname + ' ' + lastname
+        collaborator = lib.collaborator.firstname + ' ' + lib.collaborator.lastname
         collaborators[collaborator] += 1
-
 
     # Sample table by collab
     samplecountdic = defaultdict(int)
@@ -451,14 +450,14 @@ def ListLibraries(request, libtype):
     kwargs['user']=user
 
     # for autocomplete
-    kwargs['autocomlibcodes'] = constructAutocomplete('libcode', Library.objects.filter(library_id__in=availlibids).values_list('librarycode', flat=True))
-    orgcodes = Organism.objects.filter(library__library_id__in=availlibids).values_list('organismcode', flat=True)
+    kwargs['autocomlibcodes'] = constructAutocomplete('libcode', samplelibrary.objects.filter(id__in=availlibids).values_list('library_code', flat=True))
+    orgcodes = Organism.objects.filter(library__id__in=availlibids).values_list('organismcode', flat=True)
     kwargs['autocomorgcodes'] = constructAutocomplete('organismcode', list(set(orgcodes)))
-    authors = Author.objects.filter(library__library_id__in=availlibids).values_list('designation', flat=True)
+    authors = Author.objects.filter(library__id__in=availlibids).values_list('designation', flat=True)
     kwargs['autocomdesignation'] = constructAutocomplete('authordesignation', list(set(authors)))
 
     # Default display
-    availlibs = Library.objects.filter(library_id__in=availlibids)
+    availlibs = samplelibrary.objects.filter(id__in=availlibids)
     kwargs['availlibs']=availlibs
 
     # filter based on user's input via form
@@ -470,7 +469,7 @@ def ListLibraries(request, libtype):
             if request.POST.get('authordesignation'):
                 availlibs = availlibs.filter(author__designation=form.cleaned_data['authordesignation'])
             if request.POST.get('libcode'):
-                availlibs = availlibs.filter(librarycode=form.cleaned_data['libcode'])
+                availlibs = availlibs.filter(library_code=form.cleaned_data['libcode'])
             kwargs['form']=form
             kwargs['availlibs']=availlibs
 
@@ -494,13 +493,13 @@ def ListAnalyses(request):
     kwargs['user']=user
 
     # for autocomplete
-    kwargs['autocomlibcodes'] = constructAutocomplete('libcode', Library.objects.filter(library_id__in=availlibids).values_list('librarycode', flat=True))
-    orgcodes = Organism.objects.filter(library__library_id__in=availlibids).values_list('organismcode', flat=True)
+    kwargs['autocomlibcodes'] = constructAutocomplete('libcode', samplelibrary.objects.filter(id__in=availlibids).values_list('librarycode', flat=True))
+    orgcodes = Organism.objects.filter(library__id__in=availlibids).values_list('organismcode', flat=True)
     kwargs['autocomorgcodes'] = constructAutocomplete('organismcode', list(set(orgcodes)))
-    authors = Author.objects.filter(library__library_id__in=availlibids).values_list('designation', flat=True)
+    authors = Author.objects.filter(library__id__in=availlibids).values_list('designation', flat=True)
     kwargs["autocomdesignation"] = constructAutocomplete('authordesignation', list(set(authors)))
 
-    availres = Result.objects.filter(libraries__library_id__in=availlibids)
+    availres = Result.objects.filter(libraries__id__in=availlibids)
     kwargs['availres']=availres
 
 
@@ -512,7 +511,7 @@ def ListAnalyses(request):
             if request.POST.get('authordesignation'):
                 availres = availres.filter(libraries__author__designation=form.cleaned_data['authordesignation'])
             if request.POST.get('libcode'):
-                availres = availres.filter(libraries__librarycode=form.cleaned_data['libcode'])
+                availres = availres.filter(libraries__library_code=form.cleaned_data['libcode'])
             kwargs['form']=form
             kwargs['availres']=availres
 
@@ -538,13 +537,13 @@ def ListExperiments(request):
     kwargs['listoflinks']=listoflinks
     kwargs['user']=user
     # for autocomplete
-    kwargs['autocomexpcodes'] = constructAutocomplete('expts', Experiment.objects.filter(libraries__librarycode__in=availlibids).values_list('name', flat=True))
+    kwargs['autocomexpcodes'] = constructAutocomplete('expts', Experiment.objects.filter(libraries__library_code__in=availlibids).values_list('name', flat=True))
 
     expts = {}
     allexp = Experiment.objects.all()
     for exp in allexp:
         expname = exp.name
-        expts[exp] = Library.objects.filter(experiment__name=expname)
+        expts[exp] = samplelibrary.objects.filter(experiment__name=expname)
 
     kwargs['expts']=expts
 
@@ -556,7 +555,7 @@ def AnalyzeExperiments(request):
         Analyze experiments and the libraries grouped under them
     '''
     [user, availlibids] = getlibraries(request)
-    availlibcodes = Library.objects.filter(library_id__in=availlibids).values_list('librarycode', flat=True)
+    availlibcodes = samplelibrary.objects.filter(id__in=availlibids).values_list('library_code', flat=True)
 
     print user
     print availlibids
@@ -565,7 +564,7 @@ def AnalyzeExperiments(request):
     kwargs['listoflinks']=listoflinks
     kwargs['user']=user
     # for autocomplete
-    kwargs['autocomexpcodes'] = constructAutocomplete('expts', Experiment.objects.filter(libraries__librarycode__in=availlibids).values_list('name', flat=True))
+    kwargs['autocomexpcodes'] = constructAutocomplete('expts', Experiment.objects.filter(libraries__library_code__in=availlibids).values_list('name', flat=True))
 
     if request.method == 'POST':
         form = AnalyzeExperimentFrom(request.POST) # bound form
@@ -617,14 +616,14 @@ def AnalyzeExperiments(request):
 
                 analysisdic = {}
                 for libcode in selectlibcodes:
-                    analysisdic[libcode] = Result.objects.filter(libraries__librarycode=libcode)
+                    analysisdic[libcode] = Result.objects.filter(libraries__library_code=libcode)
                 kwargs['analysisdic'] = analysisdic
                 kwargs['form']=form
 
             elif 'experiment_name' in request.POST:
                 experiment_name = form.cleaned_data['experiment_name']
-                allowedlibs = Library.objects.filter(experiment__name=experiment_name).filter(librarycode__in=availlibcodes)
-                notallowedlibs =  Library.objects.filter(experiment__name=experiment_name).exclude(librarycode__in=availlibcodes)
+                allowedlibs = Library.objects.filter(experiment__name=experiment_name).filter(library_code__in=availlibcodes)
+                notallowedlibs =  Library.objects.filter(experiment__name=experiment_name).exclude(library_code__in=availlibcodes)
                 kwargs['step1']="step1"
                 kwargs['allowedlibs']=allowedlibs
                 kwargs['notallowedlibs']=notallowedlibs
@@ -650,7 +649,7 @@ def GetAlignStats(request):
     kwargs['user']=user
 
     # for autocomplete lib codes
-    availlibcodes = Library.objects.filter(library_id__in=availlibids).values_list('librarycode', flat=True)
+    availlibcodes = samplelibrary.objects.filter(id__in=availlibids).values_list('library_code', flat=True)
     autoclibcodes = constructAutocomplete('libcode', availlibcodes)
     kwargs['autoclibcodes'] = autoclibcodes
 
@@ -737,7 +736,7 @@ def SearchForGene(request):
 
                 libcodes = {}
                 for res in allres:
-                    x = Library.objects.filter(result__result_id=res.result_id).values_list('librarycode', flat=True)[0]
+                    x = samplelibrary.objects.filter(result__result_id=res.result_id).values_list('library_code', flat=True)[0]
                     x.encode('ascii','ignore')
                     libcodes[str(res.result_id)] = x
 
@@ -768,7 +767,7 @@ def SearchForGene(request):
 
             elif 'geneid' in request.POST:
                 geneid = form.cleaned_data['geneid']
-                allres = Result.objects.filter(resultslgene__geneid=geneid).filter(libraries__library_id__in=availlibids)
+                allres = Result.objects.filter(resultslgene__geneid=geneid).filter(libraries__id__in=availlibids)
                 kwargs['allres']=allres
                 kwargs['geneid']=geneid
 
@@ -796,7 +795,7 @@ def GetResultsForMultiGenesMultiLib(request):
     gpstru = getLibGroupStru(request)
 
     # for autocomplete lib codes
-    availlibcodes = Library.objects.filter(library_id__in=availlibids).values_list('librarycode', flat=True)
+    availlibcodes = samplelibrary.objects.filter(id__in=availlibids).values_list('library_code', flat=True)
     autoclibcodes = constructAutocomplete('libcode',availlibcodes)
     kwargs['autoclibcodes'] = autoclibcodes
 
@@ -846,7 +845,7 @@ def GetResultsForMultiGenesMultiLib(request):
 
                 analysisdic = {}
                 for libcode in libcodes:
-                    analysisdic[libcode] = Result.objects.filter(libraries__librarycode=libcode).filter(libraries__library_id__in=availlibids)
+                    analysisdic[libcode] = Result.objects.filter(libraries__library_code=libcode).filter(libraries__id__in=availlibids)
                 kwargs['analysisdic'] = analysisdic
                 kwargs['form']=form
         else:
@@ -869,7 +868,7 @@ def GetResultsForMultiGenes(request):
     kwargs['user']=user
 
     # for autocomplete lib codes
-    availlibcodes = Library.objects.filter(library_id__in=availlibids).values_list('librarycode', flat=True)
+    availlibcodes = samplelibrary.objects.filter(id__in=availlibids).values_list('library_code', flat=True)
     autoclibcodes = constructAutocomplete('libcode',availlibcodes)
     kwargs['autoclibcodes'] = autoclibcodes
 
@@ -900,7 +899,7 @@ def GetResultsForMultiGenes(request):
 
             elif 'libcode' in request.POST:
                 libcode = form.cleaned_data['libcode']
-                allres = Result.objects.filter(libraries__librarycode=libcode).filter(libraries__library_id__in=availlibids)
+                allres = Result.objects.filter(libraries__library_code=libcode).filter(libraries__id__in=availlibids)
                 kwargs['allres'] = allres
                 kwargs['form']=form
         else:
@@ -921,7 +920,7 @@ def GetResultsForLibrary(request):
     kwargs['user']=user
 
     # for autocomplete lib codes
-    availlibcodes = Library.objects.filter(library_id__in=availlibids).values_list('librarycode', flat=True)
+    availlibcodes = samplelibrary.objects.filter(id__in=availlibids).values_list('library_code', flat=True)
     somejs = constructAutocomplete('libcode',availlibcodes)
     kwargs['somejs'] = somejs
 
@@ -966,7 +965,7 @@ def GetResultsForLibrary(request):
 
             elif 'libcode' in request.POST:
                 libcode = form.cleaned_data['libcode']
-                allres = Result.objects.filter(libraries__librarycode=libcode).filter(libraries__library_id__in=availlibids)
+                allres = Result.objects.filter(libraries__library_code=libcode).filter(libraries__id__in=availlibids)
                 kwargs['allres'] = allres
                 kwargs['form']=form
 
@@ -988,7 +987,7 @@ def GetSitesForLibrary(request):
     kwargs['user']=user
 
     # for autocomplete lib codes
-    availlibcodes = Library.objects.filter(library_id__in=availlibids).values_list('librarycode', flat=True)
+    availlibcodes = samplelibrary.objects.filter(id__in=availlibids).values_list('library_code', flat=True)
     autoclibcodes = constructAutocomplete('libcode',availlibcodes)
     kwargs['autoclibcodes'] = autoclibcodes
 
@@ -1018,7 +1017,7 @@ def GetSitesForLibrary(request):
 
             elif 'libcode' in request.POST:
                 libcode = form.cleaned_data['libcode']
-                allres = Result.objects.filter(libraries__librarycode=libcode).filter(libraries__library_id__in=availlibids)
+                allres = Result.objects.filter(libraries__library_code=libcode).filter(libraries__id__in=availlibids)
                 kwargs['allres'] = allres
                 kwargs['form']=form
         else:
