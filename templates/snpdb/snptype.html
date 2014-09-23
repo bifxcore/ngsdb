@@ -74,6 +74,8 @@
 </table>
 </div>
 
+
+{% if toolbar_max > 1 %}
 <div class="container-fluid">
 <div class="ngsdb pagination">
     <ul class="ngsdb">
@@ -113,7 +115,7 @@
     </ul>
 </div>
 </div>
-
+{%endif%}
 
 {% endblock %}
 </html>

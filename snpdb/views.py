@@ -1019,13 +1019,14 @@ def chromosome_library_snp_summary(request):
 def chromosome_library_snp_summary_filter(request):
 	order_by = request.GET.get('order_by', 'chromosome__chromosome_name')
 	library = request.GET.get('lib')
-	results = SNP.objects.values('chromosome__chromosome_name', 'library__librarysize',
+	results = SNP.objects.values('chromosome__chromosome_name',
 	                             'library_id', 'library__library_code').filter(library__library_code=library).annotate(num_snps=Count('snp_id'),
 	                                                                                                                   hetero=BooleanSum('heterozygosity'),
 	                                                                                                                   indel=BooleanSum('snp_type__indel'),
 	                                                                                                                   trans=BooleanSum('snp_type__transition'))
+	library_size = get_chromosome_size(library)
 	result_list = results.order_by(order_by)
-	print result_list
+	print library_size
 	paginator = Paginator(result_list, 50)
 	page = request.GET.get('page')
 
@@ -1044,6 +1045,7 @@ def chromosome_library_snp_summary_filter(request):
 	toolbar_min = max(results.number - 4, 0)
 
 	return render_to_response('snpdb/chromosome_library_snp_summary_filter.html', {"results": results,
+	                                                                               "library_size": library_size,
 	                                                                               "filter_urls": filter_urls,
 	                                                                               "paginator": paginator,
 	                                                                               "toolbar_max": toolbar_max,

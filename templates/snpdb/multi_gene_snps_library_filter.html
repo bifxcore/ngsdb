@@ -71,6 +71,8 @@
 </table>
     </div>
 
+
+{% if toolbar_max > 1 %}
 <div class="ngsdb pagination">
     <ul class="ngsdb">
         {% if results.has_previous %}
@@ -92,5 +94,7 @@
         {% endif %}
     </ul>
 </div>
-        {% endblock %}
+{%endif%}
+
+{% endblock %}
 </html>

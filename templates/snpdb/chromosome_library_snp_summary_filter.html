@@ -57,16 +57,16 @@
         <tr>
             {% for each in results %}
                 <td class="text-center">{{ each.chromosome__chromosome_name }}</a></td>
-                <td class="text-center"><a href="/snpdb/library-snp-summary/search?lib={{each.library__librarycode}}&count={{each.num_snps}}">{{ each.library_id }}</a></td>
-                <td class="text-center">{{ each.library__librarycode }}</td>
+                <td class="text-center"><a href="/snpdb/library-snp-summary/search?lib={{each.library__library_code}}&count={{each.num_snps}}">{{ each.library_id }}</a></td>
+                <td class="text-center">{{ each.library__library_code }}</td>
                 <td class="text-center">{{ each.num_snps }}</td>
                 <td class="text-center">{{ each.hetero }}</td>
                 <td class="text-center">{{ each.num_snps|sub:each.hetero }}</td>
                 <td class="text-center">{{ each.indel }}</td>
                 <td class="text-center">{{ each.trans }}</td>
                 <td class="text-center">{{ each.num_snps|sub:each.trans }}</td>
-            {% if each.library__librarysize > 0 %}
-                <td class="text-center">{{ each.num_snps|div:each.library__librarysize }}</td>
+            {% if library_size > 0 %}
+                <td class="text-center">{{ each.num_snps|div:library_size.fmax__sum|floatformat:-5  }}</td>
             {% else %}
                 <td class="text-center">Library is missing size</td>
             {% endif %}    </tr>
