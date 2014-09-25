@@ -22,17 +22,17 @@ CULTURE_METHOD_TYPE_CHOICES = (
     ('animal derived', 'animal derived'),
 )
 
-class Genome(models.Model):
-    reference_code = models.CharField(unique=True, max_length=10, help_text="Reference Genome Code")
-    genus = models.CharField(max_length=45)
-    species = models.CharField(max_length=45)
-    strain = models.CharField(max_length=45, blank=True)
-    isolate = models.CharField(max_length=45, blank=True)
-    source = models.CharField(max_length=100, blank=True)
-    dbxref = models.CharField(max_length=25, help_text="Genome Data Source")
-
-    def __unicode__(self):
-        return unicode(self.reference_code)
+# class Genome(models.Model):
+#     reference_code = models.CharField(unique=True, max_length=10, help_text="Reference Genome Code")
+#     genus = models.CharField(max_length=45)
+#     species = models.CharField(max_length=45)
+#     strain = models.CharField(max_length=45, blank=True)
+#     isolate = models.CharField(max_length=45, blank=True)
+#     source = models.CharField(max_length=100, blank=True)
+#     dbxref = models.CharField(max_length=25, help_text="Genome Data Source")
+#
+#     def __unicode__(self):
+#         return unicode(self.reference_code)
 
 class Bioproject(models.Model):
     bioproject_code = models.CharField(unique=True, max_length=12)
@@ -157,8 +157,7 @@ class Library(models.Model):
     fastqfile_size_inbytes = models.DecimalField(max_digits=50, decimal_places=2, blank=True, null=True)
     experiment_notes = models.TextField(blank=True,)
 
-    reference_genome = models.ForeignKey(Genome,  help_text="Name of genome to align against")
-    reference_genome_version = models.CharField(max_length=50,  blank=True, default="Latest")
+    suggested_reference_genome = models.CharField(max_length=100, blank=True, help_text="Name and version of genome to align the reads against", default="Genome: xxxxx ; Version: xxxx")
     note_for_analysis = models.TextField(blank=True)
     date_created = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)
