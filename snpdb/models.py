@@ -50,6 +50,12 @@ class SNP(models.Model):
 #        return str(self.snp_id)
 
 
+class SNP_CV(models.Model):
+	cv_id = models.AutoField(primary_key=True)
+	cvterm = models.TextField()
+	cv_value = models.TextField()
+
+
 class SNP_Type(models.Model):
 	snptype_id = models.AutoField(primary_key=True)
 	snp = models.ForeignKey('SNP')
@@ -94,7 +100,15 @@ class VCF_Files(models.Model):
 class CNV(models.Model):
 	cnv_id = models.AutoField(primary_key=True)
 	chromosome = models.ForeignKey('Chromosome')
-	coordinate = models.IntegerField()
+	start = models.IntegerField()
+	stop = models.IntegerField()
 	CNV_value = models.IntegerField()
 	library = models.ForeignKey('samples.Library')
 	result = models.ForeignKey('ngsdbview.Result')
+	window_size = models.ForeignKey('CNV_CV')
+
+
+class CNV_CV(models.Model):
+	cv_id = models.AutoField(primary_key=True)
+	cvterm = models.TextField()
+	cv_value = models.TextField()

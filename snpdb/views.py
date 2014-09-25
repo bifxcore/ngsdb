@@ -165,6 +165,34 @@ def snp(request):
 	                                             "toolbar_min": toolbar_min})
 
 
+#Lists CNV values
+def cnv(request):
+	order_by = request.GET.get('order_by', 'cnv_id')
+	cnv_list = CNV.objects.all().order_by(order_by)
+	count = len(cnv_list)
+	paginator = Paginator(cnv_list, 50)
+	page = request.GET.get('page')
+
+	# Calls utils method to append new filters or order_by to the current url
+	filter_urls = build_orderby_urls(request.get_full_path(), ['cnv_id', 'chromosome__chromosome_name', 'coordinte',
+	                                                           'CNV_value', 'result_id', 'library__library_code'])
+	try:
+		cnvs = paginator.page(page)
+	except PageNotAnInteger:
+		cnvs = paginator.page(1)
+	except EmptyPage:
+		cnvs = paginator.page(paginator.num_pages)
+
+	toolbar_max = min(cnvs.number + 3, paginator.num_pages)
+	toolbar_min = max(cnvs.number - 3, 0)
+
+	return render_to_response('snpdb/CNV.html', {"cnvs": cnvs,
+	                                             "count": count,
+	                                             "filter_urls": filter_urls,
+	                                             "paginator": paginator,
+	                                             "toolbar_max": toolbar_max,
+	                                             "toolbar_min": toolbar_min})
+
 # Returns the general SNP Type table view.
 def snp_type(request):
 	order_by = request.GET.get('order_by', 'snptype_id')
@@ -1653,6 +1681,7 @@ def impact_snps2(request):
 	                                                            "count": count,
 	                                                            "filter_urls": filter_urls,
 	                                                            })
+
 
 # Dumps a queryset into a csv file.
 def dump(qs, outfile_path):

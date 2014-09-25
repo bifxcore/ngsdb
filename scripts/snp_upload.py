@@ -375,6 +375,8 @@ def insert_vcf_file(library_id, result_id, vcf_file, vcf_path):
 	subprocess.Popen(cmd % (vcf_path, vcf_dir_path), shell=True, stdout=subprocess.PIPE)
 	return vcf_id
 
+
+#todo Add command to upload analysis information
 def main():
 	snp_iterator = 0
 	# Reads the file in from the command line. First file is the script, second is the vcf file,
