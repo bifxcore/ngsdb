@@ -44,7 +44,6 @@ def dashboard(request):
 
 	path = os.path.abspath(os.path.dirname(__file__))
 	chart_path = os.path.join(path, 'gcharts/%s_impact.csv')
-	# image_path = os.path.join(path, 'gcharts/snps_by_%s.png')
 	image_path = 'snpdb/snps_by_%s.png'
 	images_path = 'snps_by_%s.png'
 	if os.path.isfile(chart_path % 'high') and os.path.isfile(image_path % 'high'):
