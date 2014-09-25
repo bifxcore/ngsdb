@@ -1,4 +1,0 @@
--r base.txt
-django_boolean_sum==
-django-mathfilters==
-Pillow==

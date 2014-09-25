@@ -16,3 +16,8 @@ python-ldap==2.4.13
 six==1.4.1
 wsgiref==0.1.2
 xlwt==0.7.5
+django_boolean_sum==0.1
+django-mathfilters==0.2.1
+Pillow==2.5.1
+PyVCF==0.6.7
+numpy==1.9.0
