@@ -179,30 +179,6 @@ class Genome(models.Model):
     def __unicode__(self):
         return str(self.organism)
 
-class Library(models.Model):
-    library_id = models.AutoField(primary_key=True)
-    librarycode = models.CharField(unique=True, max_length=25, db_index=True)
-    samplename = models.CharField(max_length=25, db_index=True, blank=True, help_text="Sample name from the source")
-    author = models.ForeignKey(Author)
-    organism = models.ForeignKey(Organism)
-    lifestage = models.ForeignKey(Lifestage)
-    phenotype = models.ForeignKey(Phenotype)
-    collaborator = models.ForeignKey(Collaborator)
-    librarytype = models.ForeignKey(Librarytype)
-    protocol = models.ForeignKey(Protocol)
-    fastqname = models.CharField(max_length=1000)
-    fastqalias = models.CharField(max_length=1000)
-    librarysize = models.IntegerField()
-    flowcell = models.CharField(max_length=45)
-    downloaddate = models.DateField()
-    notes = models.CharField(max_length=400)
-    fastqpath = models.CharField(max_length=1025)
-    def __unicode__(self):
-        return str(self.librarycode)
-    class Meta:
-        permissions = (("view_library", "Can see the library"),)
-        verbose_name_plural="Libraries"
-
 def get_libraryfile_upload_destination(instance, filename):
     return "libraryfiles/{id}/{file}".format(id=instance.samplelibrary.library_code, file=filename)
     #return "libraryfiles/{id}/{file}".format(id=instance.library.librarycode, file=filename)
