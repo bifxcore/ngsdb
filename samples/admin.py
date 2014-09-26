@@ -39,8 +39,8 @@ class LibraryAdmin(admin.ModelAdmin):
     #    ('Analysis Information', {'fields': ('suggested_reference_genome', 'note_for_analysis'), 'classes': ('grp-collapse grp-close',), }),
     #    ('Data Tracking', {'fields': ('date_created', 'date_modified', 'author_modified'), 'classes': ('grp-collapse grp-close',), })
     #)
-    list_display = ('library_code', 'librarytype', 'organism', 'protocol', 'template_material', 'suggested_reference_genome', 'collaborator', 'bioproject', 'library_creation_date', 'sequence_downloaded_on', 'flowcell_number', 'lane_number', 'index_sequence', 'fastqfile_name', 'fastqfile_readcount')
-    list_filter = ['collaborator', 'librarytype__type', 'author__designation', 'organism__organismcode', 'lifestage', 'phenotype', 'genotype', 'growthphase', 'template_material', 'suggested_reference_genome']
+    list_display = ('library_code', 'rna_id', 'sampleid', 'librarytype', 'protocol', 'template_material', 'suggested_reference_genome', 'collaborator', 'bioproject', 'library_creation_date', 'sequence_downloaded_on', 'flowcell_number', 'lane_number', 'index_sequence', 'fastqfile_name', 'fastqfile_readcount')
+    list_filter = ['collaborator', 'librarytype__type', 'author__designation', 'template_material', 'suggested_reference_genome']
     search_fields = ['collaborator__firstname', 'collaborator__lastname', 'librarytype__type', 'author__designation', 'author__lastname', 'author__firstname', 'experiment_notes', 'protocol_notes', 'bioproject__bioproject_code', 'bioproject__bioproject_code', 'biosample__biosample_code', 'protocol__protocol_name', 'library_code', 'flowcell_number', 'index_sequence']
     list_editable = ('protocol', 'template_material')
     # todo remove editable list once aarthi is done

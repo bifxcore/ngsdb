@@ -8,22 +8,110 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Deleting field 'Library.reference_genome'
-        db.delete_column(u'samples_library', 'reference_genome_id')
+        # Deleting field 'Library.genotype'
+        db.delete_column(u'samples_library', 'genotype_id')
 
-        # Deleting field 'Library.reference_genome_version'
-        db.delete_column(u'samples_library', 'reference_genome_version')
+        # Deleting field 'Library.source'
+        db.delete_column(u'samples_library', 'source')
+
+        # Deleting field 'Library.treatment'
+        db.delete_column(u'samples_library', 'treatment')
+
+        # Deleting field 'Library.sample_name'
+        db.delete_column(u'samples_library', 'sample_name')
+
+        # Deleting field 'Library.phenotype'
+        db.delete_column(u'samples_library', 'phenotype_id')
+
+        # Deleting field 'Library.collected_on'
+        db.delete_column(u'samples_library', 'collected_on')
+
+        # Deleting field 'Library.sample_notes'
+        db.delete_column(u'samples_library', 'sample_notes')
+
+        # Deleting field 'Library.lifestage'
+        db.delete_column(u'samples_library', 'lifestage_id')
+
+        # Deleting field 'Library.growthphase'
+        db.delete_column(u'samples_library', 'growthphase_id')
+
+        # Deleting field 'Library.is_clonal'
+        db.delete_column(u'samples_library', 'is_clonal')
+
+        # Deleting field 'Library.collected_by'
+        db.delete_column(u'samples_library', 'collected_by')
+
+        # Deleting field 'Library.collected_at'
+        db.delete_column(u'samples_library', 'collected_at')
+
+        # Deleting field 'Library.organism'
+        db.delete_column(u'samples_library', 'organism_id')
 
 
     def backwards(self, orm):
-        # Adding field 'Library.reference_genome'
-        db.add_column(u'samples_library', 'reference_genome',
-                      self.gf('django.db.models.fields.related.ForeignKey')(default=0, to=orm['samples.Genome']),
+        # Adding field 'Library.genotype'
+        db.add_column(u'samples_library', 'genotype',
+                      self.gf('django.db.models.fields.related.ForeignKey')(default='wildtype', related_name='ngsdbview.genotype', to=orm['ngsdbview.Genotype']),
                       keep_default=False)
 
-        # Adding field 'Library.reference_genome_version'
-        db.add_column(u'samples_library', 'reference_genome_version',
-                      self.gf('django.db.models.fields.CharField')(default='Latest', max_length=50, blank=True),
+        # Adding field 'Library.source'
+        db.add_column(u'samples_library', 'source',
+                      self.gf('django.db.models.fields.CharField')(default='none', max_length=100),
+                      keep_default=False)
+
+        # Adding field 'Library.treatment'
+        db.add_column(u'samples_library', 'treatment',
+                      self.gf('django.db.models.fields.CharField')(default='none', max_length=100),
+                      keep_default=False)
+
+        # Adding field 'Library.sample_name'
+        db.add_column(u'samples_library', 'sample_name',
+                      self.gf('django.db.models.fields.CharField')(blank=True, default='', max_length=25, db_index=True),
+                      keep_default=False)
+
+        # Adding field 'Library.phenotype'
+        db.add_column(u'samples_library', 'phenotype',
+                      self.gf('django.db.models.fields.related.ForeignKey')(default='none', related_name='ngsdbview.phenotype', to=orm['ngsdbview.Phenotype']),
+                      keep_default=False)
+
+        # Adding field 'Library.collected_on'
+        db.add_column(u'samples_library', 'collected_on',
+                      self.gf('django.db.models.fields.DateField')(null=True, blank=True),
+                      keep_default=False)
+
+        # Adding field 'Library.sample_notes'
+        db.add_column(u'samples_library', 'sample_notes',
+                      self.gf('django.db.models.fields.TextField')(default='none'),
+                      keep_default=False)
+
+        # Adding field 'Library.lifestage'
+        db.add_column(u'samples_library', 'lifestage',
+                      self.gf('django.db.models.fields.related.ForeignKey')(default=0, related_name='ngsdbview.lifestage', to=orm['ngsdbview.Lifestage']),
+                      keep_default=False)
+
+        # Adding field 'Library.growthphase'
+        db.add_column(u'samples_library', 'growthphase',
+                      self.gf('django.db.models.fields.related.ForeignKey')(default=1, related_name='ngsdbview.growthphase', to=orm['ngsdbview.Growthphase']),
+                      keep_default=False)
+
+        # Adding field 'Library.is_clonal'
+        db.add_column(u'samples_library', 'is_clonal',
+                      self.gf('django.db.models.fields.BooleanField')(default=False),
+                      keep_default=False)
+
+        # Adding field 'Library.collected_by'
+        db.add_column(u'samples_library', 'collected_by',
+                      self.gf('django.db.models.fields.CharField')(default='', max_length=50, blank=True),
+                      keep_default=False)
+
+        # Adding field 'Library.collected_at'
+        db.add_column(u'samples_library', 'collected_at',
+                      self.gf('django.db.models.fields.CharField')(default='', max_length=100, blank=True),
+                      keep_default=False)
+
+        # Adding field 'Library.organism'
+        db.add_column(u'samples_library', 'organism',
+                      self.gf('django.db.models.fields.related.ForeignKey')(default=1, related_name='library_organism', to=orm['ngsdbview.Organism']),
                       keep_default=False)
 
 
@@ -145,17 +233,6 @@ class Migration(SchemaMigration):
             'notes': ('django.db.models.fields.TextField', [], {'max_length': '400', 'blank': 'True'}),
             'organisms': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'})
         },
-        u'samples.genome': {
-            'Meta': {'object_name': 'Genome'},
-            'dbxref': ('django.db.models.fields.CharField', [], {'max_length': '25'}),
-            'genus': ('django.db.models.fields.CharField', [], {'max_length': '45'}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'isolate': ('django.db.models.fields.CharField', [], {'max_length': '45', 'blank': 'True'}),
-            'reference_code': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '10'}),
-            'source': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'}),
-            'species': ('django.db.models.fields.CharField', [], {'max_length': '45'}),
-            'strain': ('django.db.models.fields.CharField', [], {'max_length': '45', 'blank': 'True'})
-        },
         u'samples.library': {
             'Meta': {'object_name': 'Library'},
             'author': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'ngsdbview.authors'", 'to': u"orm['ngsdbview.Author']"}),
@@ -163,9 +240,6 @@ class Migration(SchemaMigration):
             'bioproject': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['samples.Bioproject']"}),
             'biosample': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['samples.Biosample']"}),
             'collaborator': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'ngsdbview.collaborator'", 'to': u"orm['ngsdbview.Collaborator']"}),
-            'collected_at': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'}),
-            'collected_by': ('django.db.models.fields.CharField', [], {'max_length': '50', 'blank': 'True'}),
-            'collected_on': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
             'date_created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             'date_modified': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
             'experiment_notes': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
@@ -174,32 +248,22 @@ class Migration(SchemaMigration):
             'fastqfile_readcount': ('django.db.models.fields.DecimalField', [], {'null': 'True', 'max_digits': '25', 'decimal_places': '2', 'blank': 'True'}),
             'fastqfile_size_inbytes': ('django.db.models.fields.DecimalField', [], {'null': 'True', 'max_digits': '50', 'decimal_places': '2', 'blank': 'True'}),
             'flowcell_number': ('django.db.models.fields.CharField', [], {'max_length': '15', 'blank': 'True'}),
-            'genotype': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'ngsdbview.genotype'", 'to': u"orm['ngsdbview.Genotype']"}),
-            'growthphase': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'ngsdbview.growthphase'", 'to': u"orm['ngsdbview.Growthphase']"}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'index_sequence': ('django.db.models.fields.CharField', [], {'max_length': '25', 'blank': 'True'}),
-            'is_clonal': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'lane_number': ('django.db.models.fields.CharField', [], {'max_length': '3', 'blank': 'True'}),
             'library_code': ('django.db.models.fields.CharField', [], {'db_index': 'True', 'unique': 'True', 'max_length': '10', 'blank': 'True'}),
             'library_creation_date': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
             'library_gelimage': ('django.db.models.fields.files.FileField', [], {'default': "'NA'", 'max_length': '100', 'blank': 'True'}),
             'librarytype': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'ngsdbview.librarytype'", 'to': u"orm['ngsdbview.Librarytype']"}),
-            'lifestage': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'ngsdbview.lifestage'", 'to': u"orm['ngsdbview.Lifestage']"}),
             'note_for_analysis': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
-            'organism': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'library_organism'", 'to': u"orm['ngsdbview.Organism']"}),
-            'phenotype': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'ngsdbview.phenotype'", 'to': u"orm['ngsdbview.Phenotype']"}),
             'protocol': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'ngsdbview.protocol'", 'to': u"orm['ngsdbview.Protocol']"}),
             'protocol_notes': ('django.db.models.fields.TextField', [], {'default': "'None'", 'blank': 'True'}),
             'rna_id': ('django.db.models.fields.CharField', [], {'db_index': 'True', 'max_length': '25', 'blank': 'True'}),
-            'sample_name': ('django.db.models.fields.CharField', [], {'db_index': 'True', 'max_length': '25', 'blank': 'True'}),
-            'sample_notes': ('django.db.models.fields.TextField', [], {}),
             'sampleid': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['samples.Sample']", 'null': 'True'}),
             'sequence_downloaded_on': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
-            'source': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'submitted_for_sequencing_on': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
             'suggested_reference_genome': ('django.db.models.fields.CharField', [], {'default': "'Genome: xxxxx ; Version: xxxx'", 'max_length': '100', 'blank': 'True'}),
-            'template_material': ('django.db.models.fields.CharField', [], {'max_length': '200'}),
-            'treatment': ('django.db.models.fields.CharField', [], {'max_length': '100'})
+            'template_material': ('django.db.models.fields.CharField', [], {'max_length': '200'})
         },
         u'samples.protocol': {
             'Meta': {'object_name': 'Protocol'},
