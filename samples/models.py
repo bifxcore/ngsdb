@@ -113,7 +113,6 @@ class Library(models.Model):
     author = models.ForeignKey('ngsdbview.Author', related_name="ngsdbview.authors", help_text="Person constructed the library")
     collaborator = models.ForeignKey('ngsdbview.Collaborator', related_name="ngsdbview.collaborator", help_text="Initials of the PI collaborating on this project")
     bioproject = models.ForeignKey(Bioproject, help_text="Bioproject ID from NCBI")
-    biosample = models.ForeignKey(Biosample, help_text="Biosample ID from NCBI")
 
     librarytype = models.ForeignKey('ngsdbview.Librarytype', related_name="ngsdbview.librarytype", help_text="Type of library to be constructed")
     template_material = models.CharField(max_length=200, choices=TEMPLATE_MATERIALS_CHOICES)
