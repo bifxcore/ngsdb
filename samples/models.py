@@ -62,6 +62,7 @@ class Source(models.Model):
 
 class Sample(models.Model):
     sampleid = models.CharField(max_length=25, unique=True, db_index=True)
+    biosample = models.ForeignKey(Biosample, help_text="Local or NCBI assigned Biosample ID")
     sampletype = models.CharField(max_length=100, choices=SAMPLE_TYPE_CHOICES)
     label_ontube = models.CharField(max_length=250, db_index=True, blank=True, help_text="Text/Label found on the tube containing sample")
     organism = models.ForeignKey('ngsdbview.Organism', related_name="sample_organism", help_text="The organism/parasite sample is isolated from")

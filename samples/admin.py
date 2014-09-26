@@ -18,7 +18,7 @@ class SampleAdmin(admin.ModelAdmin):
 
     list_display = ('sampleid', 'sampletype', 'collaborator', 'organism', 'lifestage', 'genotype', 'growthphase', 'culture_method', 'treatment', 'time_after_treatment', 'sample_quantity', 'bioanalyzer_file_link', 'label_ontube', 'freezer_location')
     list_filter = ['sampletype', 'organism', 'lifestage', 'collaborator', 'treatment']
-    search_fields = ['sampleid', 'sampletype', 'organism__organismcode', 'lifestage__lifestage', 'growthphase__growthphase', 'phenotype', 'genotype__genotype', 'collaborator__firstname', 'collaborator__lastname', 'source', 'collected_by', 'treatment', 'isolation_method', 'sample_quantity', 'biological_replicate_of', 'bioanalyzer_analysis', 'label_ontube', 'freezer_location', 'sample_notes']
+    search_fields = ['sampleid','biosample__biosample_code', 'sampletype', 'organism__organismcode', 'lifestage__lifestage', 'growthphase__growthphase', 'phenotype', 'genotype__genotype', 'collaborator__firstname', 'collaborator__lastname', 'source', 'collected_by', 'treatment', 'isolation_method', 'sample_quantity', 'biological_replicate_of', 'bioanalyzer_analysis', 'label_ontube', 'freezer_location', 'sample_notes']
     list_editable = ('growthphase', 'culture_method', 'lifestage', 'treatment', 'time_after_treatment')
     # todo remove editable list once aarthi is done
 
@@ -39,9 +39,9 @@ class LibraryAdmin(admin.ModelAdmin):
     #    ('Analysis Information', {'fields': ('suggested_reference_genome', 'note_for_analysis'), 'classes': ('grp-collapse grp-close',), }),
     #    ('Data Tracking', {'fields': ('date_created', 'date_modified', 'author_modified'), 'classes': ('grp-collapse grp-close',), })
     #)
-    list_display = ('library_code', 'rna_id', 'sampleid', 'librarytype', 'protocol', 'template_material', 'suggested_reference_genome', 'collaborator', 'bioproject', 'library_creation_date', 'sequence_downloaded_on', 'flowcell_number', 'lane_number', 'index_sequence', 'fastqfile_name', 'fastqfile_readcount')
+    list_display = ('library_code', 'sampleid', 'librarytype', 'protocol', 'template_material', 'suggested_reference_genome', 'collaborator', 'bioproject', 'library_creation_date', 'sequence_downloaded_on', 'flowcell_number', 'lane_number', 'index_sequence', 'fastqfile_name', 'fastqfile_readcount')
     list_filter = ['collaborator', 'librarytype__type', 'author__designation', 'template_material', 'suggested_reference_genome']
-    search_fields = ['collaborator__firstname', 'collaborator__lastname', 'librarytype__type', 'author__designation', 'author__lastname', 'author__firstname', 'experiment_notes', 'protocol_notes', 'bioproject__bioproject_code', 'bioproject__bioproject_code', 'biosample__biosample_code', 'protocol__protocol_name', 'library_code', 'flowcell_number', 'index_sequence']
+    search_fields = ['collaborator__firstname', 'collaborator__lastname', 'librarytype__type', 'author__designation', 'author__lastname', 'author__firstname', 'experiment_notes', 'protocol_notes', 'bioproject__bioproject_code', 'protocol__protocol_name', 'library_code', 'flowcell_number', 'index_sequence']
     list_editable = ('protocol', 'template_material')
     # todo remove editable list once aarthi is done
     # todo uncomment after all uploading of libraries
