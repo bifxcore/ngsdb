@@ -1702,13 +1702,15 @@ def dump(qs, outfile_path):
 def read(filename):
 	impact_dict = {}
 	for each in csv.reader(open(filename)):
-		key = each[0]
-		value = each[1]
-		try:
-			impact_dict[key] = int(value)
-		except ValueError:
-			impact_dict[key] = value
-			pass
+		for x in each:
+			key = x.split(',')[0].strip("('")
+			value = x.split(',')[1].strip(')')
+			try:
+				impact_dict[key] = int(value)
+			except ValueError:
+				impact_dict[key] = value
+				pass
+	print impact_dict
 	return impact_dict
 
 
