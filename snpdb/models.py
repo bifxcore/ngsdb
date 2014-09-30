@@ -10,6 +10,7 @@ class Chromosome(models.Model):
 	genome_version = models.CharField(max_length=50)
 
 
+#todo add index to effect_string
 class Effect(models.Model):
 	snp = models.ForeignKey('SNP')
 	effect = models.ForeignKey('Effect_CV')

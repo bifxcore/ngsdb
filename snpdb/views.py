@@ -35,7 +35,7 @@ def dashboard(request):
 		lib_snps.append(each['snp_id__count'])
 		lib_snp_total += each['snp_id__count']
 
-	org_count = SNP.objects.values("library__organism__organismcode").distinct().annotate(Count('snp_id'))
+	org_count = SNP.objects.values("result__genome__organism__organismcode").distinct().annotate(Count('snp_id'))
 	org_snps = []
 	org_snp_total = 0
 	for each in org_count.iterator():
@@ -44,7 +44,7 @@ def dashboard(request):
 
 	path = os.path.abspath(os.path.dirname(__file__))
 	chart_path = os.path.join(path, 'gcharts/%s_impact.csv')
-	image_path = 'snpdb/snps_by_%s.png'
+	image_path = 'snpdb/static/snps_by_%s.png'
 	images_path = 'snps_by_%s.png'
 	if os.path.isfile(chart_path % 'high') and os.path.isfile(image_path % 'high'):
 		print "file ", chart_path % 'high', "and file ", image_path % 'high', " was found."
@@ -803,7 +803,9 @@ def library_snp_summary(request):
 	                                                   ).order_by(order_by)
 	result = []
 	for each in results:
-		contig = get_chromosome_size(each['library__library_code'])
+		library=each['library__library_code']
+		organismcode = SNP.objects.values_list('result__genome__organism__organismcode', flat=True).filter(library__library_code=library)[0]
+		contig = get_chromosome_size(organismcode)
 		for key, value in contig.iteritems():
 			each[key] = value
 		result.append(each)
@@ -813,7 +815,6 @@ def library_snp_summary(request):
 
 	# Calls utils method to append new filters or order_by to the current url
 	filter_urls = build_orderby_urls(request.get_full_path(), ['library__library_id', 'library__library_code', 'snp_id', 'num_snps', 'hetero', 'homo', 'indel', 'trans', 'snp_density'])
-	print result
 	try:
 		result = paginator.page(page)
 	except PageNotAnInteger:
@@ -981,19 +982,27 @@ def genes_from_effect(results, library, order_by):
 	return sorted_snp_dict
 
 
+#todo determine if snps are in coding region of gene.
 # Returns snps found in a library and chromosome.
 def library_chromosome_snps_filter(request):
 	chromosome = request.GET.get('s')
 	library = request.GET.get('lib')
+	genome = SNP.objects.values_list('result__genome__genome_id', flat=True).filter(library__library_code=library)[0]
 	order_by = request.GET.get('order_by', 'library__library_code')
-	result_list = SNP.objects.values('library__library_code', 'result_id',
-	                                 'chromosome__chromosome_name', 'snp_id',
-	                                 'snp_position', 'ref_base', 'alt_base', 'quality',
-	                                 'heterozygosity').filter(snp_position__range=(Feature.objects.values_list('fmin', flat=True).filter(chromosome=chromosome).filter(featuretype='gene')[0],
-	                                                                               Feature.objects.values_list('fmax', flat=True).filter(chromosome=chromosome).filter(featuretype='gene')[0]),
-	                                                          library__library_code=library,
-	                                                          chromosome__chromosome_name=Feature.objects.values_list('chromosome', flat=True).filter(chromosome=chromosome).filter(featuretype='gene')[0]).order_by(order_by)
-	count = result_list.count()
+	ranges = Feature.objects.values_list('fmin', 'fmax').filter(chromosome=chromosome).filter(featuretype='gene', genome_id=genome)
+	result_list = []
+	for each in ranges:
+		results = SNP.objects.values('library__library_code', 'result_id',
+		                             'chromosome__chromosome_name',
+		                             'snp_position', 'ref_base', 'alt_base', 'quality',
+		                             'heterozygosity').annotate(fmin=each[0], fmax=each[1]).filter(snp_position__range=(each[0],
+		                                                                                                                each[1]),
+		                                                                                           library__library_code=library,
+		                                                                                           chromosome__chromosome_name=Feature.objects.values_list('chromosome', flat=True,
+		                                                                                                                                                   chromosome=chromosome).filter(featuretype='gene')[0]).order_by(order_by)
+		if results is not None:
+			result_list.append(results)
+	count = len(result_list)
 	page = request.GET.get('page')
 	filter_urls = build_orderby_urls(request.get_full_path(), ['library__library_code', 'result_id',
 	                                                           'chromosome__chromosome_name', 'snp_id',
@@ -1051,9 +1060,9 @@ def chromosome_library_snp_summary_filter(request):
 	                                                                                                                   hetero=BooleanSum('heterozygosity'),
 	                                                                                                                   indel=BooleanSum('snp_type__indel'),
 	                                                                                                                   trans=BooleanSum('snp_type__transition'))
-	library_size = get_chromosome_size(library)
+	organismcode = SNP.objects.values_list('result__genome__organism__organismcode', flat=True).filter(library__library_code=library)[0]
+	library_size = get_chromosome_size(organismcode)
 	result_list = results.order_by(order_by)
-	print library_size
 	paginator = Paginator(result_list, 50)
 	page = request.GET.get('page')
 
@@ -1608,10 +1617,9 @@ def effects_by_vcf(request):
 	                                              "path": path}, context_instance=RequestContext(request))
 
 
-def get_chromosome_size(library):
-	genome = Library.objects.values_list('organism__genome__genome_id', flat=True).filter(library_code=library)
-	contig_size = Feature.objects.filter(featuretype='chromosome', genome_id=genome).distinct().aggregate(Sum('fmax'))
-	return contig_size
+def get_chromosome_size(organismcode):
+	genome_size = Chromosome.objects.filter(genome_name_id=organismcode).aggregate(genome_size=Sum('size'))
+	return genome_size
 
 
 def impact_snps2(request):
@@ -1702,15 +1710,13 @@ def dump(qs, outfile_path):
 def read(filename):
 	impact_dict = {}
 	for each in csv.reader(open(filename)):
-		for x in each:
-			key = x.split(',')[0].strip("('")
-			value = x.split(',')[1].strip(')')
-			try:
-				impact_dict[key] = int(value)
-			except ValueError:
-				impact_dict[key] = value
-				pass
-	print impact_dict
+		key = each[0]
+		value = each[1]
+		try:
+			impact_dict[key] = int(value)
+		except ValueError:
+			impact_dict[key] = value
+			pass
 	return impact_dict
 
 

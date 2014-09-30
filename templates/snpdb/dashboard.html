@@ -343,13 +343,13 @@
                         <table class="table table-condensed table-hover" style="table-layout: fixed; word-wrap: break-word;">
                             <thead>
                             <tr>
-                                <th class="col-md-1 text-center"><a href={{ filter_urls.library__organism__organismcode }}>Organism</a></th>
+                                <th class="col-md-1 text-center"><a href={{ filter_urls.result__genome__organism__organismcode }}>Organism</a></th>
                                 <th class="col-md-1 text-center"><a href={{ filter_urls.result_id }}>SNP Count</a></th>
                             </tr>
                             </thead>
                             <tbody>
                                 {% for each in org_count %}
-                                    <td class="text-center">{{ each.library__organism__organismcode}}</td>
+                                    <td class="text-center">{{ each.result__genome__organism__organismcode}}</td>
                                     <td class="text-center">{{ each.snp_id__count}}</td>
                             </tr>
                                 {% endfor %}
