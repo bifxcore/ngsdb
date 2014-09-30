@@ -44,7 +44,6 @@
 <table class="table table-condensed table-hover" style="table-layout: fixed; word-wrap: break-word;">
     <thead>
     <tr>
-        <th class="col-xs-1 text-center"><a href={{ filter_urls.snp_id }}>SNP ID</a></th>
         <th class="col-xs-2 text-center"><a href={{ filter_urls.library }}>Library</a></th>
         <th class="col-xs-2 text-center"><a href={{ filter_urls.chromosome }}>Chromosome</a></th>
         <th class="col-xs-1 text-center"><a href={{ filter_urls.snp_position }}>Position</a></th>
@@ -57,22 +56,18 @@
     </thead>
     <tbody>
 
-    {% for each in results %}
-        {% if each.snp_position >= cds_fmin and each.snp_position <= cds_fmax %}
-            <tr class="success">
-        {% else %}
-            <tr>
-        {% endif %}
-        <td class="text-center">{{ each.snp_id }}</td>
-        <td class="text-center">{{ library }}</td>
-        <td class="text-center">{{ chromosome }}</td>
-        <td class="text-center">{{ each.snp_position }}</td>
-        <td class="text-center">{{ each.result_id }}</td>
-        <td class="text-center">{{ each.ref_base }}</td>
-        <td class="text-center">{{ each.alt_base }}</td>
-        <td class="text-center">{{ each.heterozygosity }}</td>
-        <td class="text-center">{{ each.quality }}</td>
-    </tr>
+    {% for x in results %}
+        {% for each in x %}
+            <td class="text-center">{{ library }}</td>
+            <td class="text-center">{{ chromosome }}</td>
+            <td class="text-center">{{ each.snp_position }}</td>
+            <td class="text-center">{{ each.result_id }}</td>
+            <td class="text-center">{{ each.ref_base }}</td>
+            <td class="text-center">{{ each.alt_base }}</td>
+            <td class="text-center">{{ each.heterozygosity }}</td>
+            <td class="text-center">{{ each.quality }}</td>
+        </tr>
+        {% endfor %}
     {% endfor %}
     </tbody>
 </table>

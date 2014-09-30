@@ -63,8 +63,8 @@
         <td class="text-center" style="word-wrap: break-word">{{ each.indel }}</td>
         <td class="text-center" style="word-wrap: break-word">{{ each.trans }}</td>
         <td class="text-center" style="word-wrap: break-word">{{ each.num_snps|sub:each.trans }}</td>
-        {% if each.fmax__sum > 0 %}
-            <td class="text-center" style="word-wrap: break-word">{{ each.num_snps|div:each.fmax__sum|floatformat:-4 }}</td>
+        {% if each.genome_size > 0 %}
+            <td class="text-center" style="word-wrap: break-word">{{ each.num_snps|div:each.genome_size|floatformat:-4 }}</td>
         {% else %}
             <td class="text-center" style="word-wrap: break-word">Library is missing size</td>
         {% endif %}
