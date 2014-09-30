@@ -1,7 +1,7 @@
 from django.conf.urls import *
-from models import Library
+#from models import Library
 
-table = Library.objects.all()
+#table = Library.objects.all()
 
 urlpatterns = patterns('',
 

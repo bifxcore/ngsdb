@@ -1,0 +1,12 @@
+New field suggested_reference_genome is introduced into samples.library table.
+This will now store the suggested reference name and version as char field
+At the end, reference_genome_version and reference_genome fields should be removed.
+
+from samples.models import *
+from samples.models import Library as samplelibrary
+libs = samplelibrary.objects.all()
+for lib in libs:
+	refversion = lib.reference_genome_version
+	refcode = Genome.objects.get(pk=lib.reference_genome_id).reference_code
+	lib.suggested_reference_genome = 'Reference Genome: ' + refcode + ';  version: ' + refversion
+	lib.save()

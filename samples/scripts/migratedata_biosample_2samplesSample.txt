@@ -1,0 +1,10 @@
+# This contains the commands used to migrate biosample data from samples.library to samples.sample
+
+from samples.models import *
+from samples.models import Library as samplelibrary
+libs = samplelibrary.objects.all()
+for lib in libs:
+	sampleobj = lib.sampleid
+	biosampobj = lib.biosample
+	sampleobj.biosample = lib.biosample
+	sampleobj.save()

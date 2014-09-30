@@ -55,9 +55,9 @@ class LibraryfileInline(admin.TabularInline):
 class LibrarypropInline(admin.TabularInline):
     model = Libraryprop
 
-class LibraryAdmin(admin.ModelAdmin):
-    inlines = [ LibraryfileInline, LibrarypropInline ]
-admin.site.register(Library, LibraryAdmin)
+#class LibraryAdmin(admin.ModelAdmin):
+#    inlines = [ LibraryfileInline, LibrarypropInline ]
+#admin.site.register(Library, LibraryAdmin)
 
 
 # code for editing Resultfile/Resultprop while in Library admin page
