@@ -318,7 +318,7 @@ def Dashboard(request):
     # Collect Org, type and author for each of the libraries loaded.
     libs = samplelibrary.objects.all()
     for lib in libs:
-        org = lib.organism.organismcode
+        org = lib.sampleid.organism.organismcode
         liborg[org] += 1
         type = lib.librarytype.type
         libtype[type] += 1

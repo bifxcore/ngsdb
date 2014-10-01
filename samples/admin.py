@@ -9,16 +9,16 @@ from django.contrib.auth.models import User
 class SampleAdmin(admin.ModelAdmin):
     readonly_fields = ("author_modified", "date_modified")
     fieldsets = (
-        ('Sample', {'fields':('sampleid', 'sampletype', 'collaborator', 'label_ontube')}),
+        ('Sample', {'fields':('sampleid', 'sampletype', 'collaborator', 'label_ontube', 'biosample')}),
         ('Sample Source Information', {'fields':('organism', 'genotype', 'lifestage', 'growthphase', 'phenotype', 'is_clonal', 'culture_method', 'treatment', 'time_after_treatment', 'source', 'sourcename'), 'classes': ('grp-collapse grp-close',),}),
         ('Sample Isolation Information', {'fields':('isolation_method', 'collected_at', 'collected_on', 'collected_by', 'collected_by_emailid'), 'classes': ('grp-collapse grp-close',),}),
         ('Storage Information', {'fields':('date_received', 'sample_concentration', 'sample_volume', 'sample_quantity', 'parent_sampleid', 'sample_dilution', 'freezer_location', 'biological_replicate_of'), 'classes': ('grp-collapse grp-close',),}),
         ('Other/QC Information', {'fields':('bioanalyzer_analysis', 'sample_notes', 'author_modified'), 'classes': ('grp-collapse grp-close',),}),
     )
 
-    list_display = ('sampleid', 'sampletype', 'collaborator', 'organism', 'lifestage', 'genotype', 'growthphase', 'culture_method', 'treatment', 'time_after_treatment', 'sample_quantity', 'bioanalyzer_file_link', 'label_ontube', 'freezer_location')
+    list_display = ('sampleid', 'sampletype', 'biosample', 'collaborator', 'organism', 'lifestage', 'genotype', 'growthphase', 'culture_method', 'treatment', 'time_after_treatment', 'sample_quantity', 'bioanalyzer_file_link', 'label_ontube', 'freezer_location')
     list_filter = ['sampletype', 'organism', 'lifestage', 'collaborator', 'treatment']
-    search_fields = ['sampleid','biosample__biosample_code', 'sampletype', 'organism__organismcode', 'lifestage__lifestage', 'growthphase__growthphase', 'phenotype', 'genotype__genotype', 'collaborator__firstname', 'collaborator__lastname', 'source', 'collected_by', 'treatment', 'isolation_method', 'sample_quantity', 'biological_replicate_of', 'bioanalyzer_analysis', 'label_ontube', 'freezer_location', 'sample_notes']
+    search_fields = ['sampleid', 'biosample__biosample_code', 'sampletype', 'organism__organismcode', 'lifestage__lifestage', 'growthphase__growthphase', 'phenotype', 'genotype__genotype', 'collaborator__firstname', 'collaborator__lastname', 'source', 'collected_by', 'treatment', 'isolation_method', 'sample_quantity', 'biological_replicate_of', 'bioanalyzer_analysis', 'label_ontube', 'freezer_location', 'sample_notes']
     list_editable = ('growthphase', 'culture_method', 'lifestage', 'treatment', 'time_after_treatment')
     # todo remove editable list once aarthi is done
 
