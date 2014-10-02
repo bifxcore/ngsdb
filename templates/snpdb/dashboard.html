@@ -219,39 +219,32 @@
                     </ul>
                 </li>
                 <li class="dropdown">
-                    <a class="dropdown-toggle" data-toggle="dropdown" id="snpdb"  href="/samples/librarylist/">SNP DB<b class="caret"></b></a>
+                    <a class="dropdown-toggle" data-toggle="dropdown" id="snpdb"  href="/snpdb/">SNP DB<b class="caret"></b></a>
                     <ul id="snps" class="dropdown-menu" role="menu">
-                        <li class="dropdown-submenu">
-                            <a href="/samples/librarylist/">List All</a>
-                            <ul id="listtables" class="dropdown-menu" role="menu">
-                                <li role="presentation" id="dashboard"><a role="menuitem" href="/snpdb/">Dashboard</a></li>
-                                <li role="presentation" id="snpview"><a role="menuitem" href="/snpdb/snp">SNP</a></li>
-                                <li role="presentation" id="snptype"><a role="menuitem" href="/snpdb/snptype">SNP Type</a></li>
-                                <li role="presentation" id="statistics"><a role="menuitem" href="/snpdb/statistics">Statistics</a></li>
-                                <li role="presentation" id="effect"><a role="menuitem" href="/snpdb/effect">Effect</a></li>
-                                <li role="presentation" id="filter"><a role="menuitem" href="/snpdb/filter">Filter</a></li>
-                            </ul>
+                        <li class="dropdown-menu">
+                            <li class="menu-item"><a href="/snpdb/">Dashboard</a></li>
                         </li>
                         <li class="dropdown-submenu">
-                            <a href="/samples/librarylist/">Gene Level Queries</a>
+                            <a href="/snpdb/">Gene Level Queries</a>
                             <ul id="gene" class="dropdown-menu" role="menu">
                                 <li class="first" role="presentation"><a role="menuitem" href="/snpdb/gene-snps"> Query Gene for Snps</a></li>
                                 <li role="presentation"><a role="menuitem" href="/snpdb/multi-gene-snps"> Query Mulit-Genes for Snps</a></li>
-                                <li role="presentation"><a role="menuitem" href="/snpdb/multi-gene-library-snps"> Query Mulit-Genes and Multi Library for Snps</a></li>
                                 <li role="presentation"><a role="menuitem" href="/snpdb/library-gene-snps">Query Gene and Library for Snps</a></li>
+                                <li role="presentation"><a role="menuitem" href="/snpdb/multi-gene-library-snps"> Query Mulit-Genes and Multi Library for Snps</a></li>
                             </ul>
                         </li>
                         <li class="dropdown-submenu">
-                            <a href="/samples/librarylist/">Library Level Queries</a>
+                            <a href="/snpdb/">Library Level Queries</a>
                             <ul id="library" class="dropdown-menu" role="menu">
-                                <li class="first" role="presentation"><a role="menuitem" href="/snpdb/gene-snps"> Query Gene for Snps</a></li>
-                                <li role="presentation"><a role="menuitem" href="/snpdb/multi-gene-snps"> Query Mulit-Genes for Snps</a></li>
-                                <li role="presentation"><a role="menuitem" href="/snpdb/multi-gene-library-snps"> Query Mulit-Genes and Multi Library for Snps</a></li>
                                 <li role="presentation"><a role="menuitem" href="/snpdb/library-gene-snps">Query Gene and Library for Snps</a></li>
+                                <li role="presentation"><a role="menuitem" href="/snpdb/multi-gene-library-snps"> Query Mulit-Genes and Multi Library for Snps</a></li>
+                                <li role="presentation"><a role="menuitem" href="/snpdb/compare-libs">Compare Two Libraries</a></li>
+                                <li class="menu-item" role="presentation"><a role="menuitem" href="/snpdb/compare-gene-lib">Multi-Library Comparison on Gene</a></li>
+                                <li class="menu-item" role="presentation"><a role="menuitem" href="/snpdb/library-chromosome-snps">Query Chromosome and Library for Snps</a></li>
                             </ul>
                         </li>
                         <li class="dropdown-submenu">
-                            <a href="/samples/librarylist/">Summary Level Queries</a>
+                            <a href="/snpdb/">Summary Level Queries</a>
                             <ul id="summary" class="dropdown-menu" role="menu">
                                 <li role="presentation"><a role="menuitem" href="/snpdb/library-snp-summary">Library Level Summary</a></li>
                                 <li role="presentation"><a role="menuitem" href="/snpdb/chromosome-library-snp-summary">Chromosome Level Summary</a></li>

@@ -25,7 +25,8 @@
 <div class="container-fluid" style="padding-bottom:30px">
 <div class="collapse navbar-collapse navbar-ex1-collapse">
     <ul class="nav navbar-nav">
-        <form class="form-inline" role="form" id='search' action='/snpdb/compare-gene-lib/search' method="get">
+        <form class="form-inline" role="form" id='search' action='/snpdb/compare-gene-lib/search' method="post">
+            {% csrf_token %}
             <div class="form-group">
                 <label class="sr-only" for="gene">Gene</label>
                 <input type="text" class="form-control" name="s" placeholder="gene">
