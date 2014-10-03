@@ -504,44 +504,20 @@ def compare_gene_lib_filter_results_effect(request):
 	                                                                           'chromosome__chromosome_name', 'effect__effect_string',
 	                                                                           'effect__effect_class', 'effect__effect').distinct()
 	test = {}
-	library_group = []
+	#Checks to see if tuples have all libraries present. Inserts blank tuples if not.
 	for each in result_list:
-		tup = (each['library__library_code'], each['alt_base'], each['ref_base'])
+		new_tuple = [(None, None, None)] * len(library)
+		curr_library = each['library__library_code']
+		tup = (curr_library, each['alt_base'], each['ref_base'])
+		index = library.index(curr_library)
 		if each['snp_position'] in test:
 			current_tup = test[each['snp_position']]
-			current_tup.append(tup)
+			current_tup[index] = tup
 			test[each['snp_position']] = current_tup
 		else:
-			test[each['snp_position']] = [tup]
-		library = each['library__library_code']
-		if library in library_group:
-			pass
-		else:
-			library_group.append(library)
+			new_tuple[index] = tup
+			test[each['snp_position']] = new_tuple
 
-	#todo NEED TO FIGURE THIS OUT!
-	#Checks to see if tuples have all libraries present. Inserts blank tuples if not.
-	final = {}
-	for key, values in test.iteritems():
-		complete = []
-		if len(values)==len(library_group):
-			print "all libraries"
-			final[key] = values
-			pass
-		else:
-			for x in range(0, len(library_group)-1):
-				try:
-					lib = values[x][0]
-					if lib==library_group[x]:
-						complete.insert(x, values)
-						pass
-					else:
-						pass
-				except IndexError:
-					empty = ('None', 'None', 'None')
-					complete.insert(x, empty)
-			print complete
-			final[key] = complete
 	count = len(test)
 	paginator = Paginator(result_list, 50)
 	page = request.GET.get('page')
@@ -564,14 +540,13 @@ def compare_gene_lib_filter_results_effect(request):
 	                                                                            "fmin": fmin,
 	                                                                            "fmax": fmax,
 	                                                                            "count": count,
-	                                                                            "library_group": sorted(library_group),
+	                                                                            "library_group": sorted(library),
 	                                                                            "filter_urls": filter_urls,
 	                                                                            "toolbar_max": toolbar_max,
 	                                                                            "toolbar_min": toolbar_min}, context_instance=RequestContext(request))
 
 
 # Returns the list of genes found within the selected libraries.
-# todo need to change view so that all library snps align. Look at gene LdBPK_292260.1 as an example (across all libs).
 # todo need to change so that it references effect table rather than feature table
 def compare_gene_lib_filter_results(request):
 	order_by = request.GET.get('order_by', 'library__library_code')

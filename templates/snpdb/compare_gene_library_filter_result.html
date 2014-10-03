@@ -72,10 +72,14 @@
                 <td class="text-center" headers="position">{{ chromosome }}</td>
                     <td class="text-center" headers="position">{{ key }}</td>
                     {% for x in value %}
-                        <td class="text-center" headers={{each.library__library_code}}>
-                            <div>{{ x.0 }}</div>
-                            <div>{{ x.1}} <span class="glyphicon glyphicon-arrow-right"></span> {{x.2}}</div>
-                        </td>
+                        {% if x.0 %}
+                            <td class="text-center" headers={{each.library__library_code}}>
+                                <div>{{ x.0 }}</div>
+                                <div>{{ x.1}} <span class="glyphicon glyphicon-arrow-right"></span> {{x.2}}</div>
+                            </td>
+                        {% else %}
+                            <td class="text-center" valign="middle" headers={{each.library__library_code}}>{{ x.0 }}</td>
+                        {% endif %}
                     {% endfor %}
                 </tr>
                 {% endfor %}
