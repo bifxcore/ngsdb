@@ -41,8 +41,9 @@
    <table class="table table-condensed table-hover table-responsive table-bordered" name="library_comparison" style="table-layout: fixed; width:100%">
     <thead>
     <tr>
-        <th class="text-center" style="word-wrap: break-word"><a href={{ filter_urls.library__library_id }}>Library ID</a></th>
         <th class="text-center" style="word-wrap: break-word"><a href={{ filter_urls.library__library_code }}>Library Code</a></th>
+        <th class="text-center" style="word-wrap: break-word"><a href={{ filter_urls.num_snps }}>Sample Organism</a></th>
+        <th class="text-center" style="word-wrap: break-word"><a href={{ filter_urls.num_snps }}>Reference Genome</a></th>
         <th class="text-center" style="word-wrap: break-word"><a href={{ filter_urls.num_snps }}>SNP Total</a></th>
         <th class="text-center" style="word-wrap: break-word"><a href={{ filter_urls.hetero }}>Heterozygosity Count</a></th>
         <th class="text-center" style="word-wrap: break-word"><a href={{ filter_urls.homo }}>Homozygous Count</a></th>
@@ -55,8 +56,9 @@
     <tbody>
     <tr>
     {% for each in result %}
-        <td class="text-center" style="word-wrap: break-word"><a href="/snpdb/library-snp-summary/search?lib={{each.library__librarycode}}&count={{each.num_snps}}">{{ each.library_id }}</a></td>
-        <td class="text-center" style="word-wrap: break-word">{{ each.library__library_code }}</td>
+        <td class="text-center" style="word-wrap: break-word"><a href="/snpdb/library-snp-summary/search?lib={{each.library__librarycode}}&count={{each.num_snps}}">{{ each.library__library_code }}</td>
+        <td class="text-center" style="word-wrap: break-word">{{ each.organism }}</td>
+        <td class="text-center" style="word-wrap: break-word">{{ each.genome }}</td>
         <td class="text-center" style="word-wrap: break-word">{{ each.num_snps }}</td>
         <td class="text-center" style="word-wrap: break-word">{{ each.hetero }}</td>
         <td class="text-center" style="word-wrap: break-word">{{ each.num_snps|sub:each.hetero }}</td>

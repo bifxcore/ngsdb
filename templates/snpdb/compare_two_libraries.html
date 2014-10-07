@@ -82,16 +82,58 @@
 </div>
 
 <div class="container-fluid" style="padding-bottom:30px">
-   <div class="form">
-       {% for group in results|group_by:6 %}
-           <div class="form-group">
-               {% for obj in group %}
-                   <label class="col-sm-2">{{ obj.librarycode }}      </label>
-               {% endfor %}
-           </div>
-       {% endfor %}
-   </div>
+    <form id="form2" action="/snpdb/test" method="post">
+    {% csrf_token %}
+        <div class="row">
+            <div class="col-md-5">
+                <div class="panel panel-primary" style="border-color: #616770;">
+                    <div class="panel-heading" style="background-color: #616770; border-color:#616770; overflow: hidden">
+                        <h3 class="panel-title" style="text-align: center">Group 1</h3>
+                    </div>
+                    <div class="panel-body">
+                        <div class="form-goup">
+                            {% for group in results|group_by:050 %}
+                                <div class="form-vertical">
+                                    {% for lib in group %}
+                                        <div class="col-sm-2">
+                                            <input type="checkbox" name="check1" value="{{ lib.library_code }}"> {{lib.library_code}}
+                                        </div>
+                                    {% endfor %}
+                                 </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-5">
+                <div class="panel panel-primary" style="border-color: #616770;">
+                    <div class="panel-heading" style="background-color: #616770; border-color:#616770; overflow: hidden">
+                            <h3 class="panel-title" style="text-align: center">Group 2</h3>
+                    </div>
+                    <div class="panel-body">
+                        <div class="form-goup">
+                            {% for group in results|group_by:050 %}
+                                <div class="form-vertical">
+                                    {% for lib in group %}
+                                        <div class="col-sm-2">
+                                            <input type="checkbox" name="check2" value="{{ lib.library_code }}"> {{lib.library_code}}
+                                        </div>
+                                    {% endfor %}
+                                 </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="pull-left">
+                <button type="submit" class="btn btn-sample btn-xs pull-right" style="margin-left:0px; width:50px; padding:0px">Search</button>
+            </div>
+        </div>
+    </form>
 </div>
+
 </body>
 {%endblock%}
 

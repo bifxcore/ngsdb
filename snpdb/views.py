@@ -25,7 +25,6 @@ modifier_effects = ["UTR_5_PRIME", "UTR_3_PRIME", "REGULATION", "UPSTREAM", "DOW
                     "INTRON_CONSERVED", "INTRON", "INTRAGENIC", "INTERGENIC", "INTERGENIC_CONSERVED", "NONE", "CHROMOSOME", "CUSTOM", "CDS"]
 
 
-#todo set up a cron job to auto-create the pie charts and counts weekly/monthly and store them for quicker access.
 def dashboard(request):
 	title = "SNP Dashboard"
 
@@ -644,26 +643,22 @@ def gene_feature(request):
 	                                                      "toolbar_min": toolbar_min,})
 
 
-# todo see if there is a faster way to get gene names. Takes too long to load page because of this.
 # The search view for the user to input a gene. Lists all gene ids for the user to choose from.
 def gene_snps(request):
-	genes = Effect.objects.values('effect_string').filter(effect=6).filter(effect_class=("NON_SYNONYMOUS_CODING" or "SYNONYMOUS_CODING")).distinct().order_by('effect_string')
-	paginator = Paginator(genes, 120)
+	# genes = Effect.objects.values('effect_string').filter(effect=6).filter(effect_class=("NON_SYNONYMOUS_CODING" or "SYNONYMOUS_CODING")).distinct().order_by('effect_string')
+	# paginator = Paginator(genes, 120)
 
-	page = request.GET.get('page')
-	try:
-		genes = paginator.page(page)
-	except PageNotAnInteger:
-		genes = paginator.page(1)
-	except EmptyPage:
-		genes = paginator.page(paginator.num_pages)
-	toolbar_max = min(genes.number + 4, paginator.num_pages)
-	toolbar_min = max(genes.number - 4, 0)
+	# page = request.GET.get('page')
+	# try:
+	# 	genes = paginator.page(page)
+	# except PageNotAnInteger:
+	# 	genes = paginator.page(1)
+	# except EmptyPage:
+	# 	genes = paginator.page(paginator.num_pages)
+	# toolbar_max = min(genes.number + 4, paginator.num_pages)
+	# toolbar_min = max(genes.number - 4, 0)
 
-	return render_to_response('snpdb/gene_to_snp.html', {"genes": genes,
-	                                                     "paginator": paginator,
-	                                                     "toolbar_max": toolbar_max,
-	                                                     "toolbar_min": toolbar_min})
+	return render_to_response('snpdb/gene_to_snp.html')
 
 
 # Returns all snps found within the gene location regardless of library.
@@ -1143,26 +1138,9 @@ def gene_list(request):
 	                                                   "toolbar_min": toolbar_min})
 
 
-# todo see if there is a faster way to get gene names. Takes too long to load page because of this.
 # View to search a list of genes for snps.
 def multi_gene_snps(request):
-	genes = Effect.objects.values('effect_string').filter(effect=6).filter(effect_class=("NON_SYNONYMOUS_CODING" or "SYNONYMOUS_CODING")).distinct().order_by('effect_string')
-	paginator = Paginator(genes, 120)
-
-	page = request.GET.get('page')
-	try:
-		genes = paginator.page(page)
-	except PageNotAnInteger:
-		genes = paginator.page(1)
-	except EmptyPage:
-		genes = paginator.page(paginator.num_pages)
-	toolbar_max = min(genes.number + 4, paginator.num_pages)
-	toolbar_min = max(genes.number - 4, 0)
-
-	return render_to_response('snpdb/multi_gene_snps.html', {"genes": genes,
-	                                                         "paginator": paginator,
-	                                                         "toolbar_max": toolbar_max,
-	                                                         "toolbar_min": toolbar_min})
+	return render_to_response('snpdb/multi_gene_snps.html',)
 
 
 # Returns snps found within a list of genes. Does not consider library.
@@ -1207,42 +1185,21 @@ def multi_gene_snps_filter(request):
 
 def multi_gene_library_snps(request):
 	libraries = Library.objects.values('library_code').order_by('library_code')
-	genes = Effect.objects.values('effect_string').filter(effect=6).distinct().order_by('effect_string')
-
-	paginator = Paginator(genes, 50)
-	page = request.GET.get('page')
-	try:
-		genes = paginator.page(page)
-	except PageNotAnInteger:
-		genes = paginator.page(1)
-	except EmptyPage:
-		genes = paginator.page(paginator.num_pages)
-
-	toolbar_max = min(genes.number + 4, paginator.num_pages)
-	toolbar_min = max(genes.number - 4, 0)
-
-	return render_to_response('snpdb/multi_gene_snps_library.html', {"genes": genes,
-	                                                                 "libraries": libraries,
-	                                                                 "paginator": paginator,
-	                                                                 "toolbar_max": toolbar_max,
-	                                                                 "toolbar_min": toolbar_min})
+	return render_to_response('snpdb/multi_gene_snps_library.html', {"libraries": libraries, }, context_instance=RequestContext(request))
 
 
 def multi_gene_library_snps_filter(request):
-	order_by = request.GET.get('order_by', 'effect__effect_string')
-	gene = request.GET.get('s')
-	libraries = request.GET.getlist('check')
+	order_by = request.POST.get('order_by', 'effect__effect_string')
+	gene = request.POST.get('s')
+	libraries = request.POST.getlist('check')
 	genes = gene.split()
-	# libraries = library.split()
 	result_list = SNP.objects.filter(effect__effect_id=6, effect__effect_string__in=genes,
-	                                 library__library_code__in=libraries,
-	                                 effect__effect_class__endswith='SYNONYMOUS_CODING'.decode('utf-8')).values('library', 'library__library_code', 'snp_id',
+	                                 library__library_code__in=libraries).values('library', 'library__library_code', 'snp_id',
 	                                                                                                            'snp_position', 'ref_base', 'alt_base',
 	                                                                                                            'heterozygosity', 'quality',
 	                                                                                                            'chromosome__chromosome_name', 'effect__effect_string',
 	                                                                                                            'effect__effect_class', 'effect__effect', 'result_id').order_by(order_by)
 
-	count = result_list.count()
 	paginator = Paginator(result_list, 50)
 	page = request.GET.get('page')
 	filter_urls = build_orderby_urls(request.get_full_path(), ['library', 'library__library_code', 'snp_id',
@@ -1265,15 +1222,14 @@ def multi_gene_library_snps_filter(request):
 	                                                                        "paginator": paginator,
 	                                                                        "toolbar_max": toolbar_max,
 	                                                                        "toolbar_min": toolbar_min,
-	                                                                        "genes": genes,
-	                                                                        "count": count})
+	                                                                        "genes": genes}, context_instance=RequestContext(request))
 
 
 # Displays the search page to compare two libraries for unique and similar snps.
 def compare_two_libraries(request):
-	lib_list = Library.objects.values('library_code')
+	lib_list = Library.objects.values('library_code').order_by('library_code')
 	page = request.GET.get('page')
-	paginator = Paginator(lib_list, 120)
+	paginator = Paginator(lib_list, 500)
 
 	try:
 		results = paginator.page(page)
@@ -1286,7 +1242,7 @@ def compare_two_libraries(request):
 	return render_to_response('snpdb/compare_two_libraries.html', {"results": results,
 	                                                               "paginator": paginator,
 	                                                               "toolbar_max": toolbar_max,
-	                                                               "toolbar_min": toolbar_min})
+	                                                               "toolbar_min": toolbar_min}, context_instance=RequestContext(request))
 
 
 #todo add googlecharts to show pie chart of impact types
@@ -1483,12 +1439,16 @@ def diff_libraries2(request):
 
 
 def effects_by_vcf(request):
-	library1 = request.GET.get('lib1')
-	library2 = request.GET.get('lib2')
+	# library1 = request.GET.get('lib1')
+	# library2 = request.GET.get('lib2')
+	library_1 = request.POST.getlist('check1')
+	library_2 = request.POST.getlist('check2')
+	print library_1, library_2
 
 	#Captures vcf file location
-	vcf1 = VCF_Files.objects.values_list('vcf_path', flat=True).filter(library__library_code=library1)[0]
-	vcf2 = VCF_Files.objects.values_list('vcf_path', flat=True).filter(library__library_code=library2)[0]
+	vcf1 = VCF_Files.objects.values_list('vcf_path', flat=True).filter(library__library_code__in=library_1)
+	vcf2 = VCF_Files.objects.values_list('vcf_path', flat=True).filter(library__library_code__in=library_2)
+	print vcf1, vcf2
 
 	#Gets path of vcf files.
 	direct = os.path.abspath(os.path.dirname(__file__))
