@@ -984,28 +984,38 @@ def genes_from_effect(results, library, order_by):
 def library_chromosome_snps_filter(request):
 	chromosome = request.GET.get('s')
 	library = request.GET.get('lib')
-	genome = SNP.objects.values_list('result__genome__genome_id', flat=True).filter(library__library_code=library)[0]
-	order_by = request.GET.get('order_by', 'library__library_code')
-	ranges = Feature.objects.values_list('fmin', 'fmax').filter(chromosome=chromosome).filter(featuretype='gene', genome_id=genome)
-	result_list = []
+	order_by = request.GET.get('order_by', 'snp_position')
+	genome = SNP.objects.values_list('result__genome__genome_id', flat=True).filter(library__library_code=library).distinct()[0]
+
+	#Collects the ranges of all genes for the specific chromosome
+	ranges = Feature.objects.values_list('fmin', 'fmax', 'chromosome').filter(chromosome=chromosome).filter(featuretype='gene', genome_id=genome).order_by('fmin')
+	# result_list = []
 	for each in ranges:
+		#Collects snps found within the gene range
+		# results = SNP.objects.values('library__library_code', 'result_id',
+		#                              'chromosome__chromosome_name',
+		#                              'snp_position', 'ref_base', 'alt_base', 'quality',
+		#                              'heterozygosity').filter(snp_position__range=(each[0],
+		#                                                                            each[1]),
+		#                                                       library__library_code=library,
+		#                                                       chromosome__chromosome_name=each[2]).order_by(order_by)
+		# if results is not None:
+		# 	result_list.append(results)
+
+		#Collects all genes found within the chromosome
 		results = SNP.objects.values('library__library_code', 'result_id',
 		                             'chromosome__chromosome_name',
 		                             'snp_position', 'ref_base', 'alt_base', 'quality',
-		                             'heterozygosity').annotate(fmin=each[0], fmax=each[1]).filter(snp_position__range=(each[0],
-		                                                                                                                each[1]),
-		                                                                                           library__library_code=library,
-		                                                                                           chromosome__chromosome_name=Feature.objects.values_list('chromosome', flat=True,
-		                                                                                                                                                   chromosome=chromosome).filter(featuretype='gene')[0]).order_by(order_by)
-		if results is not None:
-			result_list.append(results)
-	count = len(result_list)
+		                             'heterozygosity').filter(library__library_code=library,
+		                                                      chromosome__chromosome_name=each[2]).order_by(order_by)
+
+	count = len(results)
 	page = request.GET.get('page')
 	filter_urls = build_orderby_urls(request.get_full_path(), ['library__library_code', 'result_id',
 	                                                           'chromosome__chromosome_name', 'snp_id',
 	                                                           'snp_position', 'ref_base', 'alt_base',
 	                                                           'quality', 'heterozygosity'])
-	paginator = Paginator(result_list, 50)
+	paginator = Paginator(results, 50)
 	try:
 		results = paginator.page(page)
 	except PageNotAnInteger:
@@ -1104,7 +1114,7 @@ def library_chromosome_snps(request):
 	return render_to_response('snpdb/library_chromosome_snp.html', {"results": results,
 	                                                                "paginator": paginator,
 	                                                                "toolbar_max": toolbar_max,
-	                                                                "toolbar_min": toolbar_min})
+	                                                                "toolbar_min": toolbar_min}, context_instance=RequestContext(request))
 
 
 # todo change to access genes through the Effect table.
@@ -1195,10 +1205,10 @@ def multi_gene_library_snps_filter(request):
 	genes = gene.split()
 	result_list = SNP.objects.filter(effect__effect_id=6, effect__effect_string__in=genes,
 	                                 library__library_code__in=libraries).values('library', 'library__library_code', 'snp_id',
-	                                                                                                            'snp_position', 'ref_base', 'alt_base',
-	                                                                                                            'heterozygosity', 'quality',
-	                                                                                                            'chromosome__chromosome_name', 'effect__effect_string',
-	                                                                                                            'effect__effect_class', 'effect__effect', 'result_id').order_by(order_by)
+	                                                                             'snp_position', 'ref_base', 'alt_base',
+	                                                                             'heterozygosity', 'quality',
+	                                                                             'chromosome__chromosome_name', 'effect__effect_string',
+	                                                                             'effect__effect_class', 'effect__effect', 'result_id').order_by(order_by)
 
 	paginator = Paginator(result_list, 50)
 	page = request.GET.get('page')
@@ -1222,7 +1232,7 @@ def multi_gene_library_snps_filter(request):
 	                                                                        "paginator": paginator,
 	                                                                        "toolbar_max": toolbar_max,
 	                                                                        "toolbar_min": toolbar_min,
-	                                                                        "genes": genes}, context_instance=RequestContext(request))
+	                                                                        "genes": genes})
 
 
 # Displays the search page to compare two libraries for unique and similar snps.
@@ -1443,139 +1453,161 @@ def effects_by_vcf(request):
 	# library2 = request.GET.get('lib2')
 	library_1 = request.POST.getlist('check1')
 	library_2 = request.POST.getlist('check2')
-	print library_1, library_2
 
 	#Captures vcf file location
 	vcf1 = VCF_Files.objects.values_list('vcf_path', flat=True).filter(library__library_code__in=library_1)
 	vcf2 = VCF_Files.objects.values_list('vcf_path', flat=True).filter(library__library_code__in=library_2)
-	print vcf1, vcf2
 
 	#Gets path of vcf files.
 	direct = os.path.abspath(os.path.dirname(__file__))
 	pro_dir = re.findall('(^.*)\/snpdb' , direct)[0]
 	vcf_path = os.path.join(direct, 'vcf_files')
-	vcf1_path = os.path.join(pro_dir, vcf1)
-	vcf2_path = os.path.join(pro_dir, vcf2)
+
+	#Collects all libraries to be compared.
+	group_1_path = []
+	for each in vcf1:
+		vcf1_path = os.path.join(pro_dir, each)
+		group_1_path.append(vcf1_path)
+	group_2_path = []
+	for each in vcf2:
+		vcf2_path = os.path.join(pro_dir, each)
+		group_2_path.append(vcf2_path)
+	libraries = group_1_path + group_2_path
+	count = len(libraries)
+	vcf_paths = ' '.join(libraries)
+	libs = library_1 + library_2
+	vcf_string = '_'.join(libs)
 
 	#Determines the location of where analysis results will be stored.
-	path = os.path.join(vcf_path, 'bcftools_isec_snpEff_%s_%s_%s' % (library1, library2, datetime.datetime.utcnow().strftime("%Y-%m-%d")))
+	path = os.path.join(vcf_path, 'bcftools_isec_snpEff_%s_%s' % (vcf_string, datetime.datetime.utcnow().strftime("%Y-%m-%d")))
 
 	#Checks to see if analysis has already been completed. If the analysis files are not present, bcftools is called.
-	if os.path.isdir(path):
+	if os.path.isfile(path):
 		pass
 	else:
 		#Checks to see if files have been zipped and indexed. Bcftools requires indexed vcf files.
-		if os.path.isfile(vcf1_path) and os.path.isfile(vcf2_path):
-			#zips and indexes vcf-files for bcftools
-			try:
-				subprocess.check_call(['bgzip', vcf1_path])
-				subprocess.check_call(['bgzip', vcf2_path])
-				subprocess.check_call(['tabix', '-p', 'vcf', '%s.gz' % vcf1_path])
-				subprocess.check_call(['tabix', '-p', 'vcf', '%s.gz' % vcf2_path])
-			except IOError:
-				pass
-		elif os.path.isfile('%s.gz' % vcf1_path) and os.path.isfile('%s.gz' % vcf2_path):
-			print "files already zipped"
+		for fname in libraries:
+			if os.path.isfile(fname):
+				#zips and indexes vcf-files for bcftools
+				try:
+					subprocess.check_call(['bgzip', fname])
+					subprocess.check_call(['tabix', '-p', 'vcf', '%s.gz' % fname])
+				except IOError:
+					pass
+			elif os.path.isfile('%s.gz' % fname):
+				print "files already zipped"
+
+		#Creates a string of all zipped file
+		zip_vcf = ''
+		for each in libraries:
+			zips = str(each) + '.gz'
+			zip_vcf = zip_vcf + ' ' + zips
+
 		#Runs the bcftools isec command to compare results. Files are outputed to three separate files.
-		subprocess.check_call(["""bcftools isec %s.gz %s.gz -p %s""" % (vcf1_path, vcf2_path, path)],
+		subprocess.check_call(["""bcftools isec -n -1 %s -p %s""" % (zip_vcf, path)],
 		                      shell=True)
 
 		#unzips files to return to the original state.
-		subprocess.check_call(['gunzip', '%s.gz' % vcf1_path])
-		subprocess.check_call(['gunzip', '%s.gz' % vcf2_path])
+		for fname in libraries:
+			subprocess.check_call(['gunzip', '%s.gz' % fname])
 
 	#Opens the returned bcftools vcf files and counts the data.
-	vcf_reader = vcf.Reader(open ('%s/0000.vcf' % path, 'r'))
-	high_effects = defaultdict(int)
-	moderate_effects = defaultdict(int)
-	modifier_effects = defaultdict(int)
-	low_effects = defaultdict(int)
-	total_counts = [0, 0, 0, 0, 0]
-	for record in vcf_reader:
-		effects = record.INFO['EFF']
-		#Keeps track of what effect type each snp has. [high, moderate, low, modifier]
-		impact_counts = [0, 0, 0, 0]
-		#Places each type of impact into dictionary of the effect. SNPs with multiple impacts will have all impacts accounted for in the impact total.
-		# i.e, SNPs with Downstream and Upstream effects will results in an addition to both impact counts.
-		for x in effects:
-			impact = x.split('(')[0]
-			effect_list = x.split('(')[1]
-			effect = effect_list.split('|')
-			if effect[0] == "HIGH":
-				impact_counts[0] += 1
-				high_effects[impact] += 1
-			elif effect[0] == "MODERATE":
-				impact_counts[1] += 1
-				moderate_effects[impact] += 1
-			elif effect[0] == "MODIFIER":
-				impact_counts[3] += 1
-				modifier_effects[impact] += 1
-			elif effect[0] == "LOW":
-				impact_counts[2] += 1
-				low_effects[impact] += 1
+	lib_effect = []
+	for i in range(0, count):
+		vcf_reader = vcf.Reader(open ('%s/000%s.vcf' % (path, i), 'r'))
+		high_effects = defaultdict(int)
+		moderate_effects = defaultdict(int)
+		modifier_effects = defaultdict(int)
+		low_effects = defaultdict(int)
+		total_counts = [0, 0, 0, 0, 0]
+		for record in vcf_reader:
+			effects = record.INFO['EFF']
+			#Keeps track of what effect type each snp has. [high, moderate, low, modifier]
+			impact_counts = [0, 0, 0, 0]
+			#Places each type of impact into dictionary of the effect. SNPs with multiple impacts will have all impacts accounted for in the impact total.
+			# i.e, SNPs with Downstream and Upstream effects will results in an addition to both impact counts.
+			for x in effects:
+				impact = x.split('(')[0]
+				effect_list = x.split('(')[1]
+				effect = effect_list.split('|')
+				if effect[0] == "HIGH":
+					impact_counts[0] += 1
+					high_effects[impact] += 1
+				elif effect[0] == "MODERATE":
+					impact_counts[1] += 1
+					moderate_effects[impact] += 1
+				elif effect[0] == "MODIFIER":
+					impact_counts[3] += 1
+					modifier_effects[impact] += 1
+				elif effect[0] == "LOW":
+					impact_counts[2] += 1
+					low_effects[impact] += 1
 
-		#Counts the number of snps effected by each impact type. Snp is only counted once for each impact, i.e. if SNP has two modifying impacts, it is only counted once.
-		total_counts[4] += 1
-		if impact_counts[0] > 0:
-			total_counts[0] += 1
-		if impact_counts[1] > 0:
-			total_counts[1] += 1
-		if impact_counts[2] > 0:
-			total_counts[2] += 1
-		if impact_counts[3] > 0:
-			total_counts[3] += 1
-
-	vcf_reader2 = vcf.Reader(open ('%s/0001.vcf' % path, 'r'))
-	high_effects2 = defaultdict(int)
-	moderate_effects2 = defaultdict(int)
-	modifier_effects2 = defaultdict(int)
-	low_effects2 = defaultdict(int)
-	total_counts2 = [0, 0, 0, 0, 0]
-	for record in vcf_reader2:
-		effects = record.INFO['EFF']
-		#Keeps track of what effect type each snp has. [high, moderate, low, modifier]
-		impact_counts2 = [0, 0, 0, 0]
-		#Places each type of impact into dictionary of the effect. SNPs with multiple impacts will have all impacts accounted for in the impact total.
-		# i.e, SNPs with Downstream and Upstream effects will results in an addition to both impact counts.
-		for x in effects:
-			impact = x.split('(')[0]
-			effect_list = x.split('(')[1]
-			effect = effect_list.split('|')
-			if effect[0] == "HIGH":
-				impact_counts2[0] += 1
-				high_effects2[impact] += 1
-			elif effect[0] == "MODERATE":
-				impact_counts2[1] += 1
-				moderate_effects2[impact] += 1
-			elif effect[0] == "MODIFIER":
-				impact_counts2[3] += 1
-				modifier_effects2[impact] += 1
-			elif effect[0] == "LOW":
-				impact_counts2[2] += 1
-				low_effects2[impact] += 1
-
-		# Counts the number of snps effected by each impact type. Snp is only counted once for each impact, i.e. if SNP has two modifying impacts, it is only counted once.
-		total_counts2[4] += 1
-		if impact_counts2[0] > 0:
-			total_counts2[0] += 1
-		if impact_counts2[1] > 0:
-			total_counts2[1] += 1
-		if impact_counts2[2] > 0:
-			total_counts2[2] += 1
-		if impact_counts2[3] > 0:
-			total_counts2[3] += 1
-	return render_to_response('snpdb/test.html', {"high_effects": dict(high_effects),
+			#Counts the number of snps effected by each impact type. Snp is only counted once for each impact, i.e. if SNP has two modifying impacts, it is only counted once.
+			total_counts[4] += 1
+			if impact_counts[0] > 0:
+				total_counts[0] += 1
+			if impact_counts[1] > 0:
+				total_counts[1] += 1
+			if impact_counts[2] > 0:
+				total_counts[2] += 1
+			if impact_counts[3] > 0:
+				total_counts[3] += 1
+		lib_tuple = (dict(high_effects), dict(moderate_effects), dict(modifier_effects), dict(low_effects), total_counts)
+		lib_effect.append(lib_tuple)
+		print lib_effect[0]
+	# vcf_reader2 = vcf.Reader(open ('%s/0001.vcf' % path, 'r'))
+	# high_effects2 = defaultdict(int)
+	# moderate_effects2 = defaultdict(int)
+	# modifier_effects2 = defaultdict(int)
+	# low_effects2 = defaultdict(int)
+	# total_counts2 = [0, 0, 0, 0, 0]
+	# for record in vcf_reader2:
+	# 	effects = record.INFO['EFF']
+	# 	#Keeps track of what effect type each snp has. [high, moderate, low, modifier]
+	# 	impact_counts2 = [0, 0, 0, 0]
+	# 	#Places each type of impact into dictionary of the effect. SNPs with multiple impacts will have all impacts accounted for in the impact total.
+	# 	# i.e, SNPs with Downstream and Upstream effects will results in an addition to both impact counts.
+	# 	for x in effects:
+	# 		impact = x.split('(')[0]
+	# 		effect_list = x.split('(')[1]
+	# 		effect = effect_list.split('|')
+	# 		if effect[0] == "HIGH":
+	# 			impact_counts2[0] += 1
+	# 			high_effects2[impact] += 1
+	# 		elif effect[0] == "MODERATE":
+	# 			impact_counts2[1] += 1
+	# 			moderate_effects2[impact] += 1
+	# 		elif effect[0] == "MODIFIER":
+	# 			impact_counts2[3] += 1
+	# 			modifier_effects2[impact] += 1
+	# 		elif effect[0] == "LOW":
+	# 			impact_counts2[2] += 1
+	# 			low_effects2[impact] += 1
+	#
+	# 	# Counts the number of snps effected by each impact type. Snp is only counted once for each impact, i.e. if SNP has two modifying impacts, it is only counted once.
+	# 	total_counts2[4] += 1
+	# 	if impact_counts2[0] > 0:
+	# 		total_counts2[0] += 1
+	# 	if impact_counts2[1] > 0:
+	# 		total_counts2[1] += 1
+	# 	if impact_counts2[2] > 0:
+	# 		total_counts2[2] += 1
+	# 	if impact_counts2[3] > 0:
+	# 		total_counts2[3] += 1
+	return render_to_response('snpdb/test2.html', {"high_effects": dict(high_effects),
 	                                              "moderate_effects": dict(moderate_effects),
 	                                              "modifier_effects": dict(modifier_effects),
 	                                              "low_effects": dict(low_effects),
-	                                              "high_effects2": dict(high_effects2),
-	                                              "moderate_effects2": dict(moderate_effects2),
-	                                              "modifier_effects2": dict(modifier_effects2),
-	                                              "low_effects2": dict(low_effects2),
-	                                              "total_counts": total_counts,
-	                                              "total_counts2": total_counts2,
-	                                              "library1": library1,
-	                                              "library2": library2,
+	                                              # "high_effects2": dict(high_effects2),
+	                                              # "moderate_effects2": dict(moderate_effects2),
+	                                              # "modifier_effects2": dict(modifier_effects2),
+	                                              # "low_effects2": dict(low_effects2),
+	                                              # "total_counts": total_counts,
+	                                              # "total_counts2": total_counts2,
+	                                              "lib_effect": lib_effect,
+	                                              "library1": library_1,
+	                                              "library2": library_2,
 	                                              "path": path}, context_instance=RequestContext(request))
 
 
