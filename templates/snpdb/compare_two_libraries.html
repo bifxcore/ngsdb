@@ -82,8 +82,7 @@
 </div>
 
 <div class="container-fluid" style="padding-bottom:30px">
-    <form id="form2" action="/snpdb/test" method="post">
-    {% csrf_token %}
+    <form id="form2" action="/snpdb/test" method="get">
         <div class="row">
             <div class="col-md-5">
                 <div class="panel panel-primary" style="border-color: #616770;">
@@ -96,7 +95,7 @@
                                 <div class="form-vertical">
                                     {% for lib in group %}
                                         <div class="col-sm-2">
-                                            <input type="checkbox" name="check1" value="{{ lib.library_code }}"> {{lib.library_code}}
+                                            <input type="radio" name="check1" value="{{ lib.library_code }}"> {{lib.library_code}}
                                         </div>
                                     {% endfor %}
                                  </div>

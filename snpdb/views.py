@@ -1448,15 +1448,14 @@ def diff_libraries2(request):
 	                                                        "library2": library2})
 
 
+# Compares multiple libraries by running bcftools isec. Returns the results and counts the number of snps by impact types.
 def effects_by_vcf(request):
-	# library1 = request.GET.get('lib1')
-	# library2 = request.GET.get('lib2')
-	library_1 = request.POST.getlist('check1')
-	library_2 = request.POST.getlist('check2')
+	library_1 = request.GET.getlist('check1')
+	library_2 = request.GET.getlist('check2')
 
 	#Captures vcf file location
 	vcf1 = VCF_Files.objects.values_list('vcf_path', flat=True).filter(library__library_code__in=library_1)
-	vcf2 = VCF_Files.objects.values_list('vcf_path', flat=True).filter(library__library_code__in=library_2)
+	vcf2 = VCF_Files.objects.values_list('vcf_path', flat=True).filter(library__library_code__in=library_2).distinct()
 
 	#Gets path of vcf files.
 	direct = os.path.abspath(os.path.dirname(__file__))
@@ -1474,7 +1473,6 @@ def effects_by_vcf(request):
 		group_2_path.append(vcf2_path)
 	libraries = group_1_path + group_2_path
 	count = len(libraries)
-	vcf_paths = ' '.join(libraries)
 	libs = library_1 + library_2
 	vcf_string = '_'.join(libs)
 
@@ -1509,17 +1507,22 @@ def effects_by_vcf(request):
 
 		#unzips files to return to the original state.
 		for fname in libraries:
-			subprocess.check_call(['gunzip', '%s.gz' % fname])
+			try:
+				subprocess.check_call(['gunzip', '%s.gz' % fname])
+			except subprocess.CalledProcessError:
+				print "File was not unzipped."
 
 	#Opens the returned bcftools vcf files and counts the data.
 	lib_effect = []
+	total_2 = 0
 	for i in range(0, count):
 		vcf_reader = vcf.Reader(open ('%s/000%s.vcf' % (path, i), 'r'))
+		lib = libs[i]
 		high_effects = defaultdict(int)
 		moderate_effects = defaultdict(int)
 		modifier_effects = defaultdict(int)
 		low_effects = defaultdict(int)
-		total_counts = [0, 0, 0, 0, 0]
+		total_counts = [0, 0, 0, 0, 0, '']
 		for record in vcf_reader:
 			effects = record.INFO['EFF']
 			#Keeps track of what effect type each snp has. [high, moderate, low, modifier]
@@ -1544,6 +1547,7 @@ def effects_by_vcf(request):
 					low_effects[impact] += 1
 
 			#Counts the number of snps effected by each impact type. Snp is only counted once for each impact, i.e. if SNP has two modifying impacts, it is only counted once.
+			total_counts[5] = lib
 			total_counts[4] += 1
 			if impact_counts[0] > 0:
 				total_counts[0] += 1
@@ -1555,56 +1559,14 @@ def effects_by_vcf(request):
 				total_counts[3] += 1
 		lib_tuple = (dict(high_effects), dict(moderate_effects), dict(modifier_effects), dict(low_effects), total_counts)
 		lib_effect.append(lib_tuple)
-		print lib_effect[0]
-	# vcf_reader2 = vcf.Reader(open ('%s/0001.vcf' % path, 'r'))
-	# high_effects2 = defaultdict(int)
-	# moderate_effects2 = defaultdict(int)
-	# modifier_effects2 = defaultdict(int)
-	# low_effects2 = defaultdict(int)
-	# total_counts2 = [0, 0, 0, 0, 0]
-	# for record in vcf_reader2:
-	# 	effects = record.INFO['EFF']
-	# 	#Keeps track of what effect type each snp has. [high, moderate, low, modifier]
-	# 	impact_counts2 = [0, 0, 0, 0]
-	# 	#Places each type of impact into dictionary of the effect. SNPs with multiple impacts will have all impacts accounted for in the impact total.
-	# 	# i.e, SNPs with Downstream and Upstream effects will results in an addition to both impact counts.
-	# 	for x in effects:
-	# 		impact = x.split('(')[0]
-	# 		effect_list = x.split('(')[1]
-	# 		effect = effect_list.split('|')
-	# 		if effect[0] == "HIGH":
-	# 			impact_counts2[0] += 1
-	# 			high_effects2[impact] += 1
-	# 		elif effect[0] == "MODERATE":
-	# 			impact_counts2[1] += 1
-	# 			moderate_effects2[impact] += 1
-	# 		elif effect[0] == "MODIFIER":
-	# 			impact_counts2[3] += 1
-	# 			modifier_effects2[impact] += 1
-	# 		elif effect[0] == "LOW":
-	# 			impact_counts2[2] += 1
-	# 			low_effects2[impact] += 1
-	#
-	# 	# Counts the number of snps effected by each impact type. Snp is only counted once for each impact, i.e. if SNP has two modifying impacts, it is only counted once.
-	# 	total_counts2[4] += 1
-	# 	if impact_counts2[0] > 0:
-	# 		total_counts2[0] += 1
-	# 	if impact_counts2[1] > 0:
-	# 		total_counts2[1] += 1
-	# 	if impact_counts2[2] > 0:
-	# 		total_counts2[2] += 1
-	# 	if impact_counts2[3] > 0:
-	# 		total_counts2[3] += 1
+		total_2 += total_counts[4]
+
 	return render_to_response('snpdb/test2.html', {"high_effects": dict(high_effects),
 	                                              "moderate_effects": dict(moderate_effects),
 	                                              "modifier_effects": dict(modifier_effects),
 	                                              "low_effects": dict(low_effects),
-	                                              # "high_effects2": dict(high_effects2),
-	                                              # "moderate_effects2": dict(moderate_effects2),
-	                                              # "modifier_effects2": dict(modifier_effects2),
-	                                              # "low_effects2": dict(low_effects2),
-	                                              # "total_counts": total_counts,
-	                                              # "total_counts2": total_counts2,
+	                                              "total_counts": total_counts,
+	                                              "total_2": total_2,
 	                                              "lib_effect": lib_effect,
 	                                              "library1": library_1,
 	                                              "library2": library_2,

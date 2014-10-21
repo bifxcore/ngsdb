@@ -22,36 +22,17 @@ SNP Summary
 <div class="container-fluid">
     <div class="page-header text-header" style="padding-left:30px; margin-top:10px; padding-bottom:0px">
         <h1 class="header" style="padding-bottom:0px;">Difference Between Libraries</h1>
-        <h2 class="header" style="padding-top:5px">There are {{ total_counts.4 }} SNPs found in {{library1}} not found in {{library2}}.</h2>
-        <h2 class="header" style="padding-top:5px">There are {{ total_counts2.4 }} SNPs found in {{library2}} not found in {{library1}}.</h2>
-    </div>
-</div>
+        <h2 class="header" style="padding-top:5px">There are {{lib_effect.0.4.4}} SNPs found in {{library1.0}} not found in {% for object in library2 %} {{object}} {% endfor %}.</h2>
+        <h2 class="header" style="padding-top:5px">There are {{total_2}} SNPs found in {% for object in library2 %} {{object}} {% endfor %} not found in {{library1.0}}.</h2>
 
-
-<body>
-<div class="container-fluid" style="padding-bottom:30px">
-    <div class="collapse navbar-collapse navbar-ex1-collapse">
-        <ul class="nav navbar-nav">
-            <form class="form-inline" role="form" id='search' action='/snpdb/compare-two-libs/search' method="get">
-                <div class="form-group">
-                    <label class="sr-only" for="library">Library 1</label>
-                    <input type="text" class="form-control" name="lib1" placeholder="library 1">
-                </div>
-                <div class="form-group">
-                    <label class="sr-only" for="library">Library 2</label>
-                    <input type="text" class="form-control" name="lib2" placeholder="library 2">
-                </div>
-                <button class="btn btn-sample" type="submit"  style="margin:0px; width:75px; vertical-align:middle; padding: 0px">Search</button>
-            </form>
-        </ul>
     </div>
 </div>
 
 <div class="container-fluid" style="padding-bottom:30px">
     <div class="row">
         {% for x in lib_effect %}
-            <div class="col-md-4">
-                <h1 class="header" style="text-align: center">SNPs found only in {{ library1 }}</h1>
+            <div class="col-md-3">
+                <h1 class="header" style="text-align: center">SNPs not found in {{ x.4.5 }}</h1>
                 <div class="panel panel-primary" style="border-color: #616770;">
                     <div class="panel-heading" style="background-color: #616770; border-color:#616770; overflow: hidden">
                         <form id="form1" action="/snpdb/impact-snps/search" method="post">
@@ -67,7 +48,7 @@ SNP Summary
                     </div>
                     <div class="panel-body">
                         <ul class="list-group">
-                        <li class="list-group-item">Total: {{ total_counts.0 }}
+                        <li class="list-group-item">Total: {{ x.4.0 }}
                             {% for key, values in x.0.items %}
                                 {% if values|zero %}
                                     <li class="list-group-item">{{ key|title }}: {{ values }}</li>
@@ -81,7 +62,7 @@ SNP Summary
     </div>
     <div class="row">
         {% for x in lib_effect %}
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <div class="panel panel-primary" style="border-color: #616770;">
                     <div class="panel-heading" style="background-color: #616770; border-color:#616770; overflow: hidden">
                         <form id="form3" action="/snpdb/impact-snps/search" method="post">
@@ -97,7 +78,7 @@ SNP Summary
                     </div>
                     <div class="panel-body">
                         <ul class="list-group">
-                            <li class="list-group-item">Total SNPs: {{ total_counts.1 }}</li>
+                            <li class="list-group-item">Total SNPs: {{ x.4.1 }}</li>
                             {% for key, values in x.1.items %}
                                 {% if values|zero %}
                                     <li class="list-group-item">{{ key|title }}: {{ values }}</li>
@@ -112,7 +93,7 @@ SNP Summary
     </div>
     <div class="row">
         {% for x in lib_effect %}
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <div class="panel panel-primary" style="border-color: #616770;">
                     <div class="panel-heading" style="background-color: #616770; border-color:#616770; overflow: hidden">
                         <form id="form2" action="/snpdb/impact-snps/search" method="post">
@@ -127,7 +108,7 @@ SNP Summary
                     </div>
                     <div class="panel-body">
                         <ul class="list-group">
-                            <li class="list-group-item">Total SNPs: {{ total_counts.2 }}</li>
+                            <li class="list-group-item">Total SNPs: {{ x.4.2 }}</li>
                             {% for key, values in x.2.items %}
                                 {% if values|zero %}
                                     <li class="list-group-item">{{ key|title }}: {{ values }}</li>
@@ -141,7 +122,7 @@ SNP Summary
     </div>
     <div class="row">
         {% for x in lib_effect %}
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <div class="panel panel-primary" style="border-color: #616770;">
                     <div class="panel-heading" style="background-color: #616770; border-color:#616770; overflow: hidden">
                         <form id="form4" action="/snpdb/impact-snps/search" method="post">
@@ -155,7 +136,7 @@ SNP Summary
                         </form>                </div>
                     <div class="panel-body">
                         <ul class="list-group">
-                            <li class="list-group-item">Total SNPs: {{ total_counts.3 }}</li>
+                            <li class="list-group-item">Total SNPs: {{ x.4.3 }}</li>
                             {% for key, values in x.3.items %}
                                 {% if values|zero %}
                                     <li class="list-group-item">{{ key|title }}: {{ values }}</li>
