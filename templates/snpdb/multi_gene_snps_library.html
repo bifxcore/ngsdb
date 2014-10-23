@@ -27,8 +27,7 @@
 <div class="container-fluid" style="padding-bottom:30px">
     <div class="collapse navbar-collapse navbar-ex1-collapse">
         <ul class="nav navbar-nav">
-            <form class="form-horizontal" role="form" id='search' action='/snpdb/multi-gene-library-snps/search' method="POST">
-                {% csrf_token %}
+            <form class="form-horizontal" role="form" id='search' action='/snpdb/multi-gene-library-snps/search' method="get">
                 <div class="form-group">
                     <textarea class="form-control" rows="3" name="s" placeholder="gene ids"></textarea>
                     <p class="help-block">Please separate Ids by commas, semicolons, spaces, or newline.</p>

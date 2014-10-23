@@ -14,14 +14,14 @@ class Chromosome(models.Model):
 class Effect(models.Model):
 	snp = models.ForeignKey('SNP')
 	effect = models.ForeignKey('Effect_CV')
-	effect_class = models.TextField()
-	effect_string = models.TextField()
+	effect_class = models.TextField(db_index=True)
+	effect_string = models.TextField(db_index=True)
 	effect_group = models.IntegerField()
 
 
 class Effect_CV(models.Model):
 	effect_id = models.AutoField(primary_key=True)
-	effect_name = models.CharField(max_length=45)
+	effect_name = models.CharField(max_length=45, db_index=True)
 
 
 class Filter(models.Model):
@@ -33,12 +33,12 @@ class Filter(models.Model):
 
 class Filter_CV(models.Model):
 	filter_cv_id = models.AutoField(primary_key=True)
-	filter_type = models.TextField()
+	filter_type = models.TextField(db_index=True)
 
 
 class SNP(models.Model):
 	snp_id = models.AutoField(primary_key=True)
-	snp_position = models.IntegerField()
+	snp_position = models.IntegerField(db_index=True)
 	result = models.ForeignKey('ngsdbview.Result')
 	vcf = models.ForeignKey('VCF_Files')
 	ref_base = models.TextField()
@@ -53,8 +53,8 @@ class SNP(models.Model):
 
 class SNP_CV(models.Model):
 	cv_id = models.AutoField(primary_key=True)
-	cvterm = models.TextField()
-	cv_value = models.TextField()
+	cvterm = models.TextField(db_index=True)
+	cv_value = models.TextField(db_index=True)
 
 
 class SNP_Type(models.Model):
@@ -70,7 +70,7 @@ class SNP_Type(models.Model):
 
 class Statistics_cv(models.Model):
 	stats_cvterm_id = models.AutoField(primary_key=True)
-	cvterm = models.CharField(max_length=50, unique=True)
+	cvterm = models.CharField(max_length=50, unique=True, db_index=True)
 	cv_notes = models.TextField()
 
 
@@ -111,5 +111,5 @@ class CNV(models.Model):
 
 class CNV_CV(models.Model):
 	cv_id = models.AutoField(primary_key=True)
-	cvterm = models.TextField()
-	cv_value = models.TextField()
+	cvterm = models.TextField(db_index=True)
+	cv_value = models.TextField(db_index=True)

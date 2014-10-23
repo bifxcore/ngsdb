@@ -42,10 +42,12 @@ def dump(qs, outfile_path):
 	for obj in qs:
 		val = obj[0]
 		key = obj[1]
+		print val, key
 		values.append(int(val))
 		if key not in keys:
 			keys.append(key)
 	value = dict(zip(keys, values))
+	print value.items()
 	# value = [tuple(values[i:i+2]) for i in range(0, len(values), 2)]
 	writer.writerow(value.items())
 	# for k, v in value.iteritems():
