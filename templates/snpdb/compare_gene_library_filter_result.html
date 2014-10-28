@@ -31,17 +31,18 @@
 
 <body>
 <div class="container-fluid" style="padding-bottom:30px">
-    <div class="collapse navbar-collapse">
-        <ul class="nav navbar-nav">
-            <form class="form-inline" role="form" id='search' action='/snpdb/compare-gene-lib/search' method="get">
-                <div class="form-group">
-                    <label class="sr-only" for="gene">Gene</label>
-                    <input type="text" class="form-control" name="s" placeholder="gene">
-                </div>
-                <button class="btn btn-sample" type="submit"  style="margin-left:0px; width:75px; vertical-align:middle; padding: 0px">Search</button>
-            </form>
-        </ul>
-    </div>
+<div class="collapse navbar-collapse navbar-ex1-collapse">
+    <ul class="nav navbar-nav">
+        <form class="form-inline" role="form" id='search' action='/snpdb/compare-gene-lib/search' method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label class="sr-only" for="gene">Gene</label>
+                <input type="text" class="form-control" name="s" placeholder="gene">
+            </div>
+            <button class="btn btn-sample" type="submit"  style="margin-left:0px; width:75px; vertical-align:middle; padding: 0px">Search</button>
+        </form>
+    </ul>
+</div>
 </div>
 
 <div class="container-fluid" style="padding-bottom:30px">
@@ -53,6 +54,7 @@
                 <th class="text-center" id="fmin"><a href={{ filter_urls.fmin.fmin }}>Gene Start</a></th>
                 <th class="text-center" id="fmax"><a href={{ filter_urls.fmax.fmax }}>Gene Stop</a></th>
                 <th class="text-center" id="position"><a href={{ filter_urls.snp_position }}>SNP Position</a></th>
+                <th class="text-center" id="chromosome"><a href={{ filter_urls.chromosome }}>Chromosome</a></th>
                 {% for each in library_group %}
                 <th class="text-center" id={{each}}>
                     <div><a href={{ filter_urls.library__library_code }}>{{each}}</a></div>
@@ -63,29 +65,24 @@
             </thead>
             <tbody>
             <tr>
-                {% for position in snp_group %}
-                    <td class="text-center" headers="gene">{{ gene }}</td>
-                    <td class="text-center" headers="fmin">{{ fmin.fmin }}</td>
-                    <td class="text-center" headers="fmax">{{ fmax.fmax }}</td>
-                    <td class="text-center" headers="position">{{ position }}</td>
-                {% for each in results %}
-                    {% make_list each.snp_position position as some_list %}
-                    {% if each.snp_position|integer_comparison:some_list %}
-                        {% if each.snp_position >= cds_fmin and each.snp_position <= cds_fmax %}
-                            <td class="text-center success" headers={{each.library__library_code}}>
-                                <div>{{ each.library__library_code }}</div>
-                                <div>{{ each.ref_base}} <span class="glyphicon glyphicon-arrow-right"></span> {{each.alt_base}}</div>
+                {% for key, value in test.items %}
+                <td class="text-center" headers="gene">{{ gene }}</td>
+                <td class="text-center" headers="fmin">{{ fmin.fmin }}</td>
+                <td class="text-center" headers="fmax">{{ fmax.fmax }}</td>
+                <td class="text-center" headers="position">{{ chromosome }}</td>
+                    <td class="text-center" headers="position">{{ key }}</td>
+                    {% for x in value %}
+                        {% if x.0 %}
+                            <td class="text-center" headers={{each.library__library_code}}>
+                                <div>{{ x.0 }}</div>
+                                <div>{{ x.1}} <span class="glyphicon glyphicon-arrow-right"></span> {{x.2}}</div>
                             </td>
                         {% else %}
-                        <td class="text-center" headers={{each.library__library_code}}>
-                            <div>{{ each.library__library_code }}</div>
-                            <div>{{ each.ref_base}} <span class="glyphicon glyphicon-arrow-right"></span> {{each.alt_base}}</div>
-                        </td>
+                            <td class="text-center" valign="middle" headers={{each.library__library_code}}>{{ x.0 }}</td>
                         {% endif %}
-                    {% endif %}
+                    {% endfor %}
+                </tr>
                 {% endfor %}
-            </tr>
-            {% endfor %}
             </tbody>
         </table>
     </form>

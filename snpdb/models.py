@@ -10,6 +10,7 @@ class Chromosome(models.Model):
 	genome_version = models.CharField(max_length=50)
 
 
+#todo add index to effect_string
 class Effect(models.Model):
 	snp = models.ForeignKey('SNP')
 	effect = models.ForeignKey('Effect_CV')
@@ -48,6 +49,12 @@ class SNP(models.Model):
 	chromosome = models.ForeignKey('Chromosome')
 #    def __unicode__(self):
 #        return str(self.snp_id)
+
+
+class SNP_CV(models.Model):
+	cv_id = models.AutoField(primary_key=True)
+	cvterm = models.TextField()
+	cv_value = models.TextField()
 
 
 class SNP_Type(models.Model):
@@ -94,7 +101,15 @@ class VCF_Files(models.Model):
 class CNV(models.Model):
 	cnv_id = models.AutoField(primary_key=True)
 	chromosome = models.ForeignKey('Chromosome')
-	coordinate = models.IntegerField()
+	start = models.IntegerField()
+	stop = models.IntegerField()
 	CNV_value = models.IntegerField()
 	library = models.ForeignKey('samples.Library')
 	result = models.ForeignKey('ngsdbview.Result')
+	window_size = models.ForeignKey('CNV_CV')
+
+
+class CNV_CV(models.Model):
+	cv_id = models.AutoField(primary_key=True)
+	cvterm = models.TextField()
+	cv_value = models.TextField()

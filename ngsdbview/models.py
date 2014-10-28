@@ -185,6 +185,14 @@ def get_libraryfile_upload_destination(instance, filename):
     #todo This is modified to pull the library code from samples.library rather than ngsdbview.library
     # however, working of this needs to be verified
 
+class Library_CV(models.Model):
+	library_cv_id = models.AutoField(primary_key=True)
+	cvterm = models.TextField(db_index=True)
+	definition = models.TextField()
+	dbxref = models.ForeignKey(Dbxref)
+	is_obsolete = models.BooleanField(default="False")
+	is_relationshiptype = models.BooleanField()
+
 class Libraryfile(models.Model):
     libraryfile_id = models.AutoField(primary_key=True)
     library = models.ForeignKey('samples.Library')
@@ -217,6 +225,14 @@ class Result(models.Model):
 
 def get_resultfile_upload_destination(instance, filename):
     return "resultfiles/resultid_{id}/{file}".format(id=instance.result_id, file=filename)
+
+class Result_CV(models.Model):
+	result_cv_id = models.AutoField(primary_key=True)
+	cvterm = models.TextField(db_index=True)
+	definition = models.TextField()
+	dbxref = models.ForeignKey(Dbxref)
+	is_obsolete = models.BooleanField(default="False")
+	is_relationshiptype = models.BooleanField()
 
 class Resultfile(models.Model):
     resultfile_id = models.AutoField(primary_key=True)
@@ -319,6 +335,15 @@ class Analysis(models.Model):
 def get_analysisfile_upload_destination(instance, filename):
     return "analysesfiles/resultid_{id}/{file}".format(id=instance.analysis.result_id, file=filename)
 
+
+class AnalysisCV(models.Model):
+	analysis_cv_id = models.AutoField(primary_key=True)
+	cvterm = models.TextField(db_index=True)
+	definition = models.TextField()
+	dbxref = models.ForeignKey(Dbxref)
+	is_obsolete = models.BooleanField(default="False")
+	is_relationshiptype = models.BooleanField()
+
 class Analysisfile(models.Model):
     analysisfile_id = models.AutoField(primary_key=True)
     analysis = models.ForeignKey(Analysis)
@@ -326,7 +351,6 @@ class Analysisfile(models.Model):
     file = models.FileField(upload_to=get_analysisfile_upload_destination)
     def __unicode__(self):
         return str(self.analysis)
-
 
 
 class Analysisprop(models.Model):
