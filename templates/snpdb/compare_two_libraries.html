@@ -84,41 +84,62 @@
 <div class="container-fluid" style="padding-bottom:30px">
     <form id="form2" action="/snpdb/test" method="get">
         <div class="row">
-            <div class="col-md-5">
+            <div class="col-md-6">
                 <div class="panel panel-primary" style="border-color: #616770;">
                     <div class="panel-heading" style="background-color: #616770; border-color:#616770; overflow: hidden">
                         <h3 class="panel-title" style="text-align: center">Group 1</h3>
                     </div>
                     <div class="panel-body">
-                        <div class="form-goup">
-                            {% for group in results|group_by:050 %}
-                                <div class="form-vertical">
-                                    {% for lib in group %}
-                                        <div class="col-sm-2">
-                                            <input type="radio" name="check1" value="{{ lib.library_code }}"> {{lib.library_code}}
-                                        </div>
-                                    {% endfor %}
-                                 </div>
+                        <div class="form-group">
+                            {% for each in results %}
+                                <div class="row"  style="padding-top: 20px">
+                                    {% if each.0 == 'None'%}
+                                        <h3 class="text-center">{{each.0}} - No analysis has been completed on these Libraries</h3>
+                                    {% else %}
+                                        <h3 class="text-center">{{each.0}}</h3>
+                                    {% endif %}
+                                </div>
+                                <div class="row">
+                                {% for group in each.1|group_by:020 %}
+                                    <div class="form-vertical">
+                                        {% for lib in group %}
+                                            <div class="col-sm-2">
+                                                <input type="radio" name="check1" value="{{ lib }}"> {{lib}}
+                                            </div>
+                                        {% endfor %}
+                                     </div>
+                                {% endfor %}
+                                </div>
                             {% endfor %}
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-5">
+            <div class="col-md-6">
                 <div class="panel panel-primary" style="border-color: #616770;">
                     <div class="panel-heading" style="background-color: #616770; border-color:#616770; overflow: hidden">
-                            <h3 class="panel-title" style="text-align: center">Group 2</h3>
+                            <h3 class="panel-title" style="text-align: center">Group 2 - <small><font color="white">Choose only libraries with the same reference genome as the one selected from Group 1</font></small></h3>
                     </div>
                     <div class="panel-body">
-                        <div class="form-goup">
-                            {% for group in results|group_by:050 %}
-                                <div class="form-vertical">
-                                    {% for lib in group %}
-                                        <div class="col-sm-2">
-                                            <input type="checkbox" name="check2" value="{{ lib.library_code }}"> {{lib.library_code}}
-                                        </div>
-                                    {% endfor %}
-                                 </div>
+                        <div class="form-group">
+                            {% for each in results %}
+                                <div class="row"  style="padding-top: 20px">
+                                    {% if each.0 == 'None'%}
+                                        <h3 class="text-center">{{each.0}} - No analysis has been completed on these Libraries</h3>
+                                    {% else %}
+                                        <h3 class="text-center">{{each.0}}</h3>
+                                    {% endif %}                                </div>
+                                <div class="row">
+                                {% for group in each.1|group_by:050 %}
+                                    <div class="form-vertical">
+                                        {% for lib in group %}
+                                            <div class="col-sm-2">
+                                                <input type="checkbox" name="check2" value="{{ lib }}"> {{lib}}
+                                            </div>
+                                        {% endfor %}
+                                     </div>
+                                {% endfor %}
+                                </div>
                             {% endfor %}
                         </div>
                     </div>

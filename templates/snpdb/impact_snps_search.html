@@ -5,6 +5,7 @@
 {% load snp_filters %}
 {% load static %}
 {% load staticfiles %}
+{% load mathfilters %}
 
 {% block title %}
     Impact results
@@ -50,14 +51,14 @@
 <div class="container-fluid" style="padding-bottom:30px">
     <table class="table table-condensed" style="table-layout: fixed; word-wrap: break-word; border-color: black">
         <tr>
-            <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.snp_position }}>Position</a></th>
-            <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.ref_base }}>Reference Base</a></th>
-            <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.alt_base }}>Alternate Base</a></th>
-            <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.quality }}>Quality</a></th>
-            <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.library__librarycode }}>Library</a></th>
-            <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.chromosome__chromosome_name }}>Chromosome</a></th>
-            <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.effect_string }}>Effect Impact</a></th>
-            <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.effect_class }}>Effect</a></th>
+            <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.0 }}>Position</a></th>
+            <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.1 }}>Reference Base</a></th>
+            <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.2 }}>Alternate Base</a></th>
+            <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.6 }}>Quality</a></th>
+            <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.library1 }}>Library</a></th>
+            <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.3 }}>Chromosome</a></th>
+            <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.4 }}>Effect Impact</a></th>
+            <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.5 }}>Effect</a></th>
         </tr>
         <tbody>
         <tr>
@@ -70,7 +71,7 @@
                 <td class="text-center">{{ library1 }}</td>
                 <td class="text-center">{{ each.3 }}</td>
                 <td class="text-center">
-                    <a href="/snpdb/gene-feature?geneid={{ effect }}">{{each.4}}</a>
+                    <a href="/snpdb/gene-feature?geneid={{ each.4 }}">{{each.4}}</a>
                 </td>
                 <td class="text-center">{{ each.5 }}</td>
             </tr>

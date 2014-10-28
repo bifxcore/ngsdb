@@ -14,7 +14,7 @@ import datetime
 import os
 import csv
 import vcf
-import operator
+from operator import itemgetter
 
 
 low_effects = ["SYNONYMOUS_START", "NON_SYNONYMOUS_START", "START_GAINED", "SYNONYMOUS_CODING", "SYNONYMOUS_STOP"]
@@ -781,7 +781,7 @@ def library_gene_snps_filter(request):
 def library_snp_summary(request):
 	order_by = request.GET.get('order_by', 'library')
 	results = SNP.objects.values('library_id',
-	                             'library__library_code',
+	                             'library__library_code', 'result__genome__organism__organismcode',
 	                             ).distinct().annotate(num_snps=Count('snp_id'),
 	                                                   hetero=BooleanSum('heterozygosity'),
 	                                                   indel=BooleanSum('snp_type__indel'),
@@ -1029,7 +1029,7 @@ def library_chromosome_snps_filter(request):
 # Displays the search page for a snp summary by library and chromosome level.
 def chromosome_library_snp_summary(request):
 	libraries = Library.objects.values('library_code').distinct().order_by('library_code')
-	paginator = Paginator(libraries, 120)
+	paginator = Paginator(libraries, 300)
 
 	page = request.GET.get('page')
 	try:
@@ -1052,7 +1052,8 @@ def chromosome_library_snp_summary_filter(request):
 	order_by = request.GET.get('order_by', 'chromosome__chromosome_name')
 	library = request.GET.get('lib')
 	results = SNP.objects.values('chromosome__chromosome_name',
-	                             'library_id', 'library__library_code').filter(library__library_code=library).annotate(num_snps=Count('snp_id'),
+	                             'library_id', 'library__library_code',
+	                             'result__genome__organism__organismcode').filter(library__library_code=library).annotate(num_snps=Count('snp_id'),
 	                                                                                                                   hetero=BooleanSum('heterozygosity'),
 	                                                                                                                   indel=BooleanSum('snp_type__indel'),
 	                                                                                                                   trans=BooleanSum('snp_type__transition'))
@@ -1139,9 +1140,20 @@ def gene_list(request):
 
 # Displays the search page to compare two libraries for unique and similar snps.
 def compare_two_libraries(request):
-	lib_list = Library.objects.values('library_code').order_by('library_code')
+	lib_list = Library.objects.values('library_code', 'result__genome__organism__organismcode').order_by('result__genome__organism__organismcode')
+	lib_genome = defaultdict(list)
+	for each in lib_list:
+		lib_code = str(each['library_code'])
+		genome = str(each['result__genome__organism__organismcode'])
+		if genome in lib_genome:
+			cur_libs = lib_genome[genome]
+			cur_libs.append(lib_code)
+			lib_genome[genome] = cur_libs
+		else:
+			lib_codes = [lib_code]
+			lib_genome[genome] = lib_codes
 	page = request.GET.get('page')
-	paginator = Paginator(lib_list, 500)
+	paginator = Paginator(tuple(lib_genome.items()), 500)
 
 	try:
 		results = paginator.page(page)
@@ -1257,10 +1269,11 @@ def difference_two_libraries(request):
 #todo flag snps with multiple alternates
 # Lists identified snps (those found to be unique for a library) by their impact type. Passed from difference_two_libraries
 def impact_snps(request):
-	path = request.POST.get('path')
-	library1 = request.POST.get('lib1')
-	library2 = request.POST.get('lib2')
-	impact = request.POST.get('impact')
+	path = request.GET.get('path')
+	library1 = request.GET.getlist('lib1')[0]
+	library2 = request.GET.getlist('lib2')
+	impact = request.GET.get('impact')
+	order_by = request.GET.get('order_by', '0')
 
 	cmd = """cat %s/0000.vcf | /usr/local/Cellar/snpeff/3.6c/share/scripts/vcfEffOnePerLine.pl | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar filter "( EFF[*].IMPACT = '%s' )" | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar extractFields - POS REF ALT CHROM EFF[*].GENE EFF[*].EFFECT QUAL"""
 	snps_effect = subprocess.Popen(cmd % (path, impact), shell=True, stdout=subprocess.PIPE)
@@ -1269,16 +1282,21 @@ def impact_snps(request):
 		if line:
 			if '#POS' not in line:
 				entry = line.split('\t')
+				pos = int(entry[0])
+				qual = float(entry[6])
+				entry[0] = pos
+				entry[6] = qual
 				snps.append(entry)
+	if order_by == 0:
+		snps.sort(key=lambda x: (x[int(order_by)], x[int(3)]))
+	else:
+		snps.sort(key=lambda x: x[int(order_by)])
 	count = len(snps)
 	paginator = Paginator(snps, 200)
 	page = request.GET.get('page')
 
 	# Calls utils method to append new filters or order_by to the current url
-	filter_urls = build_orderby_urls(request.get_full_path(), ['library', 'snp_position', 'ref_base',
-	                                                           'quality', 'alt_base',
-	                                                           'chromosome__chromosome_name',
-	                                                           'effect__effect_string'])
+	filter_urls = build_orderby_urls(request.get_full_path(), [0, 1, 2, 3, 4, 5, 6])
 	try:
 		results = paginator.page(page)
 	except PageNotAnInteger:
