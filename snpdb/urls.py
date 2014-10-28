@@ -41,6 +41,7 @@ urlpatterns = patterns('',
                       url(r'^difference-two-libraries', 'snpdb.views.difference_two_libraries'),
                       url(r'^compare-libs', 'snpdb.views.compare_two_libraries'),
                       url(r'^gene-feature', 'snpdb.views.gene_feature'),
+                      url(r'^chrom-region', 'snpdb.views.chrom_region'),
 
 
                       # Basic Table Views:

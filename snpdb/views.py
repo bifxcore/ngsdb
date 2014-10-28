@@ -1692,6 +1692,11 @@ def impact_snps2(request):
 	                                                            })
 
 
+def chrom_region(request):
+	library_list = Library.objects.values('library_code').distinct()
+	print library_list
+	return render_to_response('snpdb/chrom_region.html', {"library_list": library_list})
+
 # Dumps a queryset into a csv file.
 def dump(qs, outfile_path):
 	writer = csv.writer(open(outfile_path, 'w'))
