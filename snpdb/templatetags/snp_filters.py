@@ -83,3 +83,7 @@ def sum_dict(value):
 			sums += val
 	return sums
 
+@register.filter
+def effect_type_title(title):
+	new = title.replace('_', ' ').title()
+	return new

@@ -138,11 +138,8 @@
                         <li class="dropdown-submenu">
                             <a href="/ngsdbview/listexperiments/">Query SNP DB</a>
                             <ul id="querySNP" class="dropdown-menu">
-                                <li class="menu-item" role="presentation"><a role="menuitem" href="/snpdb/gene-snps"> Query Gene for Snps</a></li>
-                                <li class="menu-item" role="presentation"><a role="menuitem" href="/snpdb/multi-gene-snps"> Query Mulit-Genes for Snps</a></li>
-                                <li class="menu-item" role="presentation"><a role="menuitem" href="/snpdb/multi-gene-library-snps"> Query Mulit-Genes and Multi Library for Snps</a></li>
+                                <li class="menu-item" role="presentation"><a role="menuitem" href="/snpdb/multi-gene-library-snps"> Query Genes across Library for Snps</a></li>
                                 <li class="menu-item" role="presentation"><a role="menuitem" href="/snpdb/library-chromosome-snps">Query Chromosome and Library for Snps</a></li>
-                                <li class="menu-item" role="presentation"><a role="menuitem" href="/snpdb/library-gene-snps">Query Gene and Library for Snps</a></li>
                                 <li class="menu-item" role="presentation"><a role="menuitem" href="/snpdb/compare-gene-lib">Multi-Library Comparison on Gene</a></li>
                                 <li class="menu-item" role="presentation"><a role="menuitem" href="/snpdb/compare-libs">Compare Two Libraries</a></li>
                             </ul>
@@ -212,19 +209,14 @@
                         <li class="dropdown-submenu">
                             <a href="/snpdb/">Gene Level Queries</a>
                             <ul id="gene" class="dropdown-menu" role="menu">
-                                <li class="first" role="presentation"><a role="menuitem" href="/snpdb/gene-snps"> Query Gene for Snps</a></li>
-                                <li role="presentation"><a role="menuitem" href="/snpdb/multi-gene-snps"> Query Mulit-Genes for Snps</a></li>
-                                <li role="presentation"><a role="menuitem" href="/snpdb/library-gene-snps">Query Gene and Library for Snps</a></li>
-                                <li role="presentation"><a role="menuitem" href="/snpdb/multi-gene-library-snps"> Query Mulit-Genes and Multi Library for Snps</a></li>
+                                <li class="menu-item" role="presentation"><a role="menuitem" href="/snpdb/compare-gene-lib">Query Gene(s) across Libraries for Snps</a></li>
                             </ul>
                         </li>
                         <li class="dropdown-submenu">
                             <a href="/snpdb/">Library Level Queries</a>
                             <ul id="library" class="dropdown-menu" role="menu">
-                                <li role="presentation"><a role="menuitem" href="/snpdb/library-gene-snps">Query Gene and Library for Snps</a></li>
-                                <li role="presentation"><a role="menuitem" href="/snpdb/multi-gene-library-snps"> Query Mulit-Genes and Multi Library for Snps</a></li>
-                                <li role="presentation"><a role="menuitem" href="/snpdb/compare-libs">Compare Two Libraries</a></li>
-                                <li class="menu-item" role="presentation"><a role="menuitem" href="/snpdb/compare-gene-lib">Multi-Library Comparison on Gene</a></li>
+                                <li role="presentation"><a role="menuitem" href="/snpdb/compare-libs">Compare Across Libraries</a></li>
+                                <li class="menu-item" role="presentation"><a role="menuitem" href="/snpdb/compare-gene-lib">Query Gene(s) across Libraries for Snps</a></li>
                                 <li class="menu-item" role="presentation"><a role="menuitem" href="/snpdb/library-chromosome-snps">Query Chromosome and Library for Snps</a></li>
                             </ul>
                         </li>
@@ -262,6 +254,15 @@
                         </li>
                     </ul>
                 </li>
+
+                <li>
+                    <a href="/ngsdbview/contact/">Contact</a>
+                </li>
+            </ul>
+
+        </div>
+    </div>
+</div>
                 {% endif %}
                 <li>
                     <a href="/ngsdbview/contact/">Contact</a>

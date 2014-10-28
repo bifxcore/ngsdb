@@ -33,7 +33,7 @@
                     <p class="help-block">Please separate Ids by commas, semicolons, spaces, or newline.</p>
                 </div>
                 <div class="form-group">
-                    {% for group in libraries|group_by:16 %}
+                    {% for group in libraries|group_by:016 %}
                         <div class="form-vertical">
                             {% for lib in group %}
                                 <div class="col-sm-2">
@@ -51,60 +51,6 @@
     </div>
 </div>
 
-<div class="container-fluid" style="padding-bottom:30px">
-    <div class="form-horizontal">
-       <div class="form-group">
-           {% for group in genes|group_by:6 %}
-                {% for obj in group %}
-                    <label class="col-sm-2">{{ obj.effect_string }}</label>
-                {% endfor %}
-           {% endfor %}
-       </div>
-    </div>
-</div>
-
 </body>
-
-
-{% if toolbar_max > 1 %}
-<div class="container-fluid" style="padding-bottom:30px">
-    <div class="ngsdb pagination">
-        <ul class="ngsdb">
-            {% if genes.has_previous %}
-                {% if selection %}
-                    <li><a href="?page={{ genes.previous_page_number }}&s={{filter_on}}&att={{selection}}">&laquo;</a></li>
-                {% else %}
-                    <li><a href="?page={{ genes.previous_page_number }}">&laquo;</a></li>
-                {% endif %}
-            {% else %}
-                <li class="disabled"><a href="#">&laquo;</a></li>
-            {% endif %}
-
-            {% for page in paginator.page_range %}
-                {% if page <= toolbar_max and page > toolbar_min and page != genes.number %}
-                    {% if selection %}
-                        <li><a href="?page={{ page }}&s={{filter_on}}&att={{selection}}">{{page}}</a></li>
-                    {% else %}
-                        <li><a href="?page={{ page }}">{{page}}</a></li>
-                    {% endif %}
-                {% elif page == genes.number %}
-                    {% if selection %}
-                        <li class="active"><a href="?page={{ genes.number }}&s={{filter_on}}&att={{selection}}">{{genes.number}}</a></li>
-                    {% else %}
-                        <li class="active"><a href="?page={{ genes.number }}">{{genes.number}}</a></li>
-                    {% endif %}
-                {% endif %}
-            {% endfor %}
-
-            {% if genes.has_next %}
-               {% if selection %}
-                    <li><a href="?page={{ genes.next_page_number }}&s={{filter_on}}&att={{selection}}">&raquo;</a></li>
-                {% else %}
-                    <li><a href="?page={{ genes.next_page_number }}">&raquo;</a></li>
-                {% endif %}
-            {% endif %}
-        </ul>
-    </div>
-{%endif%}
 {% endblock %}
 </html>
