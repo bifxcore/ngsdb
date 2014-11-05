@@ -179,36 +179,6 @@ class Genome(models.Model):
     def __unicode__(self):
         return str(self.organism)
 
-def get_libraryfile_upload_destination(instance, filename):
-    return "libraryfiles/{id}/{file}".format(id=instance.samplelibrary.library_code, file=filename)
-    #return "libraryfiles/{id}/{file}".format(id=instance.library.librarycode, file=filename)
-    #todo This is modified to pull the library code from samples.library rather than ngsdbview.library
-    # however, working of this needs to be verified
-
-class Library_CV(models.Model):
-	library_cv_id = models.AutoField(primary_key=True)
-	cvterm = models.TextField(db_index=True)
-	definition = models.TextField()
-	dbxref = models.ForeignKey(Dbxref)
-	is_obsolete = models.BooleanField(default="False")
-	is_relationshiptype = models.BooleanField()
-
-class Libraryfile(models.Model):
-    libraryfile_id = models.AutoField(primary_key=True)
-    library = models.ForeignKey('samples.Library')
-    notes = models.CharField(max_length=1000, default='qc')
-    file = models.FileField(upload_to=get_libraryfile_upload_destination)
-    def __unicode__(self):
-        return str(self.library)
-
-class Libraryprop(models.Model):
-    libraryprop_id = models.AutoField(primary_key=True)
-    library = models.ForeignKey('samples.Library')
-    cvterm = models.ForeignKey(Cvterm)
-    value = models.TextField()
-    def __unicode__(self):
-        return str(self.libraryprop_id)
-
 class Result(models.Model):
     result_id = models.AutoField(primary_key=True)
     libraries = models.ManyToManyField('samples.Library')
@@ -226,12 +196,12 @@ def get_resultfile_upload_destination(instance, filename):
     return "resultfiles/resultid_{id}/{file}".format(id=instance.result_id, file=filename)
 
 class Result_CV(models.Model):
-	result_cv_id = models.AutoField(primary_key=True)
-	cvterm = models.TextField(db_index=True)
-	definition = models.TextField()
-	dbxref = models.ForeignKey(Dbxref)
-	is_obsolete = models.BooleanField(default="False")
-	is_relationshiptype = models.BooleanField()
+    result_cv_id = models.AutoField(primary_key=True)
+    cvterm = models.TextField(db_index=True)
+    definition = models.TextField()
+    dbxref = models.ForeignKey(Dbxref)
+    is_obsolete = models.BooleanField(default="False")
+    is_relationshiptype = models.BooleanField()
 
 class Resultfile(models.Model):
     resultfile_id = models.AutoField(primary_key=True)

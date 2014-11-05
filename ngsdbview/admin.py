@@ -48,12 +48,12 @@ class ExperimentAdmin(admin.ModelAdmin):
     list_display = ('name', 'type', 'description', 'notes', 'author_modified')
 admin.site.register(Experiment, ExperimentAdmin)
 
-# code for editing Libraryfile & Libraryprop while in Library admin page
-class LibraryfileInline(admin.TabularInline):
-    model = Libraryfile
+# # code for editing Libraryfile & Libraryprop while in Library admin page
+# class LibraryfileInline(admin.TabularInline):
+#     model = Libraryfile
 
-class LibrarypropInline(admin.TabularInline):
-    model = Libraryprop
+# class LibrarypropInline(admin.TabularInline):
+#     model = Libraryprop
 
 #class LibraryAdmin(admin.ModelAdmin):
 #    inlines = [ LibraryfileInline, LibrarypropInline ]
