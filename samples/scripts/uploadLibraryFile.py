@@ -1,5 +1,13 @@
-newlibraryfileobj = Libraryfile()
-newlibraryfileobj.library=Library.objects.get(library_code="PA002")
-newlibraryfileobj.category="fastqqc"
-newlibraryfileobj.subcategory="test"
-newlibraryfileobj.file.save("PA002_Lane1_fastqStats.png", File(open('/Users/gramasamy/Downloads/PA001_Lane1_tileAverage.png')))
+from samples.models import Library, Libraryfile
+from django.core.files import File
+
+file = open("/Users/gramasamy/Downloads/QCfigures/qcinfo_toupload.set1", "r")
+for line in file:
+	[libcode, subcategory, path] = line.split()
+	filename = os.path.basename(path)
+	print libcode, subcategory, path, filename
+	if Library.objects.filter(library_code=libcode).exists():
+		libobj = Library.objects.get(library_code=libcode)
+		newlibfileobj = Libraryfile(category="fastqqc", subcategory=subcategory)
+		newlibfileobj.library = libobj
+		newlibfileobj.file.save(filename, File(open(path)))
