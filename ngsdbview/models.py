@@ -249,7 +249,6 @@ class Resultslsite(models.Model):
     intervallength = models.IntegerField()
     slpercent = models.DecimalField(max_digits=10, decimal_places=7)
     time_data_loaded = models.DateTimeField(auto_now=True)
-    #geneid_current = models.CharField(max_length=45, db_index=True)
 
     def __unicode__(self):
         return str(self.resultslsite_id)
@@ -294,7 +293,6 @@ class Analysis(models.Model):
     analysistype = models.ForeignKey(Analysistype)
     software = models.ForeignKey(Software)
     result = models.ForeignKey(Result)
-    #libraries = models.ManyToManyField(Library) let's add this when we use South
     ordinal = models.IntegerField()
     time_data_loaded = models.DateTimeField(auto_now=True)
     notes = models.TextField(null=True)
@@ -362,18 +360,117 @@ class Geneidmap(models.Model):
 
 
 class Experiment(models.Model):
-    experiment_id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=25, db_index=True)
+    name = models.CharField(max_length=250, help_text="Name of the Experiment. Need not change with different versions of the analysis")
+    version = models.FloatField(blank=False, help_text="Version of the analysis under this experiment")
     type = models.CharField(max_length=25, choices=EXPERIMENT_TYPE_CHOICES)
-    description = models.CharField(max_length=100)
-    notes = models.TextField()
+    refgenome = models.ForeignKey(Genome)
+    description = models.CharField(max_length=500, blank=True)
+    notes = models.TextField(blank=True)
+    is_current = models.BooleanField(default="True")
+    date_created = models.DateTimeField(auto_now_add=True)
+    date_modified = models.DateTimeField(auto_now=True)
+    author_modified = models.ForeignKey(User)
+
+    class Meta:
+        ordering = ['name']
+        index_together = [
+            ["name", "version"]
+        ]
+        unique_together = [
+            ["name", "version"]
+        ]
+
+    def __unicode__(self):
+        return str(self.name)
+
+def get_exptfile_upload_destination(instance, filename):
+    return "experimentfiles/{id}/exptfiles/{file}".format(id=instance.experiment.id, file=filename)
+
+class Exptfile(models.Model):
+    experiment = models.ForeignKey(Experiment, null=True)
+    category = models.CharField(max_length=15, db_index=True, default="general", help_text="Broad level category for the file")
+    subcategory = models.CharField(max_length=200, db_index=True, default="general", help_text="Sub level category for the file")
+    file = models.FileField(upload_to=get_exptfile_upload_destination, blank=True, help_text="Upload files related to an experiment")
+    notes = models.TextField(blank=True)
+
+    def __unicode__(self):
+        return unicode(self.experiment.name)
+
+
+class Exptsetup(models.Model):
+    experiment = models.ForeignKey(Experiment)
+    groupname = models.CharField(max_length=15, help_text="Name for group of replicates. Comparisions done between groups rather than libraries")
     libraries = models.ManyToManyField('samples.Library')
+    notes = models.TextField()
+    date_created = models.DateTimeField(auto_now_add=True)
+    date_modified = models.DateTimeField(auto_now=True)
+    author_modified = models.ForeignKey(User)
+
+    class Meta:
+        ordering = ['experiment']
+        verbose_name_plural="Exptsetup"
+
+    def __unicode__(self):
+        return str(self.groupname)
+
+
+class Comparison(models.Model):
+    experiment = models.ForeignKey(Experiment)
+    compname = models.CharField(max_length=15, help_text="Name of the comparison")
+    basegroup = models.ForeignKey(Exptsetup, related_name="basegrp")
+    querygroup = models.ForeignKey(Exptsetup, related_name="querygrp")
+    description = models.CharField(max_length=250, help_text="Explain the objective of this comparison", blank=True)
     date_created = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)
     author_modified = models.ForeignKey(User)
 
     def __unicode__(self):
-        return str(self.name)
+        return str(self.compname)
+
+
+def get_compfile_upload_destination(instance, filename):
+    return "experimentfiles/{id}/{compname}/{file}".format(id=instance.comparison.experiment.id, compname=instance.comparison.compname, file=filename)
+
+class Compfile(models.Model):
+    comparison = models.ForeignKey(Comparison)
+    category = models.CharField(max_length=15, db_index=True, default="general", help_text="Broad level category for the file")
+    subcategory = models.CharField(max_length=200, db_index=True, default="general", help_text="Sub level category for the file")
+    file = models.FileField(upload_to=get_compfile_upload_destination, blank=True, help_text="Upload files related to an experiment")
+    notes = models.TextField(blank=True)
+
+    def __unicode__(self):
+        return unicode(self.experiment.name)
+
+
+class Diffexpn(models.Model):
+    experiment = models.ForeignKey(Experiment)
+    compname = models.ForeignKey(Comparison)
+    feature = models.CharField(max_length=100, db_index=True)
+    log2foldchange = models.FloatField(blank=False, db_index=True)
+    pvalue = models.FloatField(blank=False, db_index=True)
+    fdr = models.FloatField(blank=False, db_index=True)
+    lr = models.FloatField(blank=False, db_index=True)
+
+    class Meta:
+        index_together = [
+            ["experiment", "compname", "feature"]
+        ]
+        unique_together = [
+            ["experiment", "compname", "feature"]
+        ]
+    def __unicode__(self):
+        return str(self.feature)
+
+
+class Tagcount(models.Model):
+    experiment = models.ForeignKey(Experiment)
+    library = models.ForeignKey('samples.Library')
+    feature = models.CharField(max_length=100, db_index=True)
+    rawcount = models.FloatField()
+    normalizedcount = models.FloatField()
+
+    def __unicode__(self):
+        return str(self.library.library_code)
 
 #==============================================
 #==============================================
