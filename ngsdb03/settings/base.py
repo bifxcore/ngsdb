@@ -61,10 +61,12 @@ USE_TZ = True
 
 # The absolute path to the project directory.
 PROJECT_DIR = os.path.dirname(__file__)
+PROJECT_PATH = os.path.join(PROJECT_DIR, '../..')
+PROJECT_PATH = os.path.abspath(PROJECT_PATH)
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/var/www/example.com/media/"
-MEDIA_ROOT = os.path.join(PROJECT_DIR, '../../media')
+MEDIA_ROOT = os.path.join(PROJECT_PATH, 'media')
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash.
@@ -83,8 +85,9 @@ STATIC_URL = '/static/'
 
 # Additional locations of static files
 STATICFILES_DIRS = (
-    os.path.join(PROJECT_DIR, 'static'),
-    os.path.join(os.path.dirname(__file__), 'static'),
+    os.path.join(PROJECT_PATH, 'static'),
+    os.path.join(PROJECT_PATH, 'media'),
+    # os.path.join(os.path.dirname(__file__), 'static'),
     # os.path.join(os.path.dirname(__file__))
     # "/Users/gramasamy/djcode/ngsdb03/static",
     # "/opt/django-sites/ngsdb/ngsdb03/static",
@@ -130,8 +133,11 @@ ROOT_URLCONF = 'ngsdb03.urls'
 WSGI_APPLICATION = 'ngsdb03.wsgi.application'
 
 TEMPLATE_DIRS = (
-    os.path.abspath(os.path.join(os.path.dirname( __file__ ), '../..', 'templates')),
-    os.path.abspath(os.path.join(os.path.dirname( __file__ ), '../../ngsdbview', 'templates')),
+    os.path.abspath(os.path.join(PROJECT_PATH, 'templates')),
+    os.path.abspath(os.path.join(PROJECT_PATH, 'templates', 'ngsdbview')),
+    os.path.abspath(os.path.join(PROJECT_PATH, 'templates', 'samples')),
+    os.path.abspath(os.path.join(PROJECT_PATH, 'templates', 'snpdb')),
+    os.path.abspath(os.path.join(PROJECT_PATH, 'templates', 'admin')),
 
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.

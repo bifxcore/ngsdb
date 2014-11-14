@@ -78,15 +78,15 @@ class ExperimentAdmin(admin.ModelAdmin):
 admin.site.register(Experiment, ExperimentAdmin)
 
 class ExptfileAdmin(admin.ModelAdmin):
-    list_display = ('experiment', 'category', 'subcategory', 'file')
+    list_display = ('subcategory', 'experiment', 'category', 'file')
 admin.site.register(Exptfile, ExptfileAdmin)
 
 class ExptsetupAdmin(admin.ModelAdmin):
-    list_display = ('experiment', 'groupname', 'notes')
+    list_display = ('groupname', 'experiment', 'notes')
 admin.site.register(Exptsetup, ExptsetupAdmin)
 
 class ComparisonAdmin(admin.ModelAdmin):
-    list_display = ('experiment', 'compname', 'basegroup', 'querygroup', 'description')
+    list_display = ('compname', 'experiment', 'basegroup', 'querygroup', 'description')
 admin.site.register(Comparison, ComparisonAdmin)
 
 class CompfileAdmin(admin.ModelAdmin):

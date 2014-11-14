@@ -394,7 +394,7 @@ class Exptfile(models.Model):
     notes = models.TextField(blank=True)
 
     def __unicode__(self):
-        return unicode(self.experiment.name)
+        return unicode(self.subcategory)
 
 
 class Exptsetup(models.Model):
@@ -439,7 +439,7 @@ class Compfile(models.Model):
     notes = models.TextField(blank=True)
 
     def __unicode__(self):
-        return unicode(self.experiment.name)
+        return unicode(self.subcategory)
 
 
 class Diffexpn(models.Model):

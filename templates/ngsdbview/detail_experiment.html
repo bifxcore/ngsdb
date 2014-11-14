@@ -1,0 +1,104 @@
+{% extends "admin/base_site.html" %}
+{%block content%}
+{% block body %}
+{% load ngsdbview_extras %}
+{% load humanize %}
+
+<!-- for autocompletion -->
+<!-- end for autocompletion -->
+
+{%  if exp  %}
+
+<FORM action="/ngsdbview/listexperiments/" method="post">
+{% csrf_token %}
+
+
+<TABLE id="viewtable2">
+    <TR><TH id="tableheader">Experiment: {{ exp.name }} </TH></TR>
+    <TR><TD>
+    <!-- experiment table -->
+    <TABLE>
+        <TR><TD>
+        <TABLE><TR>
+            <TD>Name: {{ exp.name }}</TD>
+            <TD>Exp. version: {{ exp.version }}</TD>
+            <TD>Exp. type: {{ exp.type }}</TD>
+            <TD>Ref. Genome: {{ exp.refgenome }}</TD>
+            <TD>Is this analysis current: {{ exp.is_current }}</TD>
+            <TD>Date last modified: {{ exp.date_modified }}</TD>
+        </TR></TABLE>
+        </TD></TR>
+        <TR><TD>Description: {{ exp.description }}</TD></TR>
+        <TR><TD>Notes: {{ exp.notes }}</TD></TR>
+    </TABLE>
+    <!-- experiment setup table -->
+    <TABLE>
+        <TR><TH>Experimental Setup:</TH></TR>
+        <TR>{% for exptsetup in exp.exptsetup_set.all %}
+            <TD>
+            <TABLE>
+                <TR ><TD height="1"> Condition/Group : {{ exptsetup.groupname }} </TD></TR>
+                <TR ><TD height="1"> Libraries :
+                    {% for lib in  exptsetup.libraries.all %}
+                    {{ lib }}
+                    {% endfor %}
+                </TD></TR>
+                <TR><TD>notes : {{ exptsetup.notes }} </TD></TR>
+            </TABLE>
+            </TD>
+        {% endfor %}
+        </TR>
+    </TABLE>
+    </TD></TR>
+    <TR><TD>
+    <!-- experimental files table -->
+    <TABLE>
+        <TR><TH>Graphical overview of experiment:</TH></TR>
+        <TR><TD>
+            <TABLE><TR>
+            {% for exptfile in exp.exptfile_set.all %}
+                {% if exptfile.subcategory in plots %}
+            <TD>
+                {{ exptfile.subcategory }}<p></p>
+                <a href="{{ exptfile.file.url }}"  data-lightbox="exptfiles" data-title="{{ exptfile.subcategory }}"><img src="{{ exptfile.file.url }}" height="200" width="200"/></a>
+            </TD>
+                {% endif %}
+            {% endfor %}
+            </TR></TABLE>
+        </TD></TR>
+    </TABLE>
+    <!-- experiment comparisons table -->
+    <TABLE>
+        <TR><TH>Comparisons studied:</TH></TR>
+        <TR><TD>
+            <TABLE><TR>
+            {% for comp in exp.comparison_set.all %}
+                <TD><TABLE>
+                    <TR><TH>{{ comp.compname}}</TH></TR>
+                    <TR><TD>Changes in: {{ comp.querygroup }}</TD></TR>
+                    <TR><TD>With respect to: {{ comp.basegroup }}</TD></TR>
+                    <TR><TD>description: {{ comp.description }} </TD></TR>
+                    <TR><TH># Genes Diff. Expressed</TH></TR>
+
+                    {% for key in regulatedCount|hash:comp.compname %}
+                    <TR><TD>
+                        {{ key }} : {{ regulatedCount|hash:comp.compname|hash:key|intcomma }}
+                    </TD></TR>
+                    {% endfor %}
+
+                    <TR><TH>Smear Plots:</TH></TR>
+                    {% for compfile in comp.compfile_set.all %}
+                    <TR><TD>
+                        <a href="{{ compfile.file.url }}"  data-lightbox="compfiles" data-title="{{ compfile.subcategory }}"><img src="{{ compfile.file.url }}" height="150" width="150"/></a>
+                    </TD></TR>
+                    {% endfor %}
+                </TABLE></TD>
+            {% endfor %}
+            </TR></TABLE>
+        </TD></TR>
+    </TABLE>
+</TABLE>
+{% endif %}
+
+{% endblock %}
+{% endblock %}
