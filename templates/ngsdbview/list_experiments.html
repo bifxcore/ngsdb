@@ -17,13 +17,13 @@
 
     {% for exp in experiments %}
         <TABLE id="viewtable2">
-            <TR><TH id="tableheader">Experiment {{ forloop.counter }}: </TH></TR>
+            <TR><TH id="tableheader">Experiment {{ forloop.counter }}: <a href="/ngsdbview/detailexperiment/{{ exp.id }}/" target="_blank">View Details</a> </TH></TR>
             <TR><TD>
             <!-- experiment table -->
             <TABLE>
                 <TR><TD>
                     <TABLE><TR>
-                        <TH>Name: {{ exp.name }}</TH>
+                        <TH>Name: <a href="/ngsdbview/detailexperiment/{{ exp.id }}/" target="_blank">{{ exp.name }}</a></TH>
                         <TD>Exp. version: {{ exp.version }}</TD>
                         <TD>Exp. type: {{ exp.type }}</TD>
                         <TD>Ref. Genome: {{ exp.refgenome }}</TD>

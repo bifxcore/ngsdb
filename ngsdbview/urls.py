@@ -31,6 +31,6 @@ urlpatterns = patterns('',
     url(r'^analyzeexperiments/','ngsdbview.views02.AnalyzeExperiments'),
 
     url(r'^listexperiments/', 'ngsdbview.views03.ListExperiments'),
-    url(r'^detailexperiment/', 'ngsdbview.views03.DetailExperiment'),
+    url(r'^detailexperiment/(?P<experimentId>.+)/', 'ngsdbview.views03.DetailExperiment'),
 
 )

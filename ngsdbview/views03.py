@@ -30,7 +30,7 @@ def ListExperiments(request):
     return render_to_response('ngsdbview/list_experiments.html',kwargs, context_instance=RequestContext(request))
 
 
-def DetailExperiment(request):
+def DetailExperiment(request, experimentId):
     '''
     Detail an experiment.
     :param request:
@@ -41,9 +41,9 @@ def DetailExperiment(request):
     #kwargs['user']=user
     kwargs['listoflinks']=listoflinks
     kwargs['title']="Experiment Detail"
-    id = "42"
+    #experimentId = "42"
     # get experiments
-    exp = Experiment.objects.get(id=id)
+    exp = Experiment.objects.get(id=experimentId)
     kwargs['exp'] = exp
 
     comparisons = Comparison.objects.filter(experiment=exp)
