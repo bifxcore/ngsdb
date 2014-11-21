@@ -1,10 +1,107 @@
 <!DOCTYPE html>
-<html>
-<head lang="en">
-    <meta charset="UTF-8">
-    <title></title>
-</head>
-<body>
+<html lang="en">
+{% extends "snpdb/dashboard.html" %}
+{% load static %}
+{% load staticfiles %}
+{% load display_rows %}
 
-</body>
+
+{% block title %}
+   SNP Summary
+{% endblock %}
+
+{% block breadcrumbs %}
+{% endblock %}
+
+{% block bootstrap %}
+
+<div class="container-fluid">
+        <div class="page-header text-header" style="padding-left:30px; margin-top:10px; padding-bottom:0px">
+       <h1 class="header" style="padding-bottom:0px;">Query Library by Region and Chromosome</h1>
+        </div>
+</div>
+
+{% if chromosome %}
+<div class="container-fluid" style="padding-bottom:30px">
+   <form id="form1" action="/snpdb/chrom-region-filter" method="get">
+       <div class="collapse navbar-collapse navbar-ex1-collapse">
+           <ul class="nav navbar-nav">
+               <div class="form-inline">
+                   <div class="form-group">
+                       <label class="sr-only" for="from">From bp</label>
+                       <input type="text" class="form-control" name="from" placeholder="From bp">
+                       <input type="hidden" name="library" value="{{library}}">
+                   </div>
+
+                   <div class="form-group">
+                       <label class="sr-only" for="to">To bp</label>
+                       <input type="text" class="form-control" name="to" placeholder="To bp">
+                   </div>
+                   <button class="btn btn-sample" type="submit"  style="margin-left:0px; width:75px; vertical-align:middle; padding: 0px">Search</button>
+               </div>
+               <div class="form-group">
+                   <div class="row" style="padding-top: 20px">
+                       {% for group in chromosome|group_by:10 %}
+                       <div class="form-vertical">
+                           {% for chrom in group %}
+                            <div class="col-sm-2">
+                                <input type="radio" name="chrom" value="{{chrom.0}}"> {{chrom.0}}
+                            </div>
+                           {% endfor %}
+                       </div>
+                       {% endfor %}
+                   </div>
+               </div>
+           </ul>
+       </div>
+   </form>
+</div>
+
+
+{% else %}
+<div class="container-fluid" style="padding-bottom:30px">
+    <form id="form2" action="/snpdb/chrom-region/search" method="get">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="panel panel-primary" style="border-color: #616770;">
+                    <div class="panel-heading" style="background-color: #616770; border-color:#616770; overflow: hidden">
+                        <h3 class="panel-title" style="text-align: center">Libraries ordered by Reference Genome</h3>
+                    </div>
+                    <div class="panel-body">
+                        <div class="form-group">
+                            {% for each in results %}
+                                <div class="row"  style="padding-top: 20px">
+                                    {% if each.0 == 'None'%}
+                                        <h3 class="text-center">{{each.0}} - No analysis has been completed on these Libraries</h3>
+                                    {% else %}
+                                        <h3 class="text-center">{{each.0}}</h3>
+                                    {% endif %}
+                                </div>
+                                <div class="row">
+                                {% for group in each.1|group_by:020 %}
+                                    <div class="form-vertical">
+                                        {% for lib in group %}
+                                            <div class="col-sm-2">
+                                                <input type="radio" name="check1" value="{{ lib }}"> {{lib}}
+                                            </div>
+                                        {% endfor %}
+                                     </div>
+                                {% endfor %}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="pull-left">
+                <button type="submit" class="btn btn-sample btn-xs pull-right" style="margin-left:0px; width:50px; padding:0px">Search</button>
+            </div>
+        </div>
+    </form>
+</div>
+{% endif %}
+
+{% endblock %}
 </html>

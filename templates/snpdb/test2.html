@@ -22,17 +22,17 @@ Compare Across Libraries
 <div class="container-fluid">
     <div class="page-header text-header" style="padding-left:30px; margin-top:10px; padding-bottom:0px">
         <h1 class="header" style="padding-bottom:0px;">Difference Between Libraries</h1>
-        <h2 class="header" style="padding-top:5px">There are {{lib_effect.0.4.4}} SNPs found in {{library1.0}} not found in {% for object in library2 %} {{object}} {% endfor %}.</h2>
-        <h2 class="header" style="padding-top:5px">There are {{total_2}} SNPs found in {% for object in library2 %} {{object}} {% endfor %} not found in {{library1.0}}.</h2>
+        <h2 class="header" style="padding-top:5px">There are {{lib1_total}} SNPs found in {% for object in library1 %} {{object}} {% endfor %} not found in {% for object in library2 %} {{object}} {% endfor %}.</h2>
+        <h2 class="header" style="padding-top:5px">There are {{lib2_total}} SNPs found in {% for object in library2 %} {{object}} {% endfor %} not found in {% for object in library1 %} {{object}} {% endfor %}.</h2>
 
     </div>
 </div>
 
 <div class="container-fluid" style="padding-bottom:30px">
     <div class="row">
-        {% for x in lib_effect %}
-            <div class="col-md-2">
-                <h1 class="header" style="text-align: center">SNPs not found in {{ x.4.5 }}</h1>
+        <div class="col-md-4">
+            {% for x in lib1_effect %}
+                <h1 class="header" style="text-align: center">Novel SNPs unique to {% for object in library1 %} {{object}} {% endfor %}</h1>
                 <div class="panel panel-primary" style="border-color: #616770;">
                     <div class="panel-heading" style="background-color: #616770; border-color:#616770; overflow: hidden">
                         <form id="form1" action="/snpdb/impact-snps/search" method="get">
@@ -40,9 +40,9 @@ Compare Across Libraries
                             <h3 class="panel-title">High Impact</h3>
                             <input type="hidden" name="path" value="{{path}}" />
                             <input type="hidden" name="impact" value="HIGH" />
-                            <input type="hidden" name="lib2" value="{{library2}}" />
-                            <input type="hidden" name="lib1" value="{{library1.0}}" />
-                            <input type="hidden" name="file" value="0000.vcf" />
+                            <input type="hidden" name="samp1" value="{{add_code}}" />
+                            <input type="hidden" name="lib1" value="{{library1}}" />
+                            <input type="hidden" name="file" value="vcf-contrast.vcf" />
                         </form>
                     </div>
                     <div class="panel-body">
@@ -56,12 +56,40 @@ Compare Across Libraries
                         </ul>
                     </div>
                 </div>
-            </div>
-        {% endfor %}
+            {% endfor %}
+        </div>
+        <div class="col-md-4">
+            {% for x in lib2_effect %}
+                <h1 class="header" style="text-align: center">Novel SNPs unique to {% for object in library2 %} {{object}} {% endfor %}</h1>
+                <div class="panel panel-primary" style="border-color: #616770;">
+                    <div class="panel-heading" style="background-color: #616770; border-color:#616770; overflow: hidden">
+                        <form id="form5" action="/snpdb/impact-snps/search" method="get">
+                            <button type="submit" class="btn btn-default btn-xs pull-right" style="margin-left:0px; width:50px; padding:0px">View</button>
+                            <h3 class="panel-title">High Impact</h3>
+                            <input type="hidden" name="path" value="{{path}}" />
+                            <input type="hidden" name="impact" value="HIGH" />
+                            <input type="hidden" name="lib2" value="{{library2}}" />
+                            <input type="hidden" name="samp2" value="{{neg_code}}" />
+                            <input type="hidden" name="file" value="vcf-contrast.vcf" />
+                        </form>
+                    </div>
+                    <div class="panel-body">
+                        <ul class="list-group">
+                        <li class="list-group-item">Total: {{ x.4.0 }}
+                            {% for key, values in x.0.items %}
+                                {% if values|zero %}
+                                    <li class="list-group-item">{{ key|effect_type_title }}: {{ values }}</li>
+                                {% endif %}
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
     </div>
     <div class="row">
-        {% for x in lib_effect %}
-            <div class="col-md-2">
+        <div class="col-md-4">
+            {% for x in lib1_effect %}
                 <div class="panel panel-primary" style="border-color: #616770;">
                     <div class="panel-heading" style="background-color: #616770; border-color:#616770; overflow: hidden">
                         <form id="form3" action="/snpdb/impact-snps/search" method="get">
@@ -69,9 +97,9 @@ Compare Across Libraries
                             <h3 class="panel-title">Moderate Impact</h3>
                             <input type="hidden" name="path" value="{{path}}" />
                             <input type="hidden" name="impact" value="MODERATE" />
-                            <input type="hidden" name="lib2" value="{{library2}}" />
+                            <input type="hidden" name="samp1" value="{{add_code}}" />
                             <input type="hidden" name="lib1" value="{{library1}}" />
-                            <input type="hidden" name="file" value="0000.vcf" />
+                            <input type="hidden" name="file" value="vcf-contrast.vcf" />
                         </form>
                     </div>
                     <div class="panel-body">
@@ -85,13 +113,39 @@ Compare Across Libraries
                         </ul>
                     </div>
                 </div>
-            </div>
-        {% endfor %}
+            {% endfor %}
+        </div>
+        <div class="col-md-4">
+            {% for x in lib2_effect %}
+                <div class="panel panel-primary" style="border-color: #616770;">
+                    <div class="panel-heading" style="background-color: #616770; border-color:#616770; overflow: hidden">
+                        <form id="form6" action="/snpdb/impact-snps/search" method="get">
+                            <button type="submit" class="btn btn-default btn-xs pull-right" style="margin-left:0px; width:50px; padding:0px">View</button>
+                            <h3 class="panel-title">Moderate Impact</h3>
+                            <input type="hidden" name="path" value="{{path}}" />
+                            <input type="hidden" name="impact" value="MODERATE" />
+                            <input type="hidden" name="lib2" value="{{library2}}" />
+                            <input type="hidden" name="samp2" value="{{neg_code}}" />
+                            <input type="hidden" name="file" value="vcf-contrast.vcf" />
+                        </form>
+                    </div>
+                    <div class="panel-body">
+                        <ul class="list-group">
+                            <li class="list-group-item">Total SNPs: {{ x.4.1 }}</li>
+                            {% for key, values in x.1.items %}
+                                {% if values|zero %}
+                                    <li class="list-group-item">{{ key|effect_type_title }}: {{ values }}</li>
+                                {% endif %}
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            {% endfor %}
         </div>
     </div>
     <div class="row">
-        {% for x in lib_effect %}
-            <div class="col-md-2">
+        <div class="col-md-4">
+            {% for x in lib1_effect %}
                 <div class="panel panel-primary" style="border-color: #616770;">
                     <div class="panel-heading" style="background-color: #616770; border-color:#616770; overflow: hidden">
                         <form id="form2" action="/snpdb/impact-snps/search" method="get">
@@ -99,8 +153,9 @@ Compare Across Libraries
                             <h3 class="panel-title">Low Impact</h3>
                             <input type="hidden" name="path" value="{{path}}" />
                             <input type="hidden" name="impact" value="LOW" />
-                            <input type="hidden" name="lib2" value="{{library2}}" />
+                            <input type="hidden" name="samp1" value="{{add_code}}" />
                             <input type="hidden" name="lib1" value="{{library1}}" />
+                            <input type="hidden" name="file" value="vcf-contrast.vcf" />
                         </form>
                     </div>
                     <div class="panel-body">
@@ -114,12 +169,39 @@ Compare Across Libraries
                         </ul>
                     </div>
                 </div>
-            </div>
-        {% endfor %}
+            {% endfor %}
+        </div>
+        <div class="col-md-4">
+            {% for x in lib2_effect %}
+                <div class="panel panel-primary" style="border-color: #616770;">
+                    <div class="panel-heading" style="background-color: #616770; border-color:#616770; overflow: hidden">
+                        <form id="form7" action="/snpdb/impact-snps/search" method="get">
+                            <button type="submit" class="btn btn-default btn-xs pull-right" style="margin-left:0px; width:50px; padding:0px">View</button>
+                            <h3 class="panel-title">Low Impact</h3>
+                            <input type="hidden" name="path" value="{{path}}" />
+                            <input type="hidden" name="impact" value="LOW" />
+                            <input type="hidden" name="lib2" value="{{library2}}" />
+                            <input type="hidden" name="samp2" value="{{neg_code}}" />
+                            <input type="hidden" name="file" value="vcf-contrast.vcf" />
+                        </form>
+                    </div>
+                    <div class="panel-body">
+                        <ul class="list-group">
+                            <li class="list-group-item">Total SNPs: {{ x.4.2 }}</li>
+                            {% for key, values in x.2.items %}
+                                {% if values|zero %}
+                                    <li class="list-group-item">{{ key|effect_type_title }}: {{ values }}</li>
+                                {% endif %}
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
     </div>
     <div class="row">
-        {% for x in lib_effect %}
-            <div class="col-md-2">
+        <div class="col-md-4">
+            {% for x in lib1_effect %}
                 <div class="panel panel-primary" style="border-color: #616770;">
                     <div class="panel-heading" style="background-color: #616770; border-color:#616770; overflow: hidden">
                         <form id="form4" action="/snpdb/impact-snps/search" method="get">
@@ -127,9 +209,11 @@ Compare Across Libraries
                             <h3 class="panel-title">Modifier Impact</h3>
                             <input type="hidden" name="path" value="{{path}}" />
                             <input type="hidden" name="impact" value="MODIFIER" />
-                            <input type="hidden" name="lib2" value="{{library2}}" />
+                            <input type="hidden" name="samp1" value="{{add_code}}" />
                             <input type="hidden" name="lib1" value="{{library1}}" />
-                        </form>                </div>
+                            <input type="hidden" name="file" value="vcf-contrast.vcf" />
+                        </form>
+                    </div>
                     <div class="panel-body">
                         <ul class="list-group">
                             <li class="list-group-item">Total SNPs: {{ x.4.3 }}</li>
@@ -141,8 +225,35 @@ Compare Across Libraries
                         </ul>
                     </div>
                 </div>
-            </div>
-        {% endfor %}
+            {% endfor %}
+        </div>
+        <div class="col-md-4">
+            {% for x in lib2_effect %}
+                <div class="panel panel-primary" style="border-color: #616770;">
+                    <div class="panel-heading" style="background-color: #616770; border-color:#616770; overflow: hidden">
+                        <form id="form8" action="/snpdb/impact-snps/search" method="get">
+                            <button type="submit" class="btn btn-default btn-xs pull-right" style="margin-left:0px; width:50px; padding:0px">View</button>
+                            <h3 class="panel-title">Modifier Impact</h3>
+                            <input type="hidden" name="path" value="{{path}}" />
+                            <input type="hidden" name="impact" value="MODIFIER" />
+                            <input type="hidden" name="lib2" value="{{library2}}" />
+                            <input type="hidden" name="samp2" value="{{neg_code}}" />
+                            <input type="hidden" name="file" value="vcf-contrast.vcf" />
+                        </form>
+                    </div>
+                    <div class="panel-body">
+                        <ul class="list-group">
+                            <li class="list-group-item">Total SNPs: {{ x.4.3 }}</li>
+                            {% for key, values in x.3.items %}
+                                {% if values|zero %}
+                                    <li class="list-group-item">{{ key|effect_type_title }}: {{ values }}</li>
+                                {% endif %}
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
     </div>
 </div>
 

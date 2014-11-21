@@ -209,6 +209,16 @@ class Libraryprop(models.Model):
     def __unicode__(self):
         return str(self.libraryprop_id)
 
+
+class Result_CV(models.Model):
+	result_cv_id = models.AutoField(primary_key=True)
+	cvterm = models.TextField(db_index=True)
+	definition = models.TextField()
+	dbxref = models.ForeignKey(Dbxref)
+	is_obsolete = models.BooleanField(default="False")
+	is_relationshiptype = models.BooleanField()
+
+
 class Result(models.Model):
     result_id = models.AutoField(primary_key=True)
     libraries = models.ManyToManyField('samples.Library')
@@ -219,19 +229,13 @@ class Result(models.Model):
     analysispath = models.CharField(max_length=255)
     time_data_loaded = models.DateTimeField(auto_now=True)
     notes = models.TextField(default=None)
+    result_type_cv = models.ForeignKey(Result_CV)
     def __unicode__(self):
         return str(self.result_id)
 
 def get_resultfile_upload_destination(instance, filename):
     return "resultfiles/resultid_{id}/{file}".format(id=instance.result_id, file=filename)
 
-class Result_CV(models.Model):
-	result_cv_id = models.AutoField(primary_key=True)
-	cvterm = models.TextField(db_index=True)
-	definition = models.TextField()
-	dbxref = models.ForeignKey(Dbxref)
-	is_obsolete = models.BooleanField(default="False")
-	is_relationshiptype = models.BooleanField()
 
 class Resultfile(models.Model):
     resultfile_id = models.AutoField(primary_key=True)

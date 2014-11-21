@@ -55,9 +55,10 @@
             <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.1 }}>Reference Base</a></th>
             <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.2 }}>Alternate Base</a></th>
             <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.6 }}>Quality</a></th>
-            <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.library1 }}>Library</a></th>
+            <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.library }}>Library</a></th>
             <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.3 }}>Chromosome</a></th>
             <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.4 }}>Effect Impact</a></th>
+            <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.6 }}>Gene Description</a></th>
             <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.5 }}>Effect</a></th>
         </tr>
         <tbody>
@@ -68,11 +69,12 @@
                 <td class="text-center">{{ each.1 }}</td>
                 <td class="text-center">{{ each.2 }}</td>
                 <td class="text-center">{{ each.6 }}</td>
-                <td class="text-center">{{ library1 }}</td>
+                <td class="text-center">{{ library }}</td>
                 <td class="text-center">{{ each.3 }}</td>
                 <td class="text-center">
                     <a href="/snpdb/gene-feature?geneid={{ each.4 }}">{{each.4}}</a>
                 </td>
+                <td class="text-center">{{ each.7 }}</td>
                 <td class="text-center">{{ each.5 }}</td>
             </tr>
         {% endfor %}
