@@ -37,13 +37,14 @@ def argparse():
     parser.add_argument('--username', required=True, help='Name of the db user', default="gramasamy", type=str)
     parser.add_argument('--genomeOrganism', required=True, help='Reference genomes\' organism Code', default="LinJ", type=str)
     parser.add_argument('--genomeVersion', required=True, help='Version of the genome(TriTrypDB)', default="8.0", type=str)
+    parser.add_argument('--debug', required=False, default=False, type=bool)
     parser.add_argument('--overwrite', required=False, help='Set this to True if existing Experiments needs to be overwritten.', default=False, type=bool)
     parser.add_argument('--version', '-v',  action='version', version='%(prog)s 1.0')
     args = parser.parse_args()
     return args
 
 def hasify_counts(countsFile, basepath):
-    countsObj = open(basepath+countsFile)
+    countsObj = open(os.path.join(basepath, countsFile), 'r')
     headerStr = countsObj.readline()
     headers = headerStr.rstrip('\n').split("\t")
     headers.pop(0)
@@ -55,6 +56,13 @@ def hasify_counts(countsFile, basepath):
         for libcode, count in newDic.items():
             countsDic[libcode][featureID] = count
     return countsDic
+
+def example():
+    command = '''
+    ~/djcode/ngsdb03/ngsdbview/scripts/uploadDETestResults.py --yamlfile LdBob.Nicola.RNAseq.edgeR.plus5.yml --basepath /Volumes/ngs/projects/Ldo_Purine_Nicola/vsLinJ/Expression_Analysis/LinJ.TriTrypDB8p0.CDS.union/edgeR.plus5_GENEs --experimentVersion 3.0 --experimentType RNAseq --username gramasamy --genomeOrganism LinJ --genomeVersion 8.0
+    '''
+
+    print command
 
 ####################################################################
 #
@@ -71,7 +79,7 @@ genomeVersion = args.genomeVersion
 userName = args.username
 
 # Read yaml
-inStream = open(basepath+yamlFile, 'r')
+inStream = open(os.path.join(basepath, yamlFile), 'r')
 yamlData = load(inStream, Loader=Loader)
 
 # Get user & genome
@@ -82,7 +90,7 @@ refGenome = Genome.objects.get(organism__organismcode=genomeOrganism, version=ge
 if args.overwrite:
     if Experiment.objects.filter(name = yamlData['Global']['meta']['longtitle'], version=experimentVersion).exists():
         print "Version %s of the Experiment %s exists. I'm overwriting it in 10 seconds" %(experimentVersion,  yamlData['Global']['meta']['longtitle'])
-        time.sleep(10)
+        time.sleep(2)
         e =  Experiment.objects.get(name = yamlData['Global']['meta']['longtitle'], version=experimentVersion)
         e.delete()
 
@@ -105,7 +113,7 @@ for category, filename in yamlData['Global']['meta']['exptfiles'].items():
     print "\t%s: %s" %(category, filename)
     newExptfileObj = Exptfile(experiment=expObj, category="detest")
     newExptfileObj.subcategory = category
-    path = basepath + filename
+    path = os.path.join(basepath, filename)
     newExptfileObj.file.save(filename, File(open(path)))
 
 # Tagcount Model
@@ -129,9 +137,9 @@ for libcode, countDic in rawCountsDic.items():
 print ("loading Exptsetup...")
 # Exptsetup Model
 for groupname, groupdic in yamlData['Global']['meta']['exptsetup'].items():
-    print "\tgroupname: %s" %groupname
+    print "\tgroupname: %s" %(groupname.upper())
     newExptsetup = Exptsetup(experiment=expObj)
-    newExptsetup.groupname = groupname
+    newExptsetup.groupname = groupname.upper()
     newExptsetup.author_modified = author_modified
     newExptsetup.save()
     # add lib, notes to it
@@ -161,13 +169,12 @@ for contrastName, contrastDic in yamlData['Contrasts'].items():
         print "\t\tloading %s "%filename
         newCompfileObj = Compfile(comparison=compObj, category="detest")
         newCompfileObj.subcategory = category
-        path = basepath + filename
+        path = os.path.join(basepath, filename)
         newCompfileObj.file.save(filename, File(open(path)))
     print ("\tloading Resultfiles...")
     deresultFile =  yamlData['Contrasts'][contrastName]['resultfiles']['DEresult']
     print "\t\tloading %s "%deresultFile
-    #deresultFile = "xan_vs_no.LdBob.Nicola.RNAseq.edgeR.plus5.DEtestResult.top8239rows.allGenes.DOWNonTOP.tab"
-    deResult = open(basepath+deresultFile, 'r')
+    deResult = open(os.path.join(basepath, deresultFile), 'r')
     deResult.readline()#remove headerline
     for line in deResult:
         #print(line)
