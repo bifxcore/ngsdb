@@ -388,9 +388,10 @@ def get_exptfile_upload_destination(instance, filename):
 
 class Exptfile(models.Model):
     experiment = models.ForeignKey(Experiment, null=True)
-    category = models.CharField(max_length=15, db_index=True, default="general", help_text="Broad level category for the file")
+    category = models.CharField(max_length=25, db_index=True, default="general", help_text="Broad level category for the file")
     subcategory = models.CharField(max_length=200, db_index=True, default="general", help_text="Sub level category for the file")
     file = models.FileField(upload_to=get_exptfile_upload_destination, blank=True, help_text="Upload files related to an experiment")
+    filetype = models.CharField(max_length=25, blank=True)
     notes = models.TextField(blank=True)
 
     def __unicode__(self):
@@ -399,7 +400,7 @@ class Exptfile(models.Model):
 
 class Exptsetup(models.Model):
     experiment = models.ForeignKey(Experiment)
-    groupname = models.CharField(max_length=15, help_text="Name for group of replicates. Comparisions done between groups rather than libraries")
+    groupname = models.CharField(max_length=25, help_text="Name for group of replicates. Comparisions done between groups rather than libraries")
     libraries = models.ManyToManyField('samples.Library')
     notes = models.TextField()
     date_created = models.DateTimeField(auto_now_add=True)
@@ -416,7 +417,7 @@ class Exptsetup(models.Model):
 
 class Comparison(models.Model):
     experiment = models.ForeignKey(Experiment)
-    compname = models.CharField(max_length=15, help_text="Name of the comparison")
+    compname = models.CharField(max_length=150, help_text="Name of the comparison")
     basegroup = models.ForeignKey(Exptsetup, related_name="basegrp")
     querygroup = models.ForeignKey(Exptsetup, related_name="querygrp")
     description = models.CharField(max_length=250, help_text="Explain the objective of this comparison", blank=True)
@@ -433,9 +434,10 @@ def get_compfile_upload_destination(instance, filename):
 
 class Compfile(models.Model):
     comparison = models.ForeignKey(Comparison)
-    category = models.CharField(max_length=15, db_index=True, default="general", help_text="Broad level category for the file")
+    category = models.CharField(max_length=25, db_index=True, default="general", help_text="Broad level category for the file")
     subcategory = models.CharField(max_length=200, db_index=True, default="general", help_text="Sub level category for the file")
     file = models.FileField(upload_to=get_compfile_upload_destination, blank=True, help_text="Upload files related to an experiment")
+    filetype = models.CharField(max_length=25, blank=True)
     notes = models.TextField(blank=True)
 
     def __unicode__(self):
