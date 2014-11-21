@@ -1634,8 +1634,6 @@ def chrom_region_filter(request):
 	                                                             "toolbar_min": toolbar_min}, context_instance=RequestContext(request))
 
 
-
-
 # Dumps a queryset into a csv file.
 def dump(qs, outfile_path):
 	writer = csv.writer(open(outfile_path, 'w'))
