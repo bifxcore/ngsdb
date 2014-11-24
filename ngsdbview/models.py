@@ -85,7 +85,6 @@ class Growthphase(models.Model):
     def __unicode__(self):
         return unicode(self.growthphase)
 
-
 class Genotype(models.Model):
     genotype = models.CharField(unique=True, max_length=45)
     notes = models.CharField(max_length=45, default=None, blank=True)
@@ -95,8 +94,6 @@ class Genotype(models.Model):
 
     def __unicode__(self):
         return unicode(self.genotype)
-
-
 
 class Collaborator(models.Model):
     collaborator_id = models.AutoField(primary_key=True)
@@ -114,7 +111,6 @@ class Collaborator(models.Model):
 
     def __unicode__(self):
         return unicode(self.name)
-
 
 class Organism(models.Model):
     organism_id = models.AutoField(primary_key=True)
@@ -274,7 +270,6 @@ class Resultslgene(models.Model):
     def __unicode__(self):
         return str(self.resultslgene_id)
 
-
 class Resultsriboprof(models.Model):
     resultsriboprof_id = models.AutoField(primary_key=True)
     result = models.ForeignKey(Result)
@@ -286,7 +281,6 @@ class Resultsriboprof(models.Model):
 
     def __unicode__(self):
         return str(self.resultsriboprof_id)
-
 
 class Analysis(models.Model):
     analysis_id = models.AutoField(primary_key=True)
@@ -310,6 +304,7 @@ class AnalysisCV(models.Model):
 	dbxref = models.ForeignKey(Dbxref)
 	is_obsolete = models.BooleanField(default="False")
 	is_relationshiptype = models.BooleanField()
+
 
 class Analysisfile(models.Model):
     analysisfile_id = models.AutoField(primary_key=True)

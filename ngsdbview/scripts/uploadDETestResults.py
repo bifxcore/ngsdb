@@ -61,8 +61,16 @@ def example():
     command = '''
     ~/djcode/ngsdb03/ngsdbview/scripts/uploadDETestResults.py --yamlfile LdBob.Nicola.RNAseq.edgeR.plus5.yml --basepath /Volumes/ngs/projects/Ldo_Purine_Nicola/vsLinJ/Expression_Analysis/LinJ.TriTrypDB8p0.CDS.union/edgeR.plus5_GENEs --experimentVersion 3.0 --experimentType RNAseq --username gramasamy --genomeOrganism LinJ --genomeVersion 8.0
     '''
-
     print command
+
+def get_filetype(filepath):
+    import imghdr
+    fileType = imghdr.what(filepath)
+    if fileType:
+        fileType = "image"
+    else:
+        fileType = "notImage"
+    return fileType
 
 ####################################################################
 #
@@ -114,6 +122,7 @@ for category, filename in yamlData['Global']['meta']['exptfiles'].items():
     newExptfileObj = Exptfile(experiment=expObj, category="detest")
     newExptfileObj.subcategory = category
     path = os.path.join(basepath, filename)
+    newExptfileObj.filetype = get_filetype(path)
     newExptfileObj.file.save(filename, File(open(path)))
 
 # Tagcount Model
@@ -170,6 +179,7 @@ for contrastName, contrastDic in yamlData['Contrasts'].items():
         newCompfileObj = Compfile(comparison=compObj, category="detest")
         newCompfileObj.subcategory = category
         path = os.path.join(basepath, filename)
+        newCompfileObj.filetype = get_filetype(path)
         newCompfileObj.file.save(filename, File(open(path)))
     print ("\tloading Resultfiles...")
     deresultFile =  yamlData['Contrasts'][contrastName]['resultfiles']['DEresult']

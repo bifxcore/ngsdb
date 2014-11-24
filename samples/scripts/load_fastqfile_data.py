@@ -10,7 +10,7 @@ from os.path import basename
 
 from samples.models import Library
 
-file = "/Users/gramasamy/djcode/ngsdb03/samples/scripts/fastqFiles.list.194.ALL.tab.goodones"
+file = "/Users/gramasamy/djcode/ngsdb03/samples/scripts/fastqFiles.list.194.ALL.data.tab"
 with open(file) as f:
     for line in f:
         cols = line.split("\t")
