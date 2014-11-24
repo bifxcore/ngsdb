@@ -85,7 +85,6 @@ class Growthphase(models.Model):
     def __unicode__(self):
         return unicode(self.growthphase)
 
-
 class Genotype(models.Model):
     genotype = models.CharField(unique=True, max_length=45)
     notes = models.CharField(max_length=45, default=None, blank=True)
@@ -95,8 +94,6 @@ class Genotype(models.Model):
 
     def __unicode__(self):
         return unicode(self.genotype)
-
-
 
 class Collaborator(models.Model):
     collaborator_id = models.AutoField(primary_key=True)
@@ -114,7 +111,6 @@ class Collaborator(models.Model):
 
     def __unicode__(self):
         return unicode(self.name)
-
 
 class Organism(models.Model):
     organism_id = models.AutoField(primary_key=True)
@@ -179,37 +175,6 @@ class Genome(models.Model):
     def __unicode__(self):
         return str(self.organism)
 
-def get_libraryfile_upload_destination(instance, filename):
-    return "libraryfiles/{id}/{file}".format(id=instance.samplelibrary.library_code, file=filename)
-    #return "libraryfiles/{id}/{file}".format(id=instance.library.librarycode, file=filename)
-    #todo This is modified to pull the library code from samples.library rather than ngsdbview.library
-    # however, working of this needs to be verified
-
-class Library_CV(models.Model):
-	library_cv_id = models.AutoField(primary_key=True)
-	cvterm = models.TextField(db_index=True)
-	definition = models.TextField()
-	dbxref = models.ForeignKey(Dbxref)
-	is_obsolete = models.BooleanField(default="False")
-	is_relationshiptype = models.BooleanField()
-
-class Libraryfile(models.Model):
-    libraryfile_id = models.AutoField(primary_key=True)
-    library = models.ForeignKey('samples.Library')
-    notes = models.CharField(max_length=1000, default='qc')
-    file = models.FileField(upload_to=get_libraryfile_upload_destination)
-    def __unicode__(self):
-        return str(self.library)
-
-class Libraryprop(models.Model):
-    libraryprop_id = models.AutoField(primary_key=True)
-    library = models.ForeignKey('samples.Library')
-    cvterm = models.ForeignKey(Cvterm)
-    value = models.TextField()
-    def __unicode__(self):
-        return str(self.libraryprop_id)
-
-#todo decide if result points to ngsdbview.Library or samples.Library
 class Result(models.Model):
     result_id = models.AutoField(primary_key=True)
     libraries = models.ManyToManyField('samples.Library')
@@ -227,12 +192,12 @@ def get_resultfile_upload_destination(instance, filename):
     return "resultfiles/resultid_{id}/{file}".format(id=instance.result_id, file=filename)
 
 class Result_CV(models.Model):
-	result_cv_id = models.AutoField(primary_key=True)
-	cvterm = models.TextField(db_index=True)
-	definition = models.TextField()
-	dbxref = models.ForeignKey(Dbxref)
-	is_obsolete = models.BooleanField(default="False")
-	is_relationshiptype = models.BooleanField()
+    result_cv_id = models.AutoField(primary_key=True)
+    cvterm = models.TextField(db_index=True)
+    definition = models.TextField()
+    dbxref = models.ForeignKey(Dbxref)
+    is_obsolete = models.BooleanField(default="False")
+    is_relationshiptype = models.BooleanField()
 
 class Resultfile(models.Model):
     resultfile_id = models.AutoField(primary_key=True)
@@ -280,7 +245,6 @@ class Resultslsite(models.Model):
     intervallength = models.IntegerField()
     slpercent = models.DecimalField(max_digits=10, decimal_places=7)
     time_data_loaded = models.DateTimeField(auto_now=True)
-    #geneid_current = models.CharField(max_length=45, db_index=True)
 
     def __unicode__(self):
         return str(self.resultslsite_id)
@@ -306,7 +270,6 @@ class Resultslgene(models.Model):
     def __unicode__(self):
         return str(self.resultslgene_id)
 
-
 class Resultsriboprof(models.Model):
     resultsriboprof_id = models.AutoField(primary_key=True)
     result = models.ForeignKey(Result)
@@ -319,13 +282,11 @@ class Resultsriboprof(models.Model):
     def __unicode__(self):
         return str(self.resultsriboprof_id)
 
-
 class Analysis(models.Model):
     analysis_id = models.AutoField(primary_key=True)
     analysistype = models.ForeignKey(Analysistype)
     software = models.ForeignKey(Software)
     result = models.ForeignKey(Result)
-    #libraries = models.ManyToManyField(Library) let's add this when we use South
     ordinal = models.IntegerField()
     time_data_loaded = models.DateTimeField(auto_now=True)
     notes = models.TextField(null=True)
@@ -343,6 +304,7 @@ class AnalysisCV(models.Model):
 	dbxref = models.ForeignKey(Dbxref)
 	is_obsolete = models.BooleanField(default="False")
 	is_relationshiptype = models.BooleanField()
+
 
 class Analysisfile(models.Model):
     analysisfile_id = models.AutoField(primary_key=True)
@@ -393,18 +355,119 @@ class Geneidmap(models.Model):
 
 
 class Experiment(models.Model):
-    experiment_id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=25, db_index=True)
+    name = models.CharField(max_length=250, help_text="Name of the Experiment. Need not change with different versions of the analysis")
+    version = models.FloatField(blank=False, help_text="Version of the analysis under this experiment")
     type = models.CharField(max_length=25, choices=EXPERIMENT_TYPE_CHOICES)
-    description = models.CharField(max_length=100)
-    notes = models.TextField()
+    refgenome = models.ForeignKey(Genome)
+    description = models.CharField(max_length=500, blank=True)
+    notes = models.TextField(blank=True)
+    is_current = models.BooleanField(default="True")
+    date_created = models.DateTimeField(auto_now_add=True)
+    date_modified = models.DateTimeField(auto_now=True)
+    author_modified = models.ForeignKey(User)
+
+    class Meta:
+        ordering = ['name']
+        index_together = [
+            ["name", "version"]
+        ]
+        unique_together = [
+            ["name", "version"]
+        ]
+
+    def __unicode__(self):
+        return str(self.name)
+
+def get_exptfile_upload_destination(instance, filename):
+    return "experimentfiles/{id}/exptfiles/{file}".format(id=instance.experiment.id, file=filename)
+
+class Exptfile(models.Model):
+    experiment = models.ForeignKey(Experiment, null=True)
+    category = models.CharField(max_length=25, db_index=True, default="general", help_text="Broad level category for the file")
+    subcategory = models.CharField(max_length=200, db_index=True, default="general", help_text="Sub level category for the file")
+    file = models.FileField(upload_to=get_exptfile_upload_destination, blank=True, help_text="Upload files related to an experiment")
+    filetype = models.CharField(max_length=25, blank=True)
+    notes = models.TextField(blank=True)
+
+    def __unicode__(self):
+        return unicode(self.subcategory)
+
+
+class Exptsetup(models.Model):
+    experiment = models.ForeignKey(Experiment)
+    groupname = models.CharField(max_length=25, help_text="Name for group of replicates. Comparisions done between groups rather than libraries")
     libraries = models.ManyToManyField('samples.Library')
+    notes = models.TextField()
+    date_created = models.DateTimeField(auto_now_add=True)
+    date_modified = models.DateTimeField(auto_now=True)
+    author_modified = models.ForeignKey(User)
+
+    class Meta:
+        ordering = ['experiment']
+        verbose_name_plural="Exptsetup"
+
+    def __unicode__(self):
+        return str(self.groupname)
+
+
+class Comparison(models.Model):
+    experiment = models.ForeignKey(Experiment)
+    compname = models.CharField(max_length=150, help_text="Name of the comparison")
+    basegroup = models.ForeignKey(Exptsetup, related_name="basegrp")
+    querygroup = models.ForeignKey(Exptsetup, related_name="querygrp")
+    description = models.CharField(max_length=250, help_text="Explain the objective of this comparison", blank=True)
     date_created = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)
     author_modified = models.ForeignKey(User)
 
     def __unicode__(self):
-        return str(self.name)
+        return str(self.compname)
+
+
+def get_compfile_upload_destination(instance, filename):
+    return "experimentfiles/{id}/{compname}/{file}".format(id=instance.comparison.experiment.id, compname=instance.comparison.compname, file=filename)
+
+class Compfile(models.Model):
+    comparison = models.ForeignKey(Comparison)
+    category = models.CharField(max_length=25, db_index=True, default="general", help_text="Broad level category for the file")
+    subcategory = models.CharField(max_length=200, db_index=True, default="general", help_text="Sub level category for the file")
+    file = models.FileField(upload_to=get_compfile_upload_destination, blank=True, help_text="Upload files related to an experiment")
+    filetype = models.CharField(max_length=25, blank=True)
+    notes = models.TextField(blank=True)
+
+    def __unicode__(self):
+        return unicode(self.subcategory)
+
+
+class Diffexpn(models.Model):
+    experiment = models.ForeignKey(Experiment)
+    compname = models.ForeignKey(Comparison)
+    feature = models.CharField(max_length=100, db_index=True)
+    log2foldchange = models.FloatField(blank=False, db_index=True)
+    pvalue = models.FloatField(blank=False, db_index=True)
+    fdr = models.FloatField(blank=False, db_index=True)
+    lr = models.FloatField(blank=False, db_index=True)
+
+    class Meta:
+        index_together = [
+            ["experiment", "compname", "feature"]
+        ]
+        unique_together = [
+            ["experiment", "compname", "feature"]
+        ]
+    def __unicode__(self):
+        return str(self.feature)
+
+
+class Tagcount(models.Model):
+    experiment = models.ForeignKey(Experiment)
+    library = models.ForeignKey('samples.Library')
+    feature = models.CharField(max_length=100, db_index=True)
+    rawcount = models.FloatField()
+    normalizedcount = models.FloatField()
+
+    def __unicode__(self):
+        return str(self.library.library_code)
 
 #==============================================
 #==============================================

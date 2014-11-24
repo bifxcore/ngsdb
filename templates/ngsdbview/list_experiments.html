@@ -4,52 +4,58 @@
 <link rel="stylesheet" type="text/css" href="/media/css/style.css" >
 <link rel="stylesheet" type="text/css" href="/media/css/tabstyle.css" >
 {% block body %}
+{% load ngsdbview_extras %}
 
 <!-- for autocompletion -->
 <!-- end for autocompletion -->
 
-{%  if expts  %}
+{%  if experiments  %}
 
-<FORM action="/ngsdbview/analyzeexperiments/" method="post">
-                {% csrf_token %}
+<FORM action="/ngsdbview/listexperiments/" method="post">
+{% csrf_token %}
 
 
-<TABLE><TR><TH>
-    {% for exp, libs in expts.items %}
+    {% for exp in experiments %}
         <TABLE id="viewtable2">
-            <TR><TH id="tableheader">Experiment {{ forloop.counter }}:
-
-                {{ exp.name }}
-                <input type="hidden" name="experiment_name" value={{ exp.name }}>
-                </TD><input type="submit" name="formlevel1" value="Load for analysis" />
-                </TH></TR>
-            <TR><TD>Description : {{ exp.description }}</TD></TR>
-            <TR><TD>Note : {{ exp.notes }}</TD></TR>
+            <TR><TH id="tableheader">Experiment {{ forloop.counter }}: <a href="/ngsdbview/detailexperiment/{{ exp.id }}/" target="_blank">View Details</a> </TH></TR>
             <TR><TD>
+            <!-- experiment table -->
+            <TABLE>
+                <TR><TD>
+                    <TABLE><TR>
+                        <TH>Name: <a href="/ngsdbview/detailexperiment/{{ exp.id }}/" target="_blank">{{ exp.name }}</a></TH>
+                        <TD>Exp. version: {{ exp.version }}</TD>
+                        <TD>Exp. type: {{ exp.type }}</TD>
+                        <TD>Ref. Genome: {{ exp.refgenome }}</TD>
+                        <TD>Is this analysis current: {{ exp.is_current }}</TD>
+                        <TD>Date last modified: {{ exp.date_modified }}</TD>
+                    </TR></TABLE>
+                </TD></TR>
+                <TR><TD>Description: {{ exp.description }}</TD></TR>
+                <TR><TD>Notes: {{ exp.notes }}</TD></TR>
+            </TABLE>
+            <!-- experiment setup table -->
+            <TABLE>
+                <TR><TH>Experimental Setup:</TH></TR>
+                <TR>
+                {% for exptsetup in exp.exptsetup_set.all %}
+                <TD>
                 <TABLE>
-                    <TR>
-                    <TH>Library Code</TH>
-                    {% for lib in libs %}
-                        <TD>{{ lib.library_code }} </TD>
-                    {% endfor %}
-                </TR><TR>
-                    <TH>Sampleid</TH>
-                    {% for lib in libs %}
-                        <TD>{{ lib.samplename }}</TD>
-                    {% endfor %}
-                </TR><TR>
-                    <TH>Lib. Type</TH>
-                    {% for lib in libs %}
-                        <TD>{{ lib.librarytype }}</TD>
-                    {% endfor %}
-                </TR>
-
+                    <TR><TD> Condition/Group : {{ exptsetup.groupname }} </TD></TR>
+                    <TR><TD> Libraries :
+                        {% for lib in  exptsetup.libraries.all %}
+                        {{ lib }}
+                        {% endfor %}
+                    </TD></TR>
+                    <TR><TD>notes : {{ exptsetup.notes }} </TD></TR>
                 </TABLE>
-            </TD></TR>
+                </TD>
+                {% endfor %}
+
+            </TR></TABLE>
+            </TR></TD>
         </TABLE>
-    <div></div>
     {% endfor %}
-</TH></TR></TABLE>
 
 {% endif %}
 

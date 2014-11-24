@@ -16,7 +16,7 @@
 
 <div class="container-fluid">
 	<div class="page-header text-header" style="padding-left:30px; margin-top:10px; padding-bottom:0px">
-    	<h1 class="header" style="padding-bottom:0px;">Library Summary</h1>
+    	<h1 class="header" style="padding-bottom:0px;">Library Summary by Chromosome</h1>
     </div>
 </div>
 
@@ -42,8 +42,8 @@
         <thead>
         <tr>
             <th class="text-center"><a href={{ filter_urls.chromosome__chromosome_name }}>Chromosome Name</a></th>
-            <th class="text-center"><a href={{ filter_urls.library_id }}>Library ID</a></th>
             <th class="text-center"><a href={{ filter_urls.library__librarycode }}>Library Code</a></th>
+            <th class="text-center" style="word-wrap: break-word"><a href={{ filter_urls.num_snps }}>Reference Genome</a></th>
             <th class="text-center"><a href={{ filter_urls.num_snps }}>SNP Total</a></th>
             <th class="text-center"><a href={{ filter_urls.hetero }}>Heterozygosity Count</a></th>
             <th class="text-center"><a href={{ filter_urls.homo }}>Homozygous Count</a></th>
@@ -57,8 +57,8 @@
         <tr>
             {% for each in results %}
                 <td class="text-center">{{ each.chromosome__chromosome_name }}</a></td>
-                <td class="text-center"><a href="/snpdb/library-snp-summary/search?lib={{each.library__library_code}}&count={{each.num_snps}}">{{ each.library_id }}</a></td>
-                <td class="text-center">{{ each.library__library_code }}</td>
+                <td class="text-center"><a href="/snpdb/library-snp-summary/search?lib={{each.library__library_code}}&count={{each.num_snps}}">{{ each.library__library_code }}</a></td>
+                <td class="text-center" style="word-wrap: break-word">{{ each.result__genome__organism__organismcode }}</td>
                 <td class="text-center">{{ each.num_snps }}</td>
                 <td class="text-center">{{ each.hetero }}</td>
                 <td class="text-center">{{ each.num_snps|sub:each.hetero }}</td>

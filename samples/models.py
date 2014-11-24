@@ -22,6 +22,11 @@ CULTURE_METHOD_TYPE_CHOICES = (
     ('animal derived', 'animal derived'),
 )
 
+LIBRARYFILE_CATEGORY_CHOICES = (
+    ('fastqqc', 'fastqqc'),
+    ('rnaqc', 'rnaqc'),
+)
+
 
 class Bioproject(models.Model):
     bioproject_code = models.CharField(unique=True, max_length=12)
@@ -145,10 +150,15 @@ class Library(models.Model):
     def __unicode__(self):
         return unicode(self.library_code)
 
+def get_libraryfile_upload_destination(instance, filename):
+    return "libraryfiles/{id}/{file}".format(id=instance.library.library_code, file=filename)
 
+class Libraryfile(models.Model):
+    library = models.ForeignKey(Library, null=True)
+    category = models.CharField(max_length=15, db_index=True, choices=LIBRARYFILE_CATEGORY_CHOICES, help_text="Broad level category for the file")
+    subcategory = models.CharField(max_length=200, db_index=True, help_text="Sub level category for the file")
+    file = models.FileField(upload_to=get_libraryfile_upload_destination, blank=True, help_text="Upload files related to a library")
+    notes = models.TextField(blank=True)
 
-class Test(models.Model):
-    name = models.CharField(max_length=10)
-    organism = models.ForeignKey('ngsdbview.Organism')
-    phenotype = models.ForeignKey('ngsdbview.Phenotype', related_name="testphenotye")
-    growthphase = models.ForeignKey('ngsdbview.Growthphase', related_name="test_growthphase")
+    def __unicode__(self):
+        return unicode(self.library)

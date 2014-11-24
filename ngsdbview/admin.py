@@ -44,21 +44,6 @@ class SoftwareAdmin(admin.ModelAdmin):
     list_display = ('software_id', 'name', 'version', 'algorithm', 'source', 'sourceuri')
 admin.site.register(Software, SoftwareAdmin)
 
-class ExperimentAdmin(admin.ModelAdmin):
-    list_display = ('name', 'type', 'description', 'notes', 'author_modified')
-admin.site.register(Experiment, ExperimentAdmin)
-
-# code for editing Libraryfile & Libraryprop while in Library admin page
-class LibraryfileInline(admin.TabularInline):
-    model = Libraryfile
-
-class LibrarypropInline(admin.TabularInline):
-    model = Libraryprop
-
-#class LibraryAdmin(admin.ModelAdmin):
-#    inlines = [ LibraryfileInline, LibrarypropInline ]
-#admin.site.register(Library, LibraryAdmin)
-
 
 # code for editing Resultfile/Resultprop while in Library admin page
 class ResultfileInline(admin.TabularInline):
@@ -86,5 +71,35 @@ admin.site.register(Analysis, AnalysisAdmin)
 class ProtocolAdmin(admin.ModelAdmin):
     list_display = ('protocol_name', 'protocol_file', 'protocol_link', 'notes')
 admin.site.register(Protocol, ProtocolAdmin)
+
+
+class ExperimentAdmin(admin.ModelAdmin):
+    list_display = ('name', 'version', 'type', 'refgenome', 'description', 'date_modified')
+admin.site.register(Experiment, ExperimentAdmin)
+
+class ExptfileAdmin(admin.ModelAdmin):
+    list_display = ('subcategory', 'experiment', 'category', 'file')
+admin.site.register(Exptfile, ExptfileAdmin)
+
+class ExptsetupAdmin(admin.ModelAdmin):
+    list_display = ('groupname', 'experiment', 'notes')
+admin.site.register(Exptsetup, ExptsetupAdmin)
+
+class ComparisonAdmin(admin.ModelAdmin):
+    list_display = ('compname', 'experiment', 'basegroup', 'querygroup', 'description')
+admin.site.register(Comparison, ComparisonAdmin)
+
+class CompfileAdmin(admin.ModelAdmin):
+    list_display = ('comparison', 'category', 'subcategory', 'file')
+admin.site.register(Compfile, CompfileAdmin)
+
+class DiffexpnAdmin(admin.ModelAdmin):
+    list_display = ('feature', 'experiment', 'compname', 'log2foldchange', 'pvalue', 'fdr')
+admin.site.register(Diffexpn, DiffexpnAdmin)
+
+
+class TagcountAmin(admin.ModelAdmin):
+    list_display = ("feature", "library", "rawcount", "normalizedcount", "experiment")
+admin.site.register(Tagcount, TagcountAmin)
 
 autoregister('ngsdbview')

@@ -160,18 +160,17 @@ def insert_chromosome(chromosome_name, organismcode, genome_version, genome_id):
 		chromosome = chromosome_fullname.split('_')[0]
 		try:
 			cur.execute('SELECT chromosome_id FROM "snpdb_chromosome" WHERE chromosome_name = %s AND genome_version = %s AND genome_name_id=%s',
-			            (chromosome, genome_version, 'test2'))
+			            (chromosome, genome_version, organismcode))
 			chromosome_id = cur.fetchone()
 			if chromosome_id is not None:
 				return chromosome_id[0]
 			else:
-				cur.execute('SELECT chromosome FROM "ngsdbview_feature" WHERE chromosome=%s AND genome_id=%s', (chromosome, 50))
+				cur.execute('SELECT chromosome FROM "ngsdbview_feature" WHERE chromosome=%s AND genome_id=%s', (chromosome, genome_id))
 				cro = cur.fetchone()
-				print cro
 				if cro is not None:
 					cur.execute('INSERT INTO "snpdb_chromosome" (chromosome_name, size, genome_name_id, genome_version) VALUES (%s, %s, %s, %s)',
-					            (chromosome, size, 'test', genome_version))
-					print "inserted chromosome"
+					            (chromosome, size, organismcode, genome_version))
+					print "inserted chromosome into snpdb_chromosome"
 				else:
 					print "The chromosome", chromosome, "was not found in the Feature Table. Please upload the genome (.gff file) to Feature before proceeding."
 					dbh.rollback()
@@ -389,10 +388,20 @@ def insert_vcf_file(library_id, result_id, vcf_file, vcf_path):
 
 def insert_analysis(software_id, analysis_type, result_id, GATK_software_id, GATK_analysis_type):
 	time_data_loaded = str(datetime.datetime.now())
-	cur.execute('INSERT INTO "ngsdbview_analysis" (analysistype_id, software_id, result_id, ordinal, time_data_loaded, notes) VALUES (%s, %s, %s, %s, %s, %s)',
+	# Inserts the annotation of the vcf file using SNP Eff. Second step in the SNP analysis
+	cur.execute('INSERT INTO "ngsdbview_analysis" (analysistype_id, software_id, result_id, ordinal, time_data_loaded, notes) VALUES (%s, %s, %s, %s, %s, %s) '
+	            'RETURNING "analysis_id"',
 	            (analysis_type, software_id, result_id, 2, time_data_loaded, ''))
+	analysis_id = cur.fetchone()
+	# inserts the creation of vcf files. First step for SNP analysis
 	cur.execute('INSERT INTO "ngsdbview_analysis" (analysistype_id, software_id, result_id, ordinal, time_data_loaded, notes) VALUES (%s, %s, %s, %s, %s, %s)',
-	            (GATK_software_id, GATK_analysis_type, result_id, 1, time_data_loaded, ''))
+	            (GATK_analysis_type, GATK_software_id, result_id, 1, time_data_loaded, ''))
+	return analysis_id
+
+
+def insert_analysis_prop(analysis_id, analysis_command):
+	cur.execute('INSERT INTO "ngsdbview_analysisprop" (analysis_id, cvterm_id, value) VALUES (%s, %s, %s)',
+		(analysis_id, 2, analysis_command))
 
 
 #todo Add command to upload analysis information
@@ -454,21 +463,23 @@ def main():
 		result_id = get_result(library_id, genome_id, author_id, analysis_path)
 
 		#Inserts vcf file int vcf_files table.
-		# vcf_id = insert_vcf_file(library_id, result_id, vcf_file, vcf_path)
+		vcf_id = insert_vcf_file(library_id, result_id, vcf_file, vcf_path)
 
 		# Identifies the chromosome and chromosomal version
 		chromosome_name = vcf_reader.contigs.values()
-		# insert_chromosome(chromosome_name, organismcode, genome_version, genome_id)
-		#
+		insert_chromosome(chromosome_name, organismcode, genome_version, genome_id)
+
 		# Inserts Statistic CVs into the Statistics_CV.
 		info = vcf_reader.infos
 		formats = vcf_reader.formats
-		# insert_statistics_cv(info, formats)
+		insert_statistics_cv(info, formats)
 
 
+		# Collects analysis information for the annotation of SNPs
 		analysis_command = vcf_reader.metadata['SnpEffCmd'][0].strip('"')
 		software_algorithm = analysis_command.split()[0]
 		software_version = vcf_reader.metadata['SnpEffVersion'][0].strip('"').split()[0]
+		print "snp command: ", analysis_command
 
 		try:
 			cur.execute('SELECT software_id FROM "ngsdbview_software" WHERE name=%s AND version=%s and algorithm=%s',
@@ -479,93 +490,95 @@ def main():
 			dbh.rollback()
 
 		try:
-			cur.execute('SELECT analysistype_id FROM "ngsdbview_analysistype" WHERE type=%s','SNP')
+			cur.execute('SELECT analysistype_id FROM "ngsdbview_analysistype" WHERE type=%s', ('SNP',))
 			analysistype_id = cur.fetchone()
 		except psycopg2.IntegrityError:
 			print "Getting analysis type id rollback error"
 			dbh.rollback()
 
 		try:
-			cur.execute('SELECT software_id FROM "ngsdbview_software" WHERE name="GATK"')
+			cur.execute('SELECT software_id FROM "ngsdbview_software" WHERE name=%s', ('GATK',))
 			GATK_software_id = cur.fetchone()
 		except psycopg2.IntegrityError:
 			print "Getting software id rollback error"
 			dbh.rollback()
 
 		try:
-			cur.execute('SELECT analysistype_id FROM "ngsdbview_analysistype" WHERE type=%s','GATK')
+			cur.execute('SELECT analysistype_id FROM "ngsdbview_analysistype" WHERE type=%s', ('GATK',))
 			GATK_analysistype_id = cur.fetchone()
 		except psycopg2.IntegrityError:
 			print "Getting analysis type id rollback error"
 			dbh.rollback()
 
-		insert_analysis(software_id, analysistype_id, result_id, GATK_software_id, GATK_analysistype_id)
-		#
-		#
-		# # Inserts Effect types into effect_cv
-		# try:
-		# 	effect_list = vcf_reader.infos['EFF'].desc
-		# 	insert_effect_cv(effect_list)
-		# except KeyError:
-		# 	print "There are no effects present."
-		# #Attributes that are unique for each SNP.
-		# for snps in vcf_reader:
-		# 	chromosome = snps.CHROM
-		# 	snp_iterator += 1
-		# 	print snp_iterator
-		# 	ref_base = snps.REF
-		# 	alt_base = snps.ALT
-		# 	quality = snps.QUAL
-		# 	filter_type = snps.FILTER
-		# 	position = snps.POS
-		# 	is_snp = snps.is_snp
-		# 	indel = snps.is_indel
-		# 	deletion = snps.is_deletion
-		# 	monomorphic = snps.is_monomorphic
-		# 	sv = snps.is_sv       # structural variant
-		# 	transition = snps.is_transition
-		# 	statistics = snps.INFO
-		#
-		#
-		# 	# Returns the heterozygosity of each snp.
-		# 	samples = snps.samples
-		# 	heterozygosity = get_heterozygosity(samples)
-		#
-		# 	# Returns the chromosome_id for each snp result.
-		# 	chromosome_id = get_chromosome_id(chromosome, genome_version)
-		#
-		# 	# Inserts each snp_results into the snp table
-		# 	snp_id = insert_snp_results(position, result_id, ref_base, alt_base, heterozygosity, quality, library_id, chromosome_id, vcf_id)
-		#
-		# 	# Inserts the SNP types.
-		# 	insert_snp_type(snp_id, indel, deletion, is_snp, monomorphic, transition, sv)
-		#
-		# 	# Inserts effects on each SNP into Effect.
-		# 	try:
-		# 		effects = snps.INFO['EFF']
-		# 		group_id = 0
-		# 		for effs in effects:
-		# 			group_id += 1
-		# 			effect_class = effs.split('(')[0]
-		# 			effect_string = re.split('\((\S*\|\S*)\)', effs)[1]
-		# 			effects_string = effect_string.split('|')
-		# 			insert_effect(snp_id, effect_class, effects_string, group_id, effect_list)
-		# 	except KeyError:
-		# 		print "There are no effects."
-		#
-		# 	# Inserts the snp's statistics into Statistics
-		# 	for cv_name in statistics:
-		# 		cv_value = statistics[cv_name]
-		# 		if isinstance(cv_value, list):
-		# 			for values in cv_value:
-		# 				insert_snp_statistics(snp_id, cv_name, values)
-		# 		else:
-		# 			insert_snp_statistics(snp_id, cv_name, cv_value)
-		#
-		# 	# Checks to see if the snp failed on a filter. If so then inserts into filter table.
-		# 	if filter_type:
-		# 		filter_cv_id = insert_filter_cv(filter_type)
-		# 		insert_filter(snp_id, filter_cv_id)
+		analysis_id = insert_analysis(software_id, analysistype_id, result_id, GATK_software_id, GATK_analysistype_id)
+
+		insert_analysis_prop(analysis_id, analysis_command)
+
+
+		# Inserts Effect types into effect_cv
+		try:
+			effect_list = vcf_reader.infos['EFF'].desc
+			insert_effect_cv(effect_list)
+		except KeyError:
+			print "There are no effects present."
+		#Attributes that are unique for each SNP.
+		for snps in vcf_reader:
+			chromosome = snps.CHROM
+			snp_iterator += 1
+			print snp_iterator
+			ref_base = snps.REF
+			alt_base = snps.ALT
+			quality = snps.QUAL
+			filter_type = snps.FILTER
+			position = snps.POS
+			is_snp = snps.is_snp
+			indel = snps.is_indel
+			deletion = snps.is_deletion
+			monomorphic = snps.is_monomorphic
+			sv = snps.is_sv       # structural variant
+			transition = snps.is_transition
+			statistics = snps.INFO
+
+
+			# Returns the heterozygosity of each snp.
+			samples = snps.samples
+			heterozygosity = get_heterozygosity(samples)
+
+			# Returns the chromosome_id for each snp result.
+			chromosome_id = get_chromosome_id(chromosome, genome_version)
+
+			# Inserts each snp_results into the snp table
+			snp_id = insert_snp_results(position, result_id, ref_base, alt_base, heterozygosity, quality, library_id, chromosome_id, vcf_id)
+
+			# Inserts the SNP types.
+			insert_snp_type(snp_id, indel, deletion, is_snp, monomorphic, transition, sv)
+
+			# Inserts effects on each SNP into Effect.
+			try:
+				effects = snps.INFO['EFF']
+				group_id = 0
+				for effs in effects:
+					group_id += 1
+					effect_class = effs.split('(')[0]
+					effect_string = re.split('\((\S*\|\S*)\)', effs)[1]
+					effects_string = effect_string.split('|')
+					insert_effect(snp_id, effect_class, effects_string, group_id, effect_list)
+			except KeyError:
+				print "There are no effects."
+
+			# Inserts the snp's statistics into Statistics
+			for cv_name in statistics:
+				cv_value = statistics[cv_name]
+				if isinstance(cv_value, list):
+					for values in cv_value:
+						insert_snp_statistics(snp_id, cv_name, values)
+				else:
+					insert_snp_statistics(snp_id, cv_name, cv_value)
+
+			# Checks to see if the snp failed on a filter. If so then inserts into filter table.
+			if filter_type:
+				filter_cv_id = insert_filter_cv(filter_type)
+				insert_filter(snp_id, filter_cv_id)
 
 	# NEED A STANDARD SUMMARY FILE
 	elif num_of_files == 2:

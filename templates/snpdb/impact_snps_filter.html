@@ -42,7 +42,6 @@
     <thead>
     <tr>
         <th class=" text-center"><a href={{ filter_urls.library }}>Library</a></th>
-        <th class=" text-center"><a href={{ filter_urls.snp_id }}>SNP ID</a></th>
         <th class=" text-center"><a href={{ filter_urls.snp_position }}>Position</a></th>
         <th class=" text-center"><a href={{ filter_urls.result_id }}>Result</a></th>
         <th class=" text-center"><a href={{ filter_urls.ref_base }}>Reference Base</a></th>
@@ -58,7 +57,6 @@
     <tr>
         {% for each in results %}
             <td class="text-center">{{ library1 }}</td>
-            <td class="text-center">{{ each.snp_id }}</td>
             <td class="text-center">{{ each.snp_position }}</td>
             <td class="text-center">{{ each.result_id }}</td>
             <td class="text-center">{{ each.ref_base }}</td>

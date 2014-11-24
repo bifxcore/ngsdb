@@ -1,7 +1,5 @@
 from django.conf.urls import *
-#from models import Library
-
-#table = Library.objects.all()
+from django.conf import settings
 
 urlpatterns = patterns('',
 
@@ -14,11 +12,13 @@ urlpatterns = patterns('',
 
 
     # Gowthaman's views
+    url(r'media/(.*)$', 'django.views.static.serve', {'document_root' : settings.MEDIA_ROOT}),
+
     url(r'^$', 'ngsdbview.views02.Dashboard'),
     url(r'^dashboard/','ngsdbview.views02.Dashboard'),
     url(r'^listlibraries/(?P<result_id>.+)/','ngsdbview.views02.ListLibraries'),
     url(r'^listanalyses/','ngsdbview.views02.ListAnalyses'),
-    url(r'^listexperiments/','ngsdbview.views02.ListExperiments'),
+    #url(r'^listexperiments/','ngsdbview.views02.ListExperiments'),
 
     url(r'^search_for_gene/','ngsdbview.views02.SearchForGene'),
     url(r'^query_multigenes/','ngsdbview.views02.GetResultsForMultiGenes'),
@@ -30,5 +30,7 @@ urlpatterns = patterns('',
     url(r'^alignstats/', 'ngsdbview.views02.GetAlignStats'),
     url(r'^analyzeexperiments/','ngsdbview.views02.AnalyzeExperiments'),
 
+    url(r'^listexperiments/', 'ngsdbview.views03.ListExperiments'),
+    url(r'^detailexperiment/(?P<experimentId>.+)/', 'ngsdbview.views03.DetailExperiment'),
 
 )

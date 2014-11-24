@@ -15,88 +15,85 @@
 
 <div class="container-fluid">
 	<div class="page-header text-header" style="padding-left:30px; margin-top:10px; padding-bottom:0px">
-    	<h1 class="header" style="padding-bottom:0px;">Gene and Library Query Results</h1>
-    	<h2 class="header" style="padding-top:5px">There are {{ count }} snps found in both {{library}} and {{chromosome}}. </h2>
+    	<h1 class="header" style="padding-bottom:0px;">Chromosome and Library Query Results</h1>
+    	<h2 class="header" style="padding-top:5px">There are {{ count }} snps found in both {{library}} and chromosome {{chromosome}}. </h2>
 	</div>
 </div>
 
 <body>
 <div class="container-fluid" style="padding-bottom:30px">
-<div class="collapse navbar-collapse">
-    <ul class="nav navbar-nav">
-        <form class="form-inline navbar-left" role="form" id='search' action='/snpdb/gene-snps/search' method="get">
-            <div class="form-group">
-                <label class="sr-only" for="chromosome">Chromosome</label>
-                <input type="text" class="form-control" name="s" placeholder="gene id">
-            </div>
-            <button class="btn btn-sample" type="submit"  style="margin-left:0px; width:75px; vertical-align:middle; padding: 0px">Search</button>
-        </form>
-        <div>
-            <h5><a href="/snpdb/compare_gene_lib/search?s={{gene}}"Compare Gene across Libraries</h5>
-        </div>
-    </ul>
-</div>
+    <div class="collapse navbar-collapse">
+        <ul class="nav navbar-nav">
+            <form class="form-inline" role="form" id='search' action='/snpdb/library-chromosome-snps/search' method="get">
+                <div class="form-group">
+                    <label class="sr-only" for="chromosome">Chromosome</label>
+                    <input type="text" class="form-control" name="s" placeholder="Chromosome">
+                </div>
+                <div class="form-group">
+                    <label class="sr-only" for="library_code">librarycode</label>
+                    <input type="text" class="form-control" name="lib" placeholder="library code">
+                </div>
+                <button class="btn btn-sample" type="submit"  style="margin-left:0px; width:75px; vertical-align:middle; padding: 0px">Search</button>
+            </form>
+        </ul>
+    </div>
 </div>
 
-
-</body>
 <div class="container-fluid" style="padding-bottom:30px">
-<table class="table table-condensed table-hover" style="table-layout: fixed; word-wrap: break-word;">
-    <thead>
-    <tr>
-        <th class="col-xs-2 text-center"><a href={{ filter_urls.library }}>Library</a></th>
-        <th class="col-xs-2 text-center"><a href={{ filter_urls.chromosome }}>Chromosome</a></th>
-        <th class="col-xs-1 text-center"><a href={{ filter_urls.snp_position }}>Position</a></th>
-        <th class="col-xs-1 text-center"><a href={{ filter_urls.result }}>Result</a></th>
-        <th class="col-xs-1 text-center"><a href={{ filter_urls.ref_base }}>Reference Base</a></th>
-        <th class="col-xs-1 text-center"><a href={{ filter_urls.alt_base }}>Alternate Base</a></th>
-        <th class="col-xs-1 text-center"><a href={{ filter_urls.heterozygosity }}>Heterozygosity</a></th>
-        <th class="col-xs-1 text-center"><a href={{ filter_urls.quality }}>Quality</a></th>
-    </tr>
-    </thead>
-    <tbody>
-
-    {% for x in results %}
-        {% for each in x %}
-            <td class="text-center">{{ library }}</td>
-            <td class="text-center">{{ chromosome }}</td>
-            <td class="text-center">{{ each.snp_position }}</td>
-            <td class="text-center">{{ each.result_id }}</td>
-            <td class="text-center">{{ each.ref_base }}</td>
-            <td class="text-center">{{ each.alt_base }}</td>
-            <td class="text-center">{{ each.heterozygosity }}</td>
-            <td class="text-center">{{ each.quality }}</td>
+    <table class="table table-condensed table-hover" style="table-layout: fixed; word-wrap: break-word;">
+        <thead>
+        <tr>
+            <th class="col-xs-2 text-center"><a href={{ filter_urls.library }}>Library</a></th>
+            <th class="col-xs-2 text-center"><a href={{ filter_urls.chromosome }}>Chromosome</a></th>
+            <th class="col-xs-1 text-center"><a href={{ filter_urls.snp_position }}>Position</a></th>
+            <th class="col-xs-1 text-center"><a href={{ filter_urls.ref_base }}>Reference Base</a></th>
+            <th class="col-xs-1 text-center"><a href={{ filter_urls.alt_base }}>Alternate Base</a></th>
+            <th class="col-xs-1 text-center"><a href={{ filter_urls.heterozygosity }}>Heterozygosity</a></th>
+            <th class="col-xs-1 text-center"><a href={{ filter_urls.quality }}>Quality</a></th>
         </tr>
+        </thead>
+        <tbody>
+        <tr>
+            {% for each in results %}
+                <td class="text-center">{{ library }}</td>
+                <td class="text-center">{{ chromosome }}</td>
+                <td class="text-center">{{ each.snp_position }}</td>
+                <td class="text-center">{{ each.ref_base }}</td>
+                <td class="text-center">{{ each.alt_base }}</td>
+                <td class="text-center">{{ each.heterozygosity }}</td>
+                <td class="text-center">{{ each.quality }}</td>
+            </tr>
         {% endfor %}
-    {% endfor %}
-    </tbody>
-</table>
+        </tbody>
+    </table>
 </div>
+</body>
+
 
 {% if toolbar_max > 1 %}
-<div class="container-fluid" style="padding-bottom:30px">
-<div class="pagination">
-    <ul class="pagination">
-        {% if results.has_previous %}
-        <li><a href="?page={{  results.previous_page_number }}">&laquo;</a></li>
-        {% else %}
-        <li class="disabled"><a href="#">&laquo;</a></li>
-        {%  endif %}
+    <div class="container-fluid" style="padding-bottom:30px">
+        <div class="ngsdb pagination">
+            <ul class="ngsdb">
+                {% if results.has_previous %}
+                <li><a href="?page={{ results.previous_page_number }}&s={{chromosome}}&lib={{library}}">&laquo;</a></li>
+                {% else %}
+                <li class="disabled"><a href="#">&laquo;</a></li>
+                {%  endif %}
 
-        {% for page in paginator.page_range %}
-        {% if page <= toolbar_max and page > toolbar_min and page != results.number %}
-        <li><a href="?page={{  page  }}">{{ page }}</a></li>
-        {% elif page == results.number %}
-        <li class="active"><a href="?page={{  results.number }}">{{ results.number }}</a></li>
-        {% endif %}
-        {% endfor %}
+                {% for page in paginator.page_range %}
+                    {% if page <= toolbar_max and page > toolbar_min and page != results.number %}
+                        <li><a href="?page={{ page }}&s={{chromosome}}&lib={{library}}">{{ page }}</a></li>
+                    {% elif page == results.number %}
+                        <li class="active"><a href="?page={{ results.number }}&s={{chromosome}}&lib={{library}}">{{ results.number }}</a></li>
+                    {% endif %}
+                {% endfor %}
 
-        {% if results.has_next %}
-        <li><a href="?page={{ results.next_page_number }}">&raquo;</a></li>
-        {% endif %}
-    </ul>
-</div>
-</div>
+                {% if results.has_next %}
+                    <li><a href="?page={{ results.next_page_number }}&s={{chromosome}}&lib={{library}}">&raquo;</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
 {%endif%}
 
 {% endblock %}
