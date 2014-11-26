@@ -73,6 +73,8 @@ admin.site.register(Libraryfile, LibraryfileAdmin)
 # admin.site.register(Genome, GenomeAdmin)
 
 admin.site.register(Source)
+admin.site.register(Reserve)
+admin.site.register(Reservedcode)
 
 
 

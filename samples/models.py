@@ -162,3 +162,21 @@ class Libraryfile(models.Model):
 
     def __unicode__(self):
         return unicode(self.library)
+
+class Reserve(models.Model):
+    author = models.ForeignKey(User)
+    notes = models.TextField()
+    date_created = models.DateTimeField(auto_now_add=True)
+    date_modified = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name_plural = "Reserve"
+    def __unicode__(self):
+        return unicode(self.author)
+
+class Reservedcode(models.Model):
+    reserve = models.ForeignKey(Reserve)
+    code = models.CharField(max_length=5, help_text="Library or Samples code")
+
+    def __unicode__(self):
+        return unicode(self.code)

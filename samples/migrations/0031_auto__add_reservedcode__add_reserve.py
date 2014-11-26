@@ -8,34 +8,31 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Deleting model 'Test'
-        db.delete_table(u'samples_test')
-
-        # Adding model 'Libraryfile'
-        db.create_table(u'samples_libraryfile', (
+        # Adding model 'Reservedcode'
+        db.create_table(u'samples_reservedcode', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('library', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['samples.Library'], null=True)),
-            ('category', self.gf('django.db.models.fields.CharField')(max_length=15, db_index=True)),
-            ('subcategory', self.gf('django.db.models.fields.CharField')(max_length=200, db_index=True)),
-            ('file', self.gf('django.db.models.fields.files.FileField')(max_length=100, blank=True)),
-            ('notes', self.gf('django.db.models.fields.TextField')(blank=True)),
+            ('reserve', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['samples.Reserve'])),
+            ('code', self.gf('django.db.models.fields.CharField')(max_length=5)),
         ))
-        db.send_create_signal(u'samples', ['Libraryfile'])
+        db.send_create_signal(u'samples', ['Reservedcode'])
+
+        # Adding model 'Reserve'
+        db.create_table(u'samples_reserve', (
+            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('author', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.User'])),
+            ('notes', self.gf('django.db.models.fields.TextField')()),
+            ('date_created', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
+            ('date_modified', self.gf('django.db.models.fields.DateTimeField')(auto_now=True, blank=True)),
+        ))
+        db.send_create_signal(u'samples', ['Reserve'])
 
 
     def backwards(self, orm):
-        # Adding model 'Test'
-        db.create_table(u'samples_test', (
-            ('growthphase', self.gf('django.db.models.fields.related.ForeignKey')(related_name='test_growthphase', to=orm['ngsdbview.Growthphase'])),
-            ('phenotype', self.gf('django.db.models.fields.related.ForeignKey')(related_name='testphenotye', to=orm['ngsdbview.Phenotype'])),
-            ('organism', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['ngsdbview.Organism'])),
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=10)),
-        ))
-        db.send_create_signal(u'samples', ['Test'])
+        # Deleting model 'Reservedcode'
+        db.delete_table(u'samples_reservedcode')
 
-        # Deleting model 'Libraryfile'
-        db.delete_table(u'samples_libraryfile')
+        # Deleting model 'Reserve'
+        db.delete_table(u'samples_reserve')
 
 
     models = {
@@ -196,6 +193,20 @@ class Migration(SchemaMigration):
             'protocol_file': ('django.db.models.fields.files.FileField', [], {'max_length': '100', 'blank': 'True'}),
             'protocol_link': ('django.db.models.fields.URLField', [], {'max_length': '1000', 'blank': 'True'}),
             'protocol_name': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '50'})
+        },
+        u'samples.reserve': {
+            'Meta': {'object_name': 'Reserve'},
+            'author': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['auth.User']"}),
+            'date_created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
+            'date_modified': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'notes': ('django.db.models.fields.TextField', [], {})
+        },
+        u'samples.reservedcode': {
+            'Meta': {'object_name': 'Reservedcode'},
+            'code': ('django.db.models.fields.CharField', [], {'max_length': '5'}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'reserve': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['samples.Reserve']"})
         },
         u'samples.sample': {
             'Meta': {'object_name': 'Sample'},
