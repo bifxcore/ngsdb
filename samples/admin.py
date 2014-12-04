@@ -63,6 +63,9 @@ class BiosampleAdmin(admin.ModelAdmin):
     list_display=('biosample_code', 'organisms', 'notes')
 admin.site.register(Biosample, BiosampleAdmin)
 
+class LibraryfileAdmin(admin.ModelAdmin):
+    list_display=('library', 'category', 'subcategory', 'notes')
+admin.site.register(Libraryfile, LibraryfileAdmin)
 
 
 # class GenomeAdmin(admin.ModelAdmin):
@@ -70,6 +73,8 @@ admin.site.register(Biosample, BiosampleAdmin)
 # admin.site.register(Genome, GenomeAdmin)
 
 admin.site.register(Source)
+admin.site.register(Reserve)
+admin.site.register(Reservedcode)
 
 
 

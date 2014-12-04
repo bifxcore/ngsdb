@@ -22,7 +22,8 @@
 
         <link rel="stylesheet" href="/static/stylesheets/menu.css">
         <link rel="stylesheet" href="/static/stylesheets/custom.css">
-
+        <!-- Lightbox2 -->
+        <link href="/static/lightbox/css/lightbox.css" rel="stylesheet" />
 
         {% if LANGUAGE_BIDI %}
             <link href="/static/grappelli/stylesheets/mueller/grid/output-rtl.css" rel="stylesheet" type="text/css" media="screen" />
@@ -94,7 +95,9 @@
                $('.selectpicker').selectpicker();
            });
         </script>
-
+        <!-- Lightbox2 -->
+        <script src="/static/lightbox/js/jquery-1.11.0.min.js"></script>
+        <script src="/static/lightbox/js/lightbox.min.js"></script>
 
     {% endblock %}
     <!-- EXTRAHEAD -->

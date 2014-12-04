@@ -1,0 +1,47 @@
+{% extends "admin/base_site.html" %}
+
+{%block content%}
+<link rel="stylesheet" type="text/css" href="/media/css/style.css" >
+<link rel="stylesheet" type="text/css" href="/media/css/tabstyle.css" >
+{% block body %}
+
+<!-- for autocompletion -->
+<link href="/media/css/jquery-ui-1.8.18.custom.css" rel="stylesheet" type="text/css"/>
+<script language="javascript" type="text/javascript" src="/media/js/jquery.min.js"></script>
+<script language="javascript" type="text/javascript" src="/media/js/jquery-ui-1.8.18.custom.min.js"></script>
+
+<FORM action="." method="post">
+{% csrf_token %}
+{% load ngsdbview_extras %}
+
+{# table to display libraries #}
+{%  if code_type  %}
+    <TABLE id="viewtable">
+    <thead>
+        <TR><TD>Hello :-</TD>
+        <TR><TD>   following codes have been reserved for you, under collaborator name: {{ form.collaborator }}</TD></TR>
+        <TR><TD>   requested code type :{{ code_type }}</TD></TR>
+        <TR><TD>   number of codes reserved: {{ form.number_of_codes }}</TD></TR>
+        <TR><TD><TABLE>
+        <TR><TH>Sl. No</TH><TH>Reserved Code</TH></TR>
+            {% for code in reservedcodes %}
+                <TR><TD>{{ forloop.counter }}</TD><TD>{{ code }}</TD></TR>
+            {% endfor %}
+            </TR>
+    </TABLE></TD></TR>
+    </thead>
+    </TABLE>
+
+{% else %}
+<TABLE>
+    <TR><TD>
+    {{ form.as_table }}
+    </TD></TR>
+    <TR><TD>
+        <input type="submit"  name="level1" value="Submit" />
+
+    </TD></TR>
+</TABLE>
+{% endif %}
+{% endblock %}
+{% endblock %}
