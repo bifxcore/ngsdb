@@ -134,11 +134,12 @@ def main():
 					for z in range(0, num_samples):
 						new_samples = []
 						for each in samples:
-							if each == '.':
+							if each.startswith('.'):
 								each = '0/0:99:56:0,1992,1992:100,0'
 							else:
 								curr_samp = each.split(':')
-								pl = curr_samp[3].split(',')
+								pl = curr_samp[4].split(',')
+								pl[4] = pl[3]
 								pl[3] = pl[0]
 								pl_groups = [",".join(pl[y:y+3]) for y in range(0, len(pl), 3)]
 								for alle in range(0, size):

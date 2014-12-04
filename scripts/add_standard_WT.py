@@ -27,21 +27,23 @@ def main():
 				for x in vcf_file:
 					if x.startswith("Ld"):
 						snp = x.split()
+						# format = snp[8].split(':')
+						# PL_index = [i for i, s in enumerate(format) if s.startswith('PL')]
 						try:
-							lib1 = snp[9]
-							lib2 = snp[10]
+							libs = snp[9:]
+							# print libs
+							for lib in libs:
+								index = libs.index(lib)
+								if lib == '.' or lib == './.:.:.:.:.':
+									replace = '0/0:100,0:99:56:0,1992,1992'
+									libs[index] = replace
+							snp[9:] = libs
+							line = '\t'.join(snp)
+							new_file.write(line + "\n")
 						except IndexError:
-							print snp
+							# print snp
 							pass
 
-						if lib1 == '.':
-							replace = '0/0:99:56:0,1992,1992:100,0'
-							snp[9] = replace
-						if lib2 == '.':
-							replace2 = '0/0:99:56:0,1992,1992:100,0'
-							snp[10] = replace2
-						line = '\t'.join(snp)
-						new_file.write(line + "\n")
 					else:
 						new_file.write(x)
 			new_file.close()

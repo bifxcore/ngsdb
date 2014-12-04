@@ -1300,23 +1300,27 @@ def effects_by_vcf(request):
 
 		#Runs the vcf-merge command.
 		merge_file = os.path.join(path, 'merge.vcf')
-		p = subprocess.Popen(["""/usr/local/bin/vcf-merge %s > %s""" % (zip_vcf, merge_file)], stderr=subprocess.PIPE, stdout=subprocess.PIPE, shell=True)
+		p = subprocess.Popen(["""/usr/local/bin/bcftools merge --force-samples %s > %s""" % (zip_vcf, merge_file)], stderr=subprocess.PIPE, stdout=subprocess.PIPE, shell=True)
 		out, err = p.communicate()
 		print "files merged"
 
 		#collects all file ids.
 		add_code = []
 		neg_code = []
-		for each in err.split('\n'):
-			if each.startswith('Using column name'):
-				for lib in library_1:
-					if lib in each:
-						code = re.findall('Using column name \'(.*)\' for', each)
-						add_code.append(code[0])
-				for lib in library_2:
-					if lib in each:
-						code = re.findall('Using column name \'(.*)\' for', each)
-						neg_code.append(code[0])
+
+		h = subprocess.Popen(["""/usr/bin/grep ^#CHROM %s""" % merge_file], stderr=subprocess.PIPE, stdout=subprocess.PIPE, shell=True)
+		header, error = h.communicate()
+		replace = '\t'.join(libs).strip('\n')
+		samp = re.findall(r'^#CHROM\t\w*\t*\w*\t\w*\t\w*\t\w*\t\w*\t\w*\t\w*\t(.*)', header)[0]
+		replace_str = re.sub(samp, replace, header).strip('\n')
+		sed = subprocess.Popen(["""/usr/bin/perl -pi -e 's/^#CHROM.*/%s/g;' %s""" % (replace_str, merge_file)], stderr=subprocess.PIPE, stdout=subprocess.PIPE, shell=True)
+		print "sed is complete"
+
+
+		for lib in library_1:
+			add_code.append(lib)
+		for lib in library_2:
+			neg_code.append(lib)
 		add = '+' + ','.join(add_code)
 		neg = '-' + ','.join(neg_code)
 
@@ -1356,7 +1360,7 @@ def effects_by_vcf(request):
 
 	vcf_reader = vcf.Reader(open ('%s' % vcf_contrast, 'r'))
 	date = datetime.datetime.utcnow().strftime("%Y-%m-%d").replace('-', '')
-	source = 'source_' + date + '.2'
+	source = 'source_' + date + '.1'
 	cmd = vcf_reader.metadata[source][0]
 	add = re.findall('\+(.*) \-', cmd)[0].split(',')
 	neg = re.findall('\+.* \-(.*) ', cmd)[0].split(',')
@@ -1374,6 +1378,7 @@ def effects_by_vcf(request):
 	lib1_total_counts = [0, 0, 0, 0, 0, '']
 	lib2_total_counts = [0, 0, 0, 0, 0, '']
 	for record in vcf_reader:
+		print record, type(record)
 		lib1 = False
 		lib2 = False
 		#Keeps track of what effect type each snp has. [high, moderate, low, modifier]
@@ -1383,6 +1388,7 @@ def effects_by_vcf(request):
 		# i.e, SNPs with Downstream and Upstream effects will results in an addition to both impact counts.
 		# for x in effects:
 		for sample in record.samples:
+			# print sample, type(sample)
 			samp_id = sample.sample
 			gt = sample['GT']
 			if gt != '0/0':
