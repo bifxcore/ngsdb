@@ -31,11 +31,10 @@ def main():
 						# PL_index = [i for i, s in enumerate(format) if s.startswith('PL')]
 						try:
 							libs = snp[9:]
-							# print libs
 							for lib in libs:
 								index = libs.index(lib)
 								if lib == '.' or lib == './.:.:.:.:.':
-									replace = '0/0:100,0:99:56:0,1992,1992'
+									replace = '0/0:99:56:100,0:0,1992,1992'
 									libs[index] = replace
 							snp[9:] = libs
 							line = '\t'.join(snp)

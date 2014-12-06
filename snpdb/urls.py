@@ -16,7 +16,7 @@ urlpatterns = patterns('',
                       url(r'^chrom-region/search', 'snpdb.views.chrom_region_search'),
                       url(r'^chrom-region-filter', 'snpdb.views.chrom_region_filter'),
 
-                      url(r'^impact2/search', 'snpdb.views.impact_snps2'),
+                      # url(r'^impact2/search', 'snpdb.views.impact_snps2'),
                       url(r'^impact-snps/search', 'snpdb.views.impact_snps'),
                       url(r'^library-chromosome-snps/search', 'snpdb.views.library_chromosome_snps_filter'),
                       url(r'^library-gene-snps/search', 'snpdb.views.library_gene_snps_filter'),

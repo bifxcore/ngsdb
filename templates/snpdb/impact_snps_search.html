@@ -69,13 +69,13 @@
                 <td class="text-center">{{ each.1 }}</td>
                 <td class="text-center">{{ each.2 }}</td>
                 <td class="text-center">{{ each.6 }}</td>
-                <td class="text-center">{{ library }}</td>
+                <td class="text-center">{{lib}}</td>
                 <td class="text-center">{{ each.3 }}</td>
                 <td class="text-center">
                     <a href="/snpdb/gene-feature?geneid={{ each.4 }}">{{each.4}}</a>
                 </td>
                 <td class="text-center">{{ each.7 }}</td>
-                <td class="text-center">{{ each.5 }}</td>
+                <td class="text-center">{{ each.5|effect_type_title }}</td>
             </tr>
         {% endfor %}
         </tbody>

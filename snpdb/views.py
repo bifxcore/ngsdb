@@ -1173,6 +1173,9 @@ def impact_snps(request):
 	path = request.GET.get('path')
 	library1 = request.GET.getlist('lib1')
 	library2 = request.GET.getlist('lib2')
+	lib = request.GET.get('library')
+	# print type(lib)
+	# print library1, library2
 	impact = request.GET.get('impact')
 	add_code = request.GET.get('samp1')
 	neg_code = request.GET.get('samp2')
@@ -1192,7 +1195,13 @@ def impact_snps(request):
 		return render_to_response('snpdb/impact_snps_search.html', c, context_instance=RequestContext(request))
 
 	snps_effect = subprocess.Popen(cmd % (path, impact), shell=True, stdout=subprocess.PIPE)
-
+	print [str(item) for item in lib]
+	for each in lib:
+		print lib, type(lib)
+		x = lib.decode('utf8')
+		print x, type(x)
+		# y = each.encode('ascii')
+		# print y.strip('[').strip(']').decode('utf8').encode('ascii', 'ignore')
 	snps = []
 	for line in snps_effect.stdout:
 		if line:
@@ -1206,9 +1215,7 @@ def impact_snps(request):
 				entry[3] = chrom
 				entry[0] = pos
 				entry[6] = qual
-				# print effect[0]['geneproduct']
 				entry.append(str(effect[0]['geneproduct']))
-				print entry
 				snps.append(entry)
 	if order_by == 0:
 		snps.sort(key=lambda x: (x[int(order_by)], x[int(3)]))
@@ -1234,6 +1241,7 @@ def impact_snps(request):
 	    # "library1": library1,
 	    # "library2": library2,
 	    "library": library,
+	    "lib": lib,
 	    "filter_urls": filter_urls,
 	    "toolbar_max": toolbar_max,
 	    "toolbar_min": toolbar_min,
@@ -1313,7 +1321,7 @@ def effects_by_vcf(request):
 		replace = '\t'.join(libs).strip('\n')
 		samp = re.findall(r'^#CHROM\t\w*\t*\w*\t\w*\t\w*\t\w*\t\w*\t\w*\t\w*\t(.*)', header)[0]
 		replace_str = re.sub(samp, replace, header).strip('\n')
-		sed = subprocess.Popen(["""/usr/bin/perl -pi -e 's/^#CHROM.*/%s/g;' %s""" % (replace_str, merge_file)], stderr=subprocess.PIPE, stdout=subprocess.PIPE, shell=True)
+		sed = subprocess.call(["""/usr/bin/perl -pi -e 's/^#CHROM.*/%s/g;' %s""" % (replace_str, merge_file)], shell=True)
 		print "sed is complete"
 
 
@@ -1328,16 +1336,16 @@ def effects_by_vcf(request):
 		script_dir = os.path.join(proj_dir, 'scripts')
 
 		#splits the multiallelic entries in the merge file
-		split_command = os.path.join(script_dir, 'split_multiallelic.py')
-		split_file = os.path.join(path, 'merge_split.vcf')
-		subprocess.call(["""python %s %s %s""" % (split_command, merge_file, split_file)], stderr=subprocess.PIPE, stdout=subprocess.PIPE, shell=True)
+		split_command = os.path.join(script_dir, 'split_multi_add_WT.py')
+		replace_file = os.path.join(path, 'merge_split.vcf')
+		subprocess.call(["""python %s %s %s""" % (split_command, merge_file, replace_file)], shell=True)
 		print "multi-allelic sites split"
 
 		#removes all blank entries and replaces them with WT stats.
-		replace_command = os.path.join(script_dir, 'add_standard_WT.py')
-		replace_file = os.path.join(path, 'merge_split_replace.vcf')
-		subprocess.call(["""/usr/bin/python %s %s %s""" % (replace_command, split_file, replace_file)], stderr=subprocess.PIPE, stdout=subprocess.PIPE, shell=True)
-		print "replaced empty entries with WT"
+		# replace_command = os.path.join(script_dir, 'add_standard_WT.py')
+		# replace_file = os.path.join(path, 'merge_split_replace.vcf')
+		# subprocess.call(["""/usr/bin/python %s %s %s""" % (replace_command, split_file, replace_file)], stderr=subprocess.PIPE, stdout=subprocess.PIPE, shell=True)
+		# print "replaced empty entries with WT"
 
 		#zips replace file for vcf-contrast
 		try:
@@ -1378,7 +1386,6 @@ def effects_by_vcf(request):
 	lib1_total_counts = [0, 0, 0, 0, 0, '']
 	lib2_total_counts = [0, 0, 0, 0, 0, '']
 	for record in vcf_reader:
-		print record, type(record)
 		lib1 = False
 		lib2 = False
 		#Keeps track of what effect type each snp has. [high, moderate, low, modifier]
@@ -1489,71 +1496,71 @@ def get_chromosome_size(organismcode):
 	return genome_size
 
 
-def impact_snps2(request):
-	order_by = request.GET.get('order_by', 'snp_id').encode("ascii")
-	impact = request.GET.get('impact')
-	library1 = request.GET.get('lib1')
-	library2 = request.GET.get('lib2')
-
-	snp2 = SNP.objects.filter(library__library_code=library2).values_list('snp_position',
-	                                                                      'chromosome__chromosome_name')
-	snp1 = SNP.objects.filter(library__library_code=library1).values_list('snp_position',
-	                                                                      'chromosome__chromosome_name')
-	difference = set(snp1).difference(set(snp2))
-	snps = []
-	for x in difference:
-		keys = ['snp_position', 'chromosome__chromosome_name']
-		snps.append(dict(zip(keys, x)))
-
-	snp_ids = []
-	for each in snps:
-		ids = SNP.objects.values_list('snp_id', flat=True).filter(library__library_code=library1, snp_position=each['snp_position'],
-		                                                          chromosome__chromosome_name=each['chromosome__chromosome_name'])
-		snp_ids.append(ids)
-	snp_id = [x for sublist in snp_ids for x in sublist]
-
-	snps = SNP.objects.filter(snp_id__in=snp_id, effect__effect_string=impact).values_list('snp_id', 'effect__effect_group')
-	groups = []
-	for y in snps:
-		keys = ['snp_id', 'effect__effect_group']
-		groups.append(dict(zip(keys, y)))
-	genes = []
-	for each in groups:
-		genes.append(SNP.objects.filter(**each).values('library', 'library__library_code', 'snp_id',
-		                                               'snp_position', 'ref_base', 'alt_base',
-		                                               'heterozygosity', 'quality', 'result_id',
-		                                               'chromosome__chromosome_name', 'effect__effect_string',
-		                                               'effect__effect_class', 'effect__effect'))
-	group = [x for sublist in genes for x in sublist]
-	sorted_gene_dict = genes_from_effect(group, library1, order_by)
-	gene_dict = [x for sublist in sorted_gene_dict for x in sublist]
-	print len(filter(None, gene_dict))
-	# new_dict = {k:v for k,v in gene_dict.items() if v}
-	count = len(gene_dict)
-	paginator = Paginator(gene_dict, 200)
-	page = request.GET.get('page')
-
-	# Calls utils method to append new filters or order_by to the current url
-	filter_urls = build_orderby_urls(request.get_full_path(), ['library', 'library__library_code', 'snp_id',
-	                                                           'snp_position', 'ref_base', 'alt_base',
-	                                                           'heterozygosity', 'quality',
-	                                                           'chromosome__chromosome_name',
-	                                                           'effect__effect_string'])
-	try:
-		results = paginator.page(page)
-	except PageNotAnInteger:
-		results = paginator.page(1)
-	except EmptyPage:
-		results = paginator.page(paginator.num_pages)
-
-	toolbar_max = min(results.number + 4, paginator.num_pages)
-	toolbar_min = max(results.number - 4, 0)
-	return render_to_response('snpdb/impact_snps_search.html', {"results": results,
-	                                                            "toolbar_max": toolbar_max,
-	                                                            "toolbar_min": toolbar_min,
-	                                                            "count": count,
-	                                                            "filter_urls": filter_urls,
-	                                                            })
+# def impact_snps2(request):
+# 	order_by = request.GET.get('order_by', 'snp_id').encode("ascii")
+# 	impact = request.GET.get('impact')
+# 	library1 = request.GET.get('lib1')
+# 	library2 = request.GET.get('lib2')
+#
+# 	snp2 = SNP.objects.filter(library__library_code=library2).values_list('snp_position',
+# 	                                                                      'chromosome__chromosome_name')
+# 	snp1 = SNP.objects.filter(library__library_code=library1).values_list('snp_position',
+# 	                                                                      'chromosome__chromosome_name')
+# 	difference = set(snp1).difference(set(snp2))
+# 	snps = []
+# 	for x in difference:
+# 		keys = ['snp_position', 'chromosome__chromosome_name']
+# 		snps.append(dict(zip(keys, x)))
+#
+# 	snp_ids = []
+# 	for each in snps:
+# 		ids = SNP.objects.values_list('snp_id', flat=True).filter(library__library_code=library1, snp_position=each['snp_position'],
+# 		                                                          chromosome__chromosome_name=each['chromosome__chromosome_name'])
+# 		snp_ids.append(ids)
+# 	snp_id = [x for sublist in snp_ids for x in sublist]
+#
+# 	snps = SNP.objects.filter(snp_id__in=snp_id, effect__effect_string=impact).values_list('snp_id', 'effect__effect_group')
+# 	groups = []
+# 	for y in snps:
+# 		keys = ['snp_id', 'effect__effect_group']
+# 		groups.append(dict(zip(keys, y)))
+# 	genes = []
+# 	for each in groups:
+# 		genes.append(SNP.objects.filter(**each).values('library', 'library__library_code', 'snp_id',
+# 		                                               'snp_position', 'ref_base', 'alt_base',
+# 		                                               'heterozygosity', 'quality', 'result_id',
+# 		                                               'chromosome__chromosome_name', 'effect__effect_string',
+# 		                                               'effect__effect_class', 'effect__effect'))
+# 	group = [x for sublist in genes for x in sublist]
+# 	sorted_gene_dict = genes_from_effect(group, library1, order_by)
+# 	gene_dict = [x for sublist in sorted_gene_dict for x in sublist]
+# 	print len(filter(None, gene_dict))
+# 	# new_dict = {k:v for k,v in gene_dict.items() if v}
+# 	count = len(gene_dict)
+# 	paginator = Paginator(gene_dict, 200)
+# 	page = request.GET.get('page')
+#
+# 	# Calls utils method to append new filters or order_by to the current url
+# 	filter_urls = build_orderby_urls(request.get_full_path(), ['library', 'library__library_code', 'snp_id',
+# 	                                                           'snp_position', 'ref_base', 'alt_base',
+# 	                                                           'heterozygosity', 'quality',
+# 	                                                           'chromosome__chromosome_name',
+# 	                                                           'effect__effect_string'])
+# 	try:
+# 		results = paginator.page(page)
+# 	except PageNotAnInteger:
+# 		results = paginator.page(1)
+# 	except EmptyPage:
+# 		results = paginator.page(paginator.num_pages)
+#
+# 	toolbar_max = min(results.number + 4, paginator.num_pages)
+# 	toolbar_min = max(results.number - 4, 0)
+# 	return render_to_response('snpdb/impact_snps_search.html', {"results": results,
+# 	                                                            "toolbar_max": toolbar_max,
+# 	                                                            "toolbar_min": toolbar_min,
+# 	                                                            "count": count,
+# 	                                                            "filter_urls": filter_urls,
+# 	                                                            })
 
 
 def chrom_region(request):
