@@ -1,7 +1,5 @@
-__author__ = 'mcobb'
-
-from django.template import Library
-register = Library()
+from django import template
+register = template.Library()
 
 @register.simple_tag
 def add_get_param(request, attr, val):

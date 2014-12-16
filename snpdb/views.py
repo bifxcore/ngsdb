@@ -1138,7 +1138,7 @@ def gene_list(request):
 
 # Displays the search page to compare two libraries for unique and similar snps.
 def compare_two_libraries(request):
-	lib_list = Library.objects.values('library_code', 'result__genome__organism__organismcode').order_by('result__genome__organism__organismcode')
+	lib_list = Library.objects.values('library_code', 'result__genome__organism__organismcode').distinct().order_by('result__genome__organism__organismcode')
 	lib_genome = defaultdict(list)
 	for each in lib_list:
 		lib_code = str(each['library_code'])
@@ -1174,12 +1174,12 @@ def impact_snps(request):
 	library1 = request.GET.getlist('lib1')
 	library2 = request.GET.getlist('lib2')
 	lib = request.GET.get('library')
-	# print type(lib)
-	# print library1, library2
+
 	impact = request.GET.get('impact')
 	add_code = request.GET.get('samp1')
 	neg_code = request.GET.get('samp2')
 	order_by = request.GET.get('order_by', '0')
+	print type(order_by)
 
 	if add_code:
 		cmd = """cat %s | /usr/local/Cellar/snpeff/3.6c/share/scripts/vcfEffOnePerLine.pl | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar filter "( EFF[*].IMPACT = '%s' & !GEN[0].GT = '0/0')" | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar extractFields - POS REF ALT CHROM EFF[*].GENE EFF[*].EFFECT QUAL"""
@@ -1195,38 +1195,54 @@ def impact_snps(request):
 		return render_to_response('snpdb/impact_snps_search.html', c, context_instance=RequestContext(request))
 
 	snps_effect = subprocess.Popen(cmd % (path, impact), shell=True, stdout=subprocess.PIPE)
-	print [str(item) for item in lib]
-	for each in lib:
-		print lib, type(lib)
-		x = lib.decode('utf8')
-		print x, type(x)
-		# y = each.encode('ascii')
-		# print y.strip('[').strip(']').decode('utf8').encode('ascii', 'ignore')
-	snps = []
+
+	snp_dict = defaultdict(dict)
 	for line in snps_effect.stdout:
+		snp = defaultdict(list)
 		if line:
 			if '#POS' not in line:
 				entry = line.split('\t')
+				ref = entry[1]
+				alt = entry[2]
 				pos = int(entry[0])
 				qual = float(entry[6])
 				gene = entry[4]
 				chrom = entry[3].split('_')[0]
+				impact = entry[5]
 				effect = Feature.objects.filter(chromosome__startswith=chrom, featuretype='gene', geneid=gene).values('geneproduct')
-				entry[3] = chrom
-				entry[0] = pos
-				entry[6] = qual
-				entry.append(str(effect[0]['geneproduct']))
-				snps.append(entry)
-	if order_by == 0:
-		snps.sort(key=lambda x: (x[int(order_by)], x[int(3)]))
+
+				if pos in snp_dict:
+					curr = snp_dict[pos]
+					if ref not in curr['ref'] or alt not in curr['alt']:
+						snp_dict[pos]['ref'].append(ref)
+						snp_dict[pos]['alt'].append(alt)
+					snp_dict[pos]['quality'].append(qual)
+					snp_dict[pos]['gene'].append(gene)
+					snp_dict[pos]['impact'].append(impact)
+					snp_dict[pos]['effect'].append(str(effect[0]['geneproduct']))
+				else:
+					snp['chromosome'] = chrom
+					snp['ref'] = [entry[1]]
+					snp['alt'] = [entry[2]]
+					snp['quality'] = [qual]
+					snp['impact'] = [entry[5]]
+					snp['gene'] = [gene]
+					try:
+						snp['effect'] = [str(effect[0]['geneproduct'])]
+						entry.append(str(effect[0]['geneproduct']))
+					except IndexError:
+						pass
+					snp_dict[pos] = snp
+	if order_by == '0':
+		sorted_snp = sorted(snp_dict.iteritems())
 	else:
-		snps.sort(key=lambda x: x[int(order_by)])
-	count = len(snps)
-	paginator = Paginator(snps, 200)
+		sorted_snp = sorted(snp_dict.iteritems(), key=lambda (k, v): v[order_by])
+	count = len(sorted_snp)
+	paginator = Paginator(sorted_snp, 200)
 	page = request.GET.get('page')
 
 	# Calls utils method to append new filters or order_by to the current url
-	filter_urls = build_orderby_urls(request.get_full_path(), [0, 1, 2, 3, 4, 5, 6])
+	filter_urls = build_orderby_urls(request.get_full_path(), ['0', 'chromosome', 'ref', 'alt', 'quality', 'impact', ])
 	try:
 		results = paginator.page(page)
 	except PageNotAnInteger:
@@ -1237,9 +1253,8 @@ def impact_snps(request):
 	toolbar_max = min(results.number + 4, paginator.num_pages)
 	toolbar_min = max(results.number - 4, 0)
 	c ={"path": path,
+	    "paginator": paginator,
 	    "results": results,
-	    # "library1": library1,
-	    # "library2": library2,
 	    "library": library,
 	    "lib": lib,
 	    "filter_urls": filter_urls,
@@ -1395,7 +1410,6 @@ def effects_by_vcf(request):
 		# i.e, SNPs with Downstream and Upstream effects will results in an addition to both impact counts.
 		# for x in effects:
 		for sample in record.samples:
-			# print sample, type(sample)
 			samp_id = sample.sample
 			gt = sample['GT']
 			if gt != '0/0':
@@ -1621,16 +1635,16 @@ def chrom_region_filter(request):
 			library__library_code=library,).distinct()
 		for x in impact:
 			x['gene'] = each['effect__effect_string']
-			print "x: ", x
+			# print "x: ", x
 			if each['snp_position'] in results:
-				print "current: ", each
+				# print "current: ", each
 				results[each['snp_position']].append(x)
 			else:
 				results[each['snp_position']] = [x,]
-			print "results: ", results[each['snp_position']]
+			# print "results: ", results[each['snp_position']]
 
 	page = request.GET.get('page')
-	paginator = Paginator(results.items(), 500)
+	paginator = Paginator(results.items(), 50)
 
 	try:
 		results = paginator.page(page)
@@ -1640,6 +1654,7 @@ def chrom_region_filter(request):
 		results = paginator.page(paginator.num_pages)
 	toolbar_max = min(results.number + 4, paginator.num_pages)
 	toolbar_min = max(results.number - 4, 0)
+	print toolbar_min, toolbar_max
 	return render_to_response('snpdb/chrom_region_filter.html', {"chromosome": chrom,
 	                                                             "library": library,
 	                                                             "results": results,

@@ -1,5 +1,6 @@
 snpdb/vcf_files/
 snpdb/gcharts/
+VCF_Files/
 *.pyc
 *pyc
 .idea

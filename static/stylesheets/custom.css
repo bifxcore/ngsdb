@@ -494,3 +494,9 @@ fieldset[disabled] .btn-panel.active {
     overflow: hidden;
 }
 
+.table_cell1 {
+    text-align: center;
+    vertical-align: middle;
+    float:none;
+    display:table-cell;
+}

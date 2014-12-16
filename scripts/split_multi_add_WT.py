@@ -2,6 +2,7 @@
 __author__ = 'mcobb'
 
 import sys
+import re
 import os.path
 
 
@@ -38,7 +39,6 @@ def main():
 				samples = snp[9:]
 				num_samples = len(samples)
 
-
 				#collects each statistic
 				ACs_index = [i for i, s in enumerate(info) if s.startswith('AC=')]
 				ACs = info[ACs_index[0]]
@@ -52,19 +52,22 @@ def main():
 				MLEAFs_index = [i for i, s in enumerate(info) if s.startswith('MLEAF=')]
 				MLEAFs = info[MLEAFs_index[0]]
 
+				eff_index = [i for i, s in enumerate(info) if s.startswith('EFF=')]
+				eff = info[eff_index[0]]
+
 				if len(ref.split(',')) == 1 & len(alt.split(',')) == 1:
 					new_samples = []
 					for samp in samples:
 						if samp == './.:.:.:.:.':
-							print "samp is blank"
+							# print "samp is blank"
 							new_samp = '0/0:100,0:99:56:0,1992,1992'
 							new_samples.append(new_samp)
 						else:
 							new_samples.append(samp)
-					# print new_samples
 					snp[9:] = new_samples
 					line = '\t'.join(snp)
 					new_file.write(line + "\n")
+
 				#checks if reference alleles are multi-allelic
 				elif ',' in ref:
 					alleles = ref.split(',')
@@ -157,7 +160,6 @@ def main():
 						new_file.write(line + "\n")
 
 
-
 				#checks if alternate alleles are multi-allelic
 				elif ',' in alt:
 					alleles = alt.split(',')
@@ -168,6 +170,7 @@ def main():
 
 					size = len(alleles)
 					for z in range(0, size):
+						allele = alleles[z]
 						new_samples = []
 						for each in samples:
 							if each == './.:.:.:.:.':
@@ -181,29 +184,29 @@ def main():
 									if pl[0].isdigit():
 										if pl_groups[z] == '.,.,.':
 											pls = [0,1992,1992]
-											gt_index = pls.index(min(pls))
+											gt_index = pls.index( min(float(s) for s in pls))
 										else:
 											if z == 0:
 												if '.' in pl_groups[z]:
 													pls = [0,1992,1992]
 												else:
-													pls = pl[:3]
-												gt_index = pls.index(min(pls))
+													pls = map(int, pl[:3])
+												gt_index = pls.index( min(float(s) for s in pls))
 											elif z == 1:
 												if pl_groups[z][0].isdigit():
-													pls = [pl[0], pl[3], pl[5]]
+													pls = map(int, [pl[0], pl[3], pl[5]])
 												else:
 													pls = [0,1992,1992]
-												gt_index = pls.index(min(pls))
+												gt_index = pls.index( min(float(s) for s in pls))
 									curr_samp[4] = ','.join(map(str, pls))
 								else:
 									if z == 0:
-										pls = pl[:3]
-										gt_index = pls.index(min(pls))
+										pls = map(int, pl[:3])
+										# gt_index = pls.index(min(pls))
 									elif z == 1:
-										pls = [pl[0], pl[3], pl[5]]
-										gt_index = pls.index(min(pls))
-									curr_samp[4] = ','.join(pls)
+										pls = map(int, [pl[0], pl[3], pl[5]])
+									gt_index = pls.index( min(float(s) for s in pls))
+									curr_samp[4] = ','.join(map(str, pls))
 								if gt_index == 0:
 									new_gt = '0/0'
 								elif gt_index == 1:
@@ -217,7 +220,7 @@ def main():
 								new_samples.append(new_samp)
 
 						snp[9:] = new_samples
-						snp[4] = alleles[z]
+						snp[4] = allele
 						for i in range(0, size):
 							try:
 								new_ac = 'AC=' + AC[i]
@@ -263,6 +266,14 @@ def main():
 		print "Need a vcf file and output file"
 	else:
 		print "Need a vcf file to split and an output file."
+
+
+#returns the reverse complement of a DNA seq.
+def reverseComplement(seq):
+    # too lazy to construct the dictionary manually, use a dict comprehension
+    seq1 = 'ATCGTAGCatcgtagc'
+    seq_dict = { seq1[i]:seq1[i+4] for i in range(16) if i < 4 or 8<=i<12 }
+    return "".join([seq_dict[base] for base in reversed(seq)])
 
 
 main()
