@@ -65,6 +65,8 @@ class Source(models.Model):
     def __unicode__(self):
         return unicode(self.name)
 
+def get_bioanalyzer_upload_destination(instance, filename):
+    return "bioanalyzer/{file}".format(file=filename)
 
 
 class Sample(models.Model):
@@ -95,7 +97,7 @@ class Sample(models.Model):
     parent_sampleid = models.CharField(max_length=25, db_index=True, blank=True, verbose_name="Parent sampleid if its a dilution", help_text="Name of the parent sample this one is derived from")
     sample_dilution = models.CharField(max_length=25, blank=True, default="Original Concentration", help_text="times dilution created from original sample, referred in parent sampleid filed above. e.g., 1:100")
     biological_replicate_of = models.CharField(max_length=25, blank=True, default="No Replicate", help_text="comma separated sample names of its biological replicates, needed for original samples only, not for dilutions")
-    bioanalyzer_analysis = models.FileField(upload_to="bioanalyzer", blank=True, help_text="Upload bioanalyzer trace file")
+    bioanalyzer_analysis = models.FileField(upload_to=get_bioanalyzer_upload_destination, blank=True, help_text="Upload bioanalyzer trace file")
     freezer_location = models.CharField(max_length=100, blank=True, help_text="Name of the freezer, rack, box etc. e.g., -80/Drawer_3/Rack3/A3")
     is_clonal = models.BooleanField(default=False, verbose_name="Check this if the culture is clonal population", help_text="Are the cells cloned to single cell before growing for this library?")
     sample_notes = models.TextField(blank=True, help_text="Any other information related to sample, sample collection etc")
