@@ -2,3 +2,4 @@ snpdb/vcf_files/
 *.pyc
 *pyc
 .idea
+media/experimentfiles
