@@ -103,10 +103,11 @@ class CNV(models.Model):
 	chromosome = models.ForeignKey('Chromosome')
 	start = models.IntegerField()
 	stop = models.IntegerField()
-	CNV_value = models.IntegerField()
+	cnv_value = models.FloatField()
+	coverage = models.FloatField()
 	library = models.ForeignKey('samples.Library')
 	result = models.ForeignKey('ngsdbview.Result')
-	window_size = models.ForeignKey('CNV_CV')
+	window_size = models.IntegerField()
 
 
 class CNV_CV(models.Model):

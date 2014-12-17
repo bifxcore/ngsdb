@@ -231,8 +231,8 @@ def insert_result_option2(result_ids, library_id, genome_id, author_id, analysis
 			cur.execute('DELETE FROM "snpdb_snp" WHERE result_id = %s', (result_to_delete,))
 			cur.execute('DELETE FROM "ngsdbview_result_libraries" WHERE result_id = %s AND library_id = %s', (result_to_delete, library_id,))
 			dbh.commit()
-		cur.execute('INSERT INTO "ngsdbview_result" (genome_id, author_id, analysisPath, notes, is_current, is_obsolete, time_data_loaded) VALUES (%s, %s, %s, %s, %s, %s, %s) RETURNING result_id',
-		            (genome_id, author_id, analysis_path, notes, True, False, timepoint))
+		cur.execute('INSERT INTO "ngsdbview_result" (genome_id, author_id, analysisPath, notes, is_current, is_obsolete, time_data_loaded, result_type_cv_id) VALUES (%s, %s, %s, %s, %s, %s, %s, %s) RETURNING result_id',
+		            (genome_id, author_id, analysis_path, notes, True, False, timepoint, 2))
 		new_result_id = cur.fetchone()[0]
 		cur.execute('INSERT INTO "ngsdbview_result_libraries" (result_id, library_id) VALUES (%s, %s) RETURNING result_id',
 		            (new_result_id, library_id))
@@ -248,7 +248,7 @@ def insert_result_option2(result_ids, library_id, genome_id, author_id, analysis
 def get_result(library_id, genome_id, author_id, analysis_path):
 	timepoint = datetime.datetime.now()
 	try:
-		cur.execute('SELECT result_id FROM "ngsdbview_result_libraries" WHERE library_id = %s', (library_id,))
+		cur.execute('SELECT result_id FROM "ngsdbview_result_libraries" WHERE library_id = %s AND result_type_cv_id=2', (library_id,))
 		result_ids = cur.fetchall()
 		if result_ids:
 			user_opt = input("There is already a result_id attached to this library. Please choose one of the"
@@ -269,15 +269,15 @@ def get_result(library_id, genome_id, author_id, analysis_path):
 					result = results[0]
 					cur.execute('UPDATE "ngsdbview_result" SET is_current = %s, is_obsolete = %s WHERE result_id = %s', (False, True, result,))
 					dbh.commit()
-				cur.execute('INSERT INTO "ngsdbview_result" (genome_id, author_id, analysisPath, notes, is_current, is_obsolete, time_data_loaded) VALUES (%s, %s, %s, %s, %s, %s, %s) RETURNING result_id',
-				            (genome_id, author_id, analysis_path, notes, True, False, timepoint))
+				cur.execute('INSERT INTO "ngsdbview_result" (genome_id, author_id, analysisPath, notes, is_current, is_obsolete, time_data_loaded, result_type_cv_id) VALUES (%s, %s, %s, %s, %s, %s, %s, %s) RETURNING result_id',
+				            (genome_id, author_id, analysis_path, notes, True, False, timepoint,2))
 				result_id = cur.fetchone()[0]
 				dbh.commit()
 				return result_id
 		else:
 			notes = 'notes'
-			cur.execute('INSERT INTO "ngsdbview_result" (genome_id, author_id, is_current, is_obsolete, analysisPath, notes, time_data_loaded) VALUES (%s, %s, %s, %s, %s, %s, %s) RETURNING "result_id"',
-			            (genome_id, author_id, True, False, analysis_path, notes, timepoint))
+			cur.execute('INSERT INTO "ngsdbview_result" (genome_id, author_id, is_current, is_obsolete, analysisPath, notes, time_data_loaded, result_type_cv_id) VALUES (%s, %s, %s, %s, %s, %s, %s, %s) RETURNING "result_id"',
+			            (genome_id, author_id, True, False, analysis_path, notes, timepoint, 2))
 			result_id = cur.fetchone()[0]
 			cur.execute('INSERT INTO "ngsdbview_result_libraries" (result_id, library_id) VALUES (%s, %s)', (result_id, library_id))
 			dbh.commit()

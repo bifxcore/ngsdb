@@ -5,7 +5,8 @@
 {% load snp_filters %}
 {% load static %}
 {% load staticfiles %}
-{% load mathfilters %}
+{% load get_param %}
+
 
 {% block title %}
     Impact results
@@ -17,7 +18,7 @@
 <div class="container-fluid">
 	<div class="page-header text-header" style="padding-left:30px; margin-top:10px; padding-bottom:0px">
     	<h1 class="header" style="padding-bottom:0px;">SNP Summary</h1>
-    	<h2 class="header" style="padding-top:5px">There are {{ count }} results. </h2>
+    	<h2 class="header" style="padding-top:5px">There are {{ count }} results unique to {{lib}}. </h2>
 	</div>
 </div>
 
@@ -36,7 +37,6 @@
                         <option value="alt_base">Alternative Base</option>
                         <option value="heterozygosity">Heterozygosity</option>
                         <option value="quality">Quality</option>
-                        <option value="library">Library</option>
                         <option value="chromosome__chromosome_name">Chromosome</option>
                         <option value="effect__effect_string">Effect Impact</option>
                         <option value="effect__effect_class">Effect</option>
@@ -49,31 +49,30 @@
 </div>
 
 <div class="container-fluid" style="padding-bottom:30px">
-    <table class="table table-condensed" style="table-layout: fixed; word-wrap: break-word; border-color: black">
+    <table class="table table-condensed" style="word-wrap: break-word; border-color: black">
         <tr>
             <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.0 }}>Position</a></th>
-            <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.1 }}>Reference Base</a></th>
-            <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.2 }}>Alternate Base</a></th>
-            <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.6 }}>Quality</a></th>
-            <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.library1 }}>Library</a></th>
-            <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.3 }}>Chromosome</a></th>
-            <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.4 }}>Effect Impact</a></th>
-            <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.5 }}>Effect</a></th>
+            <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.chromosome }}>Chromosome</a></th>
+            <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.ref }}>Reference Base</a></th>
+            <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.alt }}>Alternate Base</a></th>
+            <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.quality }}>Quality</a></th>
+            <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.impact }}>Effect Impact</a></th>
+            <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.gene }}>Gene Description</a></th>
+            <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.effect }}>Effect</a></th>
         </tr>
         <tbody>
         <tr>
-            {% for each in results %}
-
-                <td class="text-center">{{ each.0 }}</td>
-                <td class="text-center">{{ each.1 }}</td>
-                <td class="text-center">{{ each.2 }}</td>
-                <td class="text-center">{{ each.6 }}</td>
-                <td class="text-center">{{ library1 }}</td>
-                <td class="text-center">{{ each.3 }}</td>
-                <td class="text-center">
-                    <a href="/snpdb/gene-feature?geneid={{ each.4 }}">{{each.4}}</a>
+            {% for x in results %}
+                <td class="text-center" style="vertical-align: middle">{{ x.0 }}</td>
+                <td class="text-center" style="vertical-align: middle">{{ x.1.chromosome }}</td>
+                <td class="text-center" style="vertical-align: middle">{% for y in x.1.ref %}<div>{{ y }}</div>{% endfor %}</a></td>
+                <td class="text-center" style="vertical-align: middle">{% for y in x.1.alt %}<div>{{ y }}</div>{% endfor %}</a></td>
+                <td class="text-center" style="vertical-align: middle">{% for y in x.1.quality %}<div>{{ y }}</div>{% endfor %}</a></td>
+                <td class="text-center" style="vertical-align: middle">{% for y in x.1.impact %}<div>{{ y }}</div>{% endfor %}</td>
+                <td class="text-center" style="vertical-align: middle">
+                {% for y in x.1.gene %}<div><a href="/snpdb/gene-feature?geneid={{ y }}">{{ y }}</a></div>{% endfor %}
                 </td>
-                <td class="text-center">{{ each.5 }}</td>
+                <td>{% for y in x.1.effect %}<div>{{ y|effect_type_title }}</div>{% endfor %}</td>
             </tr>
         {% endfor %}
         </tbody>
@@ -88,9 +87,9 @@
             <ul class="ngsdb">
                 {% if results.has_previous %}
                     {% if selection %}
-                        <li><a href="?page={{ results.previous_page_number }}&s={{filter_on}}&att={{selection}}">&laquo;</a></li>
+                        <li><a href="?{% add_get_param request 'page' results.previous_page_number %}&s={{filter_on}}&att={{selection}}">&laquo;</a></li>
                     {% else %}
-                        <li><a href="?page={{ results.previous_page_number }}">&laquo;</a></li>
+                        <li><a href="?{% add_get_param request 'page' results.previous_page_number %}">&laquo;</a></li>
                     {% endif %}
                 {% else %}
                     <li class="disabled"><a href="#">&laquo;</a></li>
@@ -99,24 +98,23 @@
                 {% for page in paginator.page_range %}
                     {% if page <= toolbar_max and page > toolbar_min and page != results.number %}
                         {% if selection %}
-                            <li><a href="?page={{ page }}&s={{filter_on}}&att={{selection}}">{{page}}</a></li>
+                            <li><a href="?{% add_get_param request 'page' page %}&s={{filter_on}}&att={{selection}}">{{page}}</a></li>
                         {% else %}
-                            <li><a href="?page={{ page }}">{{page}}</a></li>
+                            <li><a href="?{% add_get_param request 'page' page %}">{{page}}</a></li>
                         {% endif %}
                     {% elif page == results.number %}
                         {% if selection %}
-                            <li class="active"><a href="?page={{ results.number }}&s={{filter_on}}&att={{selection}}">{{results.number}}</a></li>
+                            <li class="active"><a href="?{% add_get_param request 'page' results.number %}&s={{filter_on}}&att={{selection}}">{{results.number}}</a></li>
                         {% else %}
-                            <li class="active"><a href="?page={{ results.number }}">{{results.number}}</a></li>
+                            <li class="active"><a href="?{% add_get_param request 'page' results.number %}">{{results.number}}</a></li>
                         {% endif %}
                     {% endif %}
                 {% endfor %}
-
                 {% if results.has_next %}
                    {% if selection %}
-                        <li><a href="?page={{ results.next_page_number }}&s={{filter_on}}&att={{selection}}">&raquo;</a></li>
+                        <li><a href="?{% add_get_param request 'page' results.next_page_number %}&path={{path}}&impact={{impact}}&lib2={{lib2}}">&raquo;</a></li>
                     {% else %}
-                        <li><a href="?page={{ results.next_page_number }}">&raquo;</a></li>
+                        <li><a href="?{% add_get_param request 'page' results.next_page_number %}">&raquo;</a></li>
                     {% endif %}
                 {% endif %}
             </ul>

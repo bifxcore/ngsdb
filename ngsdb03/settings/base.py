@@ -87,7 +87,7 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = (
     os.path.join(PROJECT_PATH, 'static'),
     os.path.join(PROJECT_PATH, 'media'),
-    # os.path.join(os.path.dirname(__file__), 'static'),
+    os.path.join(os.path.dirname(__file__), 'static'),
     # os.path.join(os.path.dirname(__file__))
     # "/Users/gramasamy/djcode/ngsdb03/static",
     # "/opt/django-sites/ngsdb/ngsdb03/static",

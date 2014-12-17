@@ -1,5 +1,4 @@
 from django import template
-
 register = template.Library()
 
 
@@ -87,3 +86,12 @@ def sum_dict(value):
 def effect_type_title(title):
 	new = title.replace('_', ' ').title()
 	return new
+
+
+# @register.filter
+# def add_page_to_url(request, page):
+# 	url = request.get_full_path
+# 	print "url: ", url
+# 	curr_page = request.GET.get('page')
+# 	# print page, curr_page
+# 	# return url
