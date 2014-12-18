@@ -4,4 +4,7 @@ VCF_Files/
 *.pyc
 *pyc
 .idea
-media/experimentfiles
+media/experimentfiles/*
+media/bioanalyzer/*
+media/libraryimages/*
+media/protocols/*
