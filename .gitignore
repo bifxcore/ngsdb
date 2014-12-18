@@ -4,3 +4,4 @@ VCF_Files/
 *.pyc
 *pyc
 .idea
+media/experimentfiles

@@ -116,6 +116,12 @@ newExpObj.save()
 # get the saved object back.
 expObj = Experiment.objects.get(name = yamlData['Global']['meta']['longtitle'], version=experimentVersion)
 
+print ("create library code-name dictionary")
+libraryNameCodeMap = dict()
+for libname, libcode in yamlData['Global']['map'].items():
+    libraryNameCodeMap[libname]=libcode
+print(libraryNameCodeMap)
+
 print ("loading Exptfiles...")
 for category, filename in yamlData['Global']['meta']['exptfiles'].items():
     print "\t%s: %s" %(category, filename)
@@ -134,8 +140,9 @@ rawCountsDic = hasify_counts(rawCountsFile, basepath)
 normCountsDic = hasify_counts(normCountsFile, basepath)
 
 print ("loading Tagcounts...")
-for libcode, countDic in rawCountsDic.items():
-    print "\tlibrary: %s" %libcode
+for libname, countDic in rawCountsDic.items():
+    libcode = libraryNameCodeMap[libname]
+    print "\tlibrary code: %s; library name %s" %(libcode, libname)
     for featureID, rawCount in countDic.items():
         newTagcountObj = Tagcount(experiment=expObj, library=Library.objects.get(library_code=libcode), feature=featureID)
         newTagcountObj.rawcount = rawCountsDic[libcode][featureID]
