@@ -511,7 +511,6 @@ def compare_gene_lib_filter_results_effect(request):
 	page = request.GET.get('page')
 	try:
 		results = paginator.page(page)
-		print "got this page"
 	except PageNotAnInteger:
 		results = paginator.page(1)
 	except EmptyPage:
@@ -1136,22 +1135,26 @@ def gene_list(request):
 	                                                   "toolbar_min": toolbar_min})
 
 
-# Displays the search page to compare two libraries for unique and similar snps.
+# Displays the search page to compare two groups of libraries for unique and similar snps.
 def compare_two_libraries(request):
-	lib_list = Library.objects.values('library_code', 'result__genome__organism__organismcode').distinct().order_by('result__genome__organism__organismcode')
-	lib_genome = defaultdict(list)
-	for each in lib_list:
-		lib_code = str(each['library_code'])
-		genome = str(each['result__genome__organism__organismcode'])
-		if genome in lib_genome:
-			cur_libs = lib_genome[genome]
-			cur_libs.append(lib_code)
-			lib_genome[genome] = cur_libs
-		else:
-			lib_codes = [lib_code]
-			lib_genome[genome] = lib_codes
+	ref_genome = request.GET.get('ref_genome')
+	if ref_genome:
+		lib_list = Library.objects.values('library_code', 'result__genome__organism__organismcode').filter(result__genome__organism__organismcode=ref_genome).distinct().order_by('library_code')
+		# lib_genome = defaultdict(list)
+		# for each in lib_list:
+		# 	lib_code = str(each['library_code'])
+		# 	# genome = str(each['result__genome__organism__organismcode'])
+		# if ref_genome in lib_genome:
+		# 	cur_libs = lib_genome[ref_genome]
+		# 	cur_libs.append(lib_code)
+		# 	lib_genome[genome] = cur_libs
+		# else:
+		# 	lib_codes = [lib_code]
+		# 	lib_genome[genome] = lib_codes
+	else:
+		lib_list = Library.objects.values('library_code', 'result__genome__organism__organismcode').distinct().order_by('result__genome__organism__organismcode')
 	page = request.GET.get('page')
-	paginator = Paginator(tuple(lib_genome.items()), 500)
+	paginator = Paginator(lib_list, 500)
 
 	try:
 		results = paginator.page(page)
@@ -1381,7 +1384,7 @@ def effects_by_vcf(request):
 	lib1_total = 0
 	lib2_total = 0
 
-	vcf_reader = vcf.Reader(open ('%s' % vcf_contrast, 'r'))
+	vcf_reader = vcf.Reader(open('%s' % vcf_contrast, 'r'))
 	date = datetime.datetime.utcnow().strftime("%Y-%m-%d").replace('-', '')
 	source = 'source_' + date + '.1'
 	cmd = vcf_reader.metadata[source][0]

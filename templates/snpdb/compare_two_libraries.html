@@ -24,6 +24,12 @@
 
 
 <body>
+
+
+{% if ref_genome %}
+    reference_genome
+
+{% else %}
 <div class="container-fluid" style="padding-bottom:30px">
     <form id="form2" action="/snpdb/test" method="get">
         <div class="row">
@@ -96,6 +102,11 @@
         </div>
     </form>
 </div>
+
+{% endif %}
+
+
+
 
 </body>
 {%endblock%}
