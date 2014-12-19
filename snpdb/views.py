@@ -14,7 +14,7 @@ import datetime
 import os
 import csv
 import vcf
-from operator import itemgetter
+import ast
 
 
 low_effects = ["SYNONYMOUS_START", "NON_SYNONYMOUS_START", "START_GAINED", "SYNONYMOUS_CODING", "SYNONYMOUS_STOP"]
@@ -535,7 +535,6 @@ def compare_gene_lib_filter_results_effect(request):
 def compare_gene_lib_filter_results(request):
 	order_by = request.GET.get('order_by', 'library__library_code')
 	gene = request.GET.get('s')
-	print gene
 	library = request.GET.getlist('check')
 
 	#Gets the start and stop position of the coding region of the gene.
@@ -1140,19 +1139,8 @@ def compare_two_libraries(request):
 	ref_genome = request.GET.get('ref_genome')
 	if ref_genome:
 		lib_list = Library.objects.values('library_code', 'result__genome__organism__organismcode').filter(result__genome__organism__organismcode=ref_genome).distinct().order_by('library_code')
-		# lib_genome = defaultdict(list)
-		# for each in lib_list:
-		# 	lib_code = str(each['library_code'])
-		# 	# genome = str(each['result__genome__organism__organismcode'])
-		# if ref_genome in lib_genome:
-		# 	cur_libs = lib_genome[ref_genome]
-		# 	cur_libs.append(lib_code)
-		# 	lib_genome[genome] = cur_libs
-		# else:
-		# 	lib_codes = [lib_code]
-		# 	lib_genome[genome] = lib_codes
 	else:
-		lib_list = Library.objects.values('library_code', 'result__genome__organism__organismcode').distinct().order_by('result__genome__organism__organismcode')
+		lib_list = Organism.objects.values('organismcode').distinct().order_by('organismcode')
 	page = request.GET.get('page')
 	paginator = Paginator(lib_list, 500)
 
@@ -1165,98 +1153,17 @@ def compare_two_libraries(request):
 	toolbar_max = min(results.number + 4, paginator.num_pages)
 	toolbar_min = max(results.number - 4, 0)
 	return render_to_response('snpdb/compare_two_libraries.html', {"results": results,
+	                                                               "ref_genome": ref_genome,
 	                                                               "paginator": paginator,
 	                                                               "toolbar_max": toolbar_max,
 	                                                               "toolbar_min": toolbar_min}, context_instance=RequestContext(request))
-
-
-#todo flag snps with multiple alternates
-# Lists identified snps (those found to be unique for a library) by their impact type. Passed from difference_two_libraries
-def impact_snps(request):
-	path = request.GET.get('path')
-	library1 = request.GET.getlist('lib1')
-	library2 = request.GET.getlist('lib2')
-	lib = request.GET.get('library')
-
-	impact = request.GET.get('impact')
-	add_code = request.GET.get('samp1')
-	neg_code = request.GET.get('samp2')
-	order_by = request.GET.get('order_by', '0')
-
-	cmd = """cat %s | /usr/local/Cellar/snpeff/3.6c/share/scripts/vcfEffOnePerLine.pl | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar filter "( EFF[*].IMPACT = '%s')" | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar extractFields - POS REF ALT CHROM EFF[*].GENE EFF[*].EFFECT QUAL"""
-	snps_effect = subprocess.Popen(cmd % (path, impact), shell=True, stdout=subprocess.PIPE)
-
-	snp_dict = defaultdict(dict)
-	for line in snps_effect.stdout:
-		snp = defaultdict(list)
-		if line:
-			if '#POS' not in line:
-				entry = line.split('\t')
-				ref = entry[1]
-				alt = entry[2]
-				pos = int(entry[0])
-				qual = float(entry[6])
-				gene = entry[4]
-				chrom = entry[3].split('_')[0]
-				impact = entry[5]
-				effect = Feature.objects.filter(chromosome__startswith=chrom, featuretype='gene', geneid=gene).values('geneproduct')
-
-				if pos in snp_dict:
-					curr = snp_dict[pos]
-					if ref not in curr['ref'] or alt not in curr['alt']:
-						snp_dict[pos]['ref'].append(ref)
-						snp_dict[pos]['alt'].append(alt)
-					snp_dict[pos]['quality'].append(qual)
-					snp_dict[pos]['gene'].append(gene)
-					snp_dict[pos]['impact'].append(impact)
-					snp_dict[pos]['effect'].append(str(effect[0]['geneproduct']))
-				else:
-					snp['chromosome'] = chrom
-					snp['ref'] = [entry[1]]
-					snp['alt'] = [entry[2]]
-					snp['quality'] = [qual]
-					snp['impact'] = [entry[5]]
-					snp['gene'] = [gene]
-					try:
-						snp['effect'] = [str(effect[0]['geneproduct'])]
-						entry.append(str(effect[0]['geneproduct']))
-					except IndexError:
-						pass
-					snp_dict[pos] = snp
-	if order_by == '0':
-		sorted_snp = sorted(snp_dict.iteritems())
-	else:
-		sorted_snp = sorted(snp_dict.iteritems(), key=lambda (k, v): v[order_by])
-	count = len(sorted_snp)
-	paginator = Paginator(sorted_snp, 200)
-	page = request.GET.get('page')
-
-	# Calls utils method to append new filters or order_by to the current url
-	filter_urls = build_orderby_urls(request.get_full_path(), ['0', 'chromosome', 'ref', 'alt', 'quality', 'impact', ])
-	try:
-		results = paginator.page(page)
-	except PageNotAnInteger:
-		results = paginator.page(1)
-	except EmptyPage:
-		results = paginator.page(paginator.num_pages)
-
-	toolbar_max = min(results.number + 4, paginator.num_pages)
-	toolbar_min = max(results.number - 4, 0)
-	c = {"path": path,
-	    "paginator": paginator,
-	    "results": results,
-	    "lib": lib,
-	    "filter_urls": filter_urls,
-	    "toolbar_max": toolbar_max,
-	    "toolbar_min": toolbar_min,
-	    "count": count, }
-	return render_to_response('snpdb/impact_snps_search.html', c, context_instance=RequestContext(request))
 
 
 # Compares multiple libraries by running bcftools isec. Returns the results and counts the number of snps by impact types.
 def effects_by_vcf(request):
 	library_1 = request.GET.getlist('check1')
 	library_2 = request.GET.getlist('check2')
+	wt = request.GET.get('wt')
 
 	#Captures vcf file location
 	vcf1 = VCF_Files.objects.values_list('vcf_path', flat=True).filter(library__library_code__in=library_1)
@@ -1345,12 +1252,6 @@ def effects_by_vcf(request):
 		subprocess.call(["""python %s %s %s""" % (split_command, merge_file, replace_file)], shell=True)
 		print "multi-allelic sites split"
 
-		#removes all blank entries and replaces them with WT stats.
-		# replace_command = os.path.join(script_dir, 'add_standard_WT.py')
-		# replace_file = os.path.join(path, 'merge_split_replace.vcf')
-		# subprocess.call(["""/usr/bin/python %s %s %s""" % (replace_command, split_file, replace_file)], stderr=subprocess.PIPE, stdout=subprocess.PIPE, shell=True)
-		# print "replaced empty entries with WT"
-
 		#zips replace file for vcf-contrast
 		try:
 			subprocess.check_call(['bgzip', replace_file])
@@ -1427,18 +1328,136 @@ def effects_by_vcf(request):
 	lib1_effect.append(lib1_tuple)
 	lib1_total += lib1_total_counts[4]
 
-	return render_to_response('snpdb/test2.html', {"library1": library_1,
-	                                               "library2": library_2,
-	                                               "lib1_high_effects": dict(lib1_high_effects),
-	                                               "lib1_moderate_effects": dict(lib1_moderate_effects),
-	                                               "lib1_modifier_effects": dict(lib1_modifier_effects),
-	                                               "lib1_low_effects": dict(lib1_low_effects),
-	                                               "lib1_total_counts": lib1_total_counts,
-	                                               "lib1_total": lib1_total,
-	                                               "lib1_effect": lib1_effect,
-	                                               "add_code": add,
-	                                               "neg_code": neg,
-	                                               "path": vcf_contrast})
+	return render_to_response('snpdb/effects_by_vcf.html', {"library1": library_1,
+	                                                        "library2": library_2,
+	                                                        "wt": wt,
+	                                                        "lib1_high_effects": dict(lib1_high_effects),
+	                                                        "lib1_moderate_effects": dict(lib1_moderate_effects),
+	                                                        "lib1_modifier_effects": dict(lib1_modifier_effects),
+	                                                        "lib1_low_effects": dict(lib1_low_effects),
+	                                                        "lib1_total_counts": lib1_total_counts,
+	                                                        "lib1_total": lib1_total,
+	                                                        "lib1_effect": lib1_effect,
+	                                                        "add_code": add,
+	                                                        "neg_code": neg,
+	                                                        "path": vcf_contrast})
+
+
+def impact_snps(request):
+	path = request.GET.get('path')
+	add = ast.literal_eval(request.GET.get('add'))
+	neg = ast.literal_eval(request.GET.get('neg'))
+	wt = request.GET.get('wt')
+	libraries = add + neg
+
+	impact = request.GET.get('impact')
+
+	order_by = request.GET.get('order_by', 'chromosome__chromosome_name')
+
+	cmd = """cat %s | /usr/local/Cellar/snpeff/3.6c/share/scripts/vcfEffOnePerLine.pl | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar filter "( EFF[*].IMPACT = '%s')" | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar extractFields - POS REF ALT CHROM EFF[*].GENE EFF[*].EFFECT QUAL"""
+
+	snps_effect = subprocess.Popen(cmd % (path, impact), shell=True, stdout=subprocess.PIPE)
+
+	snp_dict = defaultdict(dict)
+	for line in snps_effect.stdout:
+		snp = defaultdict(list)
+		libs = defaultdict(dict)
+		# ref_alt = defaultdict(list)
+		if line:
+			if '#POS' not in line:
+				entry = line.split('\t')
+				ref = entry[1]
+				alt = entry[2]
+				pos = int(entry[0])
+				qual = float(entry[6])
+				gene = entry[4]
+				chrom = entry[3].split('_')[0]
+				impact = entry[5]
+				eff = Feature.objects.filter(chromosome__startswith=chrom, featuretype='gene', geneid=gene).values('geneproduct')
+				try:
+					wt_allele = SNP.objects.filter(chromosome__chromosome_name__startswith=chrom, snp_position=pos, library__library_code=wt).values_list('ref_base', flat=True)[0]
+				except IndexError:
+					wt_allele = "No SNP"
+
+				# for x in gene:
+				cds_fmin = Feature.objects.values_list('fmin', flat=True).filter(geneid=gene, featuretype='CDS')[0]
+				cds_fmax = Feature.objects.values_list('fmax', flat=True).filter(geneid=gene, featuretype='CDS')[0]
+
+				fmin = Feature.objects.filter(geneid=gene).filter(featuretype='gene').values('fmin')[0]
+				fmax = Feature.objects.filter(geneid=gene).filter(featuretype='gene').values('fmax')[0]
+
+				result_list = SNP.objects.values('ref_base','alt_base','library__library_code').filter(library__library_code__in=libraries,
+				                                                                                       snp_position=pos,
+				                                                                                       chromosome__chromosome_name=chrom)
+				for each in libraries:
+					libs[each] = {'ref': ['No SNP'], 'alt': ['No SNP']}
+				for each in result_list:
+					library = each['library__library_code']
+					if 'No SNP' in libs[library]['ref']:
+						libs[library]['ref'] = [each['ref_base']]
+						libs[library]['alt'] = [each['alt_base']]
+					else:
+						libs[library]['ref'].append(each['ref_base'])
+						libs[library]['alt'].append(each['alt_base'])
+				if pos in snp_dict:
+					curr = snp_dict[pos]
+					if ref not in curr['ref'] or alt not in curr['alt']:
+						snp_dict[pos]['ref'].append(ref)
+						snp_dict[pos]['alt'].append(alt)
+					snp_dict[pos]['quality'].append(qual)
+					snp_dict[pos]['gene'].append(gene)
+					snp_dict[pos]['impact'].append(impact)
+					snp_dict[pos]['effect'].append(str(eff[0]['geneproduct']))
+					snp_dict[pos]['wt_allele'].append(wt_allele)
+					snp_dict[pos]['library_alleles'].append(libs)
+				else:
+					snp['chromosome'] = chrom
+					snp['ref'] = [entry[1]]
+					snp['alt'] = [entry[2]]
+					snp['quality'] = [qual]
+					snp['impact'] = [entry[5]]
+					snp['gene'] = [gene]
+					snp['wt_allele'] = [wt_allele]
+					snp['library_alleles'] = [libs]
+					try:
+						snp['effect'] = [str(eff[0]['geneproduct'])]
+						entry.append(str(eff[0]['geneproduct']))
+					except IndexError:
+						print "passed effect"
+						pass
+					snp_dict[pos] = snp
+
+	if order_by == '0':
+		sorted_snp = sorted(snp_dict.iteritems())
+	else:
+		sorted_snp = sorted(snp_dict.iteritems(), key=lambda (k, v): v[order_by])
+	count = len(sorted_snp)
+	paginator = Paginator(sorted_snp, 200)
+	page = request.GET.get('page')
+
+	# Calls utils method to append new filters or order_by to the current url
+	filter_urls = build_orderby_urls(request.get_full_path(), ['chromosome', 'ref', 'alt', 'quality', 'impact', ])
+	try:
+		results = paginator.page(page)
+	except PageNotAnInteger:
+		results = paginator.page(1)
+	except EmptyPage:
+		results = paginator.page(paginator.num_pages)
+
+	toolbar_max = min(results.number + 4, paginator.num_pages)
+	toolbar_min = max(results.number - 4, 0)
+	c ={"path": path,
+	    "paginator": paginator,
+	    "results": results,
+	    "libraries": libraries,
+	    "add": add,
+	    "neg": neg,
+	    "filter_urls": filter_urls,
+	    "toolbar_max": toolbar_max,
+	    "toolbar_min": toolbar_min,
+		"count": count }
+	return render_to_response('snpdb/impact_snps_search.html', c, context_instance=RequestContext(request))
+
 
 
 def get_chromosome_size(organismcode):
@@ -2060,7 +2079,7 @@ def save_snp_dashboard_files(chart_path, image_path):
 # 		lib_effect.append(lib_tuple)
 # 		total_2 += total_counts[4]
 #
-# 	return render_to_response('snpdb/test2.html', {"high_effects": dict(high_effects),
+# 	return render_to_response('snpdb/effects_by_vcf.html', {"high_effects": dict(high_effects),
 # 	                                               "moderate_effects": dict(moderate_effects),
 # 	                                               "modifier_effects": dict(modifier_effects),
 # 	                                               "low_effects": dict(low_effects),
@@ -2293,7 +2312,7 @@ def save_snp_dashboard_files(chart_path, image_path):
 # 	# lib2_effect.append(lib2_tuple)
 # 	# lib2_total += lib2_total_counts[4]
 #
-# 	return render_to_response('snpdb/test2.html', {"library1": library_1,
+# 	return render_to_response('snpdb/effects_by_vcf.html', {"library1": library_1,
 # 	                                               "library2": library_2,
 # 	                                               "lib1_high_effects": dict(lib1_high_effects),
 # 	                                               "lib1_moderate_effects": dict(lib1_moderate_effects),
@@ -2377,6 +2396,8 @@ def save_snp_dashboard_files(chart_path, image_path):
 # 	                                                            "count": count,
 # 	                                                            "filter_urls": filter_urls,
 # 	                                                            })
+#
+# Lists identified snps (those found to be unique for a library) by their impact type. Passed from difference_two_libraries
 # def impact_snps(request):
 # 	path = request.GET.get('path')
 # 	library1 = request.GET.getlist('lib1')
@@ -2387,21 +2408,8 @@ def save_snp_dashboard_files(chart_path, image_path):
 # 	add_code = request.GET.get('samp1')
 # 	neg_code = request.GET.get('samp2')
 # 	order_by = request.GET.get('order_by', '0')
-# 	# print type(order_by)
 #
-# 	# if add_code:
 # 	cmd = """cat %s | /usr/local/Cellar/snpeff/3.6c/share/scripts/vcfEffOnePerLine.pl | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar filter "( EFF[*].IMPACT = '%s')" | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar extractFields - POS REF ALT CHROM EFF[*].GENE EFF[*].EFFECT QUAL"""
-# 	# library = library1
-# 	# elif neg_code:
-# 	# 	cmd = """cat %s | /usr/local/Cellar/snpeff/3.6c/share/scripts/vcfEffOnePerLine.pl | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar filter "( EFF[*].IMPACT = '%s')" | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar extractFields - POS REF ALT CHROM EFF[*].GENE EFF[*].EFFECT QUAL"""
-# 	# 	library = library2
-# 	# else:
-# 	# 	print "no sample passed"
-# 	# 	c ={"path": path,
-# 	#     "library1": library1,
-# 	#     "library2": library2}
-# 	# 	return render_to_response('snpdb/impact_snps_search.html', c, context_instance=RequestContext(request))
-#
 # 	snps_effect = subprocess.Popen(cmd % (path, impact), shell=True, stdout=subprocess.PIPE)
 #
 # 	snp_dict = defaultdict(dict)
@@ -2460,15 +2468,12 @@ def save_snp_dashboard_files(chart_path, image_path):
 #
 # 	toolbar_max = min(results.number + 4, paginator.num_pages)
 # 	toolbar_min = max(results.number - 4, 0)
-# 	c ={"path": path,
+# 	c = {"path": path,
 # 	    "paginator": paginator,
 # 	    "results": results,
-# 	    # "library": library,
 # 	    "lib": lib,
 # 	    "filter_urls": filter_urls,
 # 	    "toolbar_max": toolbar_max,
 # 	    "toolbar_min": toolbar_min,
 # 	    "count": count, }
 # 	return render_to_response('snpdb/impact_snps_search.html', c, context_instance=RequestContext(request))
-#
-#
