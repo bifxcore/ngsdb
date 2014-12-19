@@ -1,4 +1,10 @@
 {% extends "admin/base_site.html" %}
+{% block bootstrap %}
+<script>
+    $('.collapse').collapse()
+</script>
+{% endblock %}
+
 {%block content%}
 {% block body %}
 {% load ngsdbview_extras %}
@@ -16,25 +22,65 @@
 <TABLE id="viewtable2">
     <TR><TH id="tableheader">Experiment: {{ exp.name }} </TH></TR>
     <TR><TD>
+
     <!-- experiment table -->
-    <TABLE>
-        <TR><TD>
-        <TABLE><TR>
-            <TD>Name: {{ exp.name }}</TD>
-            <TD>Exp. version: {{ exp.version }}</TD>
-            <TD>Exp. type: {{ exp.type }}</TD>
-            <TD>Ref. Genome: {{ exp.refgenome }}</TD>
-            <TD>Is this analysis current: {{ exp.is_current }}</TD>
-            <TD>Date last modified: {{ exp.date_modified }}</TD>
-        </TR></TABLE>
-        </TD></TR>
-        <TR><TD>Description: {{ exp.description }}</TD></TR>
-        <TR><TD>Notes: {{ exp.notes }}</TD></TR>
-    </TABLE>
+        <div>
+            <TABLE  ><TR><TH>
+            <a data-toggle="collapse" data-parent="#accordion" href="#collapse4"> Overview of Experiment:</a>
+            </TH></TR></TABLE>
+        </div>
+        <div id="collapse4" class="panel-collapse expand in" style="height: auto;">
+            <TABLE><TR>
+                <TD> Name:  {{ exp.name }} </TD>
+                <TD>Analysis Version: <B>{{ exp.version }}</B></TD>
+                <TD>Exp. type:  <B>{{ exp.type }}</B></TD>
+                <TD>Ref. Genome:  <B>{{ exp.refgenome }}</B></TD>
+                <TD>
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapse4a"> Notes and Description </a>
+                </TD>
+                <TD>
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapse4b"> Samples/Libraries included </a>
+                </TD>
+                </TR></TABLE>
+
+        <!-- notes and description collapsible -->
+            <div id="collapse4a" class="panel-collapse expand in" style="height: auto;">
+                <TABLE>
+                    <TR><TD>Description:</TD><TD>{{ exp.description }}</TD></TR>
+                    <TR><TD> Notes:</TD><TD>{{ exp.notes }}</TD></TR>
+                </TABLE>
+            </div>
+
+        <!-- Sample/Library details collapsible -->
+            <div id="collapse4b" class="panel-collapse expand in" style="height: auto;">
+                <TABLE>
+                    <TR><TH>Included Samples:</TH></TR>
+                    <TR><TD>Included Samples:,</br>(sampleid, </br>lifecyclestage, </br>culture-method, </br>growthphase, </br>treatment, </br>librarycode)</TD>
+                        {% for sample in exp.samples.all %}
+                        <TD>
+                            {{ sample.sampleid }};  </br>
+                            {{ sample.lifestage }}; </br>
+                            {{ sample.culture_method }}; </br>
+                            {{ sample.growthphase }} </br>
+                            {{ sample.treatment }} </br>
+                            {% for lib in sample.library_set.all %}
+                                {{ lib.library_code }}
+                            {% endfor %}; </br>
+                        </TD>
+                        {% endfor %}
+                    </TR>
+                </TABLE>
+            </div>
+
+        </div>
+
     <!-- experiment setup table -->
-    <TABLE>
-        <TR><TH>Experimental Setup:</TH></TR>
-        <TR>{% for exptsetup in exp.exptsetup_set.all %}
+        <div><TABLE id="viewtable2" ><TR><TH id="tableheader">
+            <a data-toggle="collapse" data-parent="#accordion" href="#collapse0"> Experimental Setup:</a>
+        </TH></TR></TABLE></div>
+        <div id="collapse0" class="panel-collapse collapse in" style="height: auto;">
+        <TABLE>
+            <TR>{% for exptsetup in exp.exptsetup_set.all %}
             <TD>
             <TABLE>
                 <TR ><TD height="1"> Condition/Group : {{ exptsetup.groupname }} </TD></TR>
@@ -46,15 +92,19 @@
                 <TR><TD>notes : {{ exptsetup.notes }} </TD></TR>
             </TABLE>
             </TD>
-        {% endfor %}
-        </TR>
-    </TABLE>
-    </TD></TR>
-    <TR><TD>
+            {% endfor %}
+            </TR>
+        </TABLE>
+        </div>
+
     <!-- experimental files table -->
-    <TABLE>
-        <TR><TH>Graphical overview of experiment:</TH></TR>
-        <TR><TD>
+        <div>
+            <TABLE id="viewtable2" ><TR><TH id="tableheader">
+            <a data-toggle="collapse" data-parent="#accordion" href="#collapse1"> Graphical overview of experiment:</a>
+            </TH></TR></TABLE>
+        </div>
+
+        <div id="collapse1" class="panel-collapse collapse in" style="height: auto;">
             <TABLE><TR>
             {% for exptfile in exp.exptfile_set.all %}
                 {% if exptfile.subcategory in plots %}
@@ -65,40 +115,78 @@
                 {% endif %}
             {% endfor %}
             </TR></TABLE>
-        </TD></TR>
-    </TABLE>
+        </div>
+
     <!-- experiment comparisons table -->
-    <TABLE>
-        <TR><TH>Comparisons studied:</TH></TR>
-        <TR><TD>
-            <TABLE><TR>
-            {% for comp in exp.comparison_set.all %}
-                <TD><TABLE>
-                    <TR><TH>{{ comp.compname}}</TH></TR>
-                    <TR><TD>Changes in: {{ comp.querygroup }}</TD></TR>
-                    <TR><TD>With respect to: {{ comp.basegroup }}</TD></TR>
-                    <TR><TD>description: {{ comp.description }} </TD></TR>
-                    <TR><TH># Genes Diff. Expressed</TH></TR>
+        <div>
+            <TABLE id="viewtable2" ><TR><TH id="tableheader">
+            <a data-toggle="collapse" data-parent="#accordion" href="#collapseAllComp"> Comparisons studied:</a>
+            </TH></TR></TABLE>
+        </div>
+        <!-- div and table that contains entire comparison section -->
+        <div id="collapseAllComp" class="panel-collapse collapse in" style="height: auto;">
+            <TABLE>
+                {% for comp in exp.comparison_set.all %}
+                    <!-- Start a row for collapse control for first row and first row; and a table within it -->
+                    {% if forloop.counter == 1 %}
+                       <TR><TD> <!-- start of first row in master table for the section -->
+                           <!-- collapse control for first row -->
+                            <div>
+                            <a data-toggle="collapse" data-parent="#accordion" href="#collapse_row1"> Comparisons :row 1</a>
+                            </div>
+                            </TD></TR>
+                            <TR><TD>
+                            <!-- collapsible section for first row -->
+                            <div id="collapse_row1" class="panel-collapse expand in" style="height: auto;">
+                            <TABLE><TR>
+                    {% endif %}
+                            <TD>
+                                <!-- Table to display individual comparisons within a row -->
+                                <TABLE>
+                                    <TR><TH>{{ comp.compname}}</TH></TR>
+                                    <TR><TD>Changes in: {{ comp.querygroup }}</TD></TR>
+                                    <TR><TD>With respect to: {{ comp.basegroup }}</TD></TR>
+                                    <TR><TD>description: {{ comp.description }} </TD></TR>
+                                    <TR><TH># Genes Diff. Expressed</TH></TR>
 
-                    {% for key in regulatedCount|hash:comp.compname %}
-                    <TR><TD>
-                        {{ key }} : {{ regulatedCount|hash:comp.compname|hash:key|intcomma }}
-                    </TD></TR>
-                    {% endfor %}
+                                    {% for key in regulatedCount|hash:comp.compname %}
+                                        <TR><TD>
+                                        {{ key }} : {{ regulatedCount|hash:comp.compname|hash:key|intcomma }}
+                                        </TD></TR>
+                                    {% endfor %}
 
-                    <TR><TH>Smear Plots:</TH></TR>
-                    {% for compfile in comp.compfile_set.all %}
-                    <TR><TD>
-                        <a href="{{ compfile.file.url }}"  data-lightbox="compfiles" data-title="{{ compfile.subcategory }}"><img src="{{ compfile.file.url }}" height="150" width="150"/></a>
-                    </TD></TR>
-                    {% endfor %}
-                </TABLE></TD>
-            {% endfor %}
-            </TR></TABLE>
-        </TD></TR>
-    </TABLE>
-</TABLE>
+                                    <TR><TH>Smear Plots:</TH></TR>
+                                    {% for compfile in comp.compfile_set.all %}
+                                        {% if compfile.subcategory == "smearplot_scaled" %}
+                                        <TR><TD>
+                                        <a href="{{ compfile.file.url }}"  data-lightbox="compfiles" data-title="{{ compfile.subcategory }}"><img src="{{ compfile.file.url }}" height="150" width="150"/></a>
+                                        </TD></TR>
+                                        {% endif %}
+                                    {% endfor %}
+                                </TABLE>
+                            </TD>
+                    <!-- when displayed set #of rows; take a break; start a new row -->
+                    {% if forloop.counter|mod:5 == 0 %}
+                        </TR></TABLE> <!-- break the row within collapsible row section -->
+                        </div> <!-- end collapsible row section -->
+                        </TD></TR> <!-- end of a row in master table for the section -->
+                        <TR><TD>   <!-- start of next row in master table for the section -->
+                            <div>
+                            <a data-toggle="collapse" data-parent="#accordion" href="#collapse_row{{ forloop.counter|quotient:5|add:1 }}"> Comparisons :row {{ forloop.counter|quotient:5|add:1 }}</a></TD>
+                            </div>
+                        </TD></TR>
+                        <TR><TD>
+                        <!-- next collapsible section starts -->
+                        <div id="collapse_row{{ forloop.counter|quotient:5|add:1 }}" class="panel-collapse collapse in" style="height: auto;">
+                        <TABLE><TR> <!-- start the row within collapsible row section -->
+                    {% endif %}
+                {% endfor %}
+                 </TR></TABLE> <!-- break the row within collapsible row section -->
+                 </div> <!-- end collapsible row section -->
+                 </TD></TR> <!-- end of a row in master table for the section -->
+            </TABLE> <!-- Table inside entire comp section collapsible -->
+        </div> <!-- Collapsible section for entire comp section -->
+</TABLE> <!-- table for this page -->
 {% endif %}
-
 {% endblock %}
 {% endblock %}

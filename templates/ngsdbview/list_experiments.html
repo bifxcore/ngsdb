@@ -1,40 +1,68 @@
 {% extends "admin/base_site.html" %}
-
+{% block bootstrap %}
+<script>
+    $('.collapse').collapse()
+</script>
+{% endblock %}
 {%block content%}
-<link rel="stylesheet" type="text/css" href="/media/css/style.css" >
-<link rel="stylesheet" type="text/css" href="/media/css/tabstyle.css" >
 {% block body %}
 {% load ngsdbview_extras %}
+{% load humanize %}
 
-<!-- for autocompletion -->
-<!-- end for autocompletion -->
 
 {%  if experiments  %}
-
 <FORM action="/ngsdbview/listexperiments/" method="post">
 {% csrf_token %}
 
 
     {% for exp in experiments %}
-        <TABLE id="viewtable2">
-            <TR><TH id="tableheader">Experiment {{ forloop.counter }}: <a href="/ngsdbview/detailexperiment/{{ exp.id }}/" target="_blank">View Details</a> </TH></TR>
-            <TR><TD>
-            <!-- experiment table -->
-            <TABLE>
-                <TR><TD>
-                    <TABLE><TR>
-                        <TH>Name: <a href="/ngsdbview/detailexperiment/{{ exp.id }}/" target="_blank">{{ exp.name }}</a></TH>
-                        <TD>Exp. version: {{ exp.version }}</TD>
-                        <TD>Exp. type: {{ exp.type }}</TD>
-                        <TD>Ref. Genome: {{ exp.refgenome }}</TD>
-                        <TD>Is this analysis current: {{ exp.is_current }}</TD>
-                        <TD>Date last modified: {{ exp.date_modified }}</TD>
-                    </TR></TABLE>
-                </TD></TR>
-                <TR><TD>Description: {{ exp.description }}</TD></TR>
-                <TR><TD>Notes: {{ exp.notes }}</TD></TR>
-            </TABLE>
-            <!-- experiment setup table -->
+        <!-- experiment table -->
+            <div id="masterPanel">
+                <TABLE><TR>
+                <TH> {{ forloop.counter }}.  <a href="/ngsdbview/detailexperiment/{{ exp.id }}/" target="_blank">{{ exp.name }}</a></TH>
+                <TD>Analysis Version: <B>{{ exp.version }}</B></TD>
+                <TD>Exp. type:  <B>{{ exp.type }}</B></TD>
+                <TD>Ref. Genome:  <B>{{ exp.refgenome }}</B></TD>
+                <TD>
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapse1_{{ forloop.counter }}"> Notes and Description </a>
+                </TD>
+                <TD>
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapse2_{{ forloop.counter }}"> Samples/Libraries included </a>
+                </TD>
+                </TR></TABLE>
+            </div>
+
+        <!-- notes and description collapsible -->
+            <div id="collapse1_{{ forloop.counter }}" class="panel-collapse collapse in" style="height: auto;">
+                <TABLE>
+                    <TR><TH>Description:</TH><TD>{{ exp.description }}</TD></TR>
+                    <TR><TH> Notes:</TH><TD>{{ exp.notes }}</TD></TR>
+                </TABLE>
+            </div>
+
+        <!-- Sample/Library details collapsible -->
+            <div id="collapse2_{{ forloop.counter }}" class="panel-collapse collapse in" style="height: auto;">
+                <TABLE>
+                    <TR><TD>Included Samples:,</br>(sampleid, </br>lifecyclestage, </br>culture-method, </br>growthphase, </br>treatment, </br>librarycode)</TD>
+                        {% for sample in exp.samples.all %}
+                        <TD>
+                            {{ sample.sampleid }};  </br>
+                            {{ sample.lifestage }}; </br>
+                            {{ sample.culture_method }}; </br>
+                            {{ sample.growthphase }} </br>
+                            {{ sample.treatment }} </br>
+                            {% for lib in sample.library_set.all %}
+                                {{ lib.library_code }}
+                            {% endfor %}; </br>
+                        </TD>
+                        {% endfor %}
+                    </TR>
+                </TABLE>
+                </div>
+
+
+        <!-- experiment setup table -->
+        <!--
             <TABLE>
                 <TR><TH>Experimental Setup:</TH></TR>
                 <TR>
@@ -53,11 +81,13 @@
                 {% endfor %}
 
             </TR></TABLE>
-            </TR></TD>
-        </TABLE>
+        -->
+
+
+
+
     {% endfor %}
 
 {% endif %}
-
 {% endblock %}
 {% endblock %}

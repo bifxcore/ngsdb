@@ -9,7 +9,7 @@ from django.conf import settings
 # import for the scripts actions
 import time
 from ngsdbview.models import Experiment,Exptsetup, Genome, Comparison, Exptfile, Compfile, Diffexpn, Tagcount
-from samples.models import Library
+from samples.models import Library, Sample
 from django.core.files import File
 from django.contrib.auth.models import User
 from os import path
@@ -72,6 +72,12 @@ def get_filetype(filepath):
         fileType = "notImage"
     return fileType
 
+def get_samplecodes_fromlibcodes(libcodes):
+    samplecodes=[]
+    for libcode in libcodes:
+        samplecodes.append(Library.objects.get(library_code=libcode).sampleid.sampleid)
+    return samplecodes
+
 ####################################################################
 #
 # main
@@ -102,6 +108,16 @@ if args.overwrite:
         e =  Experiment.objects.get(name = yamlData['Global']['meta']['longtitle'], version=experimentVersion)
         e.delete()
 
+print ("get sample codes for the libcodes")
+samplecodes = []
+libraryNameCodeMap = dict()
+for libname, libcode in yamlData['Global']['map'].items():
+    libraryNameCodeMap[libname]=libcode
+    samplecodes.append(Library.objects.get(library_code=libcode).sampleid.sampleid)
+print(samplecodes)
+print ("create library code-name dictionary")
+print(libraryNameCodeMap)
+
 print ("loading Experiments...")
 # Experiment Model
 newExpObj = Experiment()
@@ -112,15 +128,13 @@ newExpObj.refgenome = refGenome
 newExpObj.description = yamlData['Global']['meta']['longtitle']
 newExpObj.author_modified = author_modified
 newExpObj.save()
+newExpObj.samples = Sample.objects.filter(sampleid__in=samplecodes)
+newExpObj.save()
 
 # get the saved object back.
 expObj = Experiment.objects.get(name = yamlData['Global']['meta']['longtitle'], version=experimentVersion)
 
-print ("create library code-name dictionary")
-libraryNameCodeMap = dict()
-for libname, libcode in yamlData['Global']['map'].items():
-    libraryNameCodeMap[libname]=libcode
-print(libraryNameCodeMap)
+
 
 print ("loading Exptfiles...")
 for category, filename in yamlData['Global']['meta']['exptfiles'].items():

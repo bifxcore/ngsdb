@@ -33,3 +33,16 @@ def hash2libcode(h,key):
         return None
 
 register.filter(hash2libcode)
+
+
+def mod(value1, value2):
+    list = divmod(value1, value2)
+    return list[1]
+
+register.filter(mod)
+
+def quotient(value1, value2):
+    list = divmod(value1, value2)
+    return list[0]
+
+register.filter(quotient)

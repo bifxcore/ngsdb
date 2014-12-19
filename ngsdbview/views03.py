@@ -9,8 +9,23 @@ from ngsdbview.viewtools import *
 from django.contrib.auth.decorators import login_required
 from samples.models import Library
 
+#============================================================================#
+# View helper functions
+#============================================================================#
+def get_samplecodes_fromlibcodes(request, libcodes):
+    samplecodes=[]
+    for libcode in libcodes:
+        samplecodes.append(Library.objects.get(library_code=libcode).sampleid.sampleid)
+    return samplecodes
+
+def get_samplecode_fromlibcode(request, libcode):
+    samplecode = Library.objects.get(library_code=libcode).sampleid.sampleid
+    return samplecode
 
 
+#============================================================================#
+# View  functions
+#============================================================================#
 def ListExperiments(request):
     '''
     List all loaded experiment. Allow exploration.
