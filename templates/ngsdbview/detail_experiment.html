@@ -32,9 +32,10 @@
         <div id="collapse4" class="panel-collapse expand in" style="height: auto;">
             <TABLE><TR>
                 <TD> Name:  {{ exp.name }} </TD>
-                <TD>Analysis Version: <B>{{ exp.version }}</B></TD>
-                <TD>Exp. type:  <B>{{ exp.type }}</B></TD>
-                <TD>Ref. Genome:  <B>{{ exp.refgenome }}</B></TD>
+                <TD>Analysis Version: {{ exp.version }}</TD>
+                <TD>Exp. type:  {{ exp.type }}</TD>
+                <TD>Collaborator:  {{ exp.collaborator }}</TD>
+                <TD>Ref. Genome:  {{ exp.refgenome }}</TD>
                 <TD>
                     <a data-toggle="collapse" data-parent="#accordion" href="#collapse4a"> Notes and Description </a>
                 </TD>

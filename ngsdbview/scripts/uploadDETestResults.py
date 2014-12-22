@@ -8,7 +8,7 @@ from django.conf import settings
 
 # import for the scripts actions
 import time
-from ngsdbview.models import Experiment,Exptsetup, Genome, Comparison, Exptfile, Compfile, Diffexpn, Tagcount
+from ngsdbview.models import Experiment,Exptsetup, Genome, Comparison, Exptfile, Compfile, Diffexpn, Tagcount, Collaborator
 from samples.models import Library, Sample, Libraryfile
 from django.core.files import File
 from django.contrib.auth.models import User
@@ -35,6 +35,7 @@ def argparse():
     parser.add_argument('--experimentVersion',  required=True, help='version of the analysis', type=str)
     parser.add_argument('--experimentType',  required=True, help='Type of the experiment', choices= ['RNAseq', 'SpliceLeader', 'RibosomeProfiling'], default="RNAseq", type=str)
     parser.add_argument('--username', required=True, help='Name of the db user', default="gramasamy", type=str)
+    parser.add_argument('--collaboratorFirstname', required=True, help='First name of the collaborator', default="Peter", type=str)
     parser.add_argument('--genomeOrganism', required=True, help='Reference genomes\' organism Code', default="LinJ", type=str)
     parser.add_argument('--genomeVersion', required=True, help='Version of the genome(TriTrypDB)', default="8.0", type=str)
     parser.add_argument('--debug', required=False, default=False, type=bool)
@@ -118,6 +119,8 @@ print(samplecodes)
 print ("create library code-name dictionary")
 print(libraryNameCodeMap)
 
+
+
 print ("loading Experiments...")
 # Experiment Model
 newExpObj = Experiment()
@@ -127,6 +130,7 @@ newExpObj.type = experimentType
 newExpObj.refgenome = refGenome
 newExpObj.description = yamlData['Global']['meta']['longtitle']
 newExpObj.author_modified = author_modified
+newExpObj.collaborator = Collaborator.objects.get(firstname=args.collaboratorFirstname)
 newExpObj.save()
 newExpObj.samples = Sample.objects.filter(sampleid__in=samplecodes)
 newExpObj.save()

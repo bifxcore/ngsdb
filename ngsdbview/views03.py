@@ -40,6 +40,7 @@ def GetChoiceValueTuple(queryset, fieldname):
 class ListExperiemntsForm(forms.Form):
     expttype = forms.ChoiceField(choices=GetChoiceValueTuple(Experiment.objects.all(), 'type'))
     refgenome = forms.ChoiceField(choices=GetChoiceValueTuple(Organism.objects.all(), 'organismcode'))
+    collaborator = forms.ChoiceField(choices=GetChoiceValueTuple(Collaborator.objects.all(), 'lastname'))
 
 #============================================================================#
 # View helper functions
@@ -76,6 +77,7 @@ def ListExperiments(request):
         if form.is_valid():
             expttype = form.cleaned_data['expttype']
             refgenome = form.cleaned_data['refgenome']
+            collaboratorLN = form.cleaned_data['collaborator']
 
             # get experiments
 
@@ -83,7 +85,9 @@ def ListExperiments(request):
             if expttype != 'ALL':
                 expts = expts.filter(type=expttype)
             if refgenome != 'ALL':
-                expts = expts.filter(refgenome=refgenome)
+                expts = expts.filter(refgenome__organism__organismcode=refgenome)
+            if collaboratorLN != 'ALL':
+                expts = expts.filter(collaborator__lastname=collaboratorLN)
 
             kwargs['experiments']=expts
             kwargs['form']=form

@@ -359,6 +359,7 @@ class Experiment(models.Model):
     version = models.FloatField(blank=False, help_text="Version of the analysis under this experiment")
     type = models.CharField(max_length=25, choices=EXPERIMENT_TYPE_CHOICES)
     refgenome = models.ForeignKey(Genome)
+    collaborator = models.ForeignKey(Collaborator)
     samples = models.ManyToManyField('samples.Sample')
     description = models.CharField(max_length=500, blank=True)
     notes = models.TextField(blank=True)

@@ -31,9 +31,10 @@
             <div id="masterPanel">
                 <TABLE><TR>
                 <TH> {{ forloop.counter }}.  <a href="/ngsdbview/detailexperiment/{{ exp.id }}/" target="_blank">{{ exp.name }}</a></TH>
-                <TD>Analysis Version: <B>{{ exp.version }}</B></TD>
-                <TD>Exp. type:  <B>{{ exp.type }}</B></TD>
-                <TD>Ref. Genome:  <B>{{ exp.refgenome }}</B></TD>
+                <TD>Analysis Version: {{ exp.version }}</TD>
+                <TD>Exp. type:  {{ exp.type }}</TD>
+                <TD>Collaborator:  {{ exp.collaborator }}</TD>
+                <TD>Ref. Genome:  {{ exp.refgenome }}</TD>
                 <TD>
                     <a data-toggle="collapse" data-parent="#accordion" href="#collapse1_{{ forloop.counter }}"> Notes and Description </a>
                 </TD>
