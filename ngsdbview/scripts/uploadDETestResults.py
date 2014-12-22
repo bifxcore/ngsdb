@@ -9,7 +9,7 @@ from django.conf import settings
 # import for the scripts actions
 import time
 from ngsdbview.models import Experiment,Exptsetup, Genome, Comparison, Exptfile, Compfile, Diffexpn, Tagcount
-from samples.models import Library, Sample
+from samples.models import Library, Sample, Libraryfile
 from django.core.files import File
 from django.contrib.auth.models import User
 from os import path
@@ -135,6 +135,14 @@ newExpObj.save()
 expObj = Experiment.objects.get(name = yamlData['Global']['meta']['longtitle'], version=experimentVersion)
 
 
+print ("loading library image files....")
+for libname, filename in yamlData['Global']['meta']['libraryReadDistriFiles'].items():
+    print "\t%s: %s" %(libname, filename)
+    libobj = Library.objects.get(library_code=libraryNameCodeMap[libname])
+    newLibfileObj = Libraryfile(library=libobj, category="readcount_distri", subcategory="image")
+    newLibfileObj.save()
+    path = os.path.join(basepath, filename)
+    newLibfileObj.file.save(filename, File(open(path)))
 
 print ("loading Exptfiles...")
 for category, filename in yamlData['Global']['meta']['exptfiles'].items():

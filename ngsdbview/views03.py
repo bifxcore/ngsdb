@@ -8,6 +8,38 @@ from django.forms.widgets import RadioSelect, CheckboxSelectMultiple
 from ngsdbview.viewtools import *
 from django.contrib.auth.decorators import login_required
 from samples.models import Library
+from django.forms.models import ModelChoiceField
+
+EXPERIMENT_TYPE_CHOICES = (
+    ('SL', 'SL'),
+    ('RNAseq', 'RNAseq'),
+    ('RiboProf', 'RiboProf'),
+    ('DNAseq', 'DNAseq'),
+    ('mixed', 'mixed')
+)
+
+class ExptrefgenomeChoiceField(ModelChoiceField):
+    def label_from_instance(self, obj):
+        return unicode(obj.refgenome)
+
+class ExpttypeChoiceField(ModelChoiceField):
+    def label_from_instance(self, obj):
+        return unicode(obj.type)
+
+
+def GetChoiceValueTuple(queryset, fieldname):
+        values = queryset.values_list(fieldname, flat=True)
+        unique_values = ['ALL']
+        [unique_values.append(item) for item in values if item not in unique_values]
+        choice_list = []
+        for item in unique_values:
+            choice_list.append(tuple([item, item]))
+        return tuple(choice_list)
+
+
+class ListExperiemntsForm(forms.Form):
+    expttype = forms.ChoiceField(choices=GetChoiceValueTuple(Experiment.objects.all(), 'type'))
+    refgenome = forms.ChoiceField(choices=GetChoiceValueTuple(Organism.objects.all(), 'organismcode'))
 
 #============================================================================#
 # View helper functions
@@ -38,8 +70,29 @@ def ListExperiments(request):
     kwargs['listoflinks']=listoflinks
     kwargs['title']="Experiments List"
 
-    # get experiments
-    kwargs['experiments'] = Experiment.objects.all()
+
+    if request.method == 'POST':
+        form = ListExperiemntsForm(request.POST) #bound form
+        if form.is_valid():
+            expttype = form.cleaned_data['expttype']
+            refgenome = form.cleaned_data['refgenome']
+
+            # get experiments
+
+            expts = Experiment.objects.all()
+            if expttype != 'ALL':
+                expts = expts.filter(type=expttype)
+            if refgenome != 'ALL':
+                expts = expts.filter(refgenome=refgenome)
+
+            kwargs['experiments']=expts
+            kwargs['form']=form
+        else:
+            kwargs['form']=form
+    else:
+        form = ListExperiemntsForm() #un bound form
+        kwargs['form']=form
+
 
 
     return render_to_response('ngsdbview/list_experiments.html',kwargs, context_instance=RequestContext(request))

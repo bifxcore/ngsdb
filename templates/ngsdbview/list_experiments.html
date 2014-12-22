@@ -9,11 +9,22 @@
 {% load ngsdbview_extras %}
 {% load humanize %}
 
-
 {%  if experiments  %}
-<FORM action="/ngsdbview/listexperiments/" method="post">
+<FORM action="." method="post">
 {% csrf_token %}
+    <TABLE>
+        <TR>
+            <TD>
 
+                {{ form.as_table }}
+            </TD>
+            <TD>
+                <input type="submit"  name="levelTwo" value="Filter" />
+                </form>
+            </TD>
+        </TR>
+    </TABLE>
+</FORM>
 
     {% for exp in experiments %}
         <!-- experiment table -->
@@ -87,7 +98,22 @@
 
 
     {% endfor %}
+{% else %}
+<FORM action="." method="post">
+{% csrf_token %}
+    <TABLE>
+        <TR>
+            <TD>
 
+                {{ form.as_table }}
+            </TD>
+            <TD>
+                <input type="submit"  name="levelOne" value="Submit" />
+                </form>
+            </TD>
+        </TR>
+    </TABLE>
+</FORM>
 {% endif %}
 {% endblock %}
 {% endblock %}

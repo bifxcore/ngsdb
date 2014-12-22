@@ -25,6 +25,7 @@ CULTURE_METHOD_TYPE_CHOICES = (
 LIBRARYFILE_CATEGORY_CHOICES = (
     ('fastqqc', 'fastqqc'),
     ('rnaqc', 'rnaqc'),
+    ('readcount_distri', 'readcount_distri')
 )
 
 
@@ -157,7 +158,7 @@ def get_libraryfile_upload_destination(instance, filename):
 
 class Libraryfile(models.Model):
     library = models.ForeignKey(Library, null=True)
-    category = models.CharField(max_length=15, db_index=True, choices=LIBRARYFILE_CATEGORY_CHOICES, help_text="Broad level category for the file")
+    category = models.CharField(max_length=100, db_index=True, choices=LIBRARYFILE_CATEGORY_CHOICES, help_text="Broad level category for the file")
     subcategory = models.CharField(max_length=200, db_index=True, help_text="Sub level category for the file")
     file = models.FileField(upload_to=get_libraryfile_upload_destination, blank=True, help_text="Upload files related to a library")
     notes = models.TextField(blank=True)
