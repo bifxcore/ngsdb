@@ -70,6 +70,18 @@
                         </TD>
                         {% endfor %}
                     </TR>
+                    <TR><TD></TD></TR>
+                    <TR><TH>Library Read count distribution</TH>
+                    {% for sample in exp.samples.all %}
+                    <TD>
+                        {% for lib in sample.library_set.all %}
+                            {% for libraryfile in lib.libraryfile_set.all %}
+                              <a href="{{ libraryfile.file.url }}"  data-lightbox="exptfiles" data-title="{{ libraryfile.subcategory }}"><img src="{{ libraryfile.file.url }}" height="200" width="200"/></a>
+                            {% endfor %}
+                        {% endfor %}
+                    </TD>
+                    {% endfor %}
+                    </TR>
                 </TABLE>
             </div>
 
