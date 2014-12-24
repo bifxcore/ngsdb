@@ -5,3 +5,5 @@ VCF_Files/
 *pyc
 .idea
 media/experimentfiles
+snpdb/UnusedCode
+media/VCF_Files
