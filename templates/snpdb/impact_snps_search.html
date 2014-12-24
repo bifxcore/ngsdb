@@ -26,22 +26,26 @@
 <div class="container-fluid">
     <div class="collapse navbar-collapse">
         <ul class="nav navbar-nav">
-            <form class="form-inline" role="form" id='search' action='/snpdb/impact-results/search' style="padding-bottom: 30px;" method="get">
+            <form class="form-inline" role="form" id='search' action="?{% add_get_param request 'att' value %}" style="padding-bottom: 30px;" method="get">
                 <div class="form-group">
                     <label class="sr-only" for="search">Search</label>
                     <input type="text" class="form-control" name="s" placeholder="search">
+                    <input type="hidden" name="path" value="{{path}}" />
+                    <input type="hidden" name="impact" value="{{impact}}" />
+                    <input type="hidden" name="add" value="{{add}}" />
+                    <input type="hidden" name="neg" value="{{neg}}" />
+                    <input type="hidden" name="wt" value="{{wt}}" />
+                    <input type="hidden" name="file" value="vcf-contrast.vcf" />
                     <select class="selectpicker show-tick" data-style="btn-large btn-default" name="att" title='Search Option'>
-                        <option value="snp_position">SNP Position</option>
-                        <option value="result">Result</option>
-                        <option value="ref_base">Reference Base</option>
-                        <option value="alt_base">Alternative Base</option>
-                        <option value="heterozygosity">Heterozygosity</option>
+                        <option value="0">SNP Position</option>
+                        <option value="ref">Reference Base</option>
+                        <option value="alt">Alternative Base</option>
                         <option value="quality">Quality</option>
-                        <option value="chromosome__chromosome_name">Chromosome</option>
-                        <option value="effect__effect_string">Effect Impact</option>
-                        <option value="effect__effect_class">Effect</option>
+                        <option value="chromosome">Chromosome</option>
+                        <option value="impact">Impact</option>
+                        <option value="gene">Gene</option>
                     </select>
-                    <button class="btn btn-primary" type="submit"  style="margin-left:0px; width:75px; vertical-align:middle; padding: 0px">Search</button>
+                    <button class="btn btn-sample" type="submit"  style="margin-left:0px; width:75px; vertical-align:middle; padding: 0px">Search</button>
                 </div>
             </form>
         </ul>
@@ -51,35 +55,68 @@
 <div class="container-fluid" style="padding-bottom:30px">
     <table class="table table-condensed" style="word-wrap: break-word; border-color: black">
         <tr>
-            <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.0 }}>Position</a></th>
             <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.chromosome }}>Chromosome</a></th>
-            <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.ref }}>Reference Base</a></th>
-            <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.alt }}>Alternate Base</a></th>
+            <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.0 }}>Position (bp)</a></th>
             <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.quality }}>Quality</a></th>
-            <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.impact }}>Effect Impact</a></th>
-            <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.gene }}>Gene Description</a></th>
-            <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.effect }}>Effect</a></th>
+            <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.gene }}>Gene ID</a></th>
+            <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.gene_length }}>Gene Length (aa)</a></th>
+            <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.aa }}>Distance from Start Codon (aa)</a></th>
+            <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.ref }}>Reference Base</a></th>
+            <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.wt_allele }}>Wildtype Base</a></th>
+            {% for each in libraries %}
+                <th class="text-center custom-table" id={{each}}>
+                    <div><a style="color: #e7e4db" href={{ filter_urls.library__library_code }}>{{each}}</a></div>
+                    <div><a style="color: #e7e4db" href={{ filter_urls.base_to_allele }}> Base to Allele</a></div>
+                    <div><a style="color: #e7e4db" href={{ filter_urls.impact }}>Effect Impact</a></div>
+                </th>
+            {% endfor %}
+            <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.effect }}>Gene Name</a></th>
         </tr>
         <tbody>
-        <tr>
-            {% for x in results %}
-                <td class="text-center" style="vertical-align: middle">{{ x.0 }}</td>
-                <td class="text-center" style="vertical-align: middle">{{ x.1.chromosome }}</td>
-                <td class="text-center" style="vertical-align: middle">{% for y in x.1.ref %}<div>{{ y }}</div>{% endfor %}</a></td>
-                <td class="text-center" style="vertical-align: middle">{% for y in x.1.alt %}<div>{{ y }}</div>{% endfor %}</a></td>
-                <td class="text-center" style="vertical-align: middle">{% for y in x.1.quality %}<div>{{ y }}</div>{% endfor %}</a></td>
-                <td class="text-center" style="vertical-align: middle">{% for y in x.1.impact %}<div>{{ y }}</div>{% endfor %}</td>
-                <td class="text-center" style="vertical-align: middle">
-                {% for y in x.1.gene %}<div><a href="/snpdb/gene-feature?geneid={{ y }}">{{ y }}</a></div>{% endfor %}
-                </td>
-                <td>{% for y in x.1.effect %}<div>{{ y|effect_type_title }}</div>{% endfor %}</td>
-            </tr>
+        {% for x in results %}
+                <tr>
+                    <td class="text-center" style="vertical-align: middle">{{ x.1.chromosome }}</td>
+                    <td class="text-center" style="vertical-align: middle">{{ x.0 }}</td>
+                    <td class="text-center" style=  "vertical-align: middle">{% for y in x.1.quality %}<div>{{ y }}</div>{% endfor %}</a></td>
+                    <td class="text-center" style="vertical-align: middle">
+                        {% for y in x.1.gene %}<div><a href="/snpdb/gene-feature?geneid={{ y }}">{{ y }}</a></div>{% endfor %}
+                    </td>
+                    <td class="text-center" style="vertical-align: middle">{{x.1.gene_length}}</td>
+                    <td class="text-center" style="vertical-align: middle">{{x.1.aa}}</td>
+                    <td class="text-center" style="vertical-align: middle">{% for y in x.1.ref %}<div>{{ y }}</div>{% endfor %}</a></td>
+                    <td class="text-center" style="vertical-align: middle">{% for y in x.1.wt_allele %}<div>{{ y }}</div>{% endfor %}</a></td>
+                    {% for k, v in x.1.library_alleles.items %}
+                        {% for lib in libraries %}
+                            {% with v|keyvalue:lib as dict %}
+                                {% if lib in neg %}
+                                    <td class="neg text-center" headers={{lib}}>
+                                        {% if "No SNP" in dict.ref %}
+                                            <div>No SNP</div>
+                                        {% else %}
+                                            <div>{% for each in dict.ref %}{{ each }}{% endfor %} <span class="glyphicon glyphicon-arrow-right"></span> {% for each in dict.alt %}{{ each }}{% endfor %}</div>
+                                            <div>{% for y in x.1.impact %}<div>{{ y|effect_type_title }}</div>{% endfor %}</div>
+                                        {% endif %}
+                                    </td>
+                                {% else %}
+                                    <td class="add text-center" headers={{lib}}>
+                                        {% if "No SNP" in dict.ref %}
+                                            <div>No SNP</div>
+                                        {% else %}
+                                            <div>{% for each in dict.ref %}{{ each }}{% endfor %} <span class="glyphicon glyphicon-arrow-right"></span> {% for each in dict.alt %}{{ each }}{% endfor %}</div>
+                                            <div>{% for y in x.1.impact %}<div>{{ y|effect_type_title }}</div>{% endfor %}</div>
+                                        {% endif %}
+                                    </td>
+                                {% endif %}
+                            {% endwith %}
+                        {% endfor %}
+                    {% endfor%}
+                    <td>{% for y in x.1.effect %}<div>{{ y|effect_type_title }}</div>{% endfor %}</td>
         {% endfor %}
+            </tr>
         </tbody>
     </table>
 </div>
 </body>
-
 
 {% if toolbar_max > 1 %}
     <div class="container-fluid">

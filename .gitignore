@@ -1,5 +1,6 @@
 snpdb/vcf_files/
 snpdb/gcharts/
+snpdb/UnusedCode
 VCF_Files/
 *.pyc
 *pyc
@@ -8,3 +9,4 @@ media/experimentfiles/*
 media/bioanalyzer/*
 media/libraryimages/*
 media/protocols/*
+media/VCF_Files/*
