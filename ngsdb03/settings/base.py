@@ -175,6 +175,7 @@ INSTALLED_APPS = (
     'snpdb',
     'django.contrib.humanize',
     'mathfilters',
+    'columns'
 )
 
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'

@@ -3,7 +3,7 @@
 {% extends "snpdb/dashboard.html" %}
 {% load static %}
 {% load staticfiles %}
-{% load display_rows %}
+{% load columns %}
 
 
 {% block title %}
@@ -36,11 +36,11 @@
                             <h3 class="panel-title" style="text-align: center">Wildtype Library to Compare Against (Optional)</h3>
                         </div>
                         <div class="panel-body">
-                            <div class="form-group">
-                                {% for group in results|group_by:020 %}
-                                    <div class="form-vertical">
-                                        {% for lib in group %}
-                                            <div class="col-sm-2">
+                            <div class="row">
+                                {% for col in results|columns:4 %}
+                                    <div class="col-md-3">
+                                        {% for lib in col %}
+                                            <div class="item">
                                                 <input type="radio" name="wt" value="{{ lib.library_code }}"> {{lib.library_code}}
                                             </div>
                                         {% endfor %}
@@ -56,11 +56,11 @@
                             <h3 class="panel-title" style="text-align: center">Group 1</h3>
                         </div>
                         <div class="panel-body">
-                            <div class="form-group">
-                                {% for group in results|group_by:020 %}
-                                    <div class="form-vertical">
+                            <div class="row">
+                                {% for group in results|columns:4%}
+                                    <div class="col-md-3">
                                         {% for lib in group %}
-                                            <div class="col-sm-2">
+                                            <div class="item">
                                                 <input type="checkbox" name="check1" value="{{ lib.library_code }}"> {{lib.library_code}}
                                             </div>
                                         {% endfor %}
@@ -76,11 +76,11 @@
                             <h3 class="panel-title" style="text-align: center">Group 2</h3>
                         </div>
                         <div class="panel-body">
-                            <div class="form-group">
-                                {% for group in results|group_by:050 %}
-                                    <div class="form-vertical">
-                                        {% for lib in group %}
-                                            <div class="col-sm-2">
+                            <div class="row">
+                                {% for col in results|columns:4 %}
+                                    <div class="col-md-3">
+                                        {% for lib in col %}
+                                            <div class="item">
                                                 <input type="checkbox" name="check2" value="{{ lib.library_code }}"> {{lib.library_code}}
                                             </div>
                                         {% endfor %}
@@ -102,27 +102,23 @@
 
 {% else %}
     <div class="container-fluid" style="padding-bottom:30px">
-        <form id="form1" action="/snpdb/compare-libs" method="get">
-            <div class="row">
+        <form id="form3" action="/snpdb/compare-libs" method="get">
                 <div class="panel panel-primary" style="border-color: #616770;">
                     <div class="panel-heading" style="background-color: #616770; border-color:#616770; overflow: hidden">
                         <h3 class="panel-title" style="text-align: center">Choose a Reference Organism</h3>
                     </div>
                     <div class="panel-body">
-                        <div class="form-group">
-                            {% for each in results|group_by:5 %}
-                                <div class="form-vertical">
-                                    {% for organismcode in each %}
-                                        <div class="col-md-2">
-                                            <input type="radio" name="ref_genome" value="{{ organismcode.organismcode }}"> {{organismcode.organismcode}}
-                                         </div>
+                        <div class="row-md-2">
+                            {% for col in results|columns:6 %}
+                                <div class="col-md-2">
+                                    {% for organismcode in col %}
+                                        <div class="item"><input type="radio" name="ref_genome" value="{{ organismcode.organismcode }}"> {{organismcode.organismcode}} </div>
                                     {% endfor %}
-                                </div>
+                                </div><!-- /col-md-4 -->
                             {% endfor %}
-                        </div>
+                        </div><!-- /row-md-2 -->
                     </div>
                 </div>
-            </div>
             <div class="form-group">
                 <div class="pull-left">
                     <button type="submit" class="btn btn-sample btn-xs pull-right" style="margin-left:0px; width:50px; padding:0px">Search</button>

@@ -15,7 +15,7 @@ import os
 import csv
 import vcf
 import ast
-import collections
+
 
 # Returns the dashboard displaying summary charts of the loaded vcf files and libraries.
 def dashboard(request):
@@ -1138,7 +1138,7 @@ def compare_two_libraries(request):
 		results = paginator.page(paginator.num_pages)
 	toolbar_max = min(results.number + 4, paginator.num_pages)
 	toolbar_min = max(results.number - 4, 0)
-	return render_to_response('snpdb/compare_two_libraries.html', {"results": results,
+	return render_to_response('snpdb/compare_libraries.html', {"results": results,
 	                                                               "ref_genome": ref_genome,
 	                                                               "paginator": paginator,
 	                                                               "toolbar_max": toolbar_max,
@@ -1204,20 +1204,21 @@ def effects_by_vcf(request):
 
 		#Runs the vcf-merge command.
 		merge_file = os.path.join(path, 'merge.vcf')
-		p = subprocess.Popen(["""/usr/local/bcftools/bcftools merge --force-samples %s > %s""" % (zip_vcf, merge_file)], stderr=subprocess.PIPE, stdout=subprocess.PIPE, shell=True)
+		p = subprocess.Popen(["""bcftools merge --force-samples %s > %s""" % (zip_vcf, merge_file)], stderr=subprocess.PIPE, stdout=subprocess.PIPE, shell=True)
 		out, err = p.communicate()
+		print out, err
 		print "files merged"
 
 		#collects all file ids.
 		add_code = []
 		neg_code = []
 
-		h = subprocess.Popen(["""/usr/bin/grep ^#CHROM %s""" % merge_file], stderr=subprocess.PIPE, stdout=subprocess.PIPE, shell=True)
+		h = subprocess.Popen(["""grep ^#CHROM %s""" % merge_file], stderr=subprocess.PIPE, stdout=subprocess.PIPE, shell=True)
 		header, error = h.communicate()
 		replace = '\t'.join(libs).strip('\n')
 		samp = re.findall(r'^#CHROM\t\w*\t*\w*\t\w*\t\w*\t\w*\t\w*\t\w*\t\w*\t(.*)', header)[0]
 		replace_str = re.sub(samp, replace, header).strip('\n')
-		sed = subprocess.call(["""/usr/bin/perl -pi -e 's/^#CHROM.*/%s/g;' %s""" % (replace_str, merge_file)], shell=True)
+		sed = subprocess.call(["""perl -pi -e 's/^#CHROM.*/%s/g;' %s""" % (replace_str, merge_file)], shell=True)
 		print "sed is complete"
 
 		for lib in library_1:
@@ -1249,8 +1250,8 @@ def effects_by_vcf(request):
 		zip_replace = replace_file + '.gz'
 		vcf_contrast1 = os.path.join(path, 'vcf_contrast_1.vcf')
 		vcf_contrast2 = os.path.join(path, 'vcf_contrast_2.vcf')
-		subprocess.call(["""/usr/local/bin/vcf-contrast -n %s %s %s > %s""" % (add1, neg1, zip_replace, vcf_contrast1)], shell=True)
-		subprocess.call(["""/usr/local/bin/vcf-contrast -n %s %s %s > %s""" % (add2, neg2, zip_replace, vcf_contrast2)], shell=True)
+		subprocess.call(["""vcf-contrast -n %s %s %s > %s""" % (add1, neg1, zip_replace, vcf_contrast1)], shell=True)
+		subprocess.call(["""vcf-contrast -n %s %s %s > %s""" % (add2, neg2, zip_replace, vcf_contrast2)], shell=True)
 
 		#zips replace file for vcf-contrast
 		try:
@@ -1263,7 +1264,7 @@ def effects_by_vcf(request):
 
 
 		#merging vcf_contrast files
-		p = subprocess.Popen(["""/usr/local/bcftools/bcftools merge --force-samples %s.gz %s.gz > %s""" % (vcf_contrast1, vcf_contrast2, merge_file2)], stderr=subprocess.PIPE, stdout=subprocess.PIPE, shell=True)
+		p = subprocess.Popen(["""bcftools merge --force-samples %s.gz %s.gz > %s""" % (vcf_contrast1, vcf_contrast2, merge_file2)], stderr=subprocess.PIPE, stdout=subprocess.PIPE, shell=True)
 		out, err = p.communicate()
 		print "files merged"
 
@@ -1515,21 +1516,15 @@ def get_chromosome_size(organismcode):
 	return genome_size
 
 
+# Asks the user for what library they would like to query.
 def chrom_region(request):
-	lib_list = Library.objects.values('library_code', 'result__genome__organism__organismcode').order_by('result__genome__organism__organismcode')
-	lib_genome = defaultdict(list)
-	for each in lib_list:
-		lib_code = str(each['library_code'])
-		genome = str(each['result__genome__organism__organismcode'])
-		if genome in lib_genome:
-			cur_libs = lib_genome[genome]
-			cur_libs.append(lib_code)
-			lib_genome[genome] = cur_libs
-		else:
-			lib_codes = [lib_code]
-			lib_genome[genome] = lib_codes
+	ref_genome = request.GET.get('ref_genome')
+	if ref_genome:
+		lib_list = Library.objects.values('library_code', 'result__genome__organism__organismcode').filter(result__genome__organism__organismcode=ref_genome).distinct().order_by('library_code')
+	else:
+		lib_list = Organism.objects.values('organismcode').distinct().order_by('organismcode')
 	page = request.GET.get('page')
-	paginator = Paginator(tuple(lib_genome.items()), 500)
+	paginator = Paginator(lib_list, 500)
 
 	try:
 		results = paginator.page(page)
@@ -1540,19 +1535,22 @@ def chrom_region(request):
 	toolbar_max = min(results.number + 4, paginator.num_pages)
 	toolbar_min = max(results.number - 4, 0)
 	return render_to_response('snpdb/chrom_region.html', {"results": results,
+	                                                      'ref_genome': ref_genome,
 	                                                      "paginator": paginator,
 	                                                      "toolbar_max": toolbar_max,
 	                                                      "toolbar_min": toolbar_min}, context_instance=RequestContext(request))
 
 
+# Asks the user what chromosome and region(bp) the user would like to query for SNPs
 def chrom_region_search(request):
-	library = request.GET.get('check1')
+	library = request.GET.get('library')
 	chromosome = SNP.objects.values_list('chromosome__chromosome_name').filter(library__library_code=library).distinct().order_by('chromosome__chromosome_name')
 	return render_to_response('snpdb/chrom_region.html', {"chromosome": chromosome,
 	                                                      "library": library,
 	                                                      })
 
 
+# Returns SNPs found within the specified chromosome and region.
 def chrom_region_filter(request):
 	library = request.GET.get('library')
 	start = request.GET.get('from')
@@ -1567,7 +1565,7 @@ def chrom_region_filter(request):
 		effect_group = each['effect__effect_group']
 		impact = SNP.objects.filter(effect__effect_id=1,
 		                            effect__effect_group=effect_group,).values('snp_position', 'ref_base', 'alt_base', 'heterozygosity',
-		                                                                       'quality', 'effect__effect_string', 'effect__effect_group').filter(
+		                                                                       'quality', 'effect__effect_string', 'effect__effect_class').filter(
 			snp_position=each['snp_position'],
 			chromosome__chromosome_name=chrom,
 			library__library_code=library,).distinct()
