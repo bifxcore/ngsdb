@@ -24,7 +24,9 @@ header#grp-header {
 
 #grp-context-navigation {
     position: relative;
-    top: 10px;
+    top: -20px;
+    /*color: black;*/
+    background-color: #919DAB;
 }
 
 #grp-content {

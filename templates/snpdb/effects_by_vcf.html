@@ -9,9 +9,6 @@
 Compare Across Libraries
 {% endblock %}
 
-{% block breadcrumbs %}
-{% endblock %}
-
 {% block bootstrap %}
 <script>
     $('.collapse').collapse()
@@ -23,7 +20,6 @@ Compare Across Libraries
     <div class="page-header text-header" style="padding-left:30px; margin-top:10px; padding-bottom:0px">
         <h1 class="header" style="padding-bottom:0px;">Difference Between Libraries</h1>
         <h2 class="header" style="padding-top:5px">There are {{lib1_total}} SNPs different in {% for object in library1 %} {{object}} {% endfor %} and {% for object in library2 %} {{object}} {% endfor %}.</h2>
-        <!--<h2 class="header" style="padding-top:5px">There are {{lib2_total}} SNPs found in {% for object in library2 %} {{object}} {% endfor %} not found in {% for object in library1 %} {{object}} {% endfor %}.</h2>-->
 
     </div>
 </div>

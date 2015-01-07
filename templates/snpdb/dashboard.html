@@ -1,7 +1,6 @@
 {% extends "admin/base_site.html" %}
 {% load i18n grp_tags %}
 {% load snp_filters %}
-{% load display_rows %}
 {% load staticfiles %}
 <link rel="stylesheet" type="text/css" href="/media/css/style.css" >
 <link rel="stylesheet" type="text/css" href="/media/css/tabstyle.css" >
@@ -286,7 +285,7 @@
 <!-- content title -->
 {% block content_title %}
     {% if title %}
-        <header><h1>{{ title }}</h1></header>
+        <header>{{ title }}</header>
     {% endif %}
 {% endblock %}
 

@@ -5,10 +5,12 @@ register = template.Library()
 def add_get_param(request, attr, val):
 	dict_ = request.GET.copy()
 	dict_[attr] = val
-
 	return dict_.urlencode()
+
 
 
 @register.filter
 def keyvalue(dict, key):
 	return dict[key]
+
+register.filter(keyvalue)

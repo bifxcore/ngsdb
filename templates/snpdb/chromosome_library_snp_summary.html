@@ -3,13 +3,10 @@
 {% extends "snpdb/dashboard.html" %}
 {% load static %}
 {% load staticfiles %}
-{% load display_rows %}
+{% load columns %}
 
 {% block title %}
     Chromosome and Library Query
-{% endblock %}
-
-{% block breadcrumbs %}
 {% endblock %}
 
 {% block bootstrap %}
@@ -38,7 +35,7 @@
 
 <div class="container-fluid" style="padding-bottom:30px">
     <div class="form">
-        {% for group in results|group_by:12 %}
+        {% for group in results|columns:12 %}
             <div class="form-group">
                 {% for obj in group %}
                     <label class="col-md-1">{{ obj.library_code }}</label>

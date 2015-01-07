@@ -9,8 +9,6 @@
     Library Summary
 {% endblock %}
 
-{% block breadcrumbs %}
-{% endblock %}
 
 {% block bootstrap %}
 
@@ -55,7 +53,7 @@
     <tbody>
     <tr>
     {% for each in result %}
-        <td class="text-center" style="word-wrap: break-word"><a href="/snpdb/library-snp-summary/search?lib={{each.library__librarycode}}&count={{each.num_snps}}">{{ each.library__library_code }}</td>
+        <td class="text-center" style="word-wrap: break-word">{{ each.library__library_code }}</td>
         <td class="text-center" style="word-wrap: break-word">{{ each.result__genome__organism__organismcode }}</td>
         <td class="text-center" style="word-wrap: break-word">{{ each.num_snps }}</td>
         <td class="text-center" style="word-wrap: break-word">{{ each.hetero }}</td>
