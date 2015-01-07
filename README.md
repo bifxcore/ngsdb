@@ -14,6 +14,10 @@ NGSdb requires the following applications to run.
     <li>Python (https://www.python.org/download/) </li>
     <li>Django (https://docs.djangoproject.com/en/dev/topics/install) </li>
     <li>Database System: Django supports PostgreSQL, MySQL, Oracle and SQLite.
+    <li>BCFtools (http://samtools.github.io/bcftools/) </li>
+    <li>VCFtools (http://vcftools.sourceforge.net/)</li>
+    <li>SnpSift (http://snpeff.sourceforge.net/SnpSift.html)</li>
+    <li>SnpEff (http://snpeff.sourceforge.net/SnpEff.html)</li>
 </ol>
 
 <h3>Install</h3>
