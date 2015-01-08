@@ -20,7 +20,7 @@ FABRIC = {
     "GUNICORN_LOGLEVEL":"debug", # Server's log level [debug|error]
     "LOCALE": "en_US.UTF-8", # Should end with ".UTF-8"
     "LIVE_HOSTNAME": "gramasamy02-lx", # Host for public site.
-    "REPO_URL": "gitolite@git.sbri.org:ngsdb03", # Git or Mercurial remote repo URL for the project
+    "REPO_URL": "ssh://git@stash.sbri.org:7999/bifx/ngsdb03.git", # Git or Mercurial remote repo URL for the project
     "DB_PASS": "ngsdb03", # Live database password
     "ADMIN_PASS": "", # Live admin user password
 }

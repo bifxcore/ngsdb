@@ -473,12 +473,12 @@ def create():
            if prompt.lower() != "yes":
                print "\nAborting!"
                return False
-           remove()
+           remove_virtualenv()
        run("virtualenv %s --distribute" % env.proj_name)
        #GR add env.variable for settings module DJANGO_SETTINGS_MODULE
        sudo("echo \"export DJANGO_SETTINGS_MODULE=%s.settings.%s\" >> %s/bin/activate" % (env.proj_name, env.fab_settings, env.venv_path))
 
-       vcs = "git" if env.repo_url.startswith("git") else "hg"
+       vcs = "git" if env.repo_url.endswith("git") else "hg"
        run("%s clone %s %s" % (vcs, env.repo_url, env.proj_path))
 
    # Create DB and DB user.
