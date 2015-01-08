@@ -46,33 +46,31 @@
 </div>
 
 <div class="container-fluid" style="padding-bottom:30px">
-	<table class="table table-condensed table-hover" style="table-layout: fixed; word-wrap: break-word;">
-    	<thead>
-    	<tr class="info">
-        	<th class="text-center"><a href={{ filter_urls.snp_position }}>Position</a></th>
-        	<th class="text-center"><a href={{ filter_urls.ref_base }}>Reference Base</a></th>
-        	<th class="text-center"><a href={{ filter_urls.alt_base }}>Alternate Base</a></th>
-        	<th class="text-center"><a href={{ filter_urls.heterozygosity }}>Heterozygosity</a></th>
-        	<th class="text-center"><a href={{ filter_urls.quality }}>Quality</a></th>
-            <th class=" text-center"><a href={{ filter_urls.effect__effect_class }}>Gene</a></th>
-            <th class=" text-center"><a href={{ filter_urls.effect__effect_string }}>Impact</a></th>
-            <th class=" text-center"><a href={{ filter_urls.effect__effect_id }}>Effect Group</a></th>
+	<table class="table table-condensed" style="table-layout: fixed; word-wrap: break-word;">
+    	<tr>
+        	<th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.snp_position }}>Position</a></th>
+            <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.quality }}>Quality</a></th>
+        	<th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.ref_base }}>Reference Base</a></th>
+        	<th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.alt_base }}>Alternate Base</a></th>
+        	<th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.heterozygosity }}>Heterozygosity</a></th>
+            <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.effect__effect_class }}>Gene</a></th>
+            <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.effect__effect_string }}>Effect</a></th>
+            <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.effect__effect_string }}>Effect Impact</a></th>
     	</tr>
-    	</thead>
     	<tbody>
     	<tr>
         	{% for each in results %}
-                    {% for x in each.1 %}
+                {% for x in each.1 %}
                     <td class="text-center">{{ each.0 }}</td>
+                    <td class="text-center">{{ x.quality }}
                     <td class="text-center">{{ x.ref_base }}</td>
                     <td class="text-center">{{ x.alt_base }}</td>
                     <td class="text-center">{{ x.heterozygosity }}</td>
-                    <td class="text-center">{{ x.quality }}
                     <td class="text-center">{{ x.gene }}</td>
+                    <td class="text-center">{{ x.effect__effect_class|title }}</td>
                     <td class="text-center">{{ x.effect__effect_string|title }}</td>
-                    <td class="text-center">{{ x.effect__effect_group}}</td>
         </tr>
-                    {% endfor %}
+                {% endfor %}
     	    {% endfor %}
     	</tbody>
 	</table>
