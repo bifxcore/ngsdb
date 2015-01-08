@@ -106,6 +106,8 @@ class Sample(models.Model):
     date_modified = models.DateTimeField(auto_now=True)
     author_modified = models.ForeignKey(User, verbose_name="Person Modified this entry last")
 
+    class Meta:
+        ordering = ['sampleid']
     def __unicode__(self):
         return unicode(self.sampleid)
 
