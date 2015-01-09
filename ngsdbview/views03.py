@@ -55,6 +55,24 @@ def get_samplecode_fromlibcode(request, libcode):
     samplecode = Library.objects.get(library_code=libcode).sampleid.sampleid
     return samplecode
 
+def get_libcodes_fromexpid(request, expid):
+    experiment = Experiment.objects.get(id=expid)
+    samples = experiment.samples.all()
+    library_codes = []
+    for sampleobj in samples:
+        libcodes = sampleobj.library_set.all().values_list('library_code', flat=True)
+        for libcode in libcodes:
+            library_codes.append(libcode)
+    return library_codes
+
+def get_libcode_samplename_map(request, libcodes):
+    map = {}
+    for libcode in libcodes:
+         map[libcode]=Library.objects.get(library_code=libcode).sampleid.samplename
+    return map
+
+
+
 
 #============================================================================#
 # View  functions
@@ -89,7 +107,16 @@ def ListExperiments(request):
             if collaboratorLN != 'ALL':
                 expts = expts.filter(collaborator__lastname=collaboratorLN)
 
+            expts_RNAseq = expts.filter(type='RNAseq')
+            expts_DNAseq = expts.filter(type='DNAseq')
+            expts_SLseq = expts.filter(type='SL')
+
             kwargs['experiments']=expts
+            kwargs['expts_RNAseq']=expts_RNAseq
+            kwargs['expts_DNAseq']=expts_DNAseq
+            kwargs['expts_SLseq']=expts_SLseq
+            print expts_RNAseq
+
             kwargs['form']=form
         else:
             kwargs['form']=form
@@ -99,10 +126,10 @@ def ListExperiments(request):
 
 
 
-    return render_to_response('ngsdbview/list_experiments.html',kwargs, context_instance=RequestContext(request))
+    return render_to_response('ngsdbview/experiment_list.html',kwargs, context_instance=RequestContext(request))
 
 
-def DetailExperiment(request, experimentId):
+def ExperimentDetailRNAseq(request, experimentId):
     '''
     Detail an experiment.
     :param request:
@@ -135,4 +162,100 @@ def DetailExperiment(request, experimentId):
 
     kwargs['regulatedCount']=regulatedCount
     kwargs['plots']=plots
-    return render_to_response('ngsdbview/detail_experiment.html',kwargs, context_instance=RequestContext(request))
+    return render_to_response('ngsdbview/experiment_detail_RNAseq.html',kwargs, context_instance=RequestContext(request))
+
+
+def ExperimentDetailDNAseq(request, experimentId):
+    '''
+    Detail an experiment.
+    :param request:
+    :return: one experimental object
+    '''
+
+    kwargs = {}
+    #kwargs['user']=user
+    kwargs['listoflinks']=listoflinks
+    kwargs['title']="Experiment Detail"
+    #experimentId = "42"
+    # get experiments
+    exp = Experiment.objects.get(id=experimentId)
+    kwargs['exp'] = exp
+
+    comparisons = Comparison.objects.filter(experiment=exp)
+    regulatedCount = defaultdict(lambda: defaultdict(int))
+    for comparison in comparisons:
+        dic = {}
+        dic['Down Reg-2 Fold']=comparison.diffexpn_set.all().filter(pvalue__lte=0.01, log2foldchange__lte=-1).count()
+        dic['Up Reg-2 Fold']=comparison.diffexpn_set.all().filter(pvalue__lte=0.01, log2foldchange__gte=1).count()
+        dic['Down Reg-4Fold']=comparison.diffexpn_set.all().filter(pvalue__lte=0.01, log2foldchange__lte=-2).count()
+        dic['Up Reg-4 Fold']=comparison.diffexpn_set.all().filter(pvalue__lte=0.01, log2foldchange__gte=2).count()
+        regulatedCount[comparison.compname]=dic
+
+    plotFileList = ['MDSfc_plot', 'allvsall_correlation_plot', 'BCV_plot', 'boxplot_normalized', 'boxplot_raw' ]
+    plots = {}
+    for fileName in  plotFileList:
+        plots[fileName]=1
+
+    kwargs['regulatedCount']=regulatedCount
+    kwargs['plots']=plots
+    return render_to_response('ngsdbview/experiment_detail_DNAseq.html',kwargs, context_instance=RequestContext(request))
+
+
+def ExperimentDetailSLseq(request, experimentId):
+    '''
+    Detail an experiment.
+    :param request:
+    :return: one experimental object
+    '''
+
+    kwargs = {}
+    #kwargs['user']=user
+    kwargs['listoflinks']=listoflinks
+    kwargs['title']="Experiment Detail"
+    #experimentId = "42"
+    # get experiments
+    exp = Experiment.objects.get(id=experimentId)
+    kwargs['exp'] = exp
+
+    comparisons = Comparison.objects.filter(experiment=exp)
+    regulatedCount = defaultdict(lambda: defaultdict(int))
+    for comparison in comparisons:
+        dic = {}
+        dic['Down Reg-2 Fold']=comparison.diffexpn_set.all().filter(pvalue__lte=0.01, log2foldchange__lte=-1).count()
+        dic['Up Reg-2 Fold']=comparison.diffexpn_set.all().filter(pvalue__lte=0.01, log2foldchange__gte=1).count()
+        dic['Down Reg-4Fold']=comparison.diffexpn_set.all().filter(pvalue__lte=0.01, log2foldchange__lte=-2).count()
+        dic['Up Reg-4 Fold']=comparison.diffexpn_set.all().filter(pvalue__lte=0.01, log2foldchange__gte=2).count()
+        regulatedCount[comparison.compname]=dic
+
+    plotFileList = ['MDSfc_plot', 'allvsall_correlation_plot', 'BCV_plot', 'boxplot_normalized', 'boxplot_raw' ]
+    plots = {}
+    for fileName in  plotFileList:
+        plots[fileName]=1
+
+    kwargs['regulatedCount']=regulatedCount
+    kwargs['plots']=plots
+    return render_to_response('ngsdbview/experiment_detail_SLseq.html',kwargs, context_instance=RequestContext(request))
+
+
+def SNPCompareLibs(request, experimentId):
+    '''
+    Compare SNPs from two libraries.
+    :param request:
+    :return: link to Marea's snp analysis
+    '''
+
+    kwargs = {}
+    #kwargs['user']=user
+    kwargs['listoflinks']=listoflinks
+    kwargs['title']="Compare SNPs between two sets of libraries (of an experiment)"
+
+    # get experiments
+    exp = Experiment.objects.get(id=experimentId)
+    kwargs['exp'] = exp
+    libcodes = get_libcodes_fromexpid(request, experimentId)
+    kwargs['libcodes'] = libcodes
+
+    kwargs['libcode_name_map'] = get_libcode_samplename_map(request, libcodes)
+
+    print kwargs['libcodes']
+    return render_to_response('ngsdbview/snp_compare_libraries.html', kwargs, context_instance=RequestContext(request))

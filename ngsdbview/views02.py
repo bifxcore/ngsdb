@@ -547,7 +547,7 @@ def ListExperiments(request):
 
     kwargs['expts']=expts
 
-    return render_to_response('ngsdbview/list_experiments.html',kwargs, context_instance=RequestContext(request))
+    return render_to_response('ngsdbview/experiment_list.html',kwargs, context_instance=RequestContext(request))
 
 
 def AnalyzeExperiments(request):
