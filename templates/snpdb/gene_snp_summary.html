@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+
+{% extends "snpdb/dashboard.html" %}
+{% load static %}
+{% load staticfiles %}
+{% load snp_filters %}
+{% load mathfilters %}
+
+
+{% block title %}
+    Gene Summary
+{% endblock %}
+
+
+{% block bootstrap %}
+
+
+<div class="container-fluid" style="padding-bottom:30px">
+    <a class="btn btn-primary" data-toggle="collapse" href="#collapseOne" aria-expanded="false" aria-controls="collapseOne">{{gene_id}}</a>
+    <div class="panel-group" id="accordion">
+        <div class="panel panel-default">
+            <div class="panel-heading"  style="background-color: #616770; color: white; border-color:#616770">
+                <h4 class="panel-title">
+                    <div>{{gene_name|effect_type_title}} <a class="pull-right" href="http://tritrypdb.org/tritrypdb/showRecord.do?name=GeneRecordClasses.GeneRecordClass&source_id={{gene_id}}&project_id=TriTrypDB" target=_blank>More info at TriTrypDb</a></div>
+                    <div><span style="font-size:10pt">#High Impact: {{high_ct}}</span>  <span style="padding-left:68px; font-size:10pt"> #Moderate Impact: {{moderate_ct}} </span> <span style="padding-left:68px; font-size:10pt">#Low Impact: {{low_ct}}</span></div>
+                </h4>
+            </div>
+            <div id="collapseOne" class="panel-collapse collapse in">
+                <div class="panel-body">
+                    <div id="collapseOne" class="panel-collapse">
+                        {% for each in snp_list %}
+                            <ul class="list-group">
+                                <li class="list-group-item">{{each.5|effect_type_title}} at position {{each.0}} (bp)</li>
+                                <li class="list-group-item"><strong>Reference Allele <span class="glyphicon glyphicon-arrow-right"></span>  Alternate Allele:</strong> {{each.1}} <span class="glyphicon glyphicon-arrow-right"></span> {{each.2}}</li>
+                                <li class="list-group-item">{{percent_gene|floatformat:-4}}% of Gene Effected </li>
+                                <li class="list-group-item"><div>(If applicable) Group 1 <span class="glyphicon glyphicon-arrow-right"></span> Gain of Function</div> <div>(If applicable)  Group 2 <span class="glyphicon glyphicon-arrow-right"></span>  Loss of Function </div></li>
+                                <li class="list-group-item">Is WT allele different from reference at this position? </li>
+                            </ul>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <a class="btn btn-primary" data-toggle="collapse" href="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">Gene ID</a>
+    <div class="panel-group" id="accodian">
+        <div class="panel panel-default">
+            <div class="panel-heading" style="background-color: #616770; color: white">
+                <h4 class="panel-title">
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">
+                        Gene Name and Link to TriTryp
+                    </a>
+                </h4>
+            </div>
+            <div id="collapseTwo" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <div id="collapseTwo" class="panel-collapse">
+                        <ul class="list-group">
+                            <li class="list-group-item">High Impact "\t" Moderate Impact "\t" Low Impact</li>
+                            <li class="list-group-item">High Impact "\t" Moderate Impact "\t" Low Impact</li>
+                            <li class="list-group-item">High Impact "\t" Moderate Impact "\t" Low Impact</li>
+                            <li class="list-group-item">High Impact "\t" Moderate Impact "\t" Low Impact</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+</html>

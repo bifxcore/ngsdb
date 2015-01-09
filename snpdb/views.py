@@ -5,7 +5,6 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from utils import build_orderby_urls
 from django.db.models import *
 from django_boolean_sum import BooleanSum
-# from templatetags.snp_filters import *
 from django.template import RequestContext
 from GChartWrapper import *
 from collections import *
@@ -1055,6 +1054,7 @@ def effects_by_vcf(request):
 	#Determines the location of where analysis results will be stored.
 	path = os.path.join(vcf_path, 'vcf_contrast_%s_%s' % (vcf_string, datetime.datetime.utcnow().strftime("%Y-%m-%d")))
 	merge_file2 = os.path.join(path, 'merge_contrast.vcf')
+	analysis_path = os.path.join('vcf_contrast_%s_%s' % (vcf_string, datetime.datetime.utcnow().strftime("%Y-%m-%d")), 'merge_contrast.vcf')
 
 	#Checks to see if analysis has already been completed. If the analysis files are not present, bcftools is called.
 	if os.path.isdir(path):
@@ -1085,7 +1085,7 @@ def effects_by_vcf(request):
 		merge_file = os.path.join(path, 'merge.vcf')
 		p = subprocess.Popen(["""bcftools merge --force-samples %s > %s""" % (zip_vcf, merge_file)], stderr=subprocess.PIPE, stdout=subprocess.PIPE, shell=True)
 		out, err = p.communicate()
-		print out, err
+		# print out, err
 		print "files merged"
 
 		#collects all file ids.
@@ -1222,12 +1222,12 @@ def effects_by_vcf(request):
 	                                                        "lib1_effect": lib1_effect,
 	                                                        "add_code": group1,
 	                                                        "neg_code": group2,
-	                                                        "path": merge_file2})
+	                                                        "analysis_path": analysis_path})
 
 
 # Returns the snp that are found from effects_by_vcf. Opens the vcf-contrast file.
 def impact_snps(request):
-	path = request.GET.get('path')
+	analysis_path = request.GET.get('analysis_path')
 	add = ast.literal_eval(request.GET.get('add'))
 	neg = ast.literal_eval(request.GET.get('neg'))
 	wt = request.GET.get('wt')
@@ -1236,6 +1236,13 @@ def impact_snps(request):
 	order_by = request.GET.get('order_by', 'chromosome')
 	s = request.GET.get('s')
 	att = request.GET.get('att')
+	high_ct = request.GET.get('high_ct')
+	moderate_ct = request.GET.get('moderate_ct')
+	low_ct = request.GET.get('low_ct')
+
+	direct = os.path.abspath(os.path.dirname(__file__))
+	vcf_path = os.path.join(direct, 'vcf_files')
+	path = os.path.join(vcf_path, analysis_path)
 
 	if not s:
 		cmd = """cat %s | /usr/local/Cellar/snpeff/3.6c/share/scripts/vcfEffOnePerLine.pl | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar filter "( EFF[*].IMPACT = '%s')" | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar extractFields - POS REF ALT CHROM EFF[*].GENE EFF[*].EFFECT QUAL EFF[*].AA"""
@@ -1255,7 +1262,6 @@ def impact_snps(request):
 			cmd = """cat %s | /usr/local/Cellar/snpeff/3.6c/share/scripts/vcfEffOnePerLine.pl | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar filter "(EFF[*].IMPACT = '%s') & (CHROM =~ '%s')" | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar extractFields - POS REF ALT CHROM EFF[*].GENE EFF[*].EFFECT QUAL EFF[*].AA"""
 		elif att == "impact":
 			s = s.replace(' ', '_').upper()
-			print s
 			cmd = """cat %s | /usr/local/Cellar/snpeff/3.6c/share/scripts/vcfEffOnePerLine.pl | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar filter "(EFF[*].IMPACT = '%s') & (EFF[*].EFFECT = '%s')" | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar extractFields - POS REF ALT CHROM EFF[*].GENE EFF[*].EFFECT QUAL EFF[*].AA"""
 		elif att == "gene":
 			cmd = """cat %s | /usr/local/Cellar/snpeff/3.6c/share/scripts/vcfEffOnePerLine.pl | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar filter "(EFF[*].IMPACT = '%s') & (EFF[*].GENE = '%s')" | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar extractFields - POS REF ALT CHROM EFF[*].GENE EFF[*].EFFECT QUAL EFF[*].AA"""
@@ -1358,7 +1364,6 @@ def impact_snps(request):
 		sorted_snp = sorted(test_dict.iteritems())
 	else:
 		sorted_snp = sorted(test_dict.iteritems(), key=lambda (k, v): v[order_by])
-	# print sorted_snp
 	count = len(snp_dict)
 	paginator = Paginator(sorted_snp, 200)
 	page = request.GET.get('page')
@@ -1375,7 +1380,7 @@ def impact_snps(request):
 
 	toolbar_max = min(results.number + 4, paginator.num_pages)
 	toolbar_min = max(results.number - 4, 0)
-	c = {"path": path,
+	c = {"analysis_path": analysis_path,
 	     "paginator": paginator,
 	     "results": results,
 	     "libraries": libraries,
@@ -1383,11 +1388,93 @@ def impact_snps(request):
 	     "impact": impact1,
 	     "neg": neg,
 	     "wt": wt,
+	     "high_ct": high_ct,
+	     "low_ct": low_ct,
+	     "moderate_ct":moderate_ct,
 	     "filter_urls": filter_urls,
 	     "toolbar_max": toolbar_max,
 	     "toolbar_min": toolbar_min,
 	     "count": count}
 	return render_to_response('snpdb/impact_snps_search.html', c, context_instance=RequestContext(request))
+
+
+def gene_snp_summary(request):
+	gene_id = request.GET.get('geneid')
+	analysis_path = request.GET.get('analysis_path')
+	gene_length = float(request.GET.get('length'))
+	add = ast.literal_eval(request.GET.get('add'))
+	neg = ast.literal_eval(request.GET.get('neg'))
+	wt = request.GET.get('wt')
+	libraries = add + neg
+
+	direct = os.path.abspath(os.path.dirname(__file__))
+	vcf_path = os.path.join(direct, 'vcf_files')
+	path = os.path.join(vcf_path, analysis_path)
+
+	eff = Feature.objects.filter(featuretype='gene', geneid=gene_id).values('geneproduct')
+	try:
+		effs = str(eff[0]['geneproduct'])
+	except IndexError:
+		effs = "No Gene"
+
+	cmd = """cat %s | /usr/local/Cellar/snpeff/3.6c/share/scripts/vcfEffOnePerLine.pl | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar filter "( EFF[*].GENE = '%s') & ((EFF[*].IMPACT = 'HIGH') | (EFF[*].IMPACT = 'MODERATE'))" | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar extractFields - POS REF ALT CHROM EFF[*].GENE EFF[*].EFFECT QUAL EFF[*].AA EFF[*].IMPACT"""
+	cmd2 = """cat %s | /usr/local/Cellar/snpeff/3.6c/share/scripts/vcfEffOnePerLine.pl | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar filter "( EFF[*].GENE = '%s') & (EFF[*].IMPACT = 'LOW')" | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar extractFields - POS REF ALT CHROM EFF[*].GENE EFF[*].EFFECT QUAL EFF[*].AA EFF[*].IMPACT"""
+	snps = subprocess.Popen(cmd % (path, gene_id), shell=True, stdout=subprocess.PIPE)
+	low_snps = subprocess.Popen(cmd2 % (path, gene_id), shell=True, stdout=subprocess.PIPE)
+
+	libs = defaultdict(dict)
+	snp_list = []
+	high_ct = 0
+	moderate_ct = 0
+	low_ct = 0
+	for line in snps.stdout:
+		if line.startswith('#POS'):
+			pass
+		else:
+			snp = line.split('\t')
+			chrom = snp[3].split('_')[0]
+			snp_list.append(snp)
+			if snp[8].strip() == "HIGH":
+				high_ct += 1
+			elif snp[8].strip() == "MODERATE":
+				moderate_ct += 1
+			result_list = SNP.objects.values('ref_base', 'alt_base',
+				                                 'library__library_code',
+				                                 'snp_position').filter(library__library_code__in=libraries,
+				                                                        snp_position=snp[0],
+				                                                        chromosome__chromosome_name=chrom).distinct()
+			lib_dict = {}
+			for all in libraries:
+				lib_dict[all] = {'ref': ['No SNP'], 'alt': ['No SNP'], 'impact': ['No Impact']}
+			for each in result_list:
+				library = each['library__library_code']
+				position = each['snp_position']
+				libs[position] = lib_dict
+				if 'No SNP' in libs[position][library]['ref'] and 'No SNP' in libs[position][library]['alt']:
+					libs[position][library]['ref'] = [each['ref_base']]
+					libs[position][library]['alt'] = [each['alt_base']]
+					libs[position][library]['impact'] = [snp[5]]
+				else:
+					libs[position][library]['ref'].append(each['ref_base'])
+					libs[position][library]['alt'].append(each['alt_base'])
+
+	for line in low_snps.stdout:
+		if line.startswith('#POS'):
+			pass
+		else:
+			low_ct += 1
+
+
+	percent_gene = float(((high_ct + moderate_ct + low_ct)/gene_length)*100)
+
+	return render_to_response('snpdb/gene_snp_summary.html', {"gene_id": gene_id,
+	                                                          "gene_name": effs,
+															  "high_ct": high_ct,
+	                                                          "moderate_ct": moderate_ct,
+	                                                          "low_ct": low_ct,
+	                                                          "percent_gene": percent_gene,
+	                                                          "snp_list": snp_list,
+	                                                          }, context_instance=RequestContext(request))
 
 
 def get_chromosome_size(organismcode):
