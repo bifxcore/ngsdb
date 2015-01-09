@@ -30,7 +30,7 @@
                 <div class="form-group">
                     <label class="sr-only" for="search">Search</label>
                     <input type="text" class="form-control" name="s" placeholder="search">
-                    <input type="hidden" name="path" value="{{path}}" />
+                    <input type="hidden" name="analysis_path" value="{{analysis_path}}" />
                     <input type="hidden" name="impact" value="{{impact}}" />
                     <input type="hidden" name="add" value="{{add}}" />
                     <input type="hidden" name="neg" value="{{neg}}" />
@@ -79,7 +79,7 @@
                     <td class="text-center" style="vertical-align: middle">{{ x.0 }}</td>
                     <td class="text-center" style=  "vertical-align: middle">{% for y in x.1.quality %}<div>{{ y }}</div>{% endfor %}</a></td>
                     <td class="text-center" style="vertical-align: middle">
-                        {% for y in x.1.gene %}<div><a href="/snpdb/gene-feature?geneid={{ y }}">{{ y }}</a></div>{% endfor %}
+                        {% for y in x.1.gene %}<div><a href="/snpdb/gene-snp-summary?geneid={{ y }}&length={{x.1.gene_length}}&add={{add}}&neg={{neg}}&analysis_path={{analysis_path}}">{{ y }}</a></div>{% endfor %}
                     </td>
                     <td class="text-center" style="vertical-align: middle">{{x.1.gene_length}}</td>
                     <td class="text-center" style="vertical-align: middle">{{x.1.aa}}</td>
