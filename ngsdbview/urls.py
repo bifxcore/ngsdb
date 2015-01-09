@@ -31,6 +31,9 @@ urlpatterns = patterns('',
     url(r'^analyzeexperiments/','ngsdbview.views02.AnalyzeExperiments'),
 
     url(r'^listexperiments/', 'ngsdbview.views03.ListExperiments'),
-    url(r'^detailexperiment/(?P<experimentId>.+)/', 'ngsdbview.views03.DetailExperiment'),
+    url(r'^experimentdetail/RNAseq/(?P<experimentId>.+)/', 'ngsdbview.views03.ExperimentDetailRNAseq'),
+    url(r'^experimentdetail/DNAseq/(?P<experimentId>.+)/', 'ngsdbview.views03.ExperimentDetailDNAseq'),
+    url(r'^experimentdetail/SLseq/(?P<experimentId>.+)/', 'ngsdbview.views03.ExperimentDetailSLseq'),
+    url(r'^analyze/snp/comparelibs/(?P<experimentId>.+)/', 'ngsdbview.views03.SNPCompareLibs'),
 
 )

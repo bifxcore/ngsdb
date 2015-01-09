@@ -72,6 +72,7 @@ def get_bioanalyzer_upload_destination(instance, filename):
 
 class Sample(models.Model):
     sampleid = models.CharField(max_length=25, unique=True, db_index=True)
+    samplename = models.CharField(max_length=20, db_index=True, default='None', help_text="Human readable name for the Sample")
     biosample = models.ForeignKey(Biosample, help_text="Local or NCBI assigned Biosample ID")
     sampletype = models.CharField(max_length=100, choices=SAMPLE_TYPE_CHOICES)
     label_ontube = models.CharField(max_length=250, db_index=True, blank=True, help_text="Text/Label found on the tube containing sample")

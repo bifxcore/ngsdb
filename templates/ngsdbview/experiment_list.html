@@ -1,0 +1,210 @@
+{% extends "admin/base_site.html" %}
+{% block bootstrap %}
+<script>
+    $('.collapse').collapse()
+</script>
+{% endblock %}
+{%block content%}
+{% block body %}
+{% load ngsdbview_extras %}
+{% load humanize %}
+
+{%  if experiments  %}
+<FORM action="." method="post">
+{% csrf_token %}
+    <TABLE>
+        <TR>
+            <TD>
+
+                {{ form.as_table }}
+            </TD>
+            <TD>
+                <input type="submit"  name="levelTwo" value="Filter" />
+                </form>
+            </TD>
+        </TR>
+    </TABLE>
+</FORM>
+
+<!-- RNAseq list section -->
+<div class="panel-heading" style="background-color: #616770; border-color:#616770; overflow: hidden">
+    <a data-toggle="collapse" data-parent="#accordion" href="#RNAseqSection"> <h3 class="panel-title" style="text-align: left">RNAseq Experiments</h3> </a>
+</div>
+<div id="RNAseqSection">
+    {% for exp in expts_RNAseq %}
+        <!-- experiment table -->
+            <div id="masterPanel">
+                <TABLE><TR>
+                <TH> {{ forloop.counter }}.  <a href="/ngsdbview/experimentdetail/RNAseq/{{ exp.id }}/" target="_blank">{{ exp.name }}</a></TH>
+                <TD>Analysis Version: {{ exp.version }}</TD>
+                <TD>Exp. type:  {{ exp.type }}</TD>
+                <TD>Collaborator:  {{ exp.collaborator }}</TD>
+                <TD>Ref. Genome:  {{ exp.refgenome }}</TD>
+                <TD>
+                    <a data-toggle="collapse" data-parent="#accordion" href="#RNAseqSectionCollapse1_{{ forloop.counter }}"> Notes and Description </a>
+                </TD>
+                <TD>
+                    <a data-toggle="collapse" data-parent="#accordion" href="#RNAseqSectionCollapse2_{{ forloop.counter }}"> Samples/Libraries included </a>
+                </TD>
+                </TR></TABLE>
+            </div>
+
+        <!-- notes and description collapsible -->
+            <div id="RNAseqSectionCollapse1_{{ forloop.counter }}" class="panel-collapse collapse in" style="height: auto;">
+                <TABLE>
+                    <TR><TH>Description:</TH><TD>{{ exp.description }}</TD></TR>
+                    <TR><TH> Notes:</TH><TD>{{ exp.notes }}</TD></TR>
+                </TABLE>
+            </div>
+
+        <!-- Sample/Library details collapsible -->
+            <div id="RNAseqSectionCollapse2_{{ forloop.counter }}" class="panel-collapse collapse in" style="height: auto;">
+                <TABLE>
+                    <TR><TD>Included Samples:,</br>(sampleid, </br>lifecyclestage, </br>culture-method, </br>growthphase, </br>treatment, </br>librarycode)</TD>
+                        {% for sample in exp.samples.all %}
+                        <TD>
+                            {{ sample.sampleid }};  </br>
+                            {{ sample.lifestage }}; </br>
+                            {{ sample.culture_method }}; </br>
+                            {{ sample.growthphase }} </br>
+                            {{ sample.treatment }} </br>
+                            {% for lib in sample.library_set.all %}
+                                {{ lib.library_code }}
+                            {% endfor %}; </br>
+                        </TD>
+                        {% endfor %}
+                    </TR>
+                </TABLE>
+                </div>
+    {% endfor %}
+</div>
+
+<!-- DNAseq list section -->
+<div class="panel-heading" style="background-color: #616770; border-color:#616770; overflow: hidden">
+    <a data-toggle="collapse" data-parent="#accordion" href="#DNAseqSection"> <h3 class="panel-title" style="text-align: left">DNAseq Experiments</h3> </a>
+</div>
+<div id="DNAseqSection">
+    {% for exp in expts_DNAseq %}
+        <!-- experiment table -->
+            <div id="masterPanel">
+                <TABLE><TR>
+                <TH> {{ forloop.counter }}.  <a href="/ngsdbview/experimentdetail/DNAseq/{{ exp.id }}/" target="_blank">{{ exp.name }}</a></TH>
+                <TD>Analysis Version: {{ exp.version }}</TD>
+                <TD>Exp. type:  {{ exp.type }}</TD>
+                <TD>Collaborator:  {{ exp.collaborator }}</TD>
+                <TD>Ref. Genome:  {{ exp.refgenome }}</TD>
+                <TD>
+                    <a data-toggle="collapse" data-parent="#accordion" href="#DNAseqSectionCollapse1_{{ forloop.counter }}"> Notes and Description </a>
+                </TD>
+                <TD>
+                    <a data-toggle="collapse" data-parent="#accordion" href="#DNAseqSectionCollapse2_{{ forloop.counter }}"> Samples/Libraries included </a>
+                </TD>
+                </TR></TABLE>
+            </div>
+
+        <!-- notes and description collapsible -->
+            <div id="DNAseqSectionCollapse1_{{ forloop.counter }}" class="panel-collapse collapse in" style="height: auto;">
+                <TABLE>
+                    <TR><TH>Description:</TH><TD>{{ exp.description }}</TD></TR>
+                    <TR><TH> Notes:</TH><TD>{{ exp.notes }}</TD></TR>
+                </TABLE>
+            </div>
+
+        <!-- Sample/Library details collapsible -->
+            <div id="DNAseqSectionCollapse2_{{ forloop.counter }}" class="panel-collapse collapse in" style="height: auto;">
+                <TABLE>
+                    <TR><TD>Included Samples:,</br>(sampleid, </br>lifecyclestage, </br>culture-method, </br>growthphase, </br>treatment, </br>librarycode)</TD>
+                        {% for sample in exp.samples.all %}
+                        <TD>
+                            {{ sample.sampleid }};  </br>
+                            {{ sample.lifestage }}; </br>
+                            {{ sample.culture_method }}; </br>
+                            {{ sample.growthphase }} </br>
+                            {{ sample.treatment }} </br>
+                            {% for lib in sample.library_set.all %}
+                                {{ lib.library_code }}
+                            {% endfor %}; </br>
+                        </TD>
+                        {% endfor %}
+                    </TR>
+                </TABLE>
+                </div>
+
+    {% endfor %}
+</div>
+
+<!-- Splice Leader list section -->
+<div class="panel-heading" style="background-color: #616770; border-color:#616770; overflow: hidden">
+    <a data-toggle="collapse" data-parent="#accordion" href="#SLseqSection"> <h3 class="panel-title" style="text-align: left">Splice Leader Experiments</h3> </a>
+</div>
+
+<div id="SLseqSection">
+    {% for exp in expts_SLseq %}
+        <!-- experiment table -->
+            <div id="masterPanel">
+                <TABLE><TR>
+                <TH> {{ forloop.counter }}.  <a href="/ngsdbview/experimentdetail/SLseq/{{ exp.id }}/" target="_blank">{{ exp.name }}</a></TH>
+                <TD>Analysis Version: {{ exp.version }}</TD>
+                <TD>Exp. type:  {{ exp.type }}</TD>
+                <TD>Collaborator:  {{ exp.collaborator }}</TD>
+                <TD>Ref. Genome:  {{ exp.refgenome }}</TD>
+                <TD>
+                    <a data-toggle="collapse" data-parent="#accordion" href="#SLseqSectionCollapse1_{{ forloop.counter }}"> Notes and Description </a>
+                </TD>
+                <TD>
+                    <a data-toggle="collapse" data-parent="#accordion" href="#SLseqSectionCollapse1_{{ forloop.counter }}"> Samples/Libraries included </a>
+                </TD>
+                </TR></TABLE>
+            </div>
+
+        <!-- notes and description collapsible -->
+            <div id="SLseqSectionCollapse1_{{ forloop.counter }}" class="panel-collapse collapse in" style="height: auto;">
+                <TABLE>
+                    <TR><TH>Description:</TH><TD>{{ exp.description }}</TD></TR>
+                    <TR><TH> Notes:</TH><TD>{{ exp.notes }}</TD></TR>
+                </TABLE>
+            </div>
+
+        <!-- Sample/Library details collapsible -->
+            <div id="SLseqSectionCollapse2_{{ forloop.counter }}" class="panel-collapse collapse in" style="height: auto;">
+                <TABLE>
+                    <TR><TD>Included Samples:,</br>(sampleid, </br>lifecyclestage, </br>culture-method, </br>growthphase, </br>treatment, </br>librarycode)</TD>
+                        {% for sample in exp.samples.all %}
+                        <TD>
+                            {{ sample.sampleid }};  </br>
+                            {{ sample.lifestage }}; </br>
+                            {{ sample.culture_method }}; </br>
+                            {{ sample.growthphase }} </br>
+                            {{ sample.treatment }} </br>
+                            {% for lib in sample.library_set.all %}
+                                {{ lib.library_code }}
+                            {% endfor %}; </br>
+                        </TD>
+                        {% endfor %}
+                    </TR>
+                </TABLE>
+                </div>
+
+    {% endfor %}
+<div id="SLseqSection">
+
+</div>
+{% else %}
+<FORM action="." method="post">
+{% csrf_token %}
+    <TABLE>
+        <TR>
+            <TD>
+
+                {{ form.as_table }}
+            </TD>
+            <TD>
+                <input type="submit"  name="levelOne" value="Submit" />
+                </form>
+            </TD>
+        </TR>
+    </TABLE>
+</FORM>
+{% endif %}
+{% endblock %}
+{% endblock %}
