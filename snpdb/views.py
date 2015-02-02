@@ -14,6 +14,7 @@ import os
 import csv
 import vcf
 import ast
+from math import ceil
 from collections import Iterable
 
 
@@ -1099,7 +1100,7 @@ def effects_by_vcf(request):
 
 		#Runs the vcf-merge command.
 		merge_file = os.path.join(path, 'merge.vcf')
-		p = subprocess.Popen(["""bcftools merge --force-samples %s > %s""" % (zip_vcf, merge_file)], stderr=subprocess.PIPE, stdout=subprocess.PIPE, shell=True)
+		p = subprocess.Popen(["""bcftools merge -m none --force-samples %s > %s""" % (zip_vcf, merge_file)], stderr=subprocess.PIPE, stdout=subprocess.PIPE, shell=True)
 		out, err = p.communicate()
 		print "files merged"
 
@@ -1117,8 +1118,10 @@ def effects_by_vcf(request):
 
 		for lib in library_1:
 			add_code.append(lib)
+
 		for lib in library_2:
 			neg_code.append(lib)
+
 		add1 = '+' + ','.join(add_code)
 		neg1 = '-' + ','.join(neg_code)
 		add2 = '+' + ','.join(neg_code)
@@ -1140,10 +1143,11 @@ def effects_by_vcf(request):
 		except IOError:
 			pass
 
-		print "calling vcf-contrast"
+		# print "calling vcf-contrast"
 		zip_replace = replace_file + '.gz'
 		vcf_contrast1 = os.path.join(path, 'vcf_contrast_1.vcf')
 		vcf_contrast2 = os.path.join(path, 'vcf_contrast_2.vcf')
+
 		subprocess.call(["""vcf-contrast -n %s %s %s > %s""" % (add1, neg1, zip_replace, vcf_contrast1)], shell=True)
 		subprocess.call(["""vcf-contrast -n %s %s %s > %s""" % (add2, neg2, zip_replace, vcf_contrast2)], shell=True)
 
@@ -1158,14 +1162,15 @@ def effects_by_vcf(request):
 
 
 		#merging vcf_contrast files
-		p = subprocess.Popen(["""bcftools merge --force-samples %s.gz %s.gz > %s""" % (vcf_contrast1, vcf_contrast2, merge_file2)], stderr=subprocess.PIPE, stdout=subprocess.PIPE, shell=True)
+		print "Merging vcf_contrast iterations"
+		p = subprocess.Popen(["""bcftools merge --force-samples -m none %s.gz %s.gz > %s""" % (vcf_contrast1, vcf_contrast2, merge_file2)], stderr=subprocess.PIPE, stdout=subprocess.PIPE, shell=True)
 		out, err = p.communicate()
 		print "files merged"
 
 	#Opens the returned vcf-contrast file and counts the data.
 	print "opening vcf-contrast"
-	lib1_effect = []
-	lib1_total = 0
+	lib_effect = []
+	lib_total = 0
 
 	vcf_reader = vcf.Reader(open('%s' % merge_file2, 'r'))
 	date = datetime.datetime.utcnow().strftime("%Y-%m-%d").replace('-', '')
@@ -1174,140 +1179,143 @@ def effects_by_vcf(request):
 
 	group1 = re.findall('\+(.*) \-', cmd)[0].split(',')
 	group2 = re.findall('\+.* \-(.*) ', cmd)[0].split(',')
-	# print group2
 
-	lib1_high_effects = defaultdict(int)
-	lib1_moderate_effects = defaultdict(int)
-	lib1_modifier_effects = defaultdict(int)
-	lib1_low_effects = defaultdict(int)
+	lib_high_effects = defaultdict(int)
+	lib_moderate_effects = defaultdict(int)
+	lib_modifier_effects = defaultdict(int)
+	lib_low_effects = defaultdict(int)
 
 	#Keeps track of the total library counts: [High, Moderate, Low, Modifier, Consistent, Total]
-	lib1_total_counts = [0, 0, 0, 0, 0, 0, '']
+	lib_total_counts = [0, 0, 0, 0, 0, 0, '']
 
-	equivalent_gts = ['0/1', '1/1']
+	# equivalent_gts = ['0/1', '1/1']
 	for record in vcf_reader:
-		eq = False
 
-		#todo Need to change for comparisons with groups containing more than 2 libraries
-		if len(group2) > 1:
-			for iterator, lib in enumerate(group2):
-				try:
-					if record.genotype(group2[iterator])['GT'] and record.genotype(group2[iterator])['GT']:
-						if record.genotype(group2[iterator])['GT'] in equivalent_gts and record.genotype(group2[iterator+1])['GT'] in equivalent_gts:
-							eq = True
-						# print record
-						if record.genotype(group2[iterator])['GT'] == '0/0' and record.genotype(group2[iterator+1])['GT'] == '0/0':
-							eq = True
-					lib2_1 = "2:%s" % group2[iterator]
-					lib2_2 = "2:%s" % group2[iterator+1]
-					if record.genotype(lib2_1)['GT'] and record.genotype(lib2_2)['GT']:
-						if record.genotype(lib2_1)['GT'] in equivalent_gts and record.genotype(lib2_2)['GT'] in equivalent_gts:
-							eq = True
-						if record.genotype(lib2_1)['GT'] == '0/0' and record.genotype(lib2_2)['GT'] == '0/0':
-							eq = True
-				except IndexError:
-					pass
+		group1_gt = []
+		group2_gt = []
+		group1_eq = False
+		group2_eq = False
 		if len(group1) > 1:
-			for iterator, lib in enumerate(group1):
-				try:
-					if record.genotype(group1[iterator])['GT'] and record.genotype(group1[iterator])['GT']:
-						if record.genotype(group1[iterator])['GT'] in equivalent_gts and record.genotype(group1[iterator+1])['GT'] in equivalent_gts:
-							eq = True
-						# print record
-						if record.genotype(group1[iterator])['GT'] == '0/0' and record.genotype(group1[iterator+1])['GT'] == '0/0':
-							eq = True
-					lib2_1 = "2:%s" % group1[iterator]
-					lib2_2 = "2:%s" % group1[iterator+1]
-					if record.genotype(lib2_1)['GT'] and record.genotype(lib2_2)['GT']:
-						if record.genotype(lib2_1)['GT'] in equivalent_gts and record.genotype(lib2_2)['GT'] in equivalent_gts:
-							eq = True
-						if record.genotype(lib2_1)['GT'] == '0/0' and record.genotype(lib2_2)['GT'] == '0/0':
-							eq = True
-				except IndexError:
-					pass
+
+			for each in group1:
+				if record.genotype(each)['GT']:
+					if record.genotype(each)['GT'] == '0/0':
+						group1_gt.append('WT')
+					else:
+						group1_gt.append('SNP')
+
+				each2 = "2:%s" % each
+				if record.genotype(each2)['GT']:
+					if record.genotype(each2)['GT'] == '0/0':
+						group1_gt.append('WT')
+					else:
+						group1_gt.append('SNP')
+
+			group1_eq = check_equal(group1_gt)
+
+		if len(group2) > 1:
+			for each in group2:
+				if record.genotype(each)['GT']:
+					if record.genotype(each)['GT'] == '0/0':
+						group2_gt.append('WT')
+					else:
+						group2_gt.append('SNP')
+
+				each2 = "2:%s" % each
+
+				if record.genotype(each2)['GT']:
+					if record.genotype(each2)['GT'] == '0/0':
+						group2_gt.append('WT')
+					else:
+						group2_gt.append('SNP')
+
+			group2_eq = check_equal(group2_gt)
 
 		#Keeps track of what effect type each snp has. [high, moderate, low, modifier]
-		lib1_impact_counts = [0, 0, 0, 0]
+		lib_impact_counts = [0, 0, 0, 0]
 
 		#Places each type of impact into dictionary of the effect. SNPs with multiple impacts
 		# will have all impacts accounted for in the impact total.
 		# i.e, SNPs with Downstream and Upstream effects will results in an addition to both impact counts.
 		effects = record.INFO['EFF']
-		# genotype = record.
+
 		high_eq = 0
 		moderate_eq = 0
 		low_eq = 0
 		modifier_eq = 0
-		eff_count = 0
+
 		for x in effects:
-			# eff_count += 1
 			impact = x.split('(')[0]
 			effect_list = x.split('(')[1]
 			eff = effect_list.split('|')
 			if eff[0] == "HIGH":
-				lib1_impact_counts[0] += 1
-				lib1_high_effects[impact] += 1
-				if eq:
+				lib_impact_counts[0] += 1
+				lib_high_effects[impact] += 1
+				if group1_eq or group2_eq:
 					high_eq += 1
-					print record
 			elif eff[0] == "MODERATE":
-				lib1_impact_counts[1] += 1
-				lib1_moderate_effects[impact] += 1
-				if eq:
+				lib_impact_counts[1] += 1
+				lib_moderate_effects[impact] += 1
+				if group1_eq or group2_eq:
 					moderate_eq += 1
 			elif eff[0] == "LOW":
-				lib1_impact_counts[2] += 1
-				lib1_low_effects[impact] += 1
-				if eq:
+				lib_impact_counts[2] += 1
+				lib_low_effects[impact] += 1
+				if group1_eq or group2_eq:
 					low_eq += 1
 			elif eff[0] == "MODIFIER":
-				lib1_impact_counts[3] += 1
-				lib1_modifier_effects[impact] += 1
-				if eq:
+				lib_impact_counts[3] += 1
+				lib_modifier_effects[impact] += 1
+				if group1_eq or group2_eq:
 					modifier_eq += 1
 
 		if high_eq > 0:
-			lib1_high_effects["Equivalent SNPs"] += 1
+			lib_high_effects["Equivalent SNPs"] += 1
 		if moderate_eq > 0:
-			lib1_moderate_effects["Equivalent SNPs"] += 1
+			lib_moderate_effects["Equivalent SNPs"] += 1
 		if low_eq > 0:
-			lib1_low_effects["Equivalent SNPs"] += 1
+			lib_low_effects["Equivalent SNPs"] += 1
 		if modifier_eq > 0:
-			lib1_modifier_effects["Equivalent SNPs"] += 1
+			lib_modifier_effects["Equivalent SNPs"] += 1
 
 
 		# Counts the number of snps effected by each impact type. Snp is only counted once for each impact
 		#  i.e. if SNP has two modifying impacts, it is only counted once.
-		if sum(lib1_impact_counts) > 0:
-			lib1_total_counts[5] = group1
-			lib1_total_counts[4] += 1
+		if sum(lib_impact_counts) > 0:
+			lib_total_counts[5] = group1
+			lib_total_counts[4] += 1
 
-		if lib1_impact_counts[0] > 0:
-			lib1_total_counts[0] += 1
-		if lib1_impact_counts[1] > 0:
-			lib1_total_counts[1] += 1
-		if lib1_impact_counts[2] > 0:
-			lib1_total_counts[2] += 1
-		if lib1_impact_counts[3] > 0:
-			lib1_total_counts[3] += 1
-	lib1_tuple = (dict(lib1_high_effects), dict(lib1_moderate_effects), dict(lib1_low_effects), dict(lib1_modifier_effects), lib1_total_counts)
-	lib1_effect.append(lib1_tuple)
-	lib1_total += lib1_total_counts[4]
+		if lib_impact_counts[0] > 0:
+			lib_total_counts[0] += 1
+		if lib_impact_counts[1] > 0:
+			lib_total_counts[1] += 1
+		if lib_impact_counts[2] > 0:
+			lib_total_counts[2] += 1
+		if lib_impact_counts[3] > 0:
+			lib_total_counts[3] += 1
+
+	lib_tuple = (dict(lib_high_effects), dict(lib_moderate_effects), dict(lib_low_effects), dict(lib_modifier_effects), lib_total_counts)
+	lib_effect.append(lib_tuple)
+	lib_total += lib_total_counts[4]
 
 	return render_to_response('snpdb/effects_by_vcf.html', {"library1": library_1,
 	                                                        "library2": library_2,
 	                                                        "wt": wt,
-	                                                        "lib1_high_effects": dict(lib1_high_effects),
-	                                                        "lib1_moderate_effects": dict(lib1_moderate_effects),
-	                                                        "lib1_modifier_effects": dict(lib1_modifier_effects),
-	                                                        "lib1_low_effects": dict(lib1_low_effects),
-	                                                        "lib1_total_counts": lib1_total_counts,
-	                                                        "lib1_total": lib1_total,
-	                                                        "lib1_effect": lib1_effect,
+	                                                        "lib1_high_effects": dict(lib_high_effects),
+	                                                        "lib1_moderate_effects": dict(lib_moderate_effects),
+	                                                        "lib1_modifier_effects": dict(lib_modifier_effects),
+	                                                        "lib1_low_effects": dict(lib_low_effects),
+	                                                        "lib1_total_counts": lib_total_counts,
+	                                                        "lib1_total": lib_total,
+	                                                        "lib1_effect": lib_effect,
 	                                                        "add_code": group1,
 	                                                        "neg_code": group2,
 	                                                        "analysis_path": analysis_path})
 
+
+# Checks if values in list are equal. Used to find snp equivalence.
+def check_equal(gt_list):
+   return len(set(gt_list)) <= 1
 
 # Returns the snp that are found from effects_by_vcf. Opens the vcf-contrast file.
 def impact_snps(request):
@@ -1333,103 +1341,128 @@ def impact_snps(request):
 	analysis_folder = os.path.join(vcf_path, analysis_path.split('/')[0])
 	output_path = os.path.join(analysis_folder, '%s_impact.vcf' % impact)
 
-	#If no specific sort is required
-	if not s:
-		cmd = """cat %s | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar filter "( EFF[*].IMPACT = '%s')" > %s """
-		subprocess.call(cmd % (path, impact, output_path), shell=True, stdout=subprocess.PIPE)
-	#Sorts results by specified value
-	else:
-		if att == "0":
-			s = int(s)
-			cmd = """cat %s | /usr/local/Cellar/snpeff/3.6c/share/scripts/vcfEffOnePerLine.pl | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar filter "(EFF[*].IMPACT = '%s') & (POS = %d)" | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar extractFields - POS REF ALT CHROM EFF[*].GENE EFF[*].EFFECT QUAL EFF[*].AA"""
-		elif att == "ref":
-			cmd = """cat %s | /usr/local/Cellar/snpeff/3.6c/share/scripts/vcfEffOnePerLine.pl | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar filter "(EFF[*].IMPACT = '%s') & (REF = '%s')" | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar extractFields - POS REF ALT CHROM EFF[*].GENE EFF[*].EFFECT QUAL EFF[*].AA"""
-		elif att == "alt":
-			cmd = """cat %s | /usr/local/Cellar/snpeff/3.6c/share/scripts/vcfEffOnePerLine.pl | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar filter "(EFF[*].IMPACT = '%s') & (ALT = '%s')" | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar extractFields - POS REF ALT CHROM EFF[*].GENE EFF[*].EFFECT QUAL EFF[*].AA"""
-		elif att == "quality":
-			s = int(s)
-			cmd = """cat %s | /usr/local/Cellar/snpeff/3.6c/share/scripts/vcfEffOnePerLine.pl | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar filter "(EFF[*].IMPACT = '%s') & (QUAL = %d)" | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar extractFields - POS REF ALT CHROM EFF[*].GENE EFF[*].EFFECT QUAL EFF[*].AA"""
-		elif att == "chromosome":
-			cmd = """cat %s | /usr/local/Cellar/snpeff/3.6c/share/scripts/vcfEffOnePerLine.pl | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar filter "(EFF[*].IMPACT = '%s') & (CHROM =~ '%s')" | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar extractFields - POS REF ALT CHROM EFF[*].GENE EFF[*].EFFECT QUAL EFF[*].AA"""
-		elif att == "impact":
-			s = s.replace(' ', '_').upper()
-			cmd = """cat %s | /usr/local/Cellar/snpeff/3.6c/share/scripts/vcfEffOnePerLine.pl | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar filter "(EFF[*].IMPACT = '%s') & (EFF[*].EFFECT = '%s')" | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar extractFields - POS REF ALT CHROM EFF[*].GENE EFF[*].EFFECT QUAL EFF[*].AA"""
-		elif att == "gene":
-			cmd = """cat %s | /usr/local/Cellar/snpeff/3.6c/share/scripts/vcfEffOnePerLine.pl | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar filter "(EFF[*].IMPACT = '%s') & (EFF[*].GENE = '%s')" | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar extractFields - POS REF ALT CHROM EFF[*].GENE EFF[*].EFFECT QUAL EFF[*].AA"""
-		subprocess.Popen(cmd % (path, impact, s), shell=True, stdout=subprocess.PIPE)
+	#If output file has not been created
+	if not os.path.isfile(output_path):
+
+		#If no specific sort is required
+		if not s:
+			cmd = """cat %s | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar filter "( EFF[*].IMPACT = '%s')" > %s """
+			subprocess.call(cmd % (path, impact, output_path), shell=True, stdout=subprocess.PIPE)
+
+		#Sorts results by specified value
+		else:
+			if att == "0":
+				s = int(s)
+				cmd = """cat %s | /usr/local/Cellar/snpeff/3.6c/share/scripts/vcfEffOnePerLine.pl | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar filter "(EFF[*].IMPACT = '%s') & (POS = %d)" | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar extractFields - POS REF ALT CHROM EFF[*].GENE EFF[*].EFFECT QUAL EFF[*].AA"""
+			elif att == "ref":
+				cmd = """cat %s | /usr/local/Cellar/snpeff/3.6c/share/scripts/vcfEffOnePerLine.pl | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar filter "(EFF[*].IMPACT = '%s') & (REF = '%s')" | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar extractFields - POS REF ALT CHROM EFF[*].GENE EFF[*].EFFECT QUAL EFF[*].AA"""
+			elif att == "alt":
+				cmd = """cat %s | /usr/local/Cellar/snpeff/3.6c/share/scripts/vcfEffOnePerLine.pl | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar filter "(EFF[*].IMPACT = '%s') & (ALT = '%s')" | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar extractFields - POS REF ALT CHROM EFF[*].GENE EFF[*].EFFECT QUAL EFF[*].AA"""
+			elif att == "quality":
+				s = int(s)
+				cmd = """cat %s | /usr/local/Cellar/snpeff/3.6c/share/scripts/vcfEffOnePerLine.pl | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar filter "(EFF[*].IMPACT = '%s') & (QUAL = %d)" | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar extractFields - POS REF ALT CHROM EFF[*].GENE EFF[*].EFFECT QUAL EFF[*].AA"""
+			elif att == "chromosome":
+				cmd = """cat %s | /usr/local/Cellar/snpeff/3.6c/share/scripts/vcfEffOnePerLine.pl | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar filter "(EFF[*].IMPACT = '%s') & (CHROM =~ '%s')" | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar extractFields - POS REF ALT CHROM EFF[*].GENE EFF[*].EFFECT QUAL EFF[*].AA"""
+			elif att == "impact":
+				s = s.replace(' ', '_').upper()
+				cmd = """cat %s | /usr/local/Cellar/snpeff/3.6c/share/scripts/vcfEffOnePerLine.pl | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar filter "(EFF[*].IMPACT = '%s') & (EFF[*].EFFECT = '%s')" | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar extractFields - POS REF ALT CHROM EFF[*].GENE EFF[*].EFFECT QUAL EFF[*].AA"""
+			elif att == "gene":
+				cmd = """cat %s | /usr/local/Cellar/snpeff/3.6c/share/scripts/vcfEffOnePerLine.pl | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar filter "(EFF[*].IMPACT = '%s') & (EFF[*].GENE = '%s')" | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar extractFields - POS REF ALT CHROM EFF[*].GENE EFF[*].EFFECT QUAL EFF[*].AA"""
+			subprocess.Popen(cmd % (path, impact, s), shell=True, stdout=subprocess.PIPE)
 
 	snp_dict = defaultdict(dict)
 	vcf_reader = vcf.Reader(open(output_path, 'r'))
-	equivalent_gts = ['0/1', '1/1']
 
 	for record in vcf_reader:
+
 		snp = defaultdict(list)
 		neg_eq = False
 		add_eq = False
-
 		pos = record.POS
 		qual = record.QUAL
 		chrom = record.CHROM.split('_')[0]
 		effects = record.INFO['EFF']
 		alt = ','.join(str(i) for i in record.ALT)
 		ref = record.REF
+		genes = []
 
 		lib_dict = {}
 		for lib in libraries:
 			lib_dict[lib] = {'ref': ['No SNP'], 'alt': ['No SNP'], 'effect': ['No Effect']}
+
 		for x in effects:
 			eff = x.split('(')[0]
-			# print eff
-			# effect_list = x.split('(')[1]
-			# effs = x.split('(')[0]
 			effs = x.split('(')[1].split('|')
 			imp = effs[0] #Will collect "HIGH, MODERATE, LOW, or MODIFIER"
-			gene = effs[5]
-			aa_change = effs[7]
 
 			if impact == imp:
+				gene = effs[5]
+
+				if gene not in genes:
+					genes.append(gene)
+				# aa_change = effs[7]
+
 				try:
-					wt_allele = SNP.objects.filter(chromosome__chromosome_name__startswith=chrom, snp_position=pos, library__library_code=wt).values_list('ref_base', flat=True)[0]
+					product = Feature.objects.values_list('geneproduct', flat=True).filter(geneid=gene, featuretype='gene')[0]
+				except IndexError:
+					product = gene
+
+				try:
+					wt_allele = SNP.objects.filter(chromosome__chromosome_name__startswith=chrom,
+					                               snp_position=pos, library__library_code=wt).values_list('alt_base', flat=True)[0]
 				except IndexError:
 					wt_allele = "No SNP"
 
 				try:
-					cds_fmin = Feature.objects.values_list('fmin', flat=True).filter(geneid=gene, featuretype='CDS')[0]
-					cds_fmax = Feature.objects.values_list('fmax', flat=True).filter(geneid=gene, featuretype='CDS')[0]
+					fmin = Feature.objects.values_list('fmin', flat=True).filter(geneid=gene, featuretype='CDS')[0]
+					fmax = Feature.objects.values_list('fmax', flat=True).filter(geneid=gene, featuretype='CDS')[0]
 				except IndexError:
+
 					try:
-						fmin = Feature.objects.filter(geneid=gene).filter(featuretype='gene').values('fmin')[0]
-						fmax = Feature.objects.filter(geneid=gene).filter(featuretype='gene').values('fmax')[0]
+						fmin = Feature.objects.filter(geneid=gene).filter(featuretype='gene').values_list('fmin', flat=True)[0]
+						fmax = Feature.objects.filter(geneid=gene).filter(featuretype='gene').values_list('fmax', flat=True)[0]
 					except IndexError:
 						fmin = 0
 						fmax = 0
+
 				if eff not in snp['effect']:
 					snp['effect'].append(eff)
 
+				bp_from_start = pos - fmin
+				aa_from_start = int(ceil(bp_from_start/3))
+				gene_length = int(ceil((fmax-fmin)/3))
 
 				#Adds all alternate and references alleles
 				for lib in libraries:
 					alt_lib = "2:" + lib
+
 					if record.genotype(lib)['GT'] == '0/1' or record.genotype(lib)['GT'] == '1/1':
+
 						if 'No SNP' in lib_dict[lib]['ref'] and 'No SNP' in lib_dict[lib]['alt']:
 							lib_dict[lib]['ref'] = [ref]
 							lib_dict[lib]['alt'] = [alt]
 							lib_dict[lib]['effect'] = [eff]
+
 						elif alt in lib_dict[lib]['alt']:
 							continue
+
 						else:
 							lib_dict[lib]['alt'].append(alt)
 							lib_dict[lib]['ref'].append(ref)
 
 							lib_dict[lib]['alt'].sort()
 							lib_dict[lib]['ref'].sort()
+
 					if record.genotype(alt_lib)['GT'] == '0/1' or record.genotype(alt_lib)['GT'] == '1/1':
+
 						if 'No SNP' in lib_dict[lib]['ref'] and 'No SNP' in lib_dict[lib]['alt']:
 							lib_dict[lib]['ref'] = [ref]
 							lib_dict[lib]['alt'] = [alt]
 							lib_dict[lib]['effect'] = [eff]
+
 						elif alt in lib_dict[lib]['alt']:
 							continue
+
 						else:
 							lib_dict[lib]['alt'].append(alt)
 							lib_dict[lib]['ref'].append(ref)
@@ -1439,52 +1472,59 @@ def impact_snps(request):
 
 
 		#Collects whether the libraries are consistent in snps
-		if len(neg) > 1:
-			for iterator, lib in enumerate(neg):
-				try:
-					if record.genotype(neg[iterator])['GT'] and record.genotype(neg[iterator])['GT']:
-						if record.genotype(neg[iterator])['GT'] in equivalent_gts and record.genotype(neg[iterator+1])['GT'] in equivalent_gts:
-							neg_eq = True
-						if record.genotype(neg[iterator])['GT'] == '0/0' and record.genotype(neg[iterator+1])['GT'] == '0/0':
-							neg_eq = True
-					lib2_1 = "2:%s" % neg[iterator]
-					lib2_2 = "2:%s" % neg[iterator+1]
-					if record.genotype(lib2_1)['GT'] and record.genotype(lib2_2)['GT']:
-						if record.genotype(lib2_1)['GT'] in equivalent_gts and record.genotype(lib2_2)['GT'] in equivalent_gts:
-							neg_eq = True
-						if record.genotype(lib2_1)['GT'] == '0/0' and record.genotype(lib2_2)['GT'] == '0/0':
-							neg_eq = True
-				except IndexError:
-					pass
-		else:
-			neg_eq = True
 		if len(add) > 1:
-			for iterator, lib in enumerate(add):
-				try:
-					if record.genotype(add[iterator])['GT'] and record.genotype(add[iterator])['GT']:
-						if record.genotype(add[iterator])['GT'] in equivalent_gts and record.genotype(add[iterator+1])['GT'] in equivalent_gts:
-							add_eq = True
-						if record.genotype(neg[iterator])['GT'] == '0/0' and record.genotype(neg[iterator+1])['GT'] == '0/0':
-							add_eq = True
-					lib2_1 = "2:%s" % add[iterator]
-					lib2_2 = "2:%s" % add[iterator+1]
-					if record.genotype(lib2_1)['GT'] and record.genotype(lib2_2)['GT']:
-						if record.genotype(lib2_1)['GT'] in equivalent_gts and record.genotype(lib2_2)['GT'] in equivalent_gts:
-							add_eq = True
-						if record.genotype(lib2_1)['GT'] == '0/0' and record.genotype(lib2_2)['GT'] == '0/0':
-							add_eq = True
-				except IndexError:
-					pass
+			add_gt = []
+			for each in add:
+
+				if record.genotype(each)['GT']:
+
+					if record.genotype(each)['GT'] == '0/0':
+						add_gt.append('WT')
+					else:
+						add_gt.append('SNP')
+
+				each2 = "2:%s" % each
+
+				if record.genotype(each2)['GT']:
+
+					if record.genotype(each2)['GT'] == '0/0':
+						add_gt.append('WT')
+					else:
+						add_gt.append('SNP')
+
+			add_eq = check_equal(add_gt)
+
+
+		if len(neg) > 1:
+			neg_gt = []
+			for each in neg:
+
+				if record.genotype(each)['GT']:
+
+					if record.genotype(each)['GT'] == '0/0':
+						neg_gt.append('WT')
+					else:
+						neg_gt.append('SNP')
+
+				each2 = "2:%s" % each
+				if record.genotype(each2)['GT']:
+
+					if record.genotype(each2)['GT'] == '0/0':
+						neg_gt.append('WT')
+					else:
+						neg_gt.append('SNP')
+			neg_eq = check_equal(neg_gt)
 
 		if not neg_eq:
 			snp['group2_consistency'] = "False"
 		else:
+			print "neg_eq is True"
 			snp['group2_consistency'] = "True"
+
 		if not add_eq:
 			snp['group1_consistency'] = "False"
 		else:
 			snp['group1_consistency'] = "True"
-
 
 		if pos not in snp_dict:
 			snp['chromosome'] = chrom
@@ -1492,20 +1532,15 @@ def impact_snps(request):
 			snp['alt'] = [alt]
 			snp['quality'] = [qual]
 			snp['impact'] = [impact]
-			snp['gene'] = [gene]
+			snp['gene'] = genes
 			snp['wt_allele'] = [wt_allele]
 			snp['library_alleles'] = dict(lib_dict)
-			# snp['aa'] = aa_pos
+			snp['product'] = product
+			snp['aa_from_start'] = [aa_from_start]
+			snp['start'] = fmin
+			snp['stop'] = fmax
+			snp['gene_length'] = [gene_length]
 
-
-			if cds_fmin:
-				snp['start'] = cds_fmin
-				snp['stop'] = cds_fmax
-				snp['gene_length'] = cds_fmax - cds_fmin
-			else:
-				snp['start'] = fmin
-				snp['stop'] = fmax
-				snp['gene_length'] = fmax - fmin
 			if consistent == "on":
 				if snp['group1_consistency'] == "True" or snp['group2_consistency'] == "True":
 					snp_dict[pos] = dict(snp)
@@ -1516,19 +1551,35 @@ def impact_snps(request):
 		else:
 			if qual not in snp_dict[pos]['quality']:
 				snp_dict[pos]['quality'].append(qual)
+
 			if gene not in snp_dict[pos]['gene']:
-				snp_dict[pos]['gene'].append(gene)
+				snp_dict[pos]['gene'].append(genes)
+
 			if impact not in snp_dict[pos]['impact']:
 				snp_dict[pos]['impact'].append(impact)
+
 			if eff not in snp_dict[pos]['effect']:
 				snp_dict[pos]['effect'].append(eff)
+
 			if wt_allele not in snp_dict[pos]['wt_allele']:
 				snp_dict[pos]['wt_allele'].append(wt_allele)
 
+			if product not in snp_dict[pos]['product']:
+				snp_dict[pos]['product'].append(product)
+
+			if aa_from_start not in snp_dict[pos]['aa_from_start']:
+				snp_dict[pos]['aa_from_start'].append(aa_from_start)
+
+			if gene_length not in snp_dict[pos]['gene_length']:
+				snp_dict[pos]['gene_length'].append(gene_length)
+
 			if alt not in snp_dict[pos]['alt']:
+
 				for lib in libraries:
 					alt_lib = "2:" + lib
+
 					if record.genotype(lib)['GT'] == '0/1' or record.genotype(lib)['GT'] == '1/1':
+
 						if 'No SNP' in snp_dict[pos]['library_alleles'][lib]['ref'] or 'No SNP' in snp_dict[pos]['library_alleles'][lib]['alt']:
 							snp_dict[pos]['library_alleles'][lib]['ref'] = [ref]
 							snp_dict[pos]['library_alleles'][lib]['alt'] = [alt]
@@ -1538,7 +1589,9 @@ def impact_snps(request):
 						else:
 							snp_dict[pos]['library_alleles'][lib]['alt'].append(alt)
 							snp_dict[pos]['library_alleles'][lib]['alt'].sort()
+
 					if record.genotype(alt_lib)['GT'] == '0/1' or record.genotype(alt_lib)['GT'] == '1/1':
+
 						if 'No SNP' in snp_dict[pos]['library_alleles'][lib]['ref'] or 'No SNP' in snp_dict[pos]['library_alleles'][lib]['alt']:
 							snp_dict[pos]['library_alleles'][lib]['ref'] = [ref]
 							snp_dict[pos]['library_alleles'][lib]['alt'] = [alt]
@@ -1547,68 +1600,27 @@ def impact_snps(request):
 							continue
 						else:
 							snp_dict[pos]['library_alleles'][lib]['alt'].append(alt)
-
 							snp_dict[pos]['library_alleles'][lib]['alt'].sort()
 							snp_dict[pos]['library_alleles'][lib]['ref'].sort()
+
 			if ref not in snp_dict[pos]['ref']:
-				print "new ref", ref
+
 				if 'No SNP' in snp_dict[pos]['ref']:
-					print "no snp"
 					snp_dict[pos]['ref'] = [ref]
 				else:
-					print "appending"
 					snp_dict[pos]['ref'].append(ref)
 					snp_dict[pos]['ref'].sort()
-					print snp_dict[pos]['ref']
-
-
-				# for libs in snp_dict[pos][libraries]:
-				#    alt_lib = "2:" + lib
-				#    if alt in libs['alt']:
-				#        continue
-				#    else:
-				#        libs['alt'].append(alt)
-				#    if record.genotype(lib)['GT'] == '0/1' or record.genotype(lib)['GT'] == '1/1':
-				#        if 'No SNP' in lib_dict[lib]['ref'] and 'No SNP' in lib_dict[lib]['alt']:
-				#            lib_dict[lib]['ref'] = [ref]
-				#            lib_dict[lib]['alt'] = [alt]
-				#            lib_dict[lib]['impact'] = [impact]
-				#        elif alt in libs[pos][lib]['alt']:
-				#            continue
-				#        else:
-				#            lib_dict[lib]['alt'].append(alt)
-				#            lib_dict[lib]['ref'].append(ref)
-				#
-				#            lib_dict[lib]['alt'].sort()
-				#            lib_dict[lib]['ref'].sort()
-				#    if record.genotype(alt_lib)['GT'] == '0/1' or record.genotype(alt_lib)['GT'] == '1/1':
-				#        if 'No SNP' in lib_dict[lib]['ref'] and 'No SNP' in lib_dict[lib]['alt']:
-				#            lib_dict[lib]['ref'] = [ref]
-				#            lib_dict[lib]['alt'] = [alt]
-				#            lib_dict[lib]['impact'] = [impact]
-				#        elif alt in lib_dict[lib]['alt']:
-				#            continue
-				#        else:
-				#            lib_dict[lib]['alt'].append(alt)
-				#            lib_dict[lib]['ref'].append(ref)
-				#
-				#            lib_dict[lib]['alt'].sort()
-				#            lib_dict[lib]['ref'].sort()
-
-				# print type(snp)
-				# print snp_dict
-	# 	else:
-	# 		print "There was an error opening the result file. Please try running the analysis again."
 
 	test_dict = dict(snp_dict)
-	# print  test_dict
 	if order_by == '0':
 		sorted_snp = sorted(test_dict.iteritems())
+
 	elif order_by == 'quality':
 		sorted_snp = sorted(test_dict.iteritems(), key=lambda (k, v): v[order_by], reverse=True)
+
 	else:
 		sorted_snp = sorted(test_dict.iteritems(), key=lambda (k, v): v[order_by])
-		# sorted_snp = test_dict
+
 	count = len(snp_dict)
 	paginator = Paginator(sorted_snp, 200)
 	page = request.GET.get('page')
@@ -1643,14 +1655,12 @@ def impact_snps(request):
 	return render_to_response('snpdb/impact_snps_search.html', c, context_instance=RequestContext(request))
 
 
+#Displays a more in depth view of high and moderate impacts on a specific gene.
 def gene_snp_summary(request):
 	gene_id = request.GET.get('geneid')
 	analysis_path = request.GET.get('analysis_path')
-	gene_length = float(request.GET.get('length'))
-	add = ast.literal_eval(request.GET.get('add'))
-	neg = ast.literal_eval(request.GET.get('neg'))
+	gene_length = ast.literal_eval(request.GET.get('length'))[0]
 	wt = request.GET.get('wt')
-	libraries = add + neg
 
 	direct = os.path.abspath(os.path.dirname(__file__))
 	vcf_path = os.path.join(direct, 'vcf_files')
@@ -1664,60 +1674,71 @@ def gene_snp_summary(request):
 
 	cmd = """cat %s | /usr/local/Cellar/snpeff/3.6c/share/scripts/vcfEffOnePerLine.pl | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar filter "( EFF[*].GENE = '%s') & ((EFF[*].IMPACT = 'HIGH') | (EFF[*].IMPACT = 'MODERATE'))" | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar extractFields - POS REF ALT CHROM EFF[*].GENE EFF[*].EFFECT QUAL EFF[*].AA EFF[*].IMPACT"""
 	cmd2 = """cat %s | /usr/local/Cellar/snpeff/3.6c/share/scripts/vcfEffOnePerLine.pl | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar filter "( EFF[*].GENE = '%s') & (EFF[*].IMPACT = 'LOW')" | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar extractFields - POS REF ALT CHROM EFF[*].GENE EFF[*].EFFECT QUAL EFF[*].AA EFF[*].IMPACT"""
-	snps = subprocess.Popen(cmd % (path, gene_id), shell=True, stdout=subprocess.PIPE)
-	low_snps = subprocess.Popen(cmd2 % (path, gene_id), shell=True, stdout=subprocess.PIPE)
+	snps = subprocess.Popen(cmd % (path, gene_id), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+	low_snps = subprocess.Popen(cmd2 % (path, gene_id), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
-	libs = defaultdict(dict)
 	snp_list = []
 	high_ct = 0
 	moderate_ct = 0
 	low_ct = 0
+
 	for line in snps.stdout:
+
+		snp_info = {}
 		if line.startswith('#POS'):
-			pass
+			continue
 		else:
 			snp = line.split('\t')
 			chrom = snp[3].split('_')[0]
-			snp_list.append(snp)
+			ref = snp[1]
+			alt = snp[2]
+			gene = snp[4]
+			effect_type = snp[5]
+			quality = snp[6]
+			impact = snp[8]
+			aa_change = snp[7]
+
+			aa_pos = re.findall("(\d+)", aa_change)[0]
+
+			if len(ref) > len(alt):
+				gain_of_function = "True"
+			else:
+				gain_of_function = "False"
+
+
+			snp_info['position'] = snp[0]
+			snp_info['ref'] = ref
+			snp_info['alt'] = alt
+			snp_info['chromosome'] = chrom
+			snp_info['gain_of_function'] = gain_of_function
+			snp_info['gene'] = gene
+			snp_info['impact'] = impact
+			snp_info['quality'] = quality
+			snp_info['effect'] = effect_type
+			snp_info['aa_pos'] = aa_pos
+			snp_info['percent_impacted'] = float( (gene_length - float(aa_pos)) / gene_length) * 100
+
+			snp_list.append(snp_info)
+
+
 			if snp[8].strip() == "HIGH":
 				high_ct += 1
 			elif snp[8].strip() == "MODERATE":
 				moderate_ct += 1
-			result_list = SNP.objects.values('ref_base', 'alt_base',
-			                                 'library__library_code',
-			                                 'snp_position').filter(library__library_code__in=libraries,
-			                                                        snp_position=snp[0],
-			                                                        chromosome__chromosome_name=chrom).distinct()
-			lib_dict = {}
-			for all in libraries:
-				lib_dict[all] = {'ref': ['No SNP'], 'alt': ['No SNP'], 'impact': ['No Impact']}
-			for each in result_list:
-				library = each['library__library_code']
-				position = each['snp_position']
-				libs[position] = lib_dict
-				if 'No SNP' in libs[position][library]['ref'] and 'No SNP' in libs[position][library]['alt']:
-					libs[position][library]['ref'] = [each['ref_base']]
-					libs[position][library]['alt'] = [each['alt_base']]
-					libs[position][library]['impact'] = [snp[5]]
-				else:
-					libs[position][library]['ref'].append(each['ref_base'])
-					libs[position][library]['alt'].append(each['alt_base'])
 
 	for line in low_snps.stdout:
+
 		if line.startswith('#POS'):
 			pass
 		else:
 			low_ct += 1
 
-
-	percent_gene = float(((high_ct + moderate_ct + low_ct)/gene_length)*100)
-
 	return render_to_response('snpdb/gene_snp_summary.html', {"gene_id": gene_id,
+	                                                          "wt": wt,
 	                                                          "gene_name": effs,
 	                                                          "high_ct": high_ct,
 	                                                          "moderate_ct": moderate_ct,
 	                                                          "low_ct": low_ct,
-	                                                          "percent_gene": percent_gene,
 	                                                          "snp_list": snp_list,
 	                                                          }, context_instance=RequestContext(request))
 

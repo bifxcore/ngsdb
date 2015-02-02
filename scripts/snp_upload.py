@@ -117,13 +117,12 @@ def insert_snp_results(snp_position, result_id, ref_base, alt_base, heterozygosi
 # Effects are collected from the INFO metadata where id=EFF.
 # Effect id will be pulled to fill in the effect table.
 def insert_effect_cv(effect_list):
-	eff_cv = re.findall('[\||\(][\s+](\w*)', effect_list)
-	for all_effect in eff_cv:
+	for all_effect in effect_list:
 		try:
 			if all_effect in effect_cv:
 				pass
 			else:
-				cur.execute('INSERT INTO "snpdb_effect_cv" (effect_name) VALUES (%s)', (all_effect,))
+				cur.execute('INSERT INTO "snpdb_effect_cv" (effect_name) VALUES (%s)', (all_effect.strip(),))
 				dbh.commit()
 		except psycopg2.IntegrityError:
 			print "Effect cv rollback error"
@@ -132,23 +131,21 @@ def insert_effect_cv(effect_list):
 
 # Inserts the snp_effects for each snp. Each effect type is grouped using the group_id. Effect_id is specific to one vcf file.
 # May need to be adjusted in the future.
-def insert_effect(snp_id, effect_class, effect_strings, effect_group, effect_list):
-	effect = re.findall('[\||\(][\s+](\w*)', effect_list)
-	effect_position = 0
-	for effect_string in effect_strings:
-		if effect_string:
-			try:
-				cur.execute('SELECT effect_id FROM "snpdb_effect_cv" WHERE effect_name = %s', (effect[effect_position],))
-				effect_id = cur.fetchone()[0]
-				cur.execute('INSERT INTO "snpdb_effect" (snp_id, effect_id, effect_class, effect_string, effect_group) VALUES (%s, %s, %s, %s, %s)',
-				            (snp_id, effect_id, effect_class, effect_string, effect_group,))
-				dbh.commit()
-			except psycopg2.IntegrityError:
-				print "no effect insert"
-				dbh.rollback()
-			effect_position += 1
-		else:
-			effect_position += 1
+def insert_effect(snp_id, effect_class, effect_string, effect_group, eff_cv):
+	effect_position = 1
+	if effect_string:
+		try:
+			cur.execute('SELECT effect_id FROM "snpdb_effect_cv" WHERE effect_name = %s', (eff_cv[effect_position],))
+			effect_id = cur.fetchone()[0]
+			cur.execute('INSERT INTO "snpdb_effect" (snp_id, effect_id, effect_class, effect_string, effect_group) VALUES (%s, %s, %s, %s, %s)',
+			            (snp_id, effect_id, effect_class, effect_string, effect_group,))
+			dbh.commit()
+		except psycopg2.IntegrityError:
+			print "no effect insert"
+			dbh.rollback()
+		effect_position += 1
+	else:
+		effect_position += 1
 
 
 # Checks to see if the database contains the chromosome. If it does, the database connection is closed.
@@ -419,7 +416,7 @@ def main():
 		# collect and import vcf file.
 		vcf_reader = vcf.Reader(open(vcf_path, 'r'))
 		vcf_file = File(vcf_reader)
-		record = vcf_reader.next()
+		# record = vcf_reader.next()
 
 		# Collects input from the user.
 		#--------------------------------------------------------------------
@@ -479,7 +476,6 @@ def main():
 		analysis_command = vcf_reader.metadata['SnpEffCmd'][0].strip('"')
 		software_algorithm = analysis_command.split()[0]
 		software_version = vcf_reader.metadata['SnpEffVersion'][0].strip('"').split()[0]
-		print "snp command: ", analysis_command
 
 		try:
 			cur.execute('SELECT software_id FROM "ngsdbview_software" WHERE name=%s AND version=%s and algorithm=%s',
@@ -517,15 +513,16 @@ def main():
 
 		# Inserts Effect types into effect_cv
 		try:
-			effect_list = vcf_reader.infos['EFF'].desc
-			insert_effect_cv(effect_list)
+			effect_list = info['ANN'].desc
+			eff_cv = re.findall("\'(.*)\'", effect_list)[0].split('|')
+
+			insert_effect_cv(eff_cv)
 		except KeyError:
 			print "There are no effects present."
-		#Attributes that are unique for each SNP.
+
+		# Attributes that are unique for each SNP.
 		for snps in vcf_reader:
 			chromosome = snps.CHROM
-			snp_iterator += 1
-			print snp_iterator
 			ref_base = snps.REF
 			alt_base = snps.ALT
 			quality = snps.QUAL
@@ -539,6 +536,8 @@ def main():
 			transition = snps.is_transition
 			statistics = snps.INFO
 
+			snp_iterator += 1
+			print snp_iterator
 
 			# Returns the heterozygosity of each snp.
 			samples = snps.samples
@@ -555,14 +554,16 @@ def main():
 
 			# Inserts effects on each SNP into Effect.
 			try:
-				effects = snps.INFO['EFF']
+				# print info
+				effects = snps.INFO['ANN']
 				group_id = 0
 				for effs in effects:
+					anns = effs.split('|')
+					effect_class = anns[1]
+					impact = anns[2]
+					insert_effect(effect_class, impact, group_id, eff_cv)
+					insert_effect(snp_id, effect_class, impact, group_id, effect_list)
 					group_id += 1
-					effect_class = effs.split('(')[0]
-					effect_string = re.split('\((\S*\|\S*)\)', effs)[1]
-					effects_string = effect_string.split('|')
-					insert_effect(snp_id, effect_class, effects_string, group_id, effect_list)
 			except KeyError:
 				print "There are no effects."
 
@@ -580,9 +581,9 @@ def main():
 				filter_cv_id = insert_filter_cv(filter_type)
 				insert_filter(snp_id, filter_cv_id)
 
+
 	# NEED A STANDARD SUMMARY FILE
 	elif num_of_files == 2:
-		# collect and import vcf file.
 		pass
 
 	else:
