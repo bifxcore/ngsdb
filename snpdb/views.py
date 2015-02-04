@@ -15,7 +15,8 @@ import csv
 import vcf
 import ast
 from math import ceil
-from collections import Iterable
+import PIL
+from PIL import Image
 
 
 # Returns the dashboard displaying summary charts of the loaded vcf files and libraries.
@@ -1315,7 +1316,7 @@ def effects_by_vcf(request):
 
 # Checks if values in list are equal. Used to find snp equivalence.
 def check_equal(gt_list):
-   return len(set(gt_list)) <= 1
+	return len(set(gt_list)) <= 1
 
 # Returns the snp that are found from effects_by_vcf. Opens the vcf-contrast file.
 def impact_snps(request):
@@ -1859,6 +1860,22 @@ def read(filename):
 				impact_dict[key] = value
 				pass
 	return impact_dict
+
+
+# Resizes the flowchart of the snp process. 
+def snpdb_flowchart(request):
+
+	image = os.path.join(os.path.abspath(settings.MEDIA_URL), 'protocols/snp_flowchart.png')
+	resize_image = os.path.join(os.path.abspath(settings.MEDIA_URL), 'protocols/snp_flowchart_resize.png')
+	basewidth = 800
+	img = Image.open(image)
+	wpercent = (basewidth / float(img.size[0]))
+	hsize = int((float(img.size[1]) * float(wpercent)))
+	img = img.resize((basewidth, hsize), PIL.Image.ANTIALIAS)
+	img.save(resize_image)
+	image_path = '/media/protocols/snp_flowchart_resize.png'
+	return render_to_response('snpdb/snp_detection_process.html', {"image_path": image_path},
+		                      context_instance=RequestContext(request))
 
 
 # Commands to save the snpdb dashboard pie-charts. Should be run after each vcf import.

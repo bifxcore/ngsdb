@@ -33,6 +33,7 @@ urlpatterns = patterns('',
                       url(r'^compare-libs', 'snpdb.views.compare_two_libraries'),
                       url(r'^gene-feature', 'snpdb.views.gene_feature'),
                       url(r'^chrom-region', 'snpdb.views.chrom_region'),
+                      url(r'^snpdb-flowchart', 'snpdb.views.snpdb_flowchart'),
 
 
                       # Basic Table Views: Currently not accessible to users as the information is not relevant to researchers.
