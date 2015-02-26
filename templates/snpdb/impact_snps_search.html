@@ -54,7 +54,7 @@
 </div>
 
 <div class="container-fluid" style="padding-bottom:30px">
-    <table class="table table-condensed" style="word-wrap: break-word; border-color: black">
+    <table class="table table-condensed" style="word-wrap: break-word; border-color: black; table-layout: fixed;">
         <tr>
             <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.chromosome }}>Chromosome</a></th>
             <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.0 }}>Position (bp)</a></th>
@@ -67,7 +67,7 @@
             {% for each in libraries %}
                 <th class="text-center custom-table" id={{each}}>
                     <div><a style="color: #e7e4db" href={{ filter_urls.library__library_code }}>{{each}}</a></div>
-                    <div><a style="color: #e7e4db" href={{ filter_urls.alt_allele }}>Alternate Allele</a></div>
+                    <div><a style="color: #e7e4db; word-wrap:break-word" href={{ filter_urls.alt_allele }}>Alternate Allele</a></div>
                 </th>
             {% endfor %}
             {% if add|length > 1 %}

@@ -1060,11 +1060,13 @@ def effects_by_vcf(request):
 		vcf1_path = os.path.join(pro_dir, each)
 		group_1_path.append(vcf1_path)
 	group_1_path.sort()
+
 	group_2_path = []
 	for each in vcf2:
 		vcf2_path = os.path.join(pro_dir, each)
 		group_2_path.append(vcf2_path)
 	group_2_path.sort()
+
 	libraries = group_1_path + group_2_path
 	libs = library_1 + library_2
 	vcf_string = '_'.join(libs)
@@ -1074,10 +1076,11 @@ def effects_by_vcf(request):
 	merge_file2 = os.path.join(path, 'merge_contrast.vcf')
 	analysis_path = os.path.join('vcf_contrast_%s_%s' % (vcf_string, datetime.datetime.utcnow().strftime("%Y-%m-%d")), 'merge_contrast.vcf')
 
+
 	#Checks to see if analysis has already been completed. If the analysis files are not present, bcftools is called.
 	if os.path.isdir(path):
 		print "File already present"
-		merge_file2 = os.path.join(path, 'merge_contrast.vcf')
+		replace_file = os.path.join(path, 'merge_contrast_replace.vcf')
 		pass
 	else:
 		os.mkdir(path)
@@ -1101,51 +1104,37 @@ def effects_by_vcf(request):
 
 		#Runs the vcf-merge command.
 		merge_file = os.path.join(path, 'merge.vcf')
-		p = subprocess.Popen(["""bcftools merge -m none --force-samples %s > %s""" % (zip_vcf, merge_file)], stderr=subprocess.PIPE, stdout=subprocess.PIPE, shell=True)
-		out, err = p.communicate()
+
+		p = subprocess.call(["""bcftools merge -m none --force-samples %s > %s""" % (zip_vcf, merge_file)], shell=True)
+		# out, err = p.communicate()
+		# print out, err
 		print "files merged"
 
-		#collects all file ids.
+		# #collects all file ids.
 		add_code = []
 		neg_code = []
 
-		h = subprocess.Popen(["""grep ^#CHROM %s""" % merge_file], stderr=subprocess.PIPE, stdout=subprocess.PIPE, shell=True)
-		header, error = h.communicate()
-		replace = '\t'.join(libs).strip('\n')
-		samp = re.findall(r'^#CHROM\t\w*\t*\w*\t\w*\t\w*\t\w*\t\w*\t\w*\t\w*\t(.*)', header)[0]
-		replace_str = re.sub(samp, replace, header).strip('\n')
-		sed = subprocess.call(["""perl -pi -e 's/^#CHROM.*/%s/g;' %s""" % (replace_str, merge_file)], shell=True)
-		print "sed is complete"
-
 		for lib in library_1:
-			add_code.append(lib)
+			add_code.append("s" + lib)
 
 		for lib in library_2:
-			neg_code.append(lib)
+			neg_code.append("s" + lib)
 
 		add1 = '+' + ','.join(add_code)
 		neg1 = '-' + ','.join(neg_code)
 		add2 = '+' + ','.join(neg_code)
 		neg2 = '-' + ','.join(add_code)
 
-		proj_dir = os.path.abspath(os.path.join(direct, os.pardir))
-		script_dir = os.path.join(proj_dir, 'scripts')
-
-		#splits the multiallelic entries in the merge file
-		split_command = os.path.join(script_dir, 'split_multi_add_WT.py')
-		replace_file = os.path.join(path, 'merge_split.vcf')
-		subprocess.call(["""python %s %s %s""" % (split_command, merge_file, replace_file)], shell=True)
-		print "multi-allelic sites split"
 
 		#zips replace file for vcf-contrast
 		try:
-			subprocess.check_call(['bgzip', replace_file])
-			subprocess.check_call(['tabix', '-p', 'vcf', '%s.gz' % replace_file])
+			subprocess.check_call(['bgzip', merge_file])
+			subprocess.check_call(['tabix', '-p', 'vcf', '%s.gz' % merge_file])
 		except IOError:
 			pass
 
 		# print "calling vcf-contrast"
-		zip_replace = replace_file + '.gz'
+		zip_replace = merge_file + '.gz'
 		vcf_contrast1 = os.path.join(path, 'vcf_contrast_1.vcf')
 		vcf_contrast2 = os.path.join(path, 'vcf_contrast_2.vcf')
 
@@ -1161,19 +1150,23 @@ def effects_by_vcf(request):
 		except IOError:
 			pass
 
-
 		#merging vcf_contrast files
 		print "Merging vcf_contrast iterations"
 		p = subprocess.Popen(["""bcftools merge --force-samples -m none %s.gz %s.gz > %s""" % (vcf_contrast1, vcf_contrast2, merge_file2)], stderr=subprocess.PIPE, stdout=subprocess.PIPE, shell=True)
 		out, err = p.communicate()
 		print "files merged"
 
+		# Replaces all missing genotypes with wildtype genotypes
+		replace_file = os.path.join(path, 'merge_contrast_replace.vcf')
+		p =subprocess.Popen(["""bcftools +missing2ref %s > %s """ % (merge_file2, replace_file)], stderr=subprocess.PIPE, stdout=subprocess.PIPE, shell=True)
+		out, err = p.communicate()
+
 	#Opens the returned vcf-contrast file and counts the data.
 	print "opening vcf-contrast"
 	lib_effect = []
 	lib_total = 0
 
-	vcf_reader = vcf.Reader(open('%s' % merge_file2, 'r'))
+	vcf_reader = vcf.Reader(open('%s' % replace_file, 'r'))
 	date = datetime.datetime.utcnow().strftime("%Y-%m-%d").replace('-', '')
 	source = 'source_' + date + '.1'
 	cmd = vcf_reader.metadata[source][0]
@@ -1238,7 +1231,7 @@ def effects_by_vcf(request):
 		#Places each type of impact into dictionary of the effect. SNPs with multiple impacts
 		# will have all impacts accounted for in the impact total.
 		# i.e, SNPs with Downstream and Upstream effects will results in an addition to both impact counts.
-		effects = record.INFO['EFF']
+		effects = record.INFO['ANN']
 
 		high_eq = 0
 		moderate_eq = 0
@@ -1246,27 +1239,25 @@ def effects_by_vcf(request):
 		modifier_eq = 0
 
 		for x in effects:
-			impact = x.split('(')[0]
-			effect_list = x.split('(')[1]
-			eff = effect_list.split('|')
-			if eff[0] == "HIGH":
+			eff = x.split('|')
+			if eff[2] == "HIGH":
 				lib_impact_counts[0] += 1
-				lib_high_effects[impact] += 1
+				lib_high_effects[eff[1]] += 1
 				if group1_eq or group2_eq:
 					high_eq += 1
-			elif eff[0] == "MODERATE":
+			elif eff[2] == "MODERATE":
 				lib_impact_counts[1] += 1
-				lib_moderate_effects[impact] += 1
+				lib_moderate_effects[eff[1]] += 1
 				if group1_eq or group2_eq:
 					moderate_eq += 1
-			elif eff[0] == "LOW":
+			elif eff[2] == "LOW":
 				lib_impact_counts[2] += 1
-				lib_low_effects[impact] += 1
+				lib_low_effects[eff[1]] += 1
 				if group1_eq or group2_eq:
 					low_eq += 1
-			elif eff[0] == "MODIFIER":
+			elif eff[2] == "MODIFIER":
 				lib_impact_counts[3] += 1
-				lib_modifier_effects[impact] += 1
+				lib_modifier_effects[eff[1]] += 1
 				if group1_eq or group2_eq:
 					modifier_eq += 1
 
@@ -1278,7 +1269,6 @@ def effects_by_vcf(request):
 			lib_low_effects["Equivalent SNPs"] += 1
 		if modifier_eq > 0:
 			lib_modifier_effects["Equivalent SNPs"] += 1
-
 
 		# Counts the number of snps effected by each impact type. Snp is only counted once for each impact
 		#  i.e. if SNP has two modifying impacts, it is only counted once.
@@ -1316,15 +1306,16 @@ def effects_by_vcf(request):
 
 # Checks if values in list are equal. Used to find snp equivalence.
 def check_equal(gt_list):
+	print gt_list
+	print len(set(gt_list)) <= 1
 	return len(set(gt_list)) <= 1
+
 
 # Returns the snp that are found from effects_by_vcf. Opens the vcf-contrast file.
 def impact_snps(request):
 	analysis_path = request.GET.get('analysis_path')
 	add = ast.literal_eval(request.GET.get('add'))
-	add.sort()
 	neg = ast.literal_eval(request.GET.get('neg'))
-	neg.sort()
 	wt = request.GET.get('wt')
 	libraries = add + neg
 	impact = request.GET.get('impact')
@@ -1335,6 +1326,9 @@ def impact_snps(request):
 	moderate_ct = request.GET.get('moderate_ct')
 	low_ct = request.GET.get('low_ct')
 	consistent = request.GET.get('consistent')
+
+	add.sort()
+	neg.sort()
 
 	direct = os.path.abspath(os.path.dirname(__file__))
 	vcf_path = os.path.join(direct, 'vcf_files')
@@ -1347,44 +1341,44 @@ def impact_snps(request):
 
 		#If no specific sort is required
 		if not s:
-			cmd = """cat %s | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar filter "( EFF[*].IMPACT = '%s')" > %s """
+			cmd = """cat %s | java -jar /usr/local/snpEff/SnpSift.jar filter "( ANN[*].IMPACT = '%s')" > %s """
 			subprocess.call(cmd % (path, impact, output_path), shell=True, stdout=subprocess.PIPE)
 
 		#Sorts results by specified value
 		else:
 			if att == "0":
 				s = int(s)
-				cmd = """cat %s | /usr/local/Cellar/snpeff/3.6c/share/scripts/vcfEffOnePerLine.pl | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar filter "(EFF[*].IMPACT = '%s') & (POS = %d)" | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar extractFields - POS REF ALT CHROM EFF[*].GENE EFF[*].EFFECT QUAL EFF[*].AA"""
+				cmd = """cat %s | /usr/local/snpEff/scripts/vcfEffOnePerLine.pl | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar filter "(ANN[*].IMPACT = '%s') & (POS = %d)" | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar extractFields - POS REF ALT CHROM ANN[*].GENE ANN[*].EFFECT QUAL ANN[*].AA"""
 			elif att == "ref":
-				cmd = """cat %s | /usr/local/Cellar/snpeff/3.6c/share/scripts/vcfEffOnePerLine.pl | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar filter "(EFF[*].IMPACT = '%s') & (REF = '%s')" | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar extractFields - POS REF ALT CHROM EFF[*].GENE EFF[*].EFFECT QUAL EFF[*].AA"""
+				cmd = """cat %s | /usr/local/snpEff/scripts/vcfEffOnePerLine.pl | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar filter "(ANN[*].IMPACT = '%s') & (REF = '%s')" | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar extractFields - POS REF ALT CHROM ANN[*].GENE ANN[*].EFFECT QUAL ANN[*].AA"""
 			elif att == "alt":
-				cmd = """cat %s | /usr/local/Cellar/snpeff/3.6c/share/scripts/vcfEffOnePerLine.pl | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar filter "(EFF[*].IMPACT = '%s') & (ALT = '%s')" | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar extractFields - POS REF ALT CHROM EFF[*].GENE EFF[*].EFFECT QUAL EFF[*].AA"""
+				cmd = """cat %s | /usr/local/snpEff/scripts/vcfEffOnePerLine.pl | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar filter "(ANN[*].IMPACT = '%s') & (ALT = '%s')" | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar extractFields - POS REF ALT CHROM ANN[*].GENE ANN[*].EFFECT QUAL ANN[*].AA"""
 			elif att == "quality":
 				s = int(s)
-				cmd = """cat %s | /usr/local/Cellar/snpeff/3.6c/share/scripts/vcfEffOnePerLine.pl | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar filter "(EFF[*].IMPACT = '%s') & (QUAL = %d)" | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar extractFields - POS REF ALT CHROM EFF[*].GENE EFF[*].EFFECT QUAL EFF[*].AA"""
+				cmd = """cat %s | /usr/local/snpEff/scripts/vcfEffOnePerLine.pl | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar filter "(ANN[*].IMPACT = '%s') & (QUAL = %d)" | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar extractFields - POS REF ALT CHROM ANN[*].GENE ANN[*].EFFECT QUAL ANN[*].AA"""
 			elif att == "chromosome":
-				cmd = """cat %s | /usr/local/Cellar/snpeff/3.6c/share/scripts/vcfEffOnePerLine.pl | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar filter "(EFF[*].IMPACT = '%s') & (CHROM =~ '%s')" | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar extractFields - POS REF ALT CHROM EFF[*].GENE EFF[*].EFFECT QUAL EFF[*].AA"""
+				cmd = """cat %s | /usr/local/snpEff/scripts/vcfEffOnePerLine.pl | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar filter "(ANN[*].IMPACT = '%s') & (CHROM =~ '%s')" | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar extractFields - POS REF ALT CHROM ANN[*].GENE ANN[*].EFFECT QUAL ANN[*].AA"""
 			elif att == "impact":
 				s = s.replace(' ', '_').upper()
-				cmd = """cat %s | /usr/local/Cellar/snpeff/3.6c/share/scripts/vcfEffOnePerLine.pl | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar filter "(EFF[*].IMPACT = '%s') & (EFF[*].EFFECT = '%s')" | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar extractFields - POS REF ALT CHROM EFF[*].GENE EFF[*].EFFECT QUAL EFF[*].AA"""
+				cmd = """cat %s | /usr/local/snpEff/scripts/vcfEffOnePerLine.pl | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar filter "(ANN[*].IMPACT = '%s') & (ANN[*].EFFECT = '%s')" | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar extractFields - POS REF ALT CHROM ANN[*].GENE ANN[*].EFFECT QUAL ANN[*].AA"""
 			elif att == "gene":
-				cmd = """cat %s | /usr/local/Cellar/snpeff/3.6c/share/scripts/vcfEffOnePerLine.pl | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar filter "(EFF[*].IMPACT = '%s') & (EFF[*].GENE = '%s')" | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar extractFields - POS REF ALT CHROM EFF[*].GENE EFF[*].EFFECT QUAL EFF[*].AA"""
+				cmd = """cat %s | /usr/local/snpEff/scripts/vcfEffOnePerLine.pl | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar filter "(ANN[*].IMPACT = '%s') & (ANN[*].GENE = '%s')" | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar extractFields - POS REF ALT CHROM ANN[*].GENE ANN[*].EFFECT QUAL ANN[*].AA"""
 			subprocess.Popen(cmd % (path, impact, s), shell=True, stdout=subprocess.PIPE)
 
 	snp_dict = defaultdict(dict)
 	vcf_reader = vcf.Reader(open(output_path, 'r'))
 
 	for record in vcf_reader:
-
 		snp = defaultdict(list)
 		neg_eq = False
 		add_eq = False
 		pos = record.POS
 		qual = record.QUAL
-		chrom = record.CHROM.split('_')[0]
-		effects = record.INFO['EFF']
+		chrom = record.CHROM
+		effects = record.INFO['ANN']
 		alt = ','.join(str(i) for i in record.ALT)
 		ref = record.REF
+		print ref
 		genes = []
 
 		lib_dict = {}
@@ -1392,12 +1386,14 @@ def impact_snps(request):
 			lib_dict[lib] = {'ref': ['No SNP'], 'alt': ['No SNP'], 'effect': ['No Effect']}
 
 		for x in effects:
-			eff = x.split('(')[0]
-			effs = x.split('(')[1].split('|')
-			imp = effs[0] #Will collect "HIGH, MODERATE, LOW, or MODIFIER"
+			data = x.split('|')
+			eff = data[1]
+			imp = data[2]
+			# effs = x.split('|')[2]
+			# imp = effs[0] #Will collect "HIGH, MODERATE, LOW, or MODIFIER"
 
 			if impact == imp:
-				gene = effs[5]
+				gene = data[3]
 
 				if gene not in genes:
 					genes.append(gene)
@@ -1471,30 +1467,27 @@ def impact_snps(request):
 							lib_dict[lib]['alt'].sort()
 							lib_dict[lib]['ref'].sort()
 
-
 		#Collects whether the libraries are consistent in snps
 		if len(add) > 1:
 			add_gt = []
 			for each in add:
-
 				if record.genotype(each)['GT']:
-
-					if record.genotype(each)['GT'] == '0/0':
+					if record.genotype(each)['GT'] == '0/0' or record.genotype(each)['GT'] is None:
 						add_gt.append('WT')
 					else:
 						add_gt.append('SNP')
-
+				else:
+					print "No gt"
+					add_gt.append('WT')
 				each2 = "2:%s" % each
 
 				if record.genotype(each2)['GT']:
-
-					if record.genotype(each2)['GT'] == '0/0':
+					if record.genotype(each2)['GT'] == '0/0' or record.genotype(each)['GT'] is None:
 						add_gt.append('WT')
 					else:
 						add_gt.append('SNP')
 
 			add_eq = check_equal(add_gt)
-
 
 		if len(neg) > 1:
 			neg_gt = []
@@ -1502,24 +1495,24 @@ def impact_snps(request):
 
 				if record.genotype(each)['GT']:
 
-					if record.genotype(each)['GT'] == '0/0':
+					if record.genotype(each)['GT'] == '0/0' or record.genotype(each)['GT'] is None:
 						neg_gt.append('WT')
 					else:
 						neg_gt.append('SNP')
 
 				each2 = "2:%s" % each
 				if record.genotype(each2)['GT']:
-
-					if record.genotype(each2)['GT'] == '0/0':
+					if record.genotype(each2)['GT'] == '0/0' or record.genotype(each)['GT'] is None:
 						neg_gt.append('WT')
 					else:
 						neg_gt.append('SNP')
+
 			neg_eq = check_equal(neg_gt)
+			print neg_eq
 
 		if not neg_eq:
 			snp['group2_consistency'] = "False"
 		else:
-			print "neg_eq is True"
 			snp['group2_consistency'] = "True"
 
 		if not add_eq:
@@ -1673,8 +1666,8 @@ def gene_snp_summary(request):
 	except IndexError:
 		effs = "No Gene"
 
-	cmd = """cat %s | /usr/local/Cellar/snpeff/3.6c/share/scripts/vcfEffOnePerLine.pl | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar filter "( EFF[*].GENE = '%s') & ((EFF[*].IMPACT = 'HIGH') | (EFF[*].IMPACT = 'MODERATE'))" | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar extractFields - POS REF ALT CHROM EFF[*].GENE EFF[*].EFFECT QUAL EFF[*].AA EFF[*].IMPACT"""
-	cmd2 = """cat %s | /usr/local/Cellar/snpeff/3.6c/share/scripts/vcfEffOnePerLine.pl | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar filter "( EFF[*].GENE = '%s') & (EFF[*].IMPACT = 'LOW')" | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar extractFields - POS REF ALT CHROM EFF[*].GENE EFF[*].EFFECT QUAL EFF[*].AA EFF[*].IMPACT"""
+	cmd = """cat %s | /usr/local/snpEff/scripts/vcfEffOnePerLine.pl | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar filter "( EFF[*].GENE = '%s') & ((EFF[*].IMPACT = 'HIGH') | (EFF[*].IMPACT = 'MODERATE'))" | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar extractFields - POS REF ALT CHROM EFF[*].GENE EFF[*].EFFECT QUAL EFF[*].AA EFF[*].IMPACT"""
+	cmd2 = """cat %s | /usr/local/snpEff/scripts/vcfEffOnePerLine.pl | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar filter "( EFF[*].GENE = '%s') & (EFF[*].IMPACT = 'LOW')" | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar extractFields - POS REF ALT CHROM EFF[*].GENE EFF[*].EFFECT QUAL EFF[*].AA EFF[*].IMPACT"""
 	snps = subprocess.Popen(cmd % (path, gene_id), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 	low_snps = subprocess.Popen(cmd2 % (path, gene_id), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 

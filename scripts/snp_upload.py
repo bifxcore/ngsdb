@@ -153,9 +153,9 @@ def insert_effect(snp_id, effect_class, effect_string, effect_group, anns, eff_c
 # If the chromosome is not present, it is added into the database. This is done before adding any of the snp_results.
 def insert_chromosome(chromosome_name, organismcode, genome_version, genome_id):
 	for chrom in chromosome_name:
-		chromosome_fullname = chrom[0]
+		chromosome = chrom[0]
 		size = chrom[1]
-		chromosome = chromosome_fullname.split('_')[0]
+		# chromosome = chromosome_fullname.split('_')[0]
 		try:
 			cur.execute('SELECT chromosome_id FROM "snpdb_chromosome" WHERE chromosome_name = %s AND genome_version = %s AND genome_name_id=%s',
 			            (chromosome, genome_version, organismcode))
@@ -182,9 +182,9 @@ def insert_chromosome(chromosome_name, organismcode, genome_version, genome_id):
 # Identifies the chromosome ID if in the database. If not, prompts the user to add the chromosome.
 def get_chromosome_id(chromosome, genome_version):
 	try:
-		chromosome_name = chromosome.split('_')[0]
+		# chromosome_name = chromosome.split('_')[0]
 		cur.execute('SELECT chromosome_id FROM "snpdb_chromosome" WHERE chromosome_name = %s AND genome_version = %s',
-		            (chromosome_name, genome_version))
+		            (chromosome, genome_version))
 		chromosome_id = cur.fetchone()
 		if chromosome_id is not None:
 			return chromosome_id[0]
@@ -540,8 +540,8 @@ def main():
 			transition = snps.is_transition
 			statistics = snps.INFO
 
-			snp_iterator += 1
-			print snp_iterator
+			# snp_iterator += 1
+			# print snp_iterator
 
 			# Returns the heterozygosity of each snp.
 			samples = snps.samples
