@@ -4,7 +4,6 @@ from django.shortcuts import render_to_response
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from utils import build_orderby_urls
 from django.db.models import *
-from django_boolean_sum import BooleanSum
 from django.template import RequestContext
 from GChartWrapper import *
 from collections import *
@@ -1074,7 +1073,7 @@ def effects_by_vcf(request):
 	#Determines the location of where analysis results will be stored.
 	path = os.path.join(vcf_path, 'vcf_contrast_%s_%s' % (vcf_string, datetime.datetime.utcnow().strftime("%Y-%m-%d")))
 	merge_file2 = os.path.join(path, 'merge_contrast.vcf')
-	analysis_path = os.path.join('vcf_contrast_%s_%s' % (vcf_string, datetime.datetime.utcnow().strftime("%Y-%m-%d")), 'merge_contrast.vcf')
+	analysis_path = os.path.join('vcf_contrast_%s_%s' % (vcf_string, datetime.datetime.utcnow().strftime("%Y-%m-%d")), 'merge_contrast_replace.vcf')
 
 
 	#Checks to see if analysis has already been completed. If the analysis files are not present, bcftools is called.
@@ -1306,8 +1305,9 @@ def effects_by_vcf(request):
 
 # Checks if values in list are equal. Used to find snp equivalence.
 def check_equal(gt_list):
-	print gt_list
-	print len(set(gt_list)) <= 1
+	# if len(gt_list) > 1:
+	# 	print gt_list
+	# 	print len(set(gt_list)) <= 1
 	return len(set(gt_list)) <= 1
 
 
@@ -1378,7 +1378,6 @@ def impact_snps(request):
 		effects = record.INFO['ANN']
 		alt = ','.join(str(i) for i in record.ALT)
 		ref = record.REF
-		print ref
 		genes = []
 
 		lib_dict = {}
@@ -1389,8 +1388,6 @@ def impact_snps(request):
 			data = x.split('|')
 			eff = data[1]
 			imp = data[2]
-			# effs = x.split('|')[2]
-			# imp = effs[0] #Will collect "HIGH, MODERATE, LOW, or MODIFIER"
 
 			if impact == imp:
 				gene = data[3]
@@ -1432,83 +1429,108 @@ def impact_snps(request):
 				#Adds all alternate and references alleles
 				for lib in libraries:
 					alt_lib = "2:" + lib
+					gt = record.genotype(lib)['GT']
+					gt2 = record.genotype(alt_lib)['GT']
 
-					if record.genotype(lib)['GT'] == '0/1' or record.genotype(lib)['GT'] == '1/1':
-
-						if 'No SNP' in lib_dict[lib]['ref'] and 'No SNP' in lib_dict[lib]['alt']:
-							lib_dict[lib]['ref'] = [ref]
-							lib_dict[lib]['alt'] = [alt]
-							lib_dict[lib]['effect'] = [eff]
-
-						elif alt in lib_dict[lib]['alt']:
-							continue
-
-						else:
-							lib_dict[lib]['alt'].append(alt)
-							lib_dict[lib]['ref'].append(ref)
-
-							lib_dict[lib]['alt'].sort()
-							lib_dict[lib]['ref'].sort()
-
-					if record.genotype(alt_lib)['GT'] == '0/1' or record.genotype(alt_lib)['GT'] == '1/1':
+					if not gt.endswith('/0'):
+						if pos == 125228:
+							print lib, gt, gt2
 
 						if 'No SNP' in lib_dict[lib]['ref'] and 'No SNP' in lib_dict[lib]['alt']:
 							lib_dict[lib]['ref'] = [ref]
 							lib_dict[lib]['alt'] = [alt]
 							lib_dict[lib]['effect'] = [eff]
 
-						elif alt in lib_dict[lib]['alt']:
-							continue
-
-						else:
+						elif alt not in lib_dict[lib]['alt']:
 							lib_dict[lib]['alt'].append(alt)
 							lib_dict[lib]['ref'].append(ref)
 
 							lib_dict[lib]['alt'].sort()
 							lib_dict[lib]['ref'].sort()
+
+					else:
+						if 'No SNP' in lib_dict[lib]['ref'] and 'No SNP' in lib_dict[lib]['alt']:
+							lib_dict[lib]['ref'] = [ref]
+							lib_dict[lib]['alt'] = ["WT"]
+							lib_dict[lib]['effect'] = [eff]
+						else:
+							if 'WT' not in lib_dict[lib]['alt']:
+								lib_dict[lib]['alt'].append('WT')
+
+					if not gt2.endswith('/0'):
+						if 'No SNP' in lib_dict[lib]['ref']:
+							lib_dict[lib]['ref'] = [ref]
+
+						if 'No SNP' in lib_dict[lib]['alt']:
+							lib_dict[lib]['alt'] = [alt]
+							lib_dict[lib]['effect'] = [eff]
+
+						elif alt not in lib_dict[lib]['alt']:
+							lib_dict[lib]['alt'].append(alt)
+							lib_dict[lib]['ref'].append(ref)
+
+							lib_dict[lib]['alt'].sort()
+							lib_dict[lib]['ref'].sort()
+
+					else:
+						if 'No SNP' in lib_dict[lib]['alt']:
+							lib_dict[lib]['ref'] = [ref]
+							lib_dict[lib]['alt'] = ["WT"]
+							lib_dict[lib]['effect'] = [eff]
+						else:
+							if 'WT' not in lib_dict[lib]['alt']:
+								lib_dict[lib]['alt'].append('WT')
 
 		#Collects whether the libraries are consistent in snps
 		if len(add) > 1:
 			add_gt = []
 			for each in add:
-				if record.genotype(each)['GT']:
-					if record.genotype(each)['GT'] == '0/0' or record.genotype(each)['GT'] is None:
-						add_gt.append('WT')
-					else:
-						add_gt.append('SNP')
-				else:
-					print "No gt"
-					add_gt.append('WT')
 				each2 = "2:%s" % each
 
-				if record.genotype(each2)['GT']:
-					if record.genotype(each2)['GT'] == '0/0' or record.genotype(each)['GT'] is None:
-						add_gt.append('WT')
-					else:
-						add_gt.append('SNP')
+				gt = record.genotype(each)['GT']
+				gt2 = record.genotype(each2)['GT']
+
+				if gt.endswith('/0'):
+					add_gt.append('WT')
+				else:
+					add_gt.append('SNP')
+
+				if gt2.endswith('/0'):
+					add_gt.append('WT')
+				else:
+					add_gt.append('SNP')
 
 			add_eq = check_equal(add_gt)
 
 		if len(neg) > 1:
 			neg_gt = []
+
 			for each in neg:
-
-				if record.genotype(each)['GT']:
-
-					if record.genotype(each)['GT'] == '0/0' or record.genotype(each)['GT'] is None:
-						neg_gt.append('WT')
-					else:
-						neg_gt.append('SNP')
-
 				each2 = "2:%s" % each
-				if record.genotype(each2)['GT']:
-					if record.genotype(each2)['GT'] == '0/0' or record.genotype(each)['GT'] is None:
-						neg_gt.append('WT')
-					else:
-						neg_gt.append('SNP')
+				gt = record.genotype(each)['GT']
+				gt2 = record.genotype(each2)['GT']
 
+				if pos == 125228:
+					print each, gt, gt2
+
+				if gt.endswith('/0'):
+					# print gt
+					neg_gt.append('WT')
+				else:
+					# print gt
+					neg_gt.append('SNP')
+
+				if gt2.endswith('/0'):
+					# print gt
+					neg_gt.append('WT')
+				else:
+					# print gt
+					neg_gt.append('SNP')
+
+			if pos == 389093:
+				print neg_gt
+				print check_equal(neg_gt)
 			neg_eq = check_equal(neg_gt)
-			print neg_eq
 
 		if not neg_eq:
 			snp['group2_consistency'] = "False"
@@ -1578,9 +1600,7 @@ def impact_snps(request):
 							snp_dict[pos]['library_alleles'][lib]['ref'] = [ref]
 							snp_dict[pos]['library_alleles'][lib]['alt'] = [alt]
 							snp_dict[pos]['library_alleles'][lib]['effect'] = [eff]
-						elif alt in snp_dict[pos]['library_alleles'][lib]['alt']:
-							continue
-						else:
+						elif alt not in snp_dict[pos]['library_alleles'][lib]['alt']:
 							snp_dict[pos]['library_alleles'][lib]['alt'].append(alt)
 							snp_dict[pos]['library_alleles'][lib]['alt'].sort()
 
@@ -1590,15 +1610,12 @@ def impact_snps(request):
 							snp_dict[pos]['library_alleles'][lib]['ref'] = [ref]
 							snp_dict[pos]['library_alleles'][lib]['alt'] = [alt]
 							snp_dict[pos]['library_alleles'][lib]['effect'] = [eff]
-						elif alt in snp_dict[pos]['library_alleles'][lib]['alt']:
-							continue
-						else:
+						elif alt not in snp_dict[pos]['library_alleles'][lib]['alt']:
 							snp_dict[pos]['library_alleles'][lib]['alt'].append(alt)
 							snp_dict[pos]['library_alleles'][lib]['alt'].sort()
 							snp_dict[pos]['library_alleles'][lib]['ref'].sort()
 
 			if ref not in snp_dict[pos]['ref']:
-
 				if 'No SNP' in snp_dict[pos]['ref']:
 					snp_dict[pos]['ref'] = [ref]
 				else:
