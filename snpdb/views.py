@@ -2,9 +2,11 @@ from snpdb.models import *
 from samples.models import *
 from django.shortcuts import render_to_response
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from utils import build_orderby_urls
-from django.db.models import *
 from django.template import RequestContext
+from django.db.models import *
+from django_boolean_sum import BooleanSum
+
+from utils import build_orderby_urls
 from GChartWrapper import *
 from collections import *
 import subprocess
@@ -445,7 +447,7 @@ def compare_gene_lib_filter(request):
 	filter_urls = build_orderby_urls(request.get_full_path(), ['library__library_code',
 	                                                           'result__genome__organism__organismcode',
 	                                                           'result__genome____genome_id', 'result__genome__version'])
-	count = len(libraries[0])
+	count = len(libraries)
 	paginator = Paginator(libraries, 50)
 	try:
 		results = paginator.page(page)
@@ -470,24 +472,35 @@ def compare_gene_lib_filter_results_effect(request):
 	# order_by = request.GET.get('order_by', 'library__library_code')
 	gene_string = request.GET.get('s')
 	genes = gene_string.split()
-	library = request.GET.getlist('check')
+	# genome_id = request.GET.get('genome')
+	library_data = request.GET.getlist('check')
+
+	library = []
+	genome_id = []
+	for each in library_data:
+		data = each.split('_')
+		library.append(data[0])
+
+		if data[1] not in genome_id:
+			genome_id.append(data[1])
+
 	test = {}
 	for gene in genes:
 		try:
-			cds_fmin = Feature.objects.values_list('fmin', flat=True).filter(geneid=gene, featuretype='CDS')[0]
-			cds_fmax = Feature.objects.values_list('fmax', flat=True).filter(geneid=gene, featuretype='CDS')[0]
+			cds_fmin = Feature.objects.values_list('fmin', flat=True).filter(geneid=gene, genome_id__in=genome_id, featuretype='CDS')[0]
+			cds_fmax = Feature.objects.values_list('fmax', flat=True).filter(geneid=gene, genome_id__in=genome_id, featuretype='CDS')[0]
 		except IndexError:
 			cds_fmin = 0
 			cds_fmax = 0
 
 		try:
-			fmin = Feature.objects.filter(geneid=gene).filter(featuretype='gene').values('fmin')[0]
-			fmax = Feature.objects.filter(geneid=gene).filter(featuretype='gene').values('fmax')[0]
+			fmin = Feature.objects.filter(geneid=gene, genome_id__in=genome_id).filter(featuretype='gene').values('fmin')[0]
+			fmax = Feature.objects.filter(geneid=gene, genome_id__in=genome_id).filter(featuretype='gene').values('fmax')[0]
 		except IndexError:
 			fmin = 0
 			fmax = 0
 
-		chromosome = Feature.objects.filter(geneid=gene).filter(featuretype='gene').values_list('chromosome', flat=True)[0]
+		chromosome = Feature.objects.filter(geneid=gene, genome_id__in=genome_id).filter(featuretype='gene').values_list('chromosome', flat=True)[0]
 
 		result_list = SNP.objects.filter(effect__effect_id=6, effect__effect_string__exact=gene,
 		                                 library__library_code__in=library).values('library', 'library__library_code', 'snp_id',
@@ -836,7 +849,7 @@ def genes_from_effect(results, library, order_by):
 					each["effect__effect_string"] = 'None'
 					each["effect__effect"] = 'None'
 					snp_dict[each['snp_id']] = each
-	sorted_snp_dict = sorted(snp_dict.items(), key=lambda x: x[1][order_by])
+	sorted_snp_dict = sorted(snp_dict.items(), key=lambda y: y[1][order_by])
 	return sorted_snp_dict
 
 
@@ -1152,13 +1165,13 @@ def effects_by_vcf(request):
 		#merging vcf_contrast files
 		print "Merging vcf_contrast iterations"
 		p = subprocess.Popen(["""bcftools merge --force-samples -m none %s.gz %s.gz > %s""" % (vcf_contrast1, vcf_contrast2, merge_file2)], stderr=subprocess.PIPE, stdout=subprocess.PIPE, shell=True)
-		out, err = p.communicate()
+		# out, err = p.communicate()
 		print "files merged"
 
 		# Replaces all missing genotypes with wildtype genotypes
 		replace_file = os.path.join(path, 'merge_contrast_replace.vcf')
 		p =subprocess.Popen(["""bcftools +missing2ref %s > %s """ % (merge_file2, replace_file)], stderr=subprocess.PIPE, stdout=subprocess.PIPE, shell=True)
-		out, err = p.communicate()
+		# out, err = p.communicate()
 
 	#Opens the returned vcf-contrast file and counts the data.
 	print "opening vcf-contrast"

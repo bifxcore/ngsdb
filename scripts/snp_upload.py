@@ -132,21 +132,21 @@ def insert_effect_cv(effect_list):
 
 # Inserts the snp_effects for each snp. Each effect type is grouped using the group_id. Effect_id is specific to one vcf file.
 # May need to be adjusted in the future.
-def insert_effect(snp_id, effect_class, effect_string, effect_group, anns, eff_cv):
-	if effect_string:
-		for i in range(0, len(anns)):
-			if anns[i]:
-				try:
-					cur.execute('SELECT effect_id FROM "snpdb_effect_cv" WHERE effect_name = %s', (eff_cv[i].strip(),))
-					effect_id = cur.fetchone()[0]
-					cur.execute('INSERT INTO "snpdb_effect" (snp_id, effect_id, effect_class, effect_string, effect_group) VALUES (%s, %s, %s, %s, %s)',
-					            (snp_id, effect_id, effect_class, effect_string, effect_group,))
-					dbh.commit()
-				except psycopg2.IntegrityError:
-					print "no effect insert"
-					dbh.rollback()
-			else:
-				continue
+def insert_effect(snp_id, effect_class, impact, effect_group, anns, eff_cv):
+	# if effect_string:
+	for i in range(0, len(anns)):
+		if anns[i]:
+			try:
+				cur.execute('SELECT effect_id FROM "snpdb_effect_cv" WHERE effect_name = %s', (eff_cv[i].strip(),))
+				effect_id = cur.fetchone()[0]
+				cur.execute('INSERT INTO "snpdb_effect" (snp_id, effect_id, effect_class, effect_string, effect_group) VALUES (%s, %s, %s, %s, %s)',
+				            (snp_id, effect_id, effect_class, anns[i], effect_group,))
+				dbh.commit()
+			except psycopg2.IntegrityError:
+				print "no effect insert"
+				dbh.rollback()
+		else:
+			continue
 
 
 # Checks to see if the database contains the chromosome. If it does, the database connection is closed.
@@ -420,7 +420,6 @@ def main():
 		# collect and import vcf file.
 		vcf_reader = vcf.Reader(open(vcf_path, 'r'))
 		vcf_file = File(vcf_reader)
-		# record = vcf_reader.next()
 
 		# Collects input from the user.
 		#--------------------------------------------------------------------
