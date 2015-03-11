@@ -100,7 +100,7 @@
                         {% if lib in neg %}
                             <td class="neg text-center" headers={{lib}}>
                                 {% if "No SNP" in dict.ref %}
-                                    <div>No SNP</div>
+                                    <div>Ref</div>
                                 {% else %}
                                     <div>{{ dict.alt|joinby:", " }}</div>
                                 {% endif %}
@@ -108,8 +108,8 @@
 
                         {% else %}
                             <td class="add text-center" headers={{lib}}>
-                                {% if "No SNP" in dict.ref|joinby:", " %}
-                                    <div>No SNP</div>
+                                {% if "Ref" in dict.ref|joinby:", " %}
+                                    <div>Ref</div>
                                 {% else %}
                                     <div>{{ dict.alt|joinby:", "}}</div>
                                 {% endif %}
@@ -121,7 +121,7 @@
                 {% endfor %}
 
                 {% if add|length > 1 %}
-                    {% if x.1.group1_consistency == "True" %}
+                    {% if x.1.group1_consistency %}
                         <td class="text-center" style="vertical-align: middle; background-color:#ffff00">{{x.1.group1_consistency}}</td>
                     {% else %}
                         <td class="text-center" style="vertical-align: middle">{{x.1.group1_consistency}}</td>
@@ -129,7 +129,7 @@
                 {% endif %}
 
                 {% if neg|length > 1 %}
-                    {% if x.1.group2_consistency == "True" %}
+                    {% if x.1.group2_consistency %}
                         <td class="text-center" style="vertical-align: middle; background-color:#ffff00">{{x.1.group2_consistency}}</td>
                     {% else %}
                         <td class="text-center" style="vertical-align: middle">{{x.1.group2_consistency}}</td>

@@ -1117,9 +1117,8 @@ def effects_by_vcf(request):
 		#Runs the vcf-merge command.
 		merge_file = os.path.join(path, 'merge.vcf')
 
-		p = subprocess.call(["""bcftools merge -m none --force-samples %s > %s""" % (zip_vcf, merge_file)], shell=True)
-		# out, err = p.communicate()
-		# print out, err
+		p = subprocess.Popen(["""bcftools merge -m none --force-samples %s > %s""" % (zip_vcf, merge_file)], shell=True, stdout=subprocess.PIPE)
+		p.wait()
 		print "files merged"
 
 		# #collects all file ids.
@@ -1150,8 +1149,10 @@ def effects_by_vcf(request):
 		vcf_contrast1 = os.path.join(path, 'vcf_contrast_1.vcf')
 		vcf_contrast2 = os.path.join(path, 'vcf_contrast_2.vcf')
 
-		subprocess.call(["""vcf-contrast -n %s %s %s > %s""" % (add1, neg1, zip_replace, vcf_contrast1)], shell=True)
-		subprocess.call(["""vcf-contrast -n %s %s %s > %s""" % (add2, neg2, zip_replace, vcf_contrast2)], shell=True)
+		p = subprocess.Popen(["""vcf-contrast -n %s %s %s > %s""" % (add1, neg1, zip_replace, vcf_contrast1)], stderr=subprocess.PIPE, stdout=subprocess.PIPE, shell=True)
+		p.wait()
+		p = subprocess.Popen(["""vcf-contrast -n %s %s %s > %s""" % (add2, neg2, zip_replace, vcf_contrast2)], stderr=subprocess.PIPE, stdout=subprocess.PIPE, shell=True)
+		p.wait()
 
 		#zips replace file for vcf-contrast
 		try:
@@ -1163,16 +1164,14 @@ def effects_by_vcf(request):
 			pass
 
 		#merging vcf_contrast files
-		print "Merging vcf_contrast iterations"
 		p = subprocess.Popen(["""bcftools merge --force-samples -m none %s.gz %s.gz > %s""" % (vcf_contrast1, vcf_contrast2, merge_file2)], stderr=subprocess.PIPE, stdout=subprocess.PIPE, shell=True)
-		# out, err = p.communicate()
+		p.wait()
 		print "files merged"
 
 		# Replaces all missing genotypes with wildtype genotypes
 		replace_file = os.path.join(path, 'merge_contrast_replace.vcf')
-		p =subprocess.Popen(["""bcftools +missing2ref %s > %s """ % (merge_file2, replace_file)], stderr=subprocess.PIPE, stdout=subprocess.PIPE, shell=True)
-		# out, err = p.communicate()
-
+		p = subprocess.Popen(["""bcftools +missing2ref %s > %s """ % (merge_file2, replace_file)], stdout=subprocess.PIPE, shell=True)
+		p.wait()
 	#Opens the returned vcf-contrast file and counts the data.
 	print "opening vcf-contrast"
 	lib_effect = []
@@ -1206,14 +1205,14 @@ def effects_by_vcf(request):
 			for each in group1:
 				if record.genotype(each)['GT']:
 					if record.genotype(each)['GT'] == '0/0':
-						group1_gt.append('WT')
+						group1_gt.append('Ref')
 					else:
 						group1_gt.append('SNP')
 
 				each2 = "2:%s" % each
 				if record.genotype(each2)['GT']:
 					if record.genotype(each2)['GT'] == '0/0':
-						group1_gt.append('WT')
+						group1_gt.append('Ref')
 					else:
 						group1_gt.append('SNP')
 
@@ -1223,7 +1222,7 @@ def effects_by_vcf(request):
 			for each in group2:
 				if record.genotype(each)['GT']:
 					if record.genotype(each)['GT'] == '0/0':
-						group2_gt.append('WT')
+						group2_gt.append('Ref')
 					else:
 						group2_gt.append('SNP')
 
@@ -1231,7 +1230,7 @@ def effects_by_vcf(request):
 
 				if record.genotype(each2)['GT']:
 					if record.genotype(each2)['GT'] == '0/0':
-						group2_gt.append('WT')
+						group2_gt.append('Ref')
 					else:
 						group2_gt.append('SNP')
 
@@ -1317,11 +1316,8 @@ def effects_by_vcf(request):
 
 
 # Checks if values in list are equal. Used to find snp equivalence.
-def check_equal(gt_list):
-	# if len(gt_list) > 1:
-	# 	print gt_list
-	# 	print len(set(gt_list)) <= 1
-	return len(set(gt_list)) <= 1
+def check_equal(gt_list, gt2_list):
+	return bool(set(gt_list) & set(gt2_list))
 
 
 # Returns the snp that are found from effects_by_vcf. Opens the vcf-contrast file.
@@ -1332,7 +1328,7 @@ def impact_snps(request):
 	wt = request.GET.get('wt')
 	libraries = add + neg
 	impact = request.GET.get('impact')
-	order_by = request.GET.get('order_by', 'chromosome')
+	order_by = request.GET.get('order_by', 'quality')
 	s = request.GET.get('s')
 	att = request.GET.get('att')
 	high_ct = request.GET.get('high_ct')
@@ -1383,8 +1379,6 @@ def impact_snps(request):
 
 	for record in vcf_reader:
 		snp = defaultdict(list)
-		neg_eq = False
-		add_eq = False
 		pos = record.POS
 		qual = record.QUAL
 		chrom = record.CHROM
@@ -1395,7 +1389,7 @@ def impact_snps(request):
 
 		lib_dict = {}
 		for lib in libraries:
-			lib_dict[lib] = {'ref': ['No SNP'], 'alt': ['No SNP'], 'effect': ['No Effect']}
+			lib_dict[lib] = {'ref': ['Ref'], 'alt': ['Ref'], 'effect': ['No Effect']}
 
 		for x in effects:
 			data = x.split('|')
@@ -1418,7 +1412,7 @@ def impact_snps(request):
 					wt_allele = SNP.objects.filter(chromosome__chromosome_name__startswith=chrom,
 					                               snp_position=pos, library__library_code=wt).values_list('alt_base', flat=True)[0]
 				except IndexError:
-					wt_allele = "No SNP"
+					wt_allele = "Ref"
 
 				try:
 					fmin = Feature.objects.values_list('fmin', flat=True).filter(geneid=gene, featuretype='CDS')[0]
@@ -1442,136 +1436,63 @@ def impact_snps(request):
 				#Adds all alternate and references alleles
 				for lib in libraries:
 					alt_lib = "2:" + lib
-					gt = record.genotype(lib)['GT']
-					gt2 = record.genotype(alt_lib)['GT']
+					gt = record.genotype(lib).gt_type
+					gt2 = record.genotype(alt_lib).gt_type
 
-					if not gt.endswith('/0'):
-						if pos == 125228:
-							print lib, gt, gt2
+					# If genotype is homozygous reference
+					if 'Ref' in lib_dict[lib]['ref']:
+						lib_dict[lib]['ref'] = [ref]
+					elif ref not in lib_dict[lib]['ref']:
+						lib_dict[lib]['ref'].append(ref)
 
-						if 'No SNP' in lib_dict[lib]['ref'] and 'No SNP' in lib_dict[lib]['alt']:
-							lib_dict[lib]['ref'] = [ref]
-							lib_dict[lib]['alt'] = [alt]
-							lib_dict[lib]['effect'] = [eff]
-
-						elif alt not in lib_dict[lib]['alt']:
-							lib_dict[lib]['alt'].append(alt)
-							lib_dict[lib]['ref'].append(ref)
-
-							lib_dict[lib]['alt'].sort()
-							lib_dict[lib]['ref'].sort()
-
+					if 'Ref' in lib_dict[lib]['alt']:
+						if gt == 0 or gt2 == 0:
+							lib_dict[lib]['alt'] = ["Ref"]
+						if gt != 0 or gt2 != 0:
+							lib_dict[lib]['alt'] = [ref]
+						lib_dict[lib]['effect'] = [eff]
 					else:
-						if 'No SNP' in lib_dict[lib]['ref'] and 'No SNP' in lib_dict[lib]['alt']:
-							lib_dict[lib]['ref'] = [ref]
-							lib_dict[lib]['alt'] = ["WT"]
-							lib_dict[lib]['effect'] = [eff]
-						else:
-							if 'WT' not in lib_dict[lib]['alt']:
-								lib_dict[lib]['alt'].append('WT')
-
-					if not gt2.endswith('/0'):
-						if 'No SNP' in lib_dict[lib]['ref']:
-							lib_dict[lib]['ref'] = [ref]
-
-						if 'No SNP' in lib_dict[lib]['alt']:
-							lib_dict[lib]['alt'] = [alt]
-							lib_dict[lib]['effect'] = [eff]
-
-						elif alt not in lib_dict[lib]['alt']:
+						if gt == 0 or gt2 == 0:
+							lib_dict[lib]['alt'].append("Ref")
+						if gt != 0 or gt2 != 0:
 							lib_dict[lib]['alt'].append(alt)
-							lib_dict[lib]['ref'].append(ref)
 
-							lib_dict[lib]['alt'].sort()
-							lib_dict[lib]['ref'].sort()
-
-					else:
-						if 'No SNP' in lib_dict[lib]['alt']:
-							lib_dict[lib]['ref'] = [ref]
-							lib_dict[lib]['alt'] = ["WT"]
-							lib_dict[lib]['effect'] = [eff]
-						else:
-							if 'WT' not in lib_dict[lib]['alt']:
-								lib_dict[lib]['alt'].append('WT')
 
 		#Collects whether the libraries are consistent in snps
+		add_gt = []
+		add_gt2 = []
 		if len(add) > 1:
-			add_gt = []
 			for each in add:
 				each2 = "2:%s" % each
 
-				gt = record.genotype(each)['GT']
-				gt2 = record.genotype(each2)['GT']
+				gt = record.genotype(each).gt_bases
+				gt2 = record.genotype(each2).gt_bases
+				if gt not in add_gt:
+					add_gt.append(gt)
+				if gt not in gt2:
+					add_gt2.append(gt2)
+		snp['group1_consistency'] = check_equal(add_gt, add_gt2)
 
-				if gt.endswith('/0'):
-					add_gt.append('WT')
-				else:
-					add_gt.append('SNP')
-
-				if gt2.endswith('/0'):
-					add_gt.append('WT')
-				else:
-					add_gt.append('SNP')
-
-			add_eq = check_equal(add_gt)
-
+		neg_gt = []
+		neg_gt2 = []
 		if len(neg) > 1:
-			neg_gt = []
-
 			for each in neg:
 				each2 = "2:%s" % each
-				gt = record.genotype(each)['GT']
-				gt2 = record.genotype(each2)['GT']
 
-				if pos == 125228:
-					print each, gt, gt2
-
-				if gt.endswith('/0'):
-					# print gt
-					neg_gt.append('WT')
-				else:
-					# print gt
-					neg_gt.append('SNP')
-
-				if gt2.endswith('/0'):
-					# print gt
-					neg_gt.append('WT')
-				else:
-					# print gt
-					neg_gt.append('SNP')
-
-			if pos == 389093:
-				print neg_gt
-				print check_equal(neg_gt)
-			neg_eq = check_equal(neg_gt)
-
-		if not neg_eq:
-			snp['group2_consistency'] = "False"
-		else:
-			snp['group2_consistency'] = "True"
-
-		if not add_eq:
-			snp['group1_consistency'] = "False"
-		else:
-			snp['group1_consistency'] = "True"
+				gt = record.genotype(each).gt_bases
+				gt2 = record.genotype(each2).gt_bases
+				if gt not in neg_gt:
+					neg_gt.append(gt)
+				if gt2 not in neg_gt2:
+					neg_gt2.append(gt2)
+		snp['group2_consistency'] = check_equal(neg_gt, neg_gt2)
 
 		if pos not in snp_dict:
-			snp['chromosome'] = chrom
-			snp['ref'] = [ref]
-			snp['alt'] = [alt]
-			snp['quality'] = [qual]
-			snp['impact'] = [impact]
-			snp['gene'] = genes
-			snp['wt_allele'] = [wt_allele]
-			snp['library_alleles'] = dict(lib_dict)
-			snp['product'] = product
-			snp['aa_from_start'] = [aa_from_start]
-			snp['start'] = fmin
-			snp['stop'] = fmax
-			snp['gene_length'] = [gene_length]
+			snp = addValuesToEmptyDictionary(snp, record, lib_dict, gene_length, impact, genes, wt, product, aa_from_start, fmin, fmax)
+			# print snp_dict
 
 			if consistent == "on":
-				if snp['group1_consistency'] == "True" or snp['group2_consistency'] == "True":
+				if snp['group1_consistency'] or snp['group2_consistency']:
 					snp_dict[pos] = dict(snp)
 				else:
 					pass
@@ -1607,46 +1528,67 @@ def impact_snps(request):
 				for lib in libraries:
 					alt_lib = "2:" + lib
 
-					if record.genotype(lib)['GT'] == '0/1' or record.genotype(lib)['GT'] == '1/1':
-
-						if 'No SNP' in snp_dict[pos]['library_alleles'][lib]['ref'] or 'No SNP' in snp_dict[pos]['library_alleles'][lib]['alt']:
+					#If record is not homozygous reference
+					if record.genotype(lib).gt_bases != 0:
+						if 'Ref' in snp_dict[pos]['library_alleles'][lib]['ref']:
 							snp_dict[pos]['library_alleles'][lib]['ref'] = [ref]
-							snp_dict[pos]['library_alleles'][lib]['alt'] = [alt]
-							snp_dict[pos]['library_alleles'][lib]['effect'] = [eff]
-						elif alt not in snp_dict[pos]['library_alleles'][lib]['alt']:
-							snp_dict[pos]['library_alleles'][lib]['alt'].append(alt)
-							snp_dict[pos]['library_alleles'][lib]['alt'].sort()
+						else:
+							snp_dict[pos]['library_alleles'][lib]['ref']
 
-					if record.genotype(alt_lib)['GT'] == '0/1' or record.genotype(alt_lib)['GT'] == '1/1':
-
-						if 'No SNP' in snp_dict[pos]['library_alleles'][lib]['ref'] or 'No SNP' in snp_dict[pos]['library_alleles'][lib]['alt']:
-							snp_dict[pos]['library_alleles'][lib]['ref'] = [ref]
-							snp_dict[pos]['library_alleles'][lib]['alt'] = [alt]
+						if 'Ref' in snp_dict[pos]['library_alleles'][lib]['alt']:
+							snp_dict[pos]['library_alleles'][lib]['alt'] = ["Ref"]
 							snp_dict[pos]['library_alleles'][lib]['effect'] = [eff]
-						elif alt not in snp_dict[pos]['library_alleles'][lib]['alt']:
+						else:
 							snp_dict[pos]['library_alleles'][lib]['alt'].append(alt)
-							snp_dict[pos]['library_alleles'][lib]['alt'].sort()
-							snp_dict[pos]['library_alleles'][lib]['ref'].sort()
+
+					#If record is homozygous reference
+					else:
+						if 'Ref' in lib_dict[lib]['ref']:
+							lib_dict[lib]['ref'] = [ref]
+						else:
+							lib_dict[lib]['ref'].append(ref)
+						if 'Ref' in lib_dict[lib]['alt']:
+								lib_dict[lib]['alt'] = [alt]
+								lib_dict[lib]['effect'] = [eff]
+						else:
+							lib_dict[lib]['alt'].append(alt)
+					# 	if 'Ref' in snp_dict[pos]['library_alleles'][lib]['ref'] or 'Ref' in snp_dict[pos]['library_alleles'][lib]['alt']:
+					# 		snp_dict[pos]['library_alleles'][lib]['ref'] = [ref]
+					# 		snp_dict[pos]['library_alleles'][lib]['alt'] = [alt]
+					# 		snp_dict[pos]['library_alleles'][lib]['effect'] = [eff]
+					# 	elif alt not in snp_dict[pos]['library_alleles'][lib]['alt']:
+					# 		snp_dict[pos]['library_alleles'][lib]['alt'].append(alt)
+					# 		snp_dict[pos]['library_alleles'][lib]['alt'].sort()
+					#
+					# if record.genotype(alt_lib).gt_bases != -0:
+					# 	if 'Ref' in snp_dict[pos]['library_alleles'][lib]['ref'] or 'Ref' in snp_dict[pos]['library_alleles'][lib]['alt']:
+					# 		snp_dict[pos]['library_alleles'][lib]['ref'] = [ref]
+					# 		snp_dict[pos]['library_alleles'][lib]['alt'] = [alt]
+					# 		snp_dict[pos]['library_alleles'][lib]['effect'] = [eff]
+					# 	elif alt not in snp_dict[pos]['library_alleles'][lib]['alt']:
+					# 		snp_dict[pos]['library_alleles'][lib]['alt'].append(alt)
+					# 		snp_dict[pos]['library_alleles'][lib]['alt'].sort()
+					# 		snp_dict[pos]['library_alleles'][lib]['ref'].sort()
 
 			if ref not in snp_dict[pos]['ref']:
-				if 'No SNP' in snp_dict[pos]['ref']:
+				if 'Ref' in snp_dict[pos]['ref']:
 					snp_dict[pos]['ref'] = [ref]
 				else:
 					snp_dict[pos]['ref'].append(ref)
-					snp_dict[pos]['ref'].sort()
+					# snp_dict[pos]['ref'].sort()
 
 	test_dict = dict(snp_dict)
-	if order_by == '0':
-		sorted_snp = sorted(test_dict.iteritems())
-
-	elif order_by == 'quality':
-		sorted_snp = sorted(test_dict.iteritems(), key=lambda (k, v): v[order_by], reverse=True)
-
-	else:
-		sorted_snp = sorted(test_dict.iteritems(), key=lambda (k, v): v[order_by])
+	# if order_by == '0':
+	# 	sorted_snp = sorted(test_dict.iteritems())
+	#
+	# elif order_by == 'quality':
+	# 	sorted_snp = sorted(test_dict.iteritems(), key=lambda (k, v): v[order_by], reverse=True)
+	#
+	# else:
+	# 	sorted_snp = sorted(test_dict.iteritems(), key=lambda (k, v): v[order_by])
 
 	count = len(snp_dict)
-	paginator = Paginator(sorted_snp, 200)
+	paginator = Paginator(dict(snp_dict), 200)
 	page = request.GET.get('page')
 
 	# Calls utils method to append new filters or order_by to the current url
@@ -1661,23 +1603,28 @@ def impact_snps(request):
 
 	toolbar_max = min(results.number + 4, paginator.num_pages)
 	toolbar_min = max(results.number - 4, 0)
-	c = {"analysis_path": analysis_path,
-	     "paginator": paginator,
-	     "results": results,
-	     "libraries": libraries,
-	     "add": add,
-	     "impact": impact,
-	     "neg": neg,
-	     "wt": wt,
-	     "high_ct": high_ct,
-	     "low_ct": low_ct,
-	     "moderate_ct":moderate_ct,
-	     "filter_urls": filter_urls,
-	     "toolbar_max": toolbar_max,
-	     "toolbar_min": toolbar_min,
-	     "count": count}
+	c = {"analysis_path": analysis_path, "paginator": paginator, "results": results, "libraries": libraries, "add": add,
+	     "impact": impact, "neg": neg, "wt": wt, "high_ct": high_ct, "low_ct": low_ct, "moderate_ct":moderate_ct,
+	     "filter_urls": filter_urls, "toolbar_max": toolbar_max, "toolbar_min": toolbar_min, "count": count}
 	return render_to_response('snpdb/impact_snps_search.html', c, context_instance=RequestContext(request))
 
+
+def addValuesToEmptyDictionary(snp, record, lib_dict, gene_length, impact, genes, wt, product, aa_from_start, fmin, fmax):
+	snp['chromosome'] = record.CHROM
+	snp['ref'] = [record.REF]
+	snp['alt'] = [record.ALT]
+	snp['quality'] = [record.QUAL]
+	snp['impact'] = [impact]
+	snp['gene'] = genes
+	snp['wt_allele'] = [wt]
+	snp['library_alleles'] = dict(lib_dict)
+	snp['product'] = product
+	snp['aa_from_start'] = [aa_from_start]
+	snp['start'] = fmin
+	snp['stop'] = fmax
+	snp['gene_length'] = [gene_length]
+
+	return snp
 
 #Displays a more in depth view of high and moderate impacts on a specific gene.
 def gene_snp_summary(request):

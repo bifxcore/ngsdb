@@ -374,7 +374,7 @@ def insert_vcf_file(library_id, result_id, vcf_file, vcf_path):
 		vcf_md5sum.update(line)
 	f.close()
 	project_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir)
-	vcf_name = os.path.join('/media/VCF_Files', os.path.basename(vcf_path))
+	vcf_name = os.path.join('media/VCF_Files', os.path.basename(vcf_path))
 	vcf_dir_path = os.path.join(project_dir, vcf_name)
 	modified_time = time.ctime(os.path.getmtime(vcf_path))
 	upload_time = str(datetime.datetime.now())
