@@ -98,7 +98,7 @@
                     {% with x.1.library_alleles|keyvalue:lib as dict %}
 
                         {% if lib in neg %}
-                            <td class="neg text-center" headers={{lib}}>
+                            <td class="neg text-center" style="vertical-align: middle" headers={{lib}}>
                                 {% if "No SNP" in dict.ref %}
                                     <div>Ref</div>
                                 {% else %}
@@ -107,7 +107,7 @@
                             </td>
 
                         {% else %}
-                            <td class="add text-center" headers={{lib}}>
+                            <td class="add text-center" style="vertical-align: middle" headers={{lib}}>
                                 {% if "Ref" in dict.ref|joinby:", " %}
                                     <div>Ref</div>
                                 {% else %}
