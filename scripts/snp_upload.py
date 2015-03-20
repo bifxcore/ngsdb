@@ -249,12 +249,14 @@ def get_result(library_id, genome_id, author_id, analysis_path):
 		cur.execute('SELECT ngsdbview_result.result_id FROM "ngsdbview_result_libraries" JOIN ngsdbview_result ON ngsdbview_result_libraries.result_id = ngsdbview_result.result_id WHERE library_id = %s AND result_type_cv_id=2', (library_id,))
 		result_ids = cur.fetchall()
 		if result_ids:
-			user_opt = input("There is already a result_id attached to this library. Please choose one of the"
-			                 " following options."
-			                 "\n1. Quit"
-			                 "\n2. Override the old snp_results with these results. This will delete the old results. "
-			                 "\n3. Keep old results and add these results under a new result_id. "
-			                 "The old results will be marked as obsolete in the database. ")
+			user_opt=2
+			# user_opt = input("There is already a result_id attached to this library. Please choose one of the"
+			#                  " following options."
+			#                  "\n1. Quit"
+			#                  "\n2. Override the old snp_results with these results. This will delete the old results. "
+			#                  "\n3. Keep old results and add these results under a new result_id. "
+			#                  "The old results will be marked as obsolete in the database. ")
+
 			if user_opt == 1:
 				sys.exit("You have quit the program. SNP_Results were not uploaded into the database.")
 			elif user_opt == 2:
@@ -343,7 +345,6 @@ def insert_filter_cv(filter_type):
 	try:
 		if filter_type:
 			filter_string = filter_type[0]
-			# filter_cv_id = filter_cv[filter_string]
 			filter_cv_id = filter_cv.get(filter_string)
 			if filter_cv_id is None:
 				cur.execute('INSERT INTO "snpdb_filter_cv" (filter_type) VALUES (%s) RETURNING "filter_cv_id"', (filter_string,))
@@ -425,7 +426,8 @@ def main():
 		#--------------------------------------------------------------------
 
 		# Identifies the librarycode, librarycode, genome_id, and genome version,
-		librarycode = raw_input("Please state the librarycode. ")
+		# librarycode = raw_input("Please state the librarycode. ")
+		librarycode = "ES042"
 		try:
 			cur.execute('SELECT genome_id, organism_id, version FROM "ngsdbview_genome"s',
 			            (librarycode,))
@@ -442,9 +444,13 @@ def main():
 			print "Getting genome id rollback error"
 			dbh.rollback()
 
-		genome_id = raw_input("Please state the genome_id. ")
-		genome_version = raw_input("Please state the genome version. ")
-		analysis_path = raw_input("Please provide the full analysis path. ")
+		# genome_id = raw_input("Please state the genome_id. ")
+		# genome_version = raw_input("Please state the genome version. ")
+		# analysis_path = raw_input("Please provide the full analysis path. ")
+
+		genome_id = 22
+		genome_version = '5.0'
+		analysis_path = ""
 
 		# SQL Inserts and Selects
 		#----------------------------------------------------------------------

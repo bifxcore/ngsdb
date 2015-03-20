@@ -1,5 +1,6 @@
 from django.db.models import *
 from ngsdbview.models import *
+from samples.models import *
 
 
 class Chromosome(models.Model):
@@ -39,16 +40,14 @@ class Filter_CV(models.Model):
 class SNP(models.Model):
 	snp_id = models.AutoField(primary_key=True)
 	snp_position = models.IntegerField(db_index=True)
-	result = models.ForeignKey('ngsdbview.Result')
+	result = models.ForeignKey('ngsdbview.Result', related_name='ngsdbview.ResultS')
 	vcf = models.ForeignKey('VCF_Files')
 	ref_base = models.TextField()
 	alt_base = models.TextField()
 	heterozygosity = NullBooleanField()
 	quality = models.IntegerField()
-	library = models.ForeignKey('samples.Library')
+	library = models.ForeignKey('samples.Library', related_name='samples.Library')
 	chromosome = models.ForeignKey('Chromosome')
-#    def __unicode__(self):
-#        return str(self.snp_id)
 
 
 class SNP_CV(models.Model):
