@@ -586,6 +586,8 @@ def compare_isec_search(request):
 	group1.sort()
 	group2.sort()
 
+
+
 	#Captures vcf file location
 	vcf1 = VCF_Files.objects.values_list('vcf_path', flat=True).filter(library__library_code__in=group1).distinct()
 	vcf2 = VCF_Files.objects.values_list('vcf_path', flat=True).filter(library__library_code__in=group2).distinct()
@@ -614,6 +616,9 @@ def compare_isec_search(request):
 	#Determines the location of where analysis results will be stored.
 	path = os.path.join(vcf_path, 'vcf_isec_%s_%s' % (vcf_string, datetime.datetime.utcnow().strftime("%Y-%m-%d")))
 
+	#Final output paths
+	output_path1 = os.path.join(path, "0000.vcf") #contains snps private to group1
+	output_path2 = os.path.join(path, "0001.vcf") #contains snps private to group2
 
 	if os.path.isdir(path):
 		print "File already present"
@@ -643,15 +648,14 @@ def compare_isec_search(request):
 			except IOError:
 				pass
 		else:
-			group1_isec = group1_path
-
+			group1_isec = group1_path[0]
 
 		#Creates a string of all zipped file in group1 and runs bcftools isec on files in group2
 		if len(group2_path) > 1:
 			group2_isec = os.path.join(path, "group2.vcf")
 			bcftools_isec(group2_path, path, len(group2_path))
 
-			os.file.rename
+			os.rename(os.path.join(path, "0000.vcf"), group2_isec)
 
 			try:
 				subprocess.check_call(['bgzip', group2_isec])
@@ -659,17 +663,15 @@ def compare_isec_search(request):
 			except IOError:
 				pass
 		else:
-			group2_isec = group2_path
+			group2_isec = group2_path[0]
 
 		#Runs bcftools isec on the previously created isec files
-		isec_paths = group1_isec + " " + group2_isec
-		output_path1 = os.path.join(path, "0000.vcf") #contains snps private to group1
-		output_path2 = os.path.join(path, "0001.vcf") #contains snps private to group2
+		isec_paths = [group1_isec, group2_isec]
+
 
 		bcftools_isec(isec_paths, path, 1)
 
 	#Opens the returned vcf-contrast file and counts the data.
-	print "opening vcf-isec"
 	lib_effect = []
 	lib_total = 0
 
@@ -678,126 +680,101 @@ def compare_isec_search(request):
 	lib_modifier_effects = defaultdict(int)
 	lib_low_effects = defaultdict(int)
 
-
+	print "opening vcf-isec"
 	vcf_reader1 = vcf.Reader(open('%s' % output_path1, 'r'))
+	snp_total_counts = [0, 0, 0, 0, 0]
+
 	for record in vcf_reader1:
 
 		#Keeps track of what effect type each snp has. [high, moderate, low, modifier]
-		lib_impact_counts = [0, 0, 0, 0]
+		impact_counts = [0, 0, 0, 0]
 
 		#Places each type of impact into dictionary of the effect. SNPs with multiple impacts
 		# will have all impacts accounted for in the impact total.
 		# i.e, SNPs with Downstream and Upstream effects will results in an addition to both impact counts.
 		effects = record.INFO['ANN']
 
-		high_eq = 0
-		moderate_eq = 0
-		low_eq = 0
-		modifier_eq = 0
-
 		for x in effects:
 			eff = x.split('|')
 			if eff[2] == "HIGH":
-				lib_impact_counts[0] += 1
+				impact_counts[0] += 1
 				lib_high_effects[eff[1]] += 1
 			elif eff[2] == "MODERATE":
-				lib_impact_counts[1] += 1
+				impact_counts[1] += 1
 				lib_moderate_effects[eff[1]] += 1
 			elif eff[2] == "LOW":
-				lib_impact_counts[2] += 1
+				impact_counts[2] += 1
 				lib_low_effects[eff[1]] += 1
 			elif eff[2] == "MODIFIER":
-				lib_impact_counts[3] += 1
+				impact_counts[3] += 1
 				lib_modifier_effects[eff[1]] += 1
-
-		if high_eq > 0:
-			lib_high_effects["Equivalent SNPs"] += 1
-		if moderate_eq > 0:
-			lib_moderate_effects["Equivalent SNPs"] += 1
-		if low_eq > 0:
-			lib_low_effects["Equivalent SNPs"] += 1
-		if modifier_eq > 0:
-			lib_modifier_effects["Equivalent SNPs"] += 1
 
 		# Counts the number of snps effected by each impact type. Snp is only counted once for each impact
 		#  i.e. if SNP has two modifying impacts, it is only counted once.
 
-		#Keeps track of the total library counts: [High, Moderate, Low, Modifier, Consistent, Total]
-		lib_total_counts = [0, 0, 0, 0, 0, 0, '']
-		if sum(lib_impact_counts) > 0:
-			lib_total_counts[5] = group1
-			lib_total_counts[4] += 1
+		#Keeps track of the number of snps affected by each impact type: [High, Moderate, Low, Modifier, Total]
+		# If an effect is present, add to total snp count
+		if sum(impact_counts) > 0:
+			snp_total_counts[4] += 1
 
-		if lib_impact_counts[0] > 0:
-			lib_total_counts[0] += 1
-		if lib_impact_counts[1] > 0:
-			lib_total_counts[1] += 1
-		if lib_impact_counts[2] > 0:
-			lib_total_counts[2] += 1
-		if lib_impact_counts[3] > 0:
-			lib_total_counts[3] += 1
+		if impact_counts[0] > 0:
+			snp_total_counts[0] += 1
+		if impact_counts[1] > 0:
+			snp_total_counts[1] += 1
+		if impact_counts[2] > 0:
+			snp_total_counts[2] += 1
+		if impact_counts[3] > 0:
+			snp_total_counts[3] += 1
 
 	# lib_tuple = (dict(lib_high_effects), dict(lib_moderate_effects), dict(lib_low_effects), dict(lib_modifier_effects), lib_total_counts)
 	# lib_effect.append(lib_tuple)
-	lib_total += lib_total_counts[4]
+	# lib_total += snp_total_counts[4]
 
 	vcf_reader2 = vcf.Reader(open('%s' % output_path2, 'r'))
 	for record in vcf_reader2:
 
+		#Keeps track of what effect type each snp has. [high, moderate, low, modifier]
+		impact_counts = [0, 0, 0, 0]
+		
 		# Places each type of impact into dictionary of the effect. SNPs with multiple impacts
 		# will have all impacts accounted for in the impact total.
 		# i.e, SNPs with Downstream and Upstream effects will results in an addition to both impact counts.
 		effects = record.INFO['ANN']
 
-		high_eq = 0
-		moderate_eq = 0
-		low_eq = 0
-		modifier_eq = 0
-
 		for x in effects:
 			eff = x.split('|')
 			if eff[2] == "HIGH":
-				lib_impact_counts[0] += 1
+				impact_counts[0] += 1
 				lib_high_effects[eff[1]] += 1
 			elif eff[2] == "MODERATE":
-				lib_impact_counts[1] += 1
+				impact_counts[1] += 1
 				lib_moderate_effects[eff[1]] += 1
 			elif eff[2] == "LOW":
-				lib_impact_counts[2] += 1
+				impact_counts[2] += 1
 				lib_low_effects[eff[1]] += 1
 			elif eff[2] == "MODIFIER":
-				lib_impact_counts[3] += 1
-				lib_modifier_effects[eff[1]] += 1
-
-		if high_eq > 0:
-			lib_high_effects["Equivalent SNPs"] += 1
-		if moderate_eq > 0:
-			lib_moderate_effects["Equivalent SNPs"] += 1
-		if low_eq > 0:
-			lib_low_effects["Equivalent SNPs"] += 1
-		if modifier_eq > 0:
-			lib_modifier_effects["Equivalent SNPs"] += 1
+				impact_counts[3] += 1
 
 		# Counts the number of snps effected by each impact type. Snp is only counted once for each impact
 		#  i.e. if SNP has two modifying impacts, it is only counted once.
 
 		#Keeps track of the total library counts: [High, Moderate, Low, Modifier, Consistent, Total]
-		if sum(lib_impact_counts) > 0:
-			lib_total_counts[5] = group1
-			lib_total_counts[4] += 1
+		if sum(impact_counts) > 0:
+			snp_total_counts[4] += 1
 
-		if lib_impact_counts[0] > 0:
-			lib_total_counts[0] += 1
-		if lib_impact_counts[1] > 0:
-			lib_total_counts[1] += 1
-		if lib_impact_counts[2] > 0:
-			lib_total_counts[2] += 1
-		if lib_impact_counts[3] > 0:
-			lib_total_counts[3] += 1
+		if impact_counts[0] > 0:
+			snp_total_counts[0] += 1
+		if impact_counts[1] > 0:
+			snp_total_counts[1] += 1
+		if impact_counts[2] > 0:
+			snp_total_counts[2] += 1
+		if impact_counts[3] > 0:
+			snp_total_counts[3] += 1
 
-	lib_tuple = (dict(lib_high_effects), dict(lib_moderate_effects), dict(lib_low_effects), dict(lib_modifier_effects), lib_total_counts)
+	lib_tuple = (dict(lib_high_effects), dict(lib_moderate_effects), dict(lib_low_effects), dict(lib_modifier_effects),
+	             snp_total_counts)
 	lib_effect.append(lib_tuple)
-	lib_total += lib_total_counts[4]
+	# lib_total += lib_total_counts[4]
 
 	return render_to_response('snpdb/compare_libraries_search.html', {"library1": group1,
 	                                                        "library2": group2,
@@ -806,7 +783,7 @@ def compare_isec_search(request):
 	                                                        "lib1_moderate_effects": dict(lib_moderate_effects),
 	                                                        "lib1_modifier_effects": dict(lib_modifier_effects),
 	                                                        "lib1_low_effects": dict(lib_low_effects),
-	                                                        "lib1_total_counts": lib_total_counts,
+	                                                        "lib1_total_counts": snp_total_counts,
 	                                                        "lib1_total": lib_total,
 	                                                        "lib1_effect": lib_effect,
 	                                                        "add_code": group1,
@@ -823,6 +800,8 @@ def bcftools_isec(library_path, output_dir, number_collapse):
 	for each in library_path:
 		zips = str(each) + '.gz'
 		zip_vcf += ' ' + zips
+
+	print zip_vcf
 
 	p = subprocess.Popen(["""bcftools isec -n=%d -p %s -c some %s""" % (number_collapse, output_dir, zip_vcf)], shell=True, stdout=subprocess.PIPE)
 	p.communicate()
