@@ -23,7 +23,7 @@
             <div class="panel-heading"  style="background-color: #616770; color: white; border-color:#616770">
                 <h4 class="panel-title">
                     <div>{{gene_name|effect_type_title}} <a class="pull-right" href="http://tritrypdb.org/tritrypdb/showRecord.do?name=GeneRecordClasses.GeneRecordClass&source_id={{gene_id}}&project_id=TriTrypDB" target=_blank>More info at TriTrypDb</a></div>
-                    <div><span style="font-size:10pt">#High Impact: {{high_ct}}</span>  <span style="padding-left:68px; font-size:10pt"> #Moderate Impact: {{moderate_ct}} </span> <span style="padding-left:68px; font-size:10pt">#Low Impact: {{low_ct}}</span></div>
+                    <div><span style="font-size:10pt">#Changes to CDS Length: {{high_ct}}</span>  <span style="padding-left:68px; font-size:10pt"> #Non-Synonymous Changes: {{moderate_ct}} </span> <span style="padding-left:68px; font-size:10pt">#Synonymous Changes: {{low_ct}}</span></div>
                 </h4>
             </div>
             <div id="collapseOne" class="panel-collapse collapse in">
@@ -31,41 +31,20 @@
                     <div id="collapseOne" class="panel-collapse">
                         {% for each in snp_list %}
                             <ul class="list-group">
-                                <li class="list-group-item">{{each.5|effect_type_title}} at position {{each.0}} (bp)</li>
-                                <li class="list-group-item"><strong>Reference Allele <span class="glyphicon glyphicon-arrow-right"></span>  Alternate Allele:</strong> {{each.1}} <span class="glyphicon glyphicon-arrow-right"></span> {{each.2}}</li>
-                                <li class="list-group-item">{{percent_gene|floatformat:-4}}% of Gene Effected </li>
-                                <li class="list-group-item"><div>(If applicable) Group 1 <span class="glyphicon glyphicon-arrow-right"></span> Gain of Function</div> <div>(If applicable)  Group 2 <span class="glyphicon glyphicon-arrow-right"></span>  Loss of Function </div></li>
-                                <li class="list-group-item">Is WT allele different from reference at this position? </li>
+                                <li class="list-group-item">{{each.effect|effect_type_title}} at position {{each.position}} (bp)</li>
+                                <li class="list-group-item"><strong>Reference Allele <span class="glyphicon glyphicon-arrow-right"></span>  Alternate Allele:</strong> {{each.ref}} <span class="glyphicon glyphicon-arrow-right"></span> {{each.alt}}</li>
+                                <li class="list-group-item">{{each.percent_impacted|floatformat:-4}}% of Gene Effected </li>
+
+                                {% if each.gain_of_function == "True" %}
+                                    <li class="list-group-item"><div>Impact causes a Loss of Function</div></li>
+                                {% endif %}
+
+                                {% if "No SNP" not in wt %}
+                                    <li class="list-group-item list-group-item-warning">The WT allele is different from the reference allele at this position</li>
+                                {% endif %}
                             </ul>
                         {% endfor %}
                     </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <a class="btn btn-primary" data-toggle="collapse" href="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">Gene ID</a>
-    <div class="panel-group" id="accodian">
-        <div class="panel panel-default">
-            <div class="panel-heading" style="background-color: #616770; color: white">
-                <h4 class="panel-title">
-                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">
-                        Gene Name and Link to TriTryp
-                    </a>
-                </h4>
-            </div>
-            <div id="collapseTwo" class="panel-collapse collapse">
-                <div class="panel-body">
-                    <div id="collapseTwo" class="panel-collapse">
-                        <ul class="list-group">
-                            <li class="list-group-item">High Impact "\t" Moderate Impact "\t" Low Impact</li>
-                            <li class="list-group-item">High Impact "\t" Moderate Impact "\t" Low Impact</li>
-                            <li class="list-group-item">High Impact "\t" Moderate Impact "\t" Low Impact</li>
-                            <li class="list-group-item">High Impact "\t" Moderate Impact "\t" Low Impact</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
                 </div>
             </div>
         </div>

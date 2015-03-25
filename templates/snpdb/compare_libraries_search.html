@@ -26,24 +26,33 @@ Compare Across Libraries
 
 <div class="container-fluid" style="padding-bottom:30px">
     <div class="row">
-        <div class="col-md-3">
+        <div class="col-md-6">
             {% for x in lib1_effect %}
                 <div class="panel panel-primary" style="border-color: #616770;">
                     <div class="panel-heading" style="background-color: #616770; border-color:#616770; overflow: hidden">
-                        <form id="form1" action="/snpdb/impact-snps/search" method="get">
-                            <button type="submit" class="btn btn-default btn-xs pull-right" style="margin-left:0px; width:50px; padding:0px">View</button>
-                            <h3 class="panel-title">High Impact</h3>
-                            <input type="hidden" name="analysis_path" value="{{analysis_path}}" />
-                            <input type="hidden" name="impact" value="HIGH" />
-                            <input type="hidden" name="add" value="{{add_code}}" />
-                            <input type="hidden" name="neg" value="{{neg_code}}" />
-                            <input type="hidden" name="library" value="{{library1}}" />
-                            <input type="hidden" name="wt" value="{{wt}}" />
-                            <input type="hidden" name="file" value="vcf-contrast.vcf" />
-                            <input type="hidden" name="high_ct" value="{{x.4.0}}" />
-                            <input type="hidden" name="moderate_ct" value="{{x.4.1}}" />
-                            <input type="hidden" name="low_ct" value="{{x.4.2}}" />
-                            <input type="hidden" name="counts" value="{{x.4}}" />
+                        <form class="form-inline" id="form1" action="/snpdb/impact-snps/search" method="get">
+                            <div class="form-group">
+                                <h3 class="panel-title">Changes to CDS Length</h3>
+                            </div>
+                            <div class="form-group pull-right">
+                                <div class="checkbox">
+                                    <label>
+                                        <input type="checkbox" name="consistent">Only display consistent results in groups
+                                    </label>
+                                </div>
+                                <button type="submit" class="btn btn-default btn-xs" style="margin-left:10px; width:50px; padding:0px">View</button>
+                                <input type="hidden" name="analysis_path" value="{{analysis_path}}" />
+                                <input type="hidden" name="impact" value="HIGH" />
+                                <input type="hidden" name="add" value="{{add_code}}" />
+                                <input type="hidden" name="neg" value="{{neg_code}}" />
+                                <input type="hidden" name="library" value="{{library1}}" />
+                                <input type="hidden" name="wt" value="{{wt}}" />
+                                <input type="hidden" name="file" value="vcf-contrast.vcf" />
+                                <input type="hidden" name="high_ct" value="{{x.4.0}}" />
+                                <input type="hidden" name="moderate_ct" value="{{x.4.1}}" />
+                                <input type="hidden" name="low_ct" value="{{x.4.2}}" />
+                                <input type="hidden" name="counts" value="{{x.4}}" />
+                             </div>
                         </form>
                     </div>
                     <div class="panel-body">
@@ -59,19 +68,33 @@ Compare Across Libraries
                 </div>
             {% endfor %}
         </div>
-        <div class="col-md-3">
+        <div class="col-md-6">
             {% for x in lib1_effect %}
                 <div class="panel panel-primary" style="border-color: #616770;">
                     <div class="panel-heading" style="background-color: #616770; border-color:#616770; overflow: hidden">
-                        <form id="form3" action="/snpdb/impact-snps/search" method="get">
-                            <button type="submit" class="btn btn-default btn-xs pull-right" style="margin-left:0px; width:50px; padding:0px">View</button>
-                            <h3 class="panel-title">Moderate Impact</h3>
-                            <input type="hidden" name="analysis_path" value="{{analysis_path}}" />
-                            <input type="hidden" name="impact" value="MODERATE" />
-                            <input type="hidden" name="add" value="{{add_code}}" />
-                            <input type="hidden" name="neg" value="{{neg_code}}" />
-                            <input type="hidden" name="wt" value="{{wt}}" />
-                            <input type="hidden" name="file" value="vcf-contrast.vcf" />
+                        <form id="form3" class="form-inline" action="/snpdb/impact-snps/search" method="get">
+                            <div class="form-group">
+                                <h3 class="panel-title">Non-Synonymous Changes</h3>
+                            </div>
+                             <div class="form-group pull-right">
+                                <div class="checkbox">
+                                    <label>
+                                        <input type="checkbox" name="consistent">Only display consistent results in groups
+                                    </label>
+                                </div>
+                                <button type="submit" class="btn btn-default btn-xs pull-right" style="margin-left:10px; width:50px; padding:0px">View</button>
+                                <input type="hidden" name="analysis_path" value="{{analysis_path}}" />
+                                <input type="hidden" name="impact" value="MODERATE" />
+                                <input type="hidden" name="add" value="{{add_code}}" />
+                                <input type="hidden" name="neg" value="{{neg_code}}" />
+                                <input type="hidden" name="library" value="{{library1}}" />
+                                <input type="hidden" name="wt" value="{{wt}}" />
+                                <input type="hidden" name="file" value="vcf-contrast.vcf" />
+                                <input type="hidden" name="high_ct" value="{{x.4.0}}" />
+                                <input type="hidden" name="moderate_ct" value="{{x.4.1}}" />
+                                <input type="hidden" name="low_ct" value="{{x.4.2}}" />
+                                <input type="hidden" name="counts" value="{{x.4}}" />
+                            </div>
                         </form>
                     </div>
                     <div class="panel-body">
@@ -87,19 +110,35 @@ Compare Across Libraries
                 </div>
             {% endfor %}
         </div>
-        <div class="col-md-3">
+    </div>
+    <div class="row">
+        <div class="col-md-6">
             {% for x in lib1_effect %}
                 <div class="panel panel-primary" style="border-color: #616770;">
                     <div class="panel-heading" style="background-color: #616770; border-color:#616770; overflow: hidden">
-                        <form id="form2" action="/snpdb/impact-snps/search" method="get">
-                            <button type="submit" class="btn btn-default btn-xs pull-right" style="margin-left:0px; width:50px; padding:0px">View</button>
-                            <h3 class="panel-title">Low Impact</h3>
-                            <input type="hidden" name="analysis_path" value="{{analysis_path}}" />
-                            <input type="hidden" name="impact" value="LOW" />
-                            <input type="hidden" name="add" value="{{add_code}}" />
-                            <input type="hidden" name="neg" value="{{neg_code}}" />
-                            <input type="hidden" name="wt" value="{{wt}}" />
-                            <input type="hidden" name="file" value="vcf-contrast.vcf" />
+                        <form id="form2" class="form-inline" action="/snpdb/impact-snps/search" method="get">
+                            <div class="form-group">
+                                <h3 class="panel-title">Synonymous Changes</h3>
+                            </div>
+                            <div class="form-group pull-right">
+                                <div class="checkbox">
+                                    <label>
+                                        <input type="checkbox" name="consistent">Only display consistent results in groups
+                                    </label>
+                                </div>
+                                <button type="submit" class="btn btn-default btn-xs pull-right" style="margin-left:10px; width:50px; padding:0px">View</button>
+                                <input type="hidden" name="analysis_path" value="{{analysis_path}}" />
+                                <input type="hidden" name="impact" value="LOW" />
+                                <input type="hidden" name="add" value="{{add_code}}" />
+                                <input type="hidden" name="neg" value="{{neg_code}}" />
+                                <input type="hidden" name="library" value="{{library1}}" />
+                                <input type="hidden" name="wt" value="{{wt}}" />
+                                <input type="hidden" name="file" value="vcf-contrast.vcf" />
+                                <input type="hidden" name="high_ct" value="{{x.4.0}}" />
+                                <input type="hidden" name="moderate_ct" value="{{x.4.1}}" />
+                                <input type="hidden" name="low_ct" value="{{x.4.2}}" />
+                                <input type="hidden" name="counts" value="{{x.4}}" />
+                            </div>
                         </form>
                     </div>
                     <div class="panel-body">
@@ -115,18 +154,33 @@ Compare Across Libraries
                 </div>
             {% endfor %}
         </div>
-        <div class="col-md-3">
+        <div class="col-md-6">
             {% for x in lib1_effect %}
                 <div class="panel panel-primary" style="border-color: #616770;">
                     <div class="panel-heading" style="background-color: #616770; border-color:#616770; overflow: hidden">
-                        <form id="form4" action="/snpdb/impact-snps/search" method="get">
-                            <button type="submit" class="btn btn-default btn-xs pull-right" style="margin-left:0px; width:50px; padding:0px">View</button>
-                            <h3 class="panel-title">Modifier Impact</h3>
-                            <input type="hidden" name="analysis_path" value="{{analysis_path}}" />
-                            <input type="hidden" name="impact" value="MODIFIER" />
-                            <input type="hidden" name="add" value="{{add_code}}" />
-                            <input type="hidden" name="neg" value="{{neg_code}}" />
-                            <input type="hidden" name="file" value="vcf-contrast.vcf" />
+                        <form id="form4" class="form-inline" action="/snpdb/impact-snps/search" method="get">
+                            <div class="form-group">
+                                <h3 class="panel-title">Non-CDS Changes</h3>
+                            </div>
+                            <div class="form-group pull-right">
+                                <div class="checkbox">
+                                    <label>
+                                        <input type="checkbox" name="consistent">Only display consistent results in groups
+                                    </label>
+                                </div>
+                                <button type="submit" class="btn btn-default btn-xs pull-right" style="margin-left:0px; width:50px; padding:0px">View</button>
+                                <input type="hidden" name="analysis_path" value="{{analysis_path}}" />
+                                <input type="hidden" name="impact" value="MODIFIER" />
+                                <input type="hidden" name="add" value="{{add_code}}" />
+                                <input type="hidden" name="neg" value="{{neg_code}}" />
+                                <input type="hidden" name="library" value="{{library1}}" />
+                                <input type="hidden" name="wt" value="{{wt}}" />
+                                <input type="hidden" name="file" value="vcf-contrast.vcf" />
+                                <input type="hidden" name="high_ct" value="{{x.4.0}}" />
+                                <input type="hidden" name="moderate_ct" value="{{x.4.1}}" />
+                                <input type="hidden" name="low_ct" value="{{x.4.2}}" />
+                                <input type="hidden" name="counts" value="{{x.4}}" />
+                            </div>
                         </form>
                     </div>
                     <div class="panel-body">
@@ -151,7 +205,7 @@ Compare Across Libraries
             <div class="panel-heading"  style="background-color: #616770; color: white; border-color:#616770">
                 <h4 class="panel-title">
                     <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
-                        High Impact
+                        Changes to CDS Length
                     </a>
                 </h4>
             </div>
@@ -176,7 +230,7 @@ Compare Across Libraries
             <div class="panel-heading" style="background-color: #616770; color: white">
                 <h4 class="panel-title">
                     <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">
-                        Moderate Impact
+                        Non-Synonymous Changes
                     </a>
                 </h4>
             </div>
@@ -201,7 +255,7 @@ Compare Across Libraries
             <div class="panel-heading"  style="background-color: #616770; color: white">
                 <h4 class="panel-title">
                     <a data-toggle="collapse" data-parent="#accordion" href="#collapseThree">
-                        Low Impact
+                        Synonymous Changes
                     </a>
                 </h4>
             </div>
@@ -226,7 +280,7 @@ Compare Across Libraries
             <div class="panel-heading"  style="background-color: #616770; color: white">
                 <h4 class="panel-title">
                     <a data-toggle="collapse" data-parent="#accordion" href="#collapseFour">
-                        Modifier Impact
+                        Non-CDS Changes
                     </a>
                 </h4>
             </div>

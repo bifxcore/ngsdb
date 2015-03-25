@@ -385,3 +385,10 @@ fieldset[disabled] .btn-panel.active {
     overflow: hidden;
 }
 
+
+
+.divider{
+    width:5px;
+    height:auto;
+    display:inline-block;
+}

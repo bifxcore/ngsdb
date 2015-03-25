@@ -24,29 +24,9 @@
 
 {% if ref_genome %}
     <div class="container-fluid" style="padding-bottom:30px">
-        <form id="form2" action="/snpdb/test" method="get">
+        <form id="form2" action="/snpdb/compare-libs/search" method="get">
             <div class="row">
-                <div class="col-md-4">
-                    <div class="panel panel-primary" style="border-color: #616770;">
-                        <div class="panel-heading" style="background-color: #616770; border-color:#616770; overflow: hidden">
-                            <h3 class="panel-title" style="text-align: center">Wildtype Library to Compare Against (Optional)</h3>
-                        </div>
-                        <div class="panel-body">
-                            <div class="row">
-                                {% for col in results|columns:4 %}
-                                    <div class="col-md-3">
-                                        {% for lib in col %}
-                                            <div class="item">
-                                                <input type="radio" name="wt" value="{{ lib.library_code }}"> {{lib.library_code}}
-                                            </div>
-                                        {% endfor %}
-                                     </div>
-                                {% endfor %}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
+                <div class="col-md-6">
                     <div class="panel panel-primary" style="border-color: #616770;">
                         <div class="panel-heading" style="background-color: #616770; border-color:#616770; overflow: hidden">
                             <h3 class="panel-title" style="text-align: center">Group 1</h3>
@@ -66,7 +46,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-6">
                     <div class="panel panel-primary" style="border-color: #616770;">
                         <div class="panel-heading" style="background-color: #616770; border-color:#616770; overflow: hidden">
                             <h3 class="panel-title" style="text-align: center">Group 2</h3>
@@ -78,6 +58,28 @@
                                         {% for lib in col %}
                                             <div class="item">
                                                 <input type="checkbox" name="check2" value="{{ lib.library_code }}"> {{lib.library_code}}
+                                            </div>
+                                        {% endfor %}
+                                     </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="panel panel-primary" style="border-color: #616770;">
+                        <div class="panel-heading" style="background-color: #616770; border-color:#616770; overflow: hidden">
+                            <h3 class="panel-title" style="text-align: center">Choose Library to display as Wildtype (Optional)</h3>
+                        </div>
+                        <div class="panel-body">
+                            <div class="row">
+                                {% for col in results|columns:4 %}
+                                    <div class="col-md-3">
+                                        {% for lib in col %}
+                                            <div class="item">
+                                                <input type="radio" name="wt" value="{{ lib.library_code }}"> {{lib.library_code}}
                                             </div>
                                         {% endfor %}
                                      </div>

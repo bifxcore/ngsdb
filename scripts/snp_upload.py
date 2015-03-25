@@ -12,11 +12,12 @@ import re
 import vcf
 import datetime
 import hashlib
-import os.path, time
+import os.path
+import time
 from django.core.files import File
 import subprocess
 
-dbh = psycopg2.connect(host='ngsdb', database='ngsdb03aa', user='ngsdb03', password='ngsdb03')
+dbh = psycopg2.connect(host='ngsdb', database='ngsdb03ac', user='ngsdb03', password='ngsdb03')
 cur = dbh.cursor()
 
 stat_cv = dict()
@@ -117,13 +118,12 @@ def insert_snp_results(snp_position, result_id, ref_base, alt_base, heterozygosi
 # Effects are collected from the INFO metadata where id=EFF.
 # Effect id will be pulled to fill in the effect table.
 def insert_effect_cv(effect_list):
-	eff_cv = re.findall('[\||\(][\s+](\w*)', effect_list)
-	for all_effect in eff_cv:
+	for all_effect in effect_list:
 		try:
-			if all_effect in effect_cv:
-				pass
-			else:
-				cur.execute('INSERT INTO "snpdb_effect_cv" (effect_name) VALUES (%s)', (all_effect,))
+			cur.execute('SELECT effect_name FROM "snpdb_effect_cv" WHERE effect_name = %s', (all_effect.strip(),))
+			effect = cur.fetchone()
+			if not effect:
+				cur.execute('INSERT INTO "snpdb_effect_cv" (effect_name) VALUES (%s)', (all_effect.strip(),))
 				dbh.commit()
 		except psycopg2.IntegrityError:
 			print "Effect cv rollback error"
@@ -132,32 +132,30 @@ def insert_effect_cv(effect_list):
 
 # Inserts the snp_effects for each snp. Each effect type is grouped using the group_id. Effect_id is specific to one vcf file.
 # May need to be adjusted in the future.
-def insert_effect(snp_id, effect_class, effect_strings, effect_group, effect_list):
-	effect = re.findall('[\||\(][\s+](\w*)', effect_list)
-	effect_position = 0
-	for effect_string in effect_strings:
-		if effect_string:
+def insert_effect(snp_id, effect_class, impact, effect_group, anns, eff_cv):
+	# if effect_string:
+	for i in range(0, len(anns)):
+		if anns[i]:
 			try:
-				cur.execute('SELECT effect_id FROM "snpdb_effect_cv" WHERE effect_name = %s', (effect[effect_position],))
+				cur.execute('SELECT effect_id FROM "snpdb_effect_cv" WHERE effect_name = %s', (eff_cv[i].strip(),))
 				effect_id = cur.fetchone()[0]
 				cur.execute('INSERT INTO "snpdb_effect" (snp_id, effect_id, effect_class, effect_string, effect_group) VALUES (%s, %s, %s, %s, %s)',
-				            (snp_id, effect_id, effect_class, effect_string, effect_group,))
+				            (snp_id, effect_id, effect_class, anns[i], effect_group,))
 				dbh.commit()
 			except psycopg2.IntegrityError:
 				print "no effect insert"
 				dbh.rollback()
-			effect_position += 1
 		else:
-			effect_position += 1
+			continue
 
 
 # Checks to see if the database contains the chromosome. If it does, the database connection is closed.
 # If the chromosome is not present, it is added into the database. This is done before adding any of the snp_results.
 def insert_chromosome(chromosome_name, organismcode, genome_version, genome_id):
 	for chrom in chromosome_name:
-		chromosome_fullname = chrom[0]
+		chromosome = chrom[0]
 		size = chrom[1]
-		chromosome = chromosome_fullname.split('_')[0]
+		# chromosome = chromosome_fullname.split('_')[0]
 		try:
 			cur.execute('SELECT chromosome_id FROM "snpdb_chromosome" WHERE chromosome_name = %s AND genome_version = %s AND genome_name_id=%s',
 			            (chromosome, genome_version, organismcode))
@@ -184,9 +182,9 @@ def insert_chromosome(chromosome_name, organismcode, genome_version, genome_id):
 # Identifies the chromosome ID if in the database. If not, prompts the user to add the chromosome.
 def get_chromosome_id(chromosome, genome_version):
 	try:
-		chromosome_name = chromosome.split('_')[0]
+		# chromosome_name = chromosome.split('_')[0]
 		cur.execute('SELECT chromosome_id FROM "snpdb_chromosome" WHERE chromosome_name = %s AND genome_version = %s',
-		            (chromosome_name, genome_version))
+		            (chromosome, genome_version))
 		chromosome_id = cur.fetchone()
 		if chromosome_id is not None:
 			return chromosome_id[0]
@@ -248,15 +246,17 @@ def insert_result_option2(result_ids, library_id, genome_id, author_id, analysis
 def get_result(library_id, genome_id, author_id, analysis_path):
 	timepoint = datetime.datetime.now()
 	try:
-		cur.execute('SELECT result_id FROM "ngsdbview_result_libraries" WHERE library_id = %s AND result_type_cv_id=2', (library_id,))
+		cur.execute('SELECT ngsdbview_result.result_id FROM "ngsdbview_result_libraries" JOIN ngsdbview_result ON ngsdbview_result_libraries.result_id = ngsdbview_result.result_id WHERE library_id = %s AND result_type_cv_id=2', (library_id,))
 		result_ids = cur.fetchall()
 		if result_ids:
-			user_opt = input("There is already a result_id attached to this library. Please choose one of the"
-			                 " following options."
-			                 "\n1. Quit"
-			                 "\n2. Override the old snp_results with these results. This will delete the old results. "
-			                 "\n3. Keep old results and add these results under a new result_id. "
-			                 "The old results will be marked as obsolete in the database. ")
+			user_opt=2
+			# user_opt = input("There is already a result_id attached to this library. Please choose one of the"
+			#                  " following options."
+			#                  "\n1. Quit"
+			#                  "\n2. Override the old snp_results with these results. This will delete the old results. "
+			#                  "\n3. Keep old results and add these results under a new result_id. "
+			#                  "The old results will be marked as obsolete in the database. ")
+
 			if user_opt == 1:
 				sys.exit("You have quit the program. SNP_Results were not uploaded into the database.")
 			elif user_opt == 2:
@@ -309,16 +309,19 @@ def get_library_id(librarycode):
 
 
 def insert_snp_statistics(snp_id, cv_name, cv_value):
-	try:
-		cvterm_id = stat_cv.get(cv_name)
-		if cvterm_id is not None:
-			cur.execute('INSERT INTO "snpdb_statistics" (snp_id, stats_cvterm_id, cv_value) VALUES (%s, %s, %s)',
-			            (snp_id, cv_name, cv_value))
-		else:
-			pass
-	except psycopg2.IntegrityError:
-		print "Inserting snp statistics rollback error"
-		dbh.rollback()
+	if cv_name == "ANN":
+		pass
+	else:
+		try:
+			cvterm_id = stat_cv.get(cv_name)
+			if cvterm_id is not None:
+				cur.execute('INSERT INTO "snpdb_statistics" (snp_id, stats_cvterm_id, cv_value) VALUES (%s, %s, %s)',
+				            (snp_id, cv_name, cv_value))
+			else:
+				pass
+		except psycopg2.IntegrityError:
+			print "Inserting snp statistics rollback error"
+			dbh.rollback()
 	dbh.commit()
 
 
@@ -342,7 +345,6 @@ def insert_filter_cv(filter_type):
 	try:
 		if filter_type:
 			filter_string = filter_type[0]
-			# filter_cv_id = filter_cv[filter_string]
 			filter_cv_id = filter_cv.get(filter_string)
 			if filter_cv_id is None:
 				cur.execute('INSERT INTO "snpdb_filter_cv" (filter_type) VALUES (%s) RETURNING "filter_cv_id"', (filter_string,))
@@ -373,7 +375,7 @@ def insert_vcf_file(library_id, result_id, vcf_file, vcf_path):
 		vcf_md5sum.update(line)
 	f.close()
 	project_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir)
-	vcf_name = os.path.join('/media/VCF_Files', os.path.basename(vcf_path))
+	vcf_name = os.path.join('media/VCF_Files', os.path.basename(vcf_path))
 	vcf_dir_path = os.path.join(project_dir, vcf_name)
 	modified_time = time.ctime(os.path.getmtime(vcf_path))
 	upload_time = str(datetime.datetime.now())
@@ -401,7 +403,7 @@ def insert_analysis(software_id, analysis_type, result_id, GATK_software_id, GAT
 
 def insert_analysis_prop(analysis_id, analysis_command):
 	cur.execute('INSERT INTO "ngsdbview_analysisprop" (analysis_id, cvterm_id, value) VALUES (%s, %s, %s)',
-		(analysis_id, 2, analysis_command))
+	            (analysis_id, 2, analysis_command))
 
 
 #todo Add command to upload analysis information
@@ -419,13 +421,13 @@ def main():
 		# collect and import vcf file.
 		vcf_reader = vcf.Reader(open(vcf_path, 'r'))
 		vcf_file = File(vcf_reader)
-		record = vcf_reader.next()
 
 		# Collects input from the user.
 		#--------------------------------------------------------------------
 
 		# Identifies the librarycode, librarycode, genome_id, and genome version,
-		librarycode = raw_input("Please state the librarycode. ")
+		# librarycode = raw_input("Please state the librarycode. ")
+		librarycode = "ES042"
 		try:
 			cur.execute('SELECT genome_id, organism_id, version FROM "ngsdbview_genome"s',
 			            (librarycode,))
@@ -442,9 +444,13 @@ def main():
 			print "Getting genome id rollback error"
 			dbh.rollback()
 
-		genome_id = raw_input("Please state the genome_id. ")
-		genome_version = raw_input("Please state the genome version. ")
-		analysis_path = raw_input("Please provide the full analysis path. ")
+		# genome_id = raw_input("Please state the genome_id. ")
+		# genome_version = raw_input("Please state the genome version. ")
+		# analysis_path = raw_input("Please provide the full analysis path. ")
+
+		genome_id = 22
+		genome_version = '5.0'
+		analysis_path = ""
 
 		# SQL Inserts and Selects
 		#----------------------------------------------------------------------
@@ -479,7 +485,6 @@ def main():
 		analysis_command = vcf_reader.metadata['SnpEffCmd'][0].strip('"')
 		software_algorithm = analysis_command.split()[0]
 		software_version = vcf_reader.metadata['SnpEffVersion'][0].strip('"').split()[0]
-		print "snp command: ", analysis_command
 
 		try:
 			cur.execute('SELECT software_id FROM "ngsdbview_software" WHERE name=%s AND version=%s and algorithm=%s',
@@ -517,15 +522,16 @@ def main():
 
 		# Inserts Effect types into effect_cv
 		try:
-			effect_list = vcf_reader.infos['EFF'].desc
-			insert_effect_cv(effect_list)
+			effect_list = info['ANN'].desc
+			eff_cv = re.findall("\'(.*)\'", effect_list)[0].split('|')
+
+			insert_effect_cv(eff_cv)
 		except KeyError:
 			print "There are no effects present."
-		#Attributes that are unique for each SNP.
+
+		# Attributes that are unique for each SNP.
 		for snps in vcf_reader:
 			chromosome = snps.CHROM
-			snp_iterator += 1
-			print snp_iterator
 			ref_base = snps.REF
 			alt_base = snps.ALT
 			quality = snps.QUAL
@@ -539,6 +545,8 @@ def main():
 			transition = snps.is_transition
 			statistics = snps.INFO
 
+			# snp_iterator += 1
+			# print snp_iterator
 
 			# Returns the heterozygosity of each snp.
 			samples = snps.samples
@@ -555,14 +563,15 @@ def main():
 
 			# Inserts effects on each SNP into Effect.
 			try:
-				effects = snps.INFO['EFF']
+				# print info
+				effects = snps.INFO['ANN']
 				group_id = 0
 				for effs in effects:
+					anns = effs.split('|')
+					effect_class = anns[1]
+					impact = anns[2]
+					insert_effect(snp_id, effect_class, impact, group_id, anns, eff_cv)
 					group_id += 1
-					effect_class = effs.split('(')[0]
-					effect_string = re.split('\((\S*\|\S*)\)', effs)[1]
-					effects_string = effect_string.split('|')
-					insert_effect(snp_id, effect_class, effects_string, group_id, effect_list)
 			except KeyError:
 				print "There are no effects."
 
@@ -580,9 +589,9 @@ def main():
 				filter_cv_id = insert_filter_cv(filter_type)
 				insert_filter(snp_id, filter_cv_id)
 
+
 	# NEED A STANDARD SUMMARY FILE
 	elif num_of_files == 2:
-		# collect and import vcf file.
 		pass
 
 	else:

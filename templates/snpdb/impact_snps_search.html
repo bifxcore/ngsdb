@@ -18,7 +18,7 @@
 <div class="container-fluid">
 	<div class="page-header text-header" style="padding-left:30px; margin-top:10px; padding-bottom:0px">
     	<h1 class="header" style="padding-bottom:0px;">SNP Summary</h1>
-    	<h2 class="header" style="padding-top:5px">There are {{ count }} results unique to {{lib}}. </h2>
+    	<h2 class="header" style="padding-top:5px">There are {{ count }} snps. </h2>
 	</div>
 </div>
 
@@ -43,7 +43,7 @@
                         <option value="quality">Quality</option>
                         <option value="chromosome">Chromosome</option>
                         <option value="impact">Impact</option>
-                        <option value="gene">Gene</option>
+                        <option value="gene">Gene ID</option>
                     </select>
                     <button class="btn btn-sample" type="submit"  style="margin-left:0px; width:75px; vertical-align:middle; padding: 0px">Search</button>
                 </div>
@@ -53,70 +53,74 @@
 </div>
 
 <div class="container-fluid" style="padding-bottom:30px">
-    <table class="table table-condensed" style="word-wrap: break-word; border-color: black">
+    <table class="table table-condensed" style="word-wrap: break-word; border-color: black; table-layout: fixed;">
         <tr>
             <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.chromosome }}>Chromosome</a></th>
             <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.0 }}>Position (bp)</a></th>
             <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.quality }}>Quality</a></th>
             <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.gene }}>Gene ID</a></th>
+            <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.effect }}>Product Name</a></th>
             <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.gene_length }}>Gene Length (aa)</a></th>
             <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.aa }}>Distance from Start Codon (aa)</a></th>
             <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.ref }}>Reference Base</a></th>
-            <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.wt_allele }}>Wildtype Base</a></th>
             {% for each in libraries %}
                 <th class="text-center custom-table" id={{each}}>
                     <div><a style="color: #e7e4db" href={{ filter_urls.library__library_code }}>{{each}}</a></div>
-                    <div><a style="color: #e7e4db" href={{ filter_urls.base_to_allele }}> Base to Allele</a></div>
-                    <div><a style="color: #e7e4db" href={{ filter_urls.impact }}>Effect Impact</a></div>
+                    <div><a style="color: #e7e4db; word-wrap:break-word" href={{ filter_urls.alt_allele }}>Alternate Allele</a></div>
                 </th>
             {% endfor %}
-            <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.effect }}>Gene Name</a></th>
+            <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.wt_allele }}>Wildtype Base</a></th>
         </tr>
+
         <tbody>
         {% for x in results %}
-                <tr>
-                    <td class="text-center" style="vertical-align: middle">{{ x.1.chromosome }}</td>
-                    <td class="text-center" style="vertical-align: middle">{{ x.0 }}</td>
-                    <td class="text-center" style=  "vertical-align: middle">{% for y in x.1.quality %}<div>{{ y }}</div>{% endfor %}</a></td>
-                    <td class="text-center" style="vertical-align: middle">
-                        {% for y in x.1.gene %}<div><a href="/snpdb/gene-snp-summary?geneid={{ y }}&length={{x.1.gene_length}}&add={{add}}&neg={{neg}}&analysis_path={{analysis_path}}">{{ y }}</a></div>{% endfor %}
-                    </td>
-                    <td class="text-center" style="vertical-align: middle">{{x.1.gene_length}}</td>
-                    <td class="text-center" style="vertical-align: middle">{{x.1.aa}}</td>
-                    <td class="text-center" style="vertical-align: middle">{% for y in x.1.ref %}<div>{{ y }}</div>{% endfor %}</a></td>
-                    <td class="text-center" style="vertical-align: middle">{% for y in x.1.wt_allele %}<div>{{ y }}</div>{% endfor %}</a></td>
-                    {% for k, v in x.1.library_alleles.items %}
-                        {% for lib in libraries %}
-                            {% with v|keyvalue:lib as dict %}
-                                {% if lib in neg %}
-                                    <td class="neg text-center" headers={{lib}}>
-                                        {% if "No SNP" in dict.ref %}
-                                            <div>No SNP</div>
-                                        {% else %}
-                                            <div>{% for each in dict.ref %}{{ each }}{% endfor %} <span class="glyphicon glyphicon-arrow-right"></span> {% for each in dict.alt %}{{ each }}{% endfor %}</div>
-                                            <div>{% for y in x.1.impact %}<div>{{ y|effect_type_title }}</div>{% endfor %}</div>
-                                        {% endif %}
-                                    </td>
+            <tr>
+                <td class="text-center" style="vertical-align: middle">{{ x.1.chromosome }}</td>
+                <td class="text-center" style="vertical-align: middle">{{ x.0 }}</td>
+                <td class="text-center" style=  "vertical-align: middle">{% for y in x.1.quality %}<div>{{ y }}</div>{% endfor %}</a></td>
+                <td class="text-center" style="vertical-align: middle">
+                    {% for y in x.1.gene %}<div><a href="/snpdb/gene-snp-summary?geneid={{ y }}&length={{x.1.gene_length}}&add={{add}}&neg={{neg}}&wt={{x.1.wt_allele}}&analysis_path={{analysis_path}}">{{ y }}</a></div>{% endfor %}
+                </td>
+                <td><div>{{ x.1.product|title }}</div></td>
+                <td class="text-center" style="vertical-align: middle">{% for y in x.1.gene_length %}<div>{{ y }}</div>{% endfor %}</td>
+                <td class="text-center" style="vertical-align: middle">{% for y in x.1.aa_from_start %}<div>{{ y }}{% endfor %}</td>
+                <td class="text-center" style="vertical-align: middle">{{ x.1.ref|joinby:", " }}</a></td>
+
+                {% for lib in libraries %}
+
+                    {% with x.1.library_alleles|keyvalue:lib as dict %}
+
+                        {% if lib in neg %}
+                            <td class="neg text-center" style="vertical-align: middle" headers={{lib}}>
+                                {% if "Ref" in dict.ref %}
+                                    <div>Ref</div>
                                 {% else %}
-                                    <td class="add text-center" headers={{lib}}>
-                                        {% if "No SNP" in dict.ref %}
-                                            <div>No SNP</div>
-                                        {% else %}
-                                            <div>{% for each in dict.ref %}{{ each }}{% endfor %} <span class="glyphicon glyphicon-arrow-right"></span> {% for each in dict.alt %}{{ each }}{% endfor %}</div>
-                                            <div>{% for y in x.1.impact %}<div>{{ y|effect_type_title }}</div>{% endfor %}</div>
-                                        {% endif %}
-                                    </td>
+                                    <div>{{ dict.alt|joinby:", " }}</div>
                                 {% endif %}
-                            {% endwith %}
-                        {% endfor %}
-                    {% endfor%}
-                    <td>{% for y in x.1.effect %}<div>{{ y|effect_type_title }}</div>{% endfor %}</td>
+                            </td>
+
+                        {% else %}
+                            <td class="add text-center" style="vertical-align: middle" headers={{lib}}>
+                                {% if "Ref" in dict.ref|joinby:", " %}
+                                    <div>Ref</div>
+                                {% else %}
+                                    <div>{{ dict.alt|joinby:", "}}</div>
+                                {% endif %}
+                            </td>
+                        {% endif %}
+
+                    {% endwith %}
+
+                {% endfor %}
+                <td class="text-center" style="vertical-align: middle">{% for y in x.1.wt_allele %}<div>{{ y }}</div>{% endfor %}</a></td>
         {% endfor %}
             </tr>
         </tbody>
     </table>
 </div>
 </body>
+
+
 
 {% if toolbar_max > 1 %}
     <div class="container-fluid">
