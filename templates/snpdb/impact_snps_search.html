@@ -44,7 +44,6 @@
                         <option value="chromosome">Chromosome</option>
                         <option value="impact">Impact</option>
                         <option value="gene">Gene ID</option>
-                        <option value="consistency">Consistency</option>
                     </select>
                     <button class="btn btn-sample" type="submit"  style="margin-left:0px; width:75px; vertical-align:middle; padding: 0px">Search</button>
                 </div>
@@ -70,12 +69,6 @@
                     <div><a style="color: #e7e4db; word-wrap:break-word" href={{ filter_urls.alt_allele }}>Alternate Allele</a></div>
                 </th>
             {% endfor %}
-            {% if add|length > 1 %}
-                <th class="text-center custom-table" id="group1_consistency"><a style="color: #e7e4db" href={{ filter_urls.group1_consistency }}>Group 1 Consistency</a></th>
-            {% endif %}
-            {% if neg|length > 1 %}
-                <th class="text-center custom-table" id="group2_consistency"><a style="color: #e7e4db" href={{ filter_urls.group2_consistency }}>Group 2 Consistency</a></th>
-            {% endif %}
             <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.wt_allele }}>Wildtype Base</a></th>
         </tr>
 
@@ -99,7 +92,7 @@
 
                         {% if lib in neg %}
                             <td class="neg text-center" style="vertical-align: middle" headers={{lib}}>
-                                {% if "No SNP" in dict.ref %}
+                                {% if "Ref" in dict.ref %}
                                     <div>Ref</div>
                                 {% else %}
                                     <div>{{ dict.alt|joinby:", " }}</div>
@@ -119,23 +112,6 @@
                     {% endwith %}
 
                 {% endfor %}
-
-                {% if add|length > 1 %}
-                    {% if x.1.group1_consistency %}
-                        <td class="text-center" style="vertical-align: middle; background-color:#ffff00">{{x.1.group1_consistency}}</td>
-                    {% else %}
-                        <td class="text-center" style="vertical-align: middle">{{x.1.group1_consistency}}</td>
-                    {% endif %}
-                {% endif %}
-
-                {% if neg|length > 1 %}
-                    {% if x.1.group2_consistency %}
-                        <td class="text-center" style="vertical-align: middle; background-color:#ffff00">{{x.1.group2_consistency}}</td>
-                    {% else %}
-                        <td class="text-center" style="vertical-align: middle">{{x.1.group2_consistency}}</td>
-                    {% endif %}
-                {% endif %}
-
                 <td class="text-center" style="vertical-align: middle">{% for y in x.1.wt_allele %}<div>{{ y }}</div>{% endfor %}</a></td>
         {% endfor %}
             </tr>
