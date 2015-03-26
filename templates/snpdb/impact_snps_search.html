@@ -35,7 +35,7 @@
                     <input type="hidden" name="add" value="{{add}}" />
                     <input type="hidden" name="neg" value="{{neg}}" />
                     <input type="hidden" name="wt" value="{{wt}}" />
-                    <input type="hidden" name="file" value="vcf-contrast.vcf" />
+                    <input type="hidden" name="genome_id" value="{{genome_id}}" />
                     <select class="selectpicker show-tick" data-style="btn-large btn-default" name="att" title='Search Option'>
                         <option value="0">SNP Position</option>
                         <option value="ref">Reference Base</option>
@@ -79,7 +79,7 @@
                 <td class="text-center" style="vertical-align: middle">{{ x.0 }}</td>
                 <td class="text-center" style=  "vertical-align: middle">{% for y in x.1.quality %}<div>{{ y }}</div>{% endfor %}</a></td>
                 <td class="text-center" style="vertical-align: middle">
-                    {% for y in x.1.gene %}<div><a href="/snpdb/gene-snp-summary?geneid={{ y }}&length={{x.1.gene_length}}&add={{add}}&neg={{neg}}&wt={{x.1.wt_allele}}&analysis_path={{analysis_path}}">{{ y }}</a></div>{% endfor %}
+                    {% for y in x.1.gene %}<div><a href="/snpdb/gene-snp-summary?geneid={{ y }}&length={{x.1.gene_length}}&add={{add}}&neg={{neg}}&wt={{x.1.wt_allele}}&analysis_path={{analysis_path}}&genome_id={{genome_id}}">{{ y }}</a></div>{% endfor %}
                 </td>
                 <td><div>{{ x.1.product|title }}</div></td>
                 <td class="text-center" style="vertical-align: middle">{% for y in x.1.gene_length %}<div>{{ y }}</div>{% endfor %}</td>

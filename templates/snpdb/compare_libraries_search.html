@@ -27,7 +27,7 @@ Compare Across Libraries
 <div class="container-fluid" style="padding-bottom:30px">
     <div class="row">
         <div class="col-md-6">
-            {% for x in lib1_effect %}
+            {% for x in lib_effect %}
                 <div class="panel panel-primary" style="border-color: #616770;">
                     <div class="panel-heading" style="background-color: #616770; border-color:#616770; overflow: hidden">
                         <form class="form-inline" id="form1" action="/snpdb/impact-snps/search" method="get">
@@ -43,11 +43,10 @@ Compare Across Libraries
                                 <button type="submit" class="btn btn-default btn-xs" style="margin-left:10px; width:50px; padding:0px">View</button>
                                 <input type="hidden" name="analysis_path" value="{{analysis_path}}" />
                                 <input type="hidden" name="impact" value="HIGH" />
-                                <input type="hidden" name="add" value="{{add_code}}" />
-                                <input type="hidden" name="neg" value="{{neg_code}}" />
-                                <input type="hidden" name="library" value="{{library1}}" />
+                                <input type="hidden" name="add" value="{{group1}}" />
+                                <input type="hidden" name="neg" value="{{group2}}" />
+                                <input type="hidden" name="libraries" value="{{lib}}" />
                                 <input type="hidden" name="wt" value="{{wt}}" />
-                                <input type="hidden" name="file" value="vcf-contrast.vcf" />
                                 <input type="hidden" name="high_ct" value="{{x.4.0}}" />
                                 <input type="hidden" name="moderate_ct" value="{{x.4.1}}" />
                                 <input type="hidden" name="low_ct" value="{{x.4.2}}" />
@@ -69,7 +68,7 @@ Compare Across Libraries
             {% endfor %}
         </div>
         <div class="col-md-6">
-            {% for x in lib1_effect %}
+            {% for x in lib_effect %}
                 <div class="panel panel-primary" style="border-color: #616770;">
                     <div class="panel-heading" style="background-color: #616770; border-color:#616770; overflow: hidden">
                         <form id="form3" class="form-inline" action="/snpdb/impact-snps/search" method="get">
@@ -85,11 +84,10 @@ Compare Across Libraries
                                 <button type="submit" class="btn btn-default btn-xs pull-right" style="margin-left:10px; width:50px; padding:0px">View</button>
                                 <input type="hidden" name="analysis_path" value="{{analysis_path}}" />
                                 <input type="hidden" name="impact" value="MODERATE" />
-                                <input type="hidden" name="add" value="{{add_code}}" />
-                                <input type="hidden" name="neg" value="{{neg_code}}" />
-                                <input type="hidden" name="library" value="{{library1}}" />
+                                <input type="hidden" name="add" value="{{group1}}" />
+                                <input type="hidden" name="neg" value="{{group2}}" />
+                                <input type="hidden" name="libraries" value="{{lib}}" />
                                 <input type="hidden" name="wt" value="{{wt}}" />
-                                <input type="hidden" name="file" value="vcf-contrast.vcf" />
                                 <input type="hidden" name="high_ct" value="{{x.4.0}}" />
                                 <input type="hidden" name="moderate_ct" value="{{x.4.1}}" />
                                 <input type="hidden" name="low_ct" value="{{x.4.2}}" />
@@ -113,7 +111,7 @@ Compare Across Libraries
     </div>
     <div class="row">
         <div class="col-md-6">
-            {% for x in lib1_effect %}
+            {% for x in lib_effect %}
                 <div class="panel panel-primary" style="border-color: #616770;">
                     <div class="panel-heading" style="background-color: #616770; border-color:#616770; overflow: hidden">
                         <form id="form2" class="form-inline" action="/snpdb/impact-snps/search" method="get">
@@ -129,11 +127,10 @@ Compare Across Libraries
                                 <button type="submit" class="btn btn-default btn-xs pull-right" style="margin-left:10px; width:50px; padding:0px">View</button>
                                 <input type="hidden" name="analysis_path" value="{{analysis_path}}" />
                                 <input type="hidden" name="impact" value="LOW" />
-                                <input type="hidden" name="add" value="{{add_code}}" />
-                                <input type="hidden" name="neg" value="{{neg_code}}" />
-                                <input type="hidden" name="library" value="{{library1}}" />
+                                <input type="hidden" name="add" value="{{group1}}" />
+                                <input type="hidden" name="neg" value="{{group2}}" />
+                                <input type="hidden" name="libraries" value="{{lib}}" />
                                 <input type="hidden" name="wt" value="{{wt}}" />
-                                <input type="hidden" name="file" value="vcf-contrast.vcf" />
                                 <input type="hidden" name="high_ct" value="{{x.4.0}}" />
                                 <input type="hidden" name="moderate_ct" value="{{x.4.1}}" />
                                 <input type="hidden" name="low_ct" value="{{x.4.2}}" />
@@ -155,7 +152,7 @@ Compare Across Libraries
             {% endfor %}
         </div>
         <div class="col-md-6">
-            {% for x in lib1_effect %}
+            {% for x in lib_effect %}
                 <div class="panel panel-primary" style="border-color: #616770;">
                     <div class="panel-heading" style="background-color: #616770; border-color:#616770; overflow: hidden">
                         <form id="form4" class="form-inline" action="/snpdb/impact-snps/search" method="get">
@@ -171,11 +168,10 @@ Compare Across Libraries
                                 <button type="submit" class="btn btn-default btn-xs pull-right" style="margin-left:0px; width:50px; padding:0px">View</button>
                                 <input type="hidden" name="analysis_path" value="{{analysis_path}}" />
                                 <input type="hidden" name="impact" value="MODIFIER" />
-                                <input type="hidden" name="add" value="{{add_code}}" />
-                                <input type="hidden" name="neg" value="{{neg_code}}" />
-                                <input type="hidden" name="library" value="{{library1}}" />
+                                <input type="hidden" name="add" value="{{group1}}" />
+                                <input type="hidden" name="neg" value="{{group2}}" />
+                                <input type="hidden" name="libraries" value="{{lib}}" />
                                 <input type="hidden" name="wt" value="{{wt}}" />
-                                <input type="hidden" name="file" value="vcf-contrast.vcf" />
                                 <input type="hidden" name="high_ct" value="{{x.4.0}}" />
                                 <input type="hidden" name="moderate_ct" value="{{x.4.1}}" />
                                 <input type="hidden" name="low_ct" value="{{x.4.2}}" />

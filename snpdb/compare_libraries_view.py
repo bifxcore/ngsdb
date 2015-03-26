@@ -61,8 +61,6 @@ def add_snps_from_vcf(vcf_file, libraries, group_libs, snp_dict, wt, impact):
 			else:
 				lib_dict[lib] = {'ref': set(["Ref"]), 'alt': set(["Ref"]), 'effect': set(["No Effect"])}
 
-		# print lib_dict
-
 		for x in effects:
 			data = x.split('|')
 			eff = data[1]
@@ -112,8 +110,7 @@ def add_snps_from_vcf(vcf_file, libraries, group_libs, snp_dict, wt, impact):
 					elif alt:
 						lib_dict[lib]['alt'].update([alt])
 						lib_dict[lib]['effect'] = set(eff)
-					# print sorted(lib_dict[lib]['alt'])
-					# lib_dict[lib]['alt'] = sorted(lib_dict[lib]['alt'])
+
 		if pos not in snp_dict:
 			snp = add_values_to_empty_dictionary(snp, record, alt, lib_dict, gene_length, impact, genes, wt_allele, product, aa_from_start, fmin, fmax)
 			snp_dict[pos] = dict(snp)
@@ -148,7 +145,7 @@ def add_snps_from_vcf(vcf_file, libraries, group_libs, snp_dict, wt, impact):
 				else:
 					snp_dict[pos]['ref'].add(ref)
 
-	return snp_dict
+	return [snp_dict, genome_id]
 
 # Returns the snp that are found from compare_libraries_search. Opens the vcf-contrast file.
 def impact_snps(request):
@@ -209,8 +206,10 @@ def impact_snps(request):
 
 	snp_dict = defaultdict(dict)
 
-	snp_dict = add_snps_from_vcf(output_path_0, libraries, group1, snp_dict, wt, impact)
-	snp_dict = add_snps_from_vcf(output_path_1, libraries, group2, snp_dict, wt, impact)
+	snp_dicts = add_snps_from_vcf(output_path_0, libraries, group1, snp_dict, wt, impact)
+	snp_dicts = add_snps_from_vcf(output_path_1, libraries, group2, snp_dicts[0], wt, impact)
+
+	genome_id = snp_dicts[1]
 
 	test_dict = dict(snp_dict)
 	if order_by == '0':
@@ -238,7 +237,7 @@ def impact_snps(request):
 	toolbar_min = max(results.number - 4, 0)
 	c = {"analysis_path": analysis_path, "paginator": paginator, "results": results, "libraries": libraries, "add": group1,
 	     "impact": impact, "neg": group2, "wt": wt, "high_ct": high_ct, "low_ct": low_ct, "moderate_ct":moderate_ct,
-	     "filter_urls": filter_urls, "toolbar_max": toolbar_max, "toolbar_min": toolbar_min, "count": count}
+	     "filter_urls": filter_urls, "toolbar_max": toolbar_max, "toolbar_min": toolbar_min, "count": count, "genome_id": genome_id}
 	return render_to_response('snpdb/impact_snps_search.html', c, context_instance=RequestContext(request))
 
 
@@ -450,18 +449,16 @@ def compare_isec_search(request):
 	             snp_total_counts)
 	lib_effect.append(lib_tuple)
 
-	return render_to_response('snpdb/compare_libraries_search.html', {"library1": group1,
-	                                                        "library2": group2,
+	return render_to_response('snpdb/compare_libraries_search.html', {"group1": group1,
+	                                                        "group2": group2,
 	                                                        "wt": wt,
-	                                                        "lib1_high_effects": dict(lib_high_effects),
-	                                                        "lib1_moderate_effects": dict(lib_moderate_effects),
-	                                                        "lib1_modifier_effects": dict(lib_modifier_effects),
-	                                                        "lib1_low_effects": dict(lib_low_effects),
-	                                                        "lib1_total_counts": snp_total_counts,
-	                                                        "lib1_total": lib_total,
-	                                                        "lib1_effect": lib_effect,
-	                                                        "add_code": group1,
-	                                                        "neg_code": group2,
+	                                                        "lib_high_effects": dict(lib_high_effects),
+	                                                        "lib_moderate_effects": dict(lib_moderate_effects),
+	                                                        "lib_modifier_effects": dict(lib_modifier_effects),
+	                                                        "lib_low_effects": dict(lib_low_effects),
+	                                                        "lib_total_counts": snp_total_counts,
+	                                                        "lib_total": lib_total,
+	                                                        "lib_effect": lib_effect,
 	                                                        "analysis_path": path})
 
 #Runs bcftools isec
@@ -486,32 +483,67 @@ def gene_snp_summary(request):
 	analysis_path = request.GET.get('analysis_path')
 	gene_length = ast.literal_eval(request.GET.get('length'))[0]
 	wt = request.GET.get('wt')
+	genome_id = request.GET.get('genome_id')
 
 	path_1 = os.path.join(analysis_path, "0000.vcf")
 	path_2 = os.path.join(analysis_path, "0001.vcf")
 
-
-	eff = Feature.objects.filter(featuretype='gene', geneid=gene_id).values('geneproduct')
 	try:
-		effs = str(eff[0]['geneproduct'])
+		product = Feature.objects.values_list('geneproduct', flat=True).filter(geneid=gene_id, featuretype='gene', genome_id=genome_id)[0]
 	except IndexError:
-		effs = "No Gene"
+		product = "No Gene"
 
-	print gene_id
+	try:
+		fmin = Feature.objects.values_list('fmin', flat=True).filter(geneid=gene_id, featuretype='CDS')[0]
+		fmax = Feature.objects.values_list('fmax', flat=True).filter(geneid=gene_id, featuretype='CDS')[0]
+	except IndexError:
+		try:
+			fmin = Feature.objects.filter(geneid=gene_id).filter(featuretype='gene').values_list('fmin', flat=True)[0]
+			fmax = Feature.objects.filter(geneid=gene_id).filter(featuretype='gene').values_list('fmax', flat=True)[0]
+		except IndexError:
+			fmin = 0
+			fmax = 0
+
+	snp_list = []
+
+	count_list_1 = get_impact_counts_for_gene(path_1, gene_id, gene_length, snp_list)
+
+	snp_list = count_list_1[0]
+	high_ct = count_list_1[1]
+	moderate_ct = count_list_1[2]
+	low_ct = count_list_1[3]
+
+	count_list_2 = get_impact_counts_for_gene(path_2, gene_id, gene_length, snp_list)
+
+	snp_list = count_list_2[0]
+	high_ct += count_list_2[1]
+	moderate_ct += count_list_2[2]
+	low_ct += count_list_2[3]
+
+	return render_to_response('snpdb/gene_snp_summary.html', {"gene_id": gene_id,
+	                                                          "wt": wt,
+	                                                          "gene_name": product,
+	                                                          "high_ct": high_ct,
+	                                                          "moderate_ct": moderate_ct,
+	                                                          "low_ct": low_ct,
+	                                                          "snp_list": snp_list,
+	                                                          "fmin": fmin,
+	                                                          "fmax": fmax,
+	                                                          }, context_instance=RequestContext(request))
+
+
+def get_impact_counts_for_gene(filepath, gene_id, gene_length, snp_list):
 
 	cmd = """cat %s | /usr/local/snpEff/scripts/vcfEffOnePerLine.pl | java -jar /usr/local/snpEff/SnpSift.jar filter "( ANN[*].GENEID = '%s') & ((ANN[*].IMPACT = 'HIGH') | (ANN[*].IMPACT = 'MODERATE'))" | java -jar /usr/local/snpEff/SnpSift.jar extractFields - POS REF ALT CHROM ANN[*].GENEID ANN[*].EFFECT QUAL ANN[*].AA ANN[*].IMPACT"""
 	cmd2 = """cat %s | /usr/local/snpEff/scripts/vcfEffOnePerLine.pl | java -jar /usr/local/snpEff/SnpSift.jar filter "( ANN[*].GENE = '%s') & (ANN[*].IMPACT = 'LOW')" | java -jar /usr/local/snpEff/SnpSift.jar extractFields - POS REF ALT CHROM ANN[*].GENE ANN[*].EFFECT QUAL ANN[*].AA ANN[*].IMPACT"""
-	snps = subprocess.Popen(cmd % (path_1, gene_id), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-	low_snps = subprocess.Popen(cmd2 % (path_1, gene_id), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+	snps = subprocess.Popen(cmd % (filepath, gene_id), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+	low_snps = subprocess.Popen(cmd2 % (filepath, gene_id), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
-	snp_list = []
 	high_ct = 0
 	moderate_ct = 0
 	low_ct = 0
 
 	for line in snps.stdout:
-		print "reading snps"
-		print line
 
 		snp_info = {}
 		if line.startswith('#POS'):
@@ -556,17 +588,9 @@ def gene_snp_summary(request):
 				moderate_ct += 1
 
 	for line in low_snps.stdout:
-
 		if line.startswith('#POS'):
 			pass
 		else:
 			low_ct += 1
 
-	return render_to_response('snpdb/gene_snp_summary.html', {"gene_id": gene_id,
-	                                                          "wt": wt,
-	                                                          "gene_name": effs,
-	                                                          "high_ct": high_ct,
-	                                                          "moderate_ct": moderate_ct,
-	                                                          "low_ct": low_ct,
-	                                                          "snp_list": snp_list,
-	                                                          }, context_instance=RequestContext(request))
+	return [snp_list, high_ct, moderate_ct, low_ct]
