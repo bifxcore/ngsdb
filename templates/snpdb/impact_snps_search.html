@@ -32,15 +32,15 @@
                     <input type="text" class="form-control" name="s" placeholder="search">
                     <input type="hidden" name="analysis_path" value="{{analysis_path}}" />
                     <input type="hidden" name="impact" value="{{impact}}" />
-                    <input type="hidden" name="add" value="{{add}}" />
-                    <input type="hidden" name="neg" value="{{neg}}" />
+                    {% for x in add %}<input type="hidden" name="add[]" value="{{x}}" /> {% endfor %}
+                    {% for x in neg %}<input type="hidden" name="neg[]" value="{{x}}" /> {% endfor %}
                     <input type="hidden" name="wt" value="{{wt}}" />
                     <input type="hidden" name="genome_id" value="{{genome_id}}" />
                     <select class="selectpicker show-tick" data-style="btn-large btn-default" name="att" title='Search Option'>
                         <option value="0">SNP Position</option>
                         <option value="ref">Reference Base</option>
                         <option value="alt">Alternative Base</option>
-                        <option value="quality">Quality</option>
+                        <option value="quality">SNP Quality</option>
                         <option value="chromosome">Chromosome</option>
                         <option value="impact">Impact</option>
                         <option value="gene">Gene ID</option>
@@ -58,7 +58,7 @@
             <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.chromosome }}>Chromosome</a></th>
             <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.0 }}>Position (bp)</a></th>
             <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.quality }}>Quality</a></th>
-            <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.gene }}>Gene ID</a></th>
+            <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.gene }}>Impacted Gene</a></th>
             <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.effect }}>Product Name</a></th>
             <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.gene_length }}>Gene Length (aa)</a></th>
             <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.aa }}>Distance from Start Codon (aa)</a></th>
@@ -77,7 +77,18 @@
             <tr>
                 <td class="text-center" style="vertical-align: middle">{{ x.1.chromosome }}</td>
                 <td class="text-center" style="vertical-align: middle">{{ x.0 }}</td>
-                <td class="text-center" style=  "vertical-align: middle">{% for y in x.1.quality %}<div>{{ y }}</div>{% endfor %}</a></td>
+
+
+                <td class="text-center" style=  "vertical-align: middle">
+                    {% for y in x.1.quality %}
+                        {% if y < 50 %}
+                            <div>{{ y }} <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span></div>
+                        {% else %}
+                            <div>{{ y }}</div>
+                        {% endif %}
+                    {% endfor %}
+                </a></td>
+
                 <td class="text-center" style="vertical-align: middle">
                     {% for y in x.1.gene %}<div><a href="/snpdb/gene-snp-summary?geneid={{ y }}&length={{x.1.gene_length}}&add={{add}}&neg={{neg}}&wt={{x.1.wt_allele}}&analysis_path={{analysis_path}}&genome_id={{genome_id}}">{{ y }}</a></div>{% endfor %}
                 </td>
