@@ -1,10 +1,192 @@
 <!DOCTYPE html>
-<html>
-<head lang="en">
-    <meta charset="UTF-8">
-    <title></title>
-</head>
-<body>
+<html lang="en">
 
-</body>
+
+{% extends "snpdb/dashboard.html" %}
+{% load columns %}
+{% load static %}
+
+{% block title %}
+    CNV Summary
+{% endblock %}
+
+{% block breadcrumbs %}
+{% endblock %}
+
+{% block bootstrap %}
+
+
+
+    {% if ref_genome %}
+        <div class="container-fluid" style="padding-bottom:30px">
+            <form id="form2" action="/snpdb/cnv" method="get">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="panel panel-primary" style="border-color: #616770;">
+                            <div class="panel-heading" style="background-color: #616770; border-color:#616770; overflow: hidden">
+                                <h3 class="panel-title" style="text-align: center">Choose Library to display CNV values</h3>
+                            </div>
+                            <div class="panel-body">
+                                <div class="row">
+                                    {% for col in results|columns:4 %}
+                                        <div class="col-md-3">
+                                            {% for lib in col %}
+                                                <div class="item">
+                                                    <input type="radio" name="library_code" value="{{ lib.library_code }}"> {{lib.library_code}}
+                                                </div>
+                                            {% endfor %}
+                                         </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="pull-left">
+                        <button type="submit" class="btn btn-sample btn-xs pull-right" style="margin-left:0px; width:50px; padding:0px">Search</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+    {% elif library_code %}
+        <div class="container-fluid">
+            <div class="page-header text-header" style="padding-left:30px; margin-top:10px; padding-bottom:0px">
+                <h1 class="header" style="padding-bottom:0px;">CNV Summary</h1>
+            </div>
+        </div>
+
+        <body>
+            <div class="container-fluid">
+                <div class="collapse navbar-collapse">
+                    <ul class="nav navbar-nav">
+                        <form class="form-inline navbar-left" role="form" id='search' action='/snpdb/cnv' style="padding-bottom: 30px;" method="get" style="padding-bottom:30px">
+                            <div class="form-group">
+                                <input type="text" class="form-control" name="s" placeholder="search">
+                                <select class="selectpicker show-tick" data-style="btn-large btn-default" name="att">
+                                    <option value="chromosome__chromosome_name">Chromosome</option>
+                                    <option value="library__library_code">Library</option>
+                                    <option value="start">Start</option>
+                                    <option value="stop">Stop</option>
+                                    <option value="coverage">Coverage</option>
+                                    <option value="cnv_Value">CNV Value</option>
+                                </select>
+                                <button class="btn btn-sample" type="submit"  style="margin-left:0px; width:75px; vertical-align:middle; padding: 0px">Search</button>
+                            </div>
+                        </form>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="container-fluid" style="padding-bottom:30px">
+                <table class="table table-condensed table-hover" style="table-layout: fixed; word-wrap: break-word;">
+                    <thead>
+                    <tr class="info">
+                        <th class="text-center"><a href={{ filter_urls.chromosome__chromosome_name }}>Chromosome</a></th>
+                        <th class="text-center"><a href={{ filter_urls.library__library_code }}>Library</a></th>
+                        <th class="text-center"><a href={{ filter_urls.start }}>Start</a></th>
+                        <th class="text-center"><a href={{ filter_urls.stop }}>Stop</a></th>
+                        <th class="text-center"><a href={{ filter_urls.coverage }}>Coverage</a></th>
+                        <th class="text-center">
+                            <a href={{ filter_urls.cnv_value }}>CNV
+                                <span class="label glyphicon glyphicon-info-sign" data-toggle="popover" data-placement="top"
+                                    data-content="Vivamus sagittis lacus vel augue laoreet rutrum faucibus."
+                                    title="CNV Information" style="color:#636469; font-size:16px">
+                                </span>
+                                <script>
+                                    $("[data-toggle=popover]").popover();
+                                </script>
+                            </a>
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        {% for each in cnvs %}
+                            <td class="text-center">{{ each.chromosome__chromosome_name }}</td>
+                            <td class="text-center">{{ each.library__library_code }}</td>
+                            <td class="text-center">{{ each.start }}</td>
+                            <td class="text-center">{{ each.stop }}</td>
+                            <td class="text-center">{{ each.coverage }}</td>
+                            <td class="text-center">{{ each.cnv_value }}</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </body>
+
+
+        {% if toolbar_max > 1 %}
+            <div class="container-fluid" style="padding-bottom: 30px">
+                <div class="ngsdb pagination" style="padding-left: 10px">
+                    <ul class="ngsdb">
+                        {% if cnvs.has_previous %}
+                            {% if selection %}
+                                <li><a href="?page={{ cnvs.previous_page_number }}&s={{filter_on}}&att={{selection}}">&laquo;</a></li>
+                            {% else %}
+                                <li><a href="?page={{ cnvs.previous_page_number }}">&laquo;</a></li>
+                            {% endif %}
+                        {% else %}
+                            <li class="disabled"><a href="#">&laquo;</a></li>
+                        {% endif %}
+
+                        {% for page in paginator.page_range %}
+                            {% if page <= toolbar_max and page > toolbar_min and page != cnvs.number %}
+                                {% if selection %}
+                                    <li><a href="?page={{ page }}&s={{filter_on}}&att={{selection}}">{{page}}</a></li>
+                                {% else %}
+                                    <li><a href="?page={{ page }}">{{page}}</a></li>
+                                {% endif %}
+                            {% elif page == cnvs.number %}
+                                {% if selection %}
+                                    <li class="active"><a href="?page={{ cnvs.number }}&s={{filter_on}}&att={{selection}}">{{cnvs.number}}</a></li>
+                                {% else %}
+                                    <li class="active"><a href="?page={{ cnvs.number }}">{{cnvs.number}}</a></li>
+                                {% endif %}
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if cnvs.has_next %}
+                           {% if selection %}
+                                <li><a href="?page={{ cnvs.next_page_number }}&s={{filter_on}}&att={{selection}}">&raquo;</a></li>
+                            {% else %}
+                                <li><a href="?page={{ cnvs.next_page_number }}">&raquo;</a></li>
+                            {% endif %}
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        {%endif%}
+
+    {% else %}
+        <div class="container-fluid" style="padding-bottom:30px">
+            <form id="form3" action="/snpdb/cnv" method="get">
+                    <div class="panel panel-primary" style="border-color: #616770;">
+                        <div class="panel-heading" style="background-color: #616770; border-color:#616770; overflow: hidden">
+                            <h3 class="panel-title" style="text-align: center">Choose a Reference Organism</h3>
+                        </div>
+                        <div class="panel-body">
+                            <div class="row-md-2">
+                                {% for col in results|columns:6 %}
+                                    <div class="col-md-2">
+                                        {% for organismcode in col %}
+                                            <div class="item"><input type="radio" name="ref_genome" value="{{ organismcode.organismcode }}"> {{organismcode.organismcode}} </div>
+                                        {% endfor %}
+                                    </div><!-- /col-md-4 -->
+                                {% endfor %}
+                            </div><!-- /row-md-2 -->
+                        </div>
+                    </div>
+                <div class="form-group">
+                    <div class="pull-left">
+                        <button type="submit" class="btn btn-sample btn-xs pull-right" style="margin-left:0px; width:50px; padding:0px">Search</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    {% endif %}
+
+{% endblock bootstrap %}
 </html>

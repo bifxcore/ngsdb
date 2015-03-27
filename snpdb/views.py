@@ -9,10 +9,8 @@ from django_boolean_sum import BooleanSum
 from utils import build_orderby_urls
 from GChartWrapper import *
 from collections import *
-import subprocess
 import os
 import csv
-import ast
 import PIL
 from PIL import Image
 
@@ -160,32 +158,64 @@ def snp_view(request):
 
 #Lists CNV values
 def cnv(request):
-	order_by = request.GET.get('order_by', 'cnv_id')
-	cnv_list = CNV.objects.all().order_by(order_by)
-	count = len(cnv_list)
-	paginator = Paginator(cnv_list, 50)
-	page = request.GET.get('page')
 
-	# Calls utils method to append new filters or order_by to the current url
-	filter_urls = build_orderby_urls(request.get_full_path(), ['cnv_id', 'chromosome__chromosome_name', 'coordinte',
-	                                                           'CNV_value', 'result_id', 'library__library_code'])
-	try:
-		cnvs = paginator.page(page)
-	except PageNotAnInteger:
-		cnvs = paginator.page(1)
-	except EmptyPage:
-		cnvs = paginator.page(paginator.num_pages)
+	ref_genome = request.GET.get('ref_genome')
+	library_code = request.GET.get('library_code')
 
-	toolbar_max = min(cnvs.number + 3, paginator.num_pages)
-	toolbar_min = max(cnvs.number - 3, 0)
+	if ref_genome:
+		lib_list = Library.objects.values('library_code',
+		                                  'result__genome__organism__organismcode').filter(result__genome__organism__organismcode=ref_genome).distinct().order_by('library_code')
 
-	return render_to_response('snpdb/CNV.html', {"cnvs": cnvs,
+	elif library_code:
+		order_by = request.GET.get('order_by', 'chromosome__chromosome_name')
+		cnv_list = CNV.objects.values('chromosome__chromosome_name', 'start', 'stop', 'cnv_value',
+		                              'coverage', 'library__library_code').filter(library__library_code=library_code).order_by(order_by)
+		count = len(cnv_list)
+		paginator = Paginator(cnv_list, 50)
+		page = request.GET.get('page')
+
+		# Calls utils method to append new filters or order_by to the current url
+		filter_urls = build_orderby_urls(request.get_full_path(), ['chromosome__chromosome_name', 'start', 'stop',
+		                                                           'cnv_value', 'coverage', 'library__library_code'])
+		try:
+			cnvs = paginator.page(page)
+		except PageNotAnInteger:
+			cnvs = paginator.page(1)
+		except EmptyPage:
+			cnvs = paginator.page(paginator.num_pages)
+
+		toolbar_max = min(cnvs.number + 3, paginator.num_pages)
+		toolbar_min = max(cnvs.number - 3, 0)
+
+		return render_to_response('snpdb/CNV.html', {"cnvs": cnvs,
+		                                             "library_code": library_code,
 	                                             "count": count,
 	                                             "filter_urls": filter_urls,
 	                                             "paginator": paginator,
 	                                             "toolbar_max": toolbar_max,
 	                                             "toolbar_min": toolbar_min})
 
+	else:
+		lib_list = Organism.objects.values('organismcode').distinct().order_by('organismcode')
+
+
+	page = request.GET.get('page')
+	paginator = Paginator(lib_list, 500)
+
+	try:
+		results = paginator.page(page)
+	except PageNotAnInteger:
+		results = paginator.page(1)
+	except EmptyPage:
+		results = paginator.page(paginator.num_pages)
+	toolbar_max = min(results.number + 4, paginator.num_pages)
+	toolbar_min = max(results.number - 4, 0)
+	return render_to_response('snpdb/CNV.html', {"results": results,
+	                                                           "ref_genome": ref_genome,
+	                                                           "paginator": paginator,
+	                                                           "toolbar_max": toolbar_max,
+	                                                           "toolbar_min": toolbar_min},
+	                          context_instance=RequestContext(request))
 
 # Returns the general SNP Type table view.
 def snp_type(request):
@@ -1018,6 +1048,65 @@ def gene_list(request):
 	                                                   "toolbar_max": toolbar_max,
 	                                                   "toolbar_min": toolbar_min})
 
+
+def compare_cnv_libraries(request):
+	ref_genome = request.GET.get('ref_genome')
+	library_code = request.GET.get('library_code')
+
+	if ref_genome:
+		lib_list = Library.objects.values('library_code',
+		                                  'result__genome__organism__organismcode').filter(result__genome__organism__organismcode=ref_genome).distinct().order_by('library_code')
+
+	elif library_code:
+		order_by = request.GET.get('order_by', 'chromosome__chromosome_name')
+		cnv_list = CNV.objects.values('chromosome__chromosome_name', 'start', 'stop', 'cnv_value',
+		                              'coverage', 'library__library_code').filter(library__library_code=library_code).order_by(order_by)
+		count = len(cnv_list)
+		paginator = Paginator(cnv_list, 50)
+		page = request.GET.get('page')
+
+		# Calls utils method to append new filters or order_by to the current url
+		filter_urls = build_orderby_urls(request.get_full_path(), ['chromosome__chromosome_name', 'start', 'stop',
+		                                                           'cnv_value', 'coverage', 'library__library_code'])
+		try:
+			cnvs = paginator.page(page)
+		except PageNotAnInteger:
+			cnvs = paginator.page(1)
+		except EmptyPage:
+			cnvs = paginator.page(paginator.num_pages)
+
+		toolbar_max = min(cnvs.number + 3, paginator.num_pages)
+		toolbar_min = max(cnvs.number - 3, 0)
+
+		return render_to_response('snpdb/compare_cnv_libraries.html', {"cnvs": cnvs,
+		                                             "library_code": library_code,
+	                                             "count": count,
+	                                             "filter_urls": filter_urls,
+	                                             "paginator": paginator,
+	                                             "toolbar_max": toolbar_max,
+	                                             "toolbar_min": toolbar_min})
+
+	else:
+		lib_list = Organism.objects.values('organismcode').distinct().order_by('organismcode')
+
+
+	page = request.GET.get('page')
+	paginator = Paginator(lib_list, 500)
+
+	try:
+		results = paginator.page(page)
+	except PageNotAnInteger:
+		results = paginator.page(1)
+	except EmptyPage:
+		results = paginator.page(paginator.num_pages)
+	toolbar_max = min(results.number + 4, paginator.num_pages)
+	toolbar_min = max(results.number - 4, 0)
+	return render_to_response('snpdb/compare_cnv_libraries.html', {"results": results,
+	                                                           "ref_genome": ref_genome,
+	                                                           "paginator": paginator,
+	                                                           "toolbar_max": toolbar_max,
+	                                                           "toolbar_min": toolbar_min},
+	                          context_instance=RequestContext(request))
 
 
 

@@ -18,7 +18,8 @@ from math import ceil
 def compare_libs(request):
 	ref_genome = request.GET.get('ref_genome')
 	if ref_genome:
-		lib_list = Library.objects.values('library_code', 'result__genome__organism__organismcode').filter(result__genome__organism__organismcode=ref_genome).distinct().order_by('library_code')
+		lib_list = Library.objects.values('library_code',
+		                                  'result__genome__organism__organismcode').filter(result__genome__organism__organismcode=ref_genome).distinct().order_by('library_code')
 	else:
 		lib_list = Organism.objects.values('organismcode').distinct().order_by('organismcode')
 	page = request.GET.get('page')
@@ -36,7 +37,8 @@ def compare_libs(request):
 	                                                           "ref_genome": ref_genome,
 	                                                           "paginator": paginator,
 	                                                           "toolbar_max": toolbar_max,
-	                                                           "toolbar_min": toolbar_min}, context_instance=RequestContext(request))
+	                                                           "toolbar_min": toolbar_min},
+	                          context_instance=RequestContext(request))
 
 
 def add_snps_from_vcf(vcf_file, libraries, group_libs, snp_dict, wt, impact):
@@ -70,16 +72,21 @@ def add_snps_from_vcf(vcf_file, libraries, group_libs, snp_dict, wt, impact):
 				gene = data[3]
 				genes.add(gene)
 
-				genome_id = SNP.objects.values_list('result__genome__genome_id', flat=True).filter(snp_position=pos, chromosome__chromosome_name=chrom, library__library_code__in=libraries)[0]
+				genome_id = SNP.objects.values_list('result__genome__genome_id', flat=True).filter(snp_position=pos,
+				                                                                                   chromosome__chromosome_name=chrom,
+				                                                                                   library__library_code__in=libraries)[0]
 
 				try:
-					product = Feature.objects.values_list('geneproduct', flat=True).filter(geneid=gene, featuretype='gene', genome_id=genome_id)[0]
+					product = Feature.objects.values_list('geneproduct', flat=True).filter(geneid=gene,
+					                                                                       featuretype='gene',
+					                                                                       genome_id=genome_id)[0]
 				except IndexError:
 					product = gene
 
 				try:
 					wt_allele = SNP.objects.filter(chromosome__chromosome_name__startswith=chrom,
-					                               snp_position=pos, library__library_code=wt).values_list('alt_base', flat=True)[0]
+					                               snp_position=pos,
+					                               library__library_code=wt).values_list('alt_base', flat=True)[0]
 				except IndexError:
 					wt_allele = "Ref"
 
@@ -146,6 +153,7 @@ def add_snps_from_vcf(vcf_file, libraries, group_libs, snp_dict, wt, impact):
 					snp_dict[pos]['ref'].add(ref)
 
 	return [snp_dict, genome_id]
+
 
 # Returns the snp that are found from compare_libraries_search. Opens the vcf-contrast file.
 def impact_snps(request):
@@ -346,7 +354,6 @@ def compare_isec_search(request):
 		#Runs bcftools isec on the previously created isec files
 		isec_paths = [group1_isec, group2_isec]
 
-
 		bcftools_isec(isec_paths, path, 1)
 
 	#Opens the returned vcf-contrast file and counts the data.
@@ -461,6 +468,7 @@ def compare_isec_search(request):
 	                                                                  "lib_effect": lib_effect,
 	                                                                  "analysis_path": path})
 
+
 #Runs bcftools isec
 def bcftools_isec(library_path, output_dir, number_collapse):
 	zip_vcf = ''
@@ -476,11 +484,9 @@ def bcftools_isec(library_path, output_dir, number_collapse):
 	p.wait()
 
 
-
 #Displays a more in depth view of high and moderate impacts on a specific gene.
 def gene_snp_summary(request):
 	gene_id = request.GET.get('geneid').encode("UTF8")
-	analysis_path = request.GET.get('analysis_path')
 	gene_length = ast.literal_eval(request.GET.get('length'))[0]
 	wt = request.GET.get('wt')
 	genome_id = request.GET.get('genome_id')
@@ -493,8 +499,7 @@ def gene_snp_summary(request):
 	library_id = Library.objects.values_list('id', flat=True).filter(library_code__in=libraries)
 	library_id = [id for id in library_id]
 
-	path_1 = os.path.join(analysis_path, "0000.vcf")
-	path_2 = os.path.join(analysis_path, "0001.vcf")
+	chrom = Feature.objects.values_list('chromosome', flat=True).filter(geneid=gene_id, genome_id=genome_id)[0]
 
 	try:
 		product = Feature.objects.values_list('geneproduct', flat=True).filter(geneid=gene_id, featuretype='gene', genome_id=genome_id)[0]
@@ -514,14 +519,14 @@ def gene_snp_summary(request):
 
 	snp_list = []
 
-	count_list_1 = get_impact_counts_for_gene(path_1, gene_id, gene_length, snp_list, library_id)
+	count_list_1 = get_impact_counts_for_gene(gene_id, gene_length, fmin, snp_list, library_id)
 
 	snp_list = count_list_1[0]
 	high_ct = count_list_1[1]
 	moderate_ct = count_list_1[2]
 	low_ct = count_list_1[3]
 
-	count_list_2 = get_impact_counts_for_gene(path_2, gene_id, gene_length, snp_list, library_id)
+	count_list_2 = get_impact_counts_for_gene(gene_id, gene_length, fmin, snp_list, library_id)
 
 	snp_list = count_list_2[0]
 	high_ct += count_list_2[1]
@@ -537,16 +542,18 @@ def gene_snp_summary(request):
 	                                                          "snp_list": snp_list,
 	                                                          "fmin": fmin,
 	                                                          "fmax": fmax,
+	                                                          "chrom": chrom,
 	                                                          }, context_instance=RequestContext(request))
 
 
-def get_impact_counts_for_gene(filepath, gene_id, gene_length, snp_list, libraries):
+def get_impact_counts_for_gene(gene_id, gene_length, start_pos, snp_list, libraries):
 
 	high_ct = 0
 	moderate_ct = 0
 	low_ct = 0
 
-	query = '''SELECT DISTINCT snpdb_effect.snp_id AS id, effect_class, effect_string, snp_position, ref_base, alt_base, library_id, chromosome_id, quality
+	query = '''SELECT DISTINCT snpdb_effect.snp_id AS id, effect_class, effect_string, snp_position, ref_base, alt_base,
+							   library_id, chromosome_id, quality
 		FROM snpdb_effect, snpdb_snp
 		WHERE snpdb_effect.snp_id IN (SELECT DISTINCT snpdb_snp.snp_id AS snps
   		FROM snpdb_snp, snpdb_effect
@@ -559,8 +566,7 @@ def get_impact_counts_for_gene(filepath, gene_id, gene_length, snp_list, librari
 		AND snpdb_effect.snp_id = snpdb_snp.snp_id'''.format(','.join(['%s' for x in range(len(libraries))]))
 
 	params = libraries + [gene_id]
-	qs = Effect.objects.raw(query,params)
-
+	qs = Effect.objects.raw(query, params)
 
 	for q in qs:
 		chrom = q.chromosome_id
@@ -569,15 +575,18 @@ def get_impact_counts_for_gene(filepath, gene_id, gene_length, snp_list, librari
 		effect_type = q.effect_class
 		quality = q.quality
 		impact = q.effect_string
-
-		snp_info = {}
+		pos = q.snp_position
+		aa_pos = int(math.ceil((pos - start_pos)/float(3)))
+		percent_impact = float((gene_length - float(aa_pos)) / gene_length) * 100
 
 		if len(ref) > len(alt):
 			gain_of_function = "True"
 		else:
 			gain_of_function = "False"
 
-		snp_info['position'] = q.snp_position
+		snp_info = {}
+
+		snp_info['position'] = pos
 		snp_info['ref'] = ref
 		snp_info['alt'] = alt
 		snp_info['chromosome'] = chrom
@@ -586,12 +595,8 @@ def get_impact_counts_for_gene(filepath, gene_id, gene_length, snp_list, librari
 		snp_info['impact'] = impact
 		snp_info['quality'] = quality
 		snp_info['effect'] = effect_type
-		# snp_info['aa_pos'] = aa_pos
-		# snp_info['percent_impacted'] = float( (gene_length - float(aa_pos)) / gene_length) * 100
-
-
-			# aa_pos = re.findall("(\d+)", aa_change)[0]
-
+		snp_info['aa_pos'] = aa_pos
+		snp_info['percent_impacted'] = percent_impact
 
 		if impact.strip() == "HIGH":
 			high_ct += 1
@@ -601,41 +606,5 @@ def get_impact_counts_for_gene(filepath, gene_id, gene_length, snp_list, librari
 			snp_list.append(snp_info)
 		elif impact.strip() == "LOW":
 			low_ct += 1
-
-	# for line in low_snps.stdout:
-	# 	if line.startswith('#POS'):
-	# 		pass
-	# 	else:
-	# 		low_ct += 1
-
-			# gene = snp[4]
-
-			# aa_change = snp[7]
-
-	# cmd = """cat %s | /usr/local/snpEff/scripts/vcfEffOnePerLine.pl | java -jar /usr/local/snpEff/SnpSift.jar filter "( ANN[*].GENEID = '%s') & ((ANN[*].IMPACT = 'HIGH') | (ANN[*].IMPACT = 'MODERATE'))" | java -jar /usr/local/snpEff/SnpSift.jar extractFields - POS REF ALT CHROM ANN[*].GENEID ANN[*].EFFECT QUAL ANN[*].AA ANN[*].IMPACT"""
-	# cmd2 = """cat %s | /usr/local/snpEff/scripts/vcfEffOnePerLine.pl | java -jar /usr/local/snpEff/SnpSift.jar filter "( ANN[*].GENE = '%s') & (ANN[*].IMPACT = 'LOW')" | java -jar /usr/local/snpEff/SnpSift.jar extractFields - POS REF ALT CHROM ANN[*].GENE ANN[*].EFFECT QUAL ANN[*].AA ANN[*].IMPACT"""
-	# snps = subprocess.Popen(cmd % (filepath, gene_id), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-	# low_snps = subprocess.Popen(cmd2 % (filepath, gene_id), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-	#
-
-	#
-	# for line in snps.stdout:
-	#
-	# 	if line.startswith('#POS'):
-	# 		continue
-	# 	else:
-	# 		snp = line.split('\t')
-	# 		print snp
-	# 		chrom = snp[3].split('_')[0]
-	# 		ref = snp[1]
-	# 		alt = snp[2]
-	# 		gene = snp[4]
-	# 		effect_type = snp[5]
-	# 		quality = snp[6]
-	# 		impact = snp[8]
-	# 		aa_change = snp[7]
-
-			# aa_pos = re.findall("(\d+)", aa_change)[0]
-
 
 	return [snp_list, high_ct, moderate_ct, low_ct]

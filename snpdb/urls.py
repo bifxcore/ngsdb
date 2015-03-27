@@ -34,6 +34,7 @@ urlpatterns = patterns('',
                       url(r'^gene-feature', 'snpdb.views.gene_feature'),
                       url(r'^chrom-region', 'snpdb.views.chrom_region'),
                       url(r'^snpdb-flowchart', 'snpdb.views.snpdb_flowchart'),
+                      url(r'^compare-cnv-libraries', 'snpdb.views.compare_cnv_libraries'),
 
 
                       # Basic Table Views: Currently not accessible to users as the information is not relevant to researchers.
@@ -43,5 +44,6 @@ urlpatterns = patterns('',
                       url(r'^snp','snpdb.views.snp_view'),
                       url(r'^statistics', 'snpdb.views.statistics'),
                       url(r'^contigs', 'snpdb.views.get_chromosome_size'),
+                      url(r'^cnv', 'snpdb.views.cnv'),
                       url(r'^$', 'snpdb.views.dashboard'),
                       )

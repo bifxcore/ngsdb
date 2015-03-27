@@ -11,7 +11,6 @@ class Chromosome(models.Model):
 	genome_version = models.CharField(max_length=50)
 
 
-#todo add index to effect_string
 class Effect(models.Model):
 	snp = models.ForeignKey('SNP')
 	effect = models.ForeignKey('Effect_CV')
@@ -107,6 +106,7 @@ class CNV(models.Model):
 	library = models.ForeignKey('samples.Library')
 	result = models.ForeignKey('ngsdbview.Result')
 	window_size = models.IntegerField()
+	cnv_type = models.ForeignKey('CNV_CV')
 
 
 class CNV_CV(models.Model):

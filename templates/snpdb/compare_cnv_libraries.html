@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+{% extends "snpdb/dashboard.html" %}
+{% load columns %}
+{% load static %}
+
+{% block title %}
+    CNV Summary
+{% endblock %}
+
+{% block breadcrumbs %}
+{% endblock %}
+
+{% block bootstrap %}
+
+    {% if ref_genome %}
+        <div class="container-fluid" style="padding-bottom:30px">
+            <form id="form2" action="/snpdb/compare-cnv-libraries" method="get">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="panel panel-primary" style="border-color: #616770;">
+                            <div class="panel-heading" style="background-color: #616770; border-color:#616770; overflow: hidden">
+                                <h3 class="panel-title" style="text-align: center">Choose Library to display CNV values</h3>
+                            </div>
+                            <div class="panel-body">
+                                <div class="row">
+                                    {% for col in results|columns:4 %}
+                                        <div class="col-md-3">
+                                            {% for lib in col %}
+                                                <div class="item">
+                                                    <input type="checkbox" name="check1" value="{{ lib.library_code }}"> {{lib.library_code}}
+                                                </div>
+                                            {% endfor %}
+                                         </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="pull-left">
+                        <button type="submit" class="btn btn-sample btn-xs pull-right" style="margin-left:0px; width:50px; padding:0px">Search</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+    {% elif library_code %}
+        <div class="container-fluid">
+            <div class="page-header text-header" style="padding-left:30px; margin-top:10px; padding-bottom:0px">
+                <h1 class="header" style="padding-bottom:0px;">CNV Summary</h1>
+            </div>
+        </div>
+
+
+    {% else %}
+        <div class="container-fluid" style="padding-bottom:30px">
+            <form id="form3" action="/snpdb/compare-cnv-libraries" method="get">
+                    <div class="panel panel-primary" style="border-color: #616770;">
+                        <div class="panel-heading" style="background-color: #616770; border-color:#616770; overflow: hidden">
+                            <h3 class="panel-title" style="text-align: center">Choose a Reference Organism</h3>
+                        </div>
+                        <div class="panel-body">
+                            <div class="row-md-2">
+                                {% for col in results|columns:6 %}
+                                    <div class="col-md-2">
+                                        {% for organismcode in col %}
+                                            <div class="item"><input type="radio" name="ref_genome" value="{{ organismcode.organismcode }}"> {{organismcode.organismcode}} </div>
+                                        {% endfor %}
+                                    </div><!-- /col-md-4 -->
+                                {% endfor %}
+                            </div><!-- /row-md-2 -->
+                        </div>
+                    </div>
+                <div class="form-group">
+                    <div class="pull-left">
+                        <button type="submit" class="btn btn-sample btn-xs pull-right" style="margin-left:0px; width:50px; padding:0px">Search</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    {% endif %}
+
+{% endblock bootstrap %}
+</html>
