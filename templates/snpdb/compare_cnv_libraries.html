@@ -5,6 +5,7 @@
 {% extends "snpdb/dashboard.html" %}
 {% load columns %}
 {% load static %}
+{% load get_param %}
 
 {% block title %}
     CNV Summary
@@ -48,12 +49,72 @@
             </form>
         </div>
 
-    {% elif library_code %}
+    {% elif library_codes %}
         <div class="container-fluid">
             <div class="page-header text-header" style="padding-left:30px; margin-top:10px; padding-bottom:0px">
                 <h1 class="header" style="padding-bottom:0px;">CNV Summary</h1>
             </div>
         </div>
+
+
+        <div class="container-fluid" style="padding-bottom:30px">
+            <form class="form-inline" role="form" id='compare_libs' action="/snpdb/compare-gene-lib-filter/search" method="get">
+                <table class="table table-condensed table-hover table-responsive table-bordered" name="result_table" style="table-layout: fixed; word-wrap: break-word;">
+                    <thead>
+                    <tr>
+                        <th class="text-center" id="gene"><a href={{ filter_urls.gene }}>Start</a></th>
+                        <th class="text-center" id="fmin"><a href={{ filter_urls.fmin.fmin }}>Stop</a></th>
+                        <th class="text-center" id="fmax"><a href={{ filter_urls.fmax.fmax }}>Chromosome (somy coverage)</a></th>
+                        {% for each in library_codes %}
+                            <th class="text-center" id={{each}}>
+                                <div><a href={{ filter_urls.library__library_code }}>{{each}}</a></div>
+                                <div><a href={{ filter_urls.cnv_value }}>CNV (Read depth)</a></div>
+                            </th>
+                        {% endfor %}
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        {% for each in cnvs %}
+                            <td class="text-center" headers="gene">{{ each.1.start }}</td>
+                            <td class="text-center" headers="fmin">{{ each.1.stop }}</td>
+                            <td class="text-center" headers="fmax">{{ each.1.chromosome }} (somy value)</td>
+                            {% for x in library_codes %}
+                                <td class="text-center" headers="{{x}}">{{each.1|keyvalue:x|keyvalue:'cnv'}} ({{each.1|keyvalue:x|keyvalue:'coverage'}})</td>
+                            {% endfor %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </form>
+        </div>
+
+
+        {% if toolbar_max > 1 %}
+            <div class="container-fluid" style="padding-bottom: 30px">
+                <div class="ngsdb pagination" style="padding-left: 10px">
+                    <ul class="ngsdb">
+                        {% if cnvs.has_previous %}
+                            <li><a href="?{% add_get_param request 'page' cnvs.previous_page_number %}">&laquo;</a></li>
+                        {% else %}
+                            <li class="disabled"><a href="#">&laquo;</a></li>
+                        {% endif %}
+
+                        {% for page in cnvs.paginator.page_range %}
+                            {% if page <= toolbar_max and page > toolbar_min and page != cnvs.number %}
+                                <li><a href="?{% add_get_param request 'page' page %}">{{page}}</a></li>
+                            {% elif page == cnvs.number %}
+                                <li class="active"><a href="?{% add_get_param request 'page' cnvs.number %}">{{cnvs.number}}</a></li>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if cnvs.has_next %}
+                            <li><a href="?{% add_get_param request 'page' cnvs.next_page_number %}">&raquo;</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        {% endif %}
 
 
     {% else %}

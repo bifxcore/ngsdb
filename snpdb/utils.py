@@ -25,9 +25,4 @@ def integer_filters(results_list, filter_by, selection):
         field = each[0]
         if bool(re.search(filter_by, str(field))):
             return_list.append(field)
-    print return_list
     return return_list
-
-#
-# def subtract_values(arg1, arg2):
-#     return abs(arg1-arg2)

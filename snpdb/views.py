@@ -189,11 +189,11 @@ def cnv(request):
 
 		return render_to_response('snpdb/CNV.html', {"cnvs": cnvs,
 		                                             "library_code": library_code,
-	                                             "count": count,
-	                                             "filter_urls": filter_urls,
-	                                             "paginator": paginator,
-	                                             "toolbar_max": toolbar_max,
-	                                             "toolbar_min": toolbar_min})
+		                                             "count": count,
+		                                             "filter_urls": filter_urls,
+		                                             "paginator": paginator,
+		                                             "toolbar_max": toolbar_max,
+		                                             "toolbar_min": toolbar_min})
 
 	else:
 		lib_list = Organism.objects.values('organismcode').distinct().order_by('organismcode')
@@ -211,10 +211,10 @@ def cnv(request):
 	toolbar_max = min(results.number + 4, paginator.num_pages)
 	toolbar_min = max(results.number - 4, 0)
 	return render_to_response('snpdb/CNV.html', {"results": results,
-	                                                           "ref_genome": ref_genome,
-	                                                           "paginator": paginator,
-	                                                           "toolbar_max": toolbar_max,
-	                                                           "toolbar_min": toolbar_min},
+	                                             "ref_genome": ref_genome,
+	                                             "paginator": paginator,
+	                                             "toolbar_max": toolbar_max,
+	                                             "toolbar_min": toolbar_min},
 	                          context_instance=RequestContext(request))
 
 # Returns the general SNP Type table view.
@@ -1051,23 +1051,42 @@ def gene_list(request):
 
 def compare_cnv_libraries(request):
 	ref_genome = request.GET.get('ref_genome')
-	library_code = request.GET.get('library_code')
+	library_codes = request.GET.getlist('check1')
 
 	if ref_genome:
 		lib_list = Library.objects.values('library_code',
 		                                  'result__genome__organism__organismcode').filter(result__genome__organism__organismcode=ref_genome).distinct().order_by('library_code')
 
-	elif library_code:
-		order_by = request.GET.get('order_by', 'chromosome__chromosome_name')
-		cnv_list = CNV.objects.values('chromosome__chromosome_name', 'start', 'stop', 'cnv_value',
-		                              'coverage', 'library__library_code').filter(library__library_code=library_code).order_by(order_by)
-		count = len(cnv_list)
-		paginator = Paginator(cnv_list, 50)
-		page = request.GET.get('page')
+	elif library_codes:
+		result_list = CNV.objects.values('chromosome__chromosome_name', 'start', 'stop',
+		                                 'library__library_code', 'coverage', 'cnv_value').filter(library__library_code__in=library_codes)
+
+		cnv_dict = {}
+		#Checks to see if tuples have all libraries present. Inserts blank tuples if not.
+		for each in result_list:
+			pos = each['chromosome__chromosome_name'] + '_' + str(each['start'])
+
+			if pos in cnv_dict:
+				library_dict = {'cnv': each['cnv_value'], 'coverage': each['coverage']}
+
+				if each['library__library_code'] not in cnv_dict[pos]:
+					cnv_dict[pos][each['library__library_code'].encode('UTF8')] = library_dict
+
+			else:
+				library_dict = {each['library__library_code'].encode('UTF8'): {'cnv': each['cnv_value'], 'coverage': each['coverage']},
+				                'start': each['start'], 'stop': each['stop'], 'chromosome': each['chromosome__chromosome_name']}
+				cnv_dict[pos] = library_dict
+
+
+		cnvs = OrderedDict(sorted(cnv_dict.items(), key=lambda key: key[0]))
 
 		# Calls utils method to append new filters or order_by to the current url
 		filter_urls = build_orderby_urls(request.get_full_path(), ['chromosome__chromosome_name', 'start', 'stop',
 		                                                           'cnv_value', 'coverage', 'library__library_code'])
+
+		paginator = Paginator(cnvs.items(), 50)
+		page = request.GET.get('page')
+
 		try:
 			cnvs = paginator.page(page)
 		except PageNotAnInteger:
@@ -1075,16 +1094,15 @@ def compare_cnv_libraries(request):
 		except EmptyPage:
 			cnvs = paginator.page(paginator.num_pages)
 
-		toolbar_max = min(cnvs.number + 3, paginator.num_pages)
-		toolbar_min = max(cnvs.number - 3, 0)
+		toolbar_max = min(cnvs.number + 4, paginator.num_pages)
+		toolbar_min = max(cnvs.number - 4, 0)
 
 		return render_to_response('snpdb/compare_cnv_libraries.html', {"cnvs": cnvs,
-		                                             "library_code": library_code,
-	                                             "count": count,
-	                                             "filter_urls": filter_urls,
-	                                             "paginator": paginator,
-	                                             "toolbar_max": toolbar_max,
-	                                             "toolbar_min": toolbar_min})
+		                                                               "ref_genome": ref_genome,
+		                                                               "library_codes": library_codes,
+		                                                               "filter_urls": filter_urls,
+		                                                               "toolbar_max": toolbar_max,
+		                                                               "toolbar_min": toolbar_min}, context_instance=RequestContext(request))
 
 	else:
 		lib_list = Organism.objects.values('organismcode').distinct().order_by('organismcode')
@@ -1102,10 +1120,10 @@ def compare_cnv_libraries(request):
 	toolbar_max = min(results.number + 4, paginator.num_pages)
 	toolbar_min = max(results.number - 4, 0)
 	return render_to_response('snpdb/compare_cnv_libraries.html', {"results": results,
-	                                                           "ref_genome": ref_genome,
-	                                                           "paginator": paginator,
-	                                                           "toolbar_max": toolbar_max,
-	                                                           "toolbar_min": toolbar_min},
+	                                                               "ref_genome": ref_genome,
+	                                                               "paginator": paginator,
+	                                                               "toolbar_max": toolbar_max,
+	                                                               "toolbar_min": toolbar_min},
 	                          context_instance=RequestContext(request))
 
 
@@ -1241,7 +1259,7 @@ def snpdb_flowchart(request):
 	img.save(resize_image)
 	image_path = '/media/protocols/snp_flowchart_resize.png'
 	return render_to_response('snpdb/snp_detection_process.html', {"image_path": image_path},
-		                      context_instance=RequestContext(request))
+	                          context_instance=RequestContext(request))
 
 
 # Commands to save the snpdb dashboard pie-charts. Should be run after each vcf import.
