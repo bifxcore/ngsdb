@@ -56,12 +56,13 @@ def add_snps_from_vcf(vcf_file, libraries, group_libs, snp_dict, wt, impact):
 		sample = vcf_reader.samples[0]
 		hetero = False
 
+
 		lib_dict = {}
 		for lib in libraries:
 			if lib in group_libs:
-				lib_dict[lib] = {'ref': set(), 'alt': set(), 'effect': set()}
+				lib_dict[lib] = {'ref': set(), 'alt': set(), 'effect': set(), 'cnv': CNV.objects.values_list('cnv_value', flat=True).filter(library__library_code=lib, start__lte=pos, stop__gte=pos)[0]}
 			else:
-				lib_dict[lib] = {'ref': set(["Ref"]), 'alt': set(["Ref"]), 'effect': set(["No Effect"])}
+				lib_dict[lib] = {'ref': set(["Ref"]), 'alt': set(["Ref"]), 'effect': set(["No Effect"]), 'cnv': CNV.objects.values_list('cnv_value', flat=True).filter(library__library_code=lib, start__lte=pos, stop__gte=pos)[0]}
 
 		for x in effects:
 			data = x.split('|')
@@ -116,7 +117,7 @@ def add_snps_from_vcf(vcf_file, libraries, group_libs, snp_dict, wt, impact):
 
 					elif alt:
 						lib_dict[lib]['alt'].update([alt])
-						lib_dict[lib]['effect'] = set(eff)
+						lib_dict[lib]['effect'] = set([eff])
 
 		if pos not in snp_dict:
 			snp = add_values_to_empty_dictionary(snp, record, alt, lib_dict, gene_length, impact, genes, wt_allele, product, aa_from_start, fmin, fmax)
@@ -143,7 +144,7 @@ def add_snps_from_vcf(vcf_file, libraries, group_libs, snp_dict, wt, impact):
 
 					elif alt:
 						lib_dict[lib]['alt'].update([alt])
-						lib_dict[lib]['effect'] = set(eff)
+						lib_dict[lib]['effect'] = set([eff])
 
 
 			if ref not in snp_dict[pos]['ref']:

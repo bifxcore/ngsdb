@@ -67,6 +67,7 @@
                 <th class="text-center custom-table" id={{each}}>
                     <div><a style="color: #e7e4db" href={{ filter_urls.library__library_code }}>{{each}}</a></div>
                     <div><a style="color: #e7e4db; word-wrap:break-word" href={{ filter_urls.alt_allele }}>Alternate Allele</a></div>
+                    <div><a style="color: #e7e4db; word-wrap:break-word" href={{ filter_urls.alt_allele }}>(CNV Value)</a></div>
                 </th>
             {% endfor %}
             <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.wt_allele }}>Wildtype Base</a></th>
@@ -108,6 +109,7 @@
                                 {% else %}
                                     <div>{{ dict.alt|joinby:", " }}</div>
                                 {% endif %}
+                                ({{dict.cnv}})
                             </td>
 
                         {% else %}
@@ -117,6 +119,7 @@
                                 {% else %}
                                     <div>{{ dict.alt|joinby:", "}}</div>
                                 {% endif %}
+                                ({{dict.cnv}})
                             </td>
                         {% endif %}
 
