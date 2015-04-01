@@ -5,6 +5,9 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.template import RequestContext
 from django.db.models import *
 from django_boolean_sum import BooleanSum
+from operator import *
+import ast
+
 
 from utils import build_orderby_urls
 from GChartWrapper import *
@@ -1051,6 +1054,7 @@ def gene_list(request):
 def compare_cnv_libraries(request):
 	ref_genome = request.GET.get('ref_genome')
 	library_codes = request.GET.getlist('check1')
+	order_by = request.GET.get('order_by', 'chromosome').encode('UTF8')
 
 	if ref_genome:
 		lib_list = Library.objects.values('library_code',
@@ -1077,13 +1081,22 @@ def compare_cnv_libraries(request):
 				cnv_dict[pos] = library_dict
 
 
-		cnvs = OrderedDict(sorted(cnv_dict.items(), key=lambda key: key[0]))
+		# cnvs = OrderedDict(sorted(cnv_dict.items(), key=attrgetter(order_by, 'chromosome', 'start')))
+
+		cnvs = cnv_dict.items()
+		if order_by == 'cnv':
+			lib =request.GET.get('lib').encode('UTF8')
+			cnvs.sort(key=lambda (k, d): (d[lib][order_by], d['chromosome'], d['start'], ))
+			# print type(cnvs), type(cnv_dict.values())
+			# print cnv_dict.get
+		else:
+			cnvs.sort(key=lambda (k, d): (d[order_by], d['chromosome'], d['start'], ))
 
 		# Calls utils method to append new filters or order_by to the current url
-		filter_urls = build_orderby_urls(request.get_full_path(), ['chromosome__chromosome_name', 'start', 'stop',
-		                                                           'cnv_value', 'coverage', 'library__library_code'])
+		filter_urls = build_orderby_urls(request.get_full_path(), ['chromosome', 'start', 'stop',
+		                                                           'cnv', 'coverage', 'library', 'somy'])
 
-		paginator = Paginator(cnvs.items(), 50)
+		paginator = Paginator(cnvs, 50)
 		page = request.GET.get('page')
 
 		try:

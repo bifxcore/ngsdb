@@ -83,13 +83,13 @@
                 <table class="table table-condensed table-hover" style="table-layout: fixed; word-wrap: break-word;">
                     <thead>
                     <tr class="info">
-                        <th class="text-center"><a href={{ filter_urls.chromosome__chromosome_name }}>Chromosome</a></th>
+                        <th class="text-center"><a href={{ filter_urls.chromosome }}>Chromosome</a></th>
                         <th class="text-center"><a href={{ filter_urls.library__library_code }}>Library</a></th>
                         <th class="text-center"><a href={{ filter_urls.start }}>Start</a></th>
                         <th class="text-center"><a href={{ filter_urls.stop }}>Stop</a></th>
                         <th class="text-center"><a href={{ filter_urls.coverage }}>Coverage</a></th>
                         <th class="text-center">
-                            <a href={{ filter_urls.cnv_value }}>CNV
+                            <a href={{ filter_urls.cnv }}>CNV
                                 <span class="label glyphicon glyphicon-info-sign" data-toggle="popover" data-placement="top"
                                     data-content="Vivamus sagittis lacus vel augue laoreet rutrum faucibus. Values between 1.75 and 2.25 are considered to be expected diploid values."
                                     title="CNV Information" style="color:#636469; font-size:16px">
@@ -110,9 +110,9 @@
                             <td class="text-center">{{ each.stop }}</td>
                             <td class="text-center">{{ each.coverage }}</td>
                             {% if each.cnv_value < 1.75 or each.cnv_value > 2.25 %}
-                                <td class="text-center danger">{{ each.cnv_value }}</td>
+                                <td class="text-center danger">{{ each.cnv_value|floatformat:2 }}</td>
                             {% else %}
-                                <td class="text-center">{{ each.cnv_value }}</td>
+                                <td class="text-center">{{ each.cnv_value|floatformat:2 }}</td>
                             {% endif %}
                     </tr>
                     {% endfor %}

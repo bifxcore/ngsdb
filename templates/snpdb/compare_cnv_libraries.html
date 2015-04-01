@@ -5,6 +5,7 @@
 {% extends "snpdb/dashboard.html" %}
 {% load columns %}
 {% load static %}
+{5 load snp_filters %}
 {% load get_param %}
 
 {% block title %}
@@ -62,14 +63,15 @@
                 <table class="table table-condensed table-hover table-responsive table-bordered" name="result_table" style="table-layout: fixed; word-wrap: break-word;">
                     <thead>
                     <tr>
-                        <th class="text-center" id="gene"><a href={{ filter_urls.gene }}>Start</a></th>
-                        <th class="text-center" id="fmin"><a href={{ filter_urls.fmin.fmin }}>Stop</a></th>
-                        <th class="text-center" id="fmax"><a href={{ filter_urls.fmax.fmax }}>Chromosome (somy coverage)</a></th>
+                        <th class="text-center" id="chromosome"><a href={{ filter_urls.chromosome }}>Chromosome</a></th>
+                        <th class="text-center" id="start"><a href={{ filter_urls.start }}>Start</a></th>
+                        <th class="text-center" id="stop"><a href={{ filter_urls.stop }}>Stop</a></th>
+                        <th class="text-center" id="somy"><a href={{ filter_urls.somy }}>Somy Coverage</a></th>
                         {% for each in library_codes %}
 
                             <th class="text-center">
-                                <div><a href={{ filter_urls.library__library_code }}>{{each}}</div>
-                                <div><a href={{ filter_urls.cnv_value }}>CNV (Read depth)
+                                <div id="{{each}}"><a href={{ filter_urls.library }}>{{each}}</div>
+                                <div id="cnv"><a href={{ filter_urls.cnv }}&lib={{each}}>CNV (Read depth)
                                     <span class="label glyphicon glyphicon-info-sign" data-toggle="popover" data-placement="top"
                                         data-content="Vivamus sagittis lacus vel augue laoreet rutrum faucibus. Values between 1.75 and 2.25 are considered to be expected diploid values."
                                         title="CNV Information" style="color:#636469; font-size:12px">
@@ -85,14 +87,15 @@
                     <tbody>
                     <tr>
                         {% for each in cnvs %}
-                            <td class="text-center" headers="gene">{{ each.1.start }}</td>
-                            <td class="text-center" headers="fmin">{{ each.1.stop }}</td>
-                            <td class="text-center" headers="fmax">{{ each.1.chromosome }} (somy value)</td>
+                            <td class="text-center" headers="chromosome">{{ each.1.chromosome }}</td>
+                            <td class="text-center" headers="start">{{ each.1.start }}</td>
+                            <td class="text-center" headers="stop">{{ each.1.stop }}</td>
+                            <td class="text-center" headers="somy">(somy value)</td>
                             {% for x in library_codes %}
                                 {% if each.1|keyvalue:x|keyvalue:'cnv' < 1.75 or each.1|keyvalue:x|keyvalue:'cnv' > 2.25 %}
-                                    <td class="text-center danger" headers="{{x}}">{{each.1|keyvalue:x|keyvalue:'cnv'}} ({{each.1|keyvalue:x|keyvalue:'coverage'}})</td>
+                                    <td class="text-center danger" headers="{{x}}">{{each.1|keyvalue:x|keyvalue:'cnv'|floatformat:2}} ({{each.1|keyvalue:x|keyvalue:'coverage'|floatformat}})</td>
                                 {% else %}
-                                    <td class="text-center" headers="{{x}}">{{each.1|keyvalue:x|keyvalue:'cnv'}} ({{each.1|keyvalue:x|keyvalue:'coverage'}})</td>
+                                    <td class="text-center" headers="{{x}}">{{each.1|keyvalue:x|keyvalue:'cnv'|floatformat:2}} ({{each.1|keyvalue:x|keyvalue:'coverage'|floatformat}})</td>
                                 {% endif %}
                             {% endfor %}
                         </tr>
