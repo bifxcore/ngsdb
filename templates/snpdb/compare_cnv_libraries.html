@@ -66,9 +66,18 @@
                         <th class="text-center" id="fmin"><a href={{ filter_urls.fmin.fmin }}>Stop</a></th>
                         <th class="text-center" id="fmax"><a href={{ filter_urls.fmax.fmax }}>Chromosome (somy coverage)</a></th>
                         {% for each in library_codes %}
-                            <th class="text-center" id={{each}}>
-                                <div><a href={{ filter_urls.library__library_code }}>{{each}}</a></div>
-                                <div><a href={{ filter_urls.cnv_value }}>CNV (Read depth)</a></div>
+
+                            <th class="text-center">
+                                <div><a href={{ filter_urls.library__library_code }}>{{each}}</div>
+                                <div><a href={{ filter_urls.cnv_value }}>CNV (Read depth)
+                                    <span class="label glyphicon glyphicon-info-sign" data-toggle="popover" data-placement="top"
+                                        data-content="Vivamus sagittis lacus vel augue laoreet rutrum faucibus. Values between 1.75 and 2.25 are considered to be expected diploid values."
+                                        title="CNV Information" style="color:#636469; font-size:12px">
+                                    </span>
+                                    <script>
+                                        $("[data-toggle=popover]").popover();
+                                    </script>
+                                </a></div>
                             </th>
                         {% endfor %}
                     </tr>
@@ -80,7 +89,11 @@
                             <td class="text-center" headers="fmin">{{ each.1.stop }}</td>
                             <td class="text-center" headers="fmax">{{ each.1.chromosome }} (somy value)</td>
                             {% for x in library_codes %}
-                                <td class="text-center" headers="{{x}}">{{each.1|keyvalue:x|keyvalue:'cnv'}} ({{each.1|keyvalue:x|keyvalue:'coverage'}})</td>
+                                {% if each.1|keyvalue:x|keyvalue:'cnv' < 1.75 or each.1|keyvalue:x|keyvalue:'cnv' > 2.25 %}
+                                    <td class="text-center danger" headers="{{x}}">{{each.1|keyvalue:x|keyvalue:'cnv'}} ({{each.1|keyvalue:x|keyvalue:'coverage'}})</td>
+                                {% else %}
+                                    <td class="text-center" headers="{{x}}">{{each.1|keyvalue:x|keyvalue:'cnv'}} ({{each.1|keyvalue:x|keyvalue:'coverage'}})</td>
+                                {% endif %}
                             {% endfor %}
                         </tr>
                         {% endfor %}

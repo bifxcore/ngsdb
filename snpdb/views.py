@@ -169,7 +169,7 @@ def cnv(request):
 	elif library_code:
 		order_by = request.GET.get('order_by', 'chromosome__chromosome_name')
 		cnv_list = CNV.objects.values('chromosome__chromosome_name', 'start', 'stop', 'cnv_value',
-		                              'coverage', 'library__library_code').filter(library__library_code=library_code).order_by(order_by)
+		                              'coverage', 'library__library_code').filter(library__library_code=library_code).order_by(order_by, 'chromosome__chromosome_name', 'start')
 		count = len(cnv_list)
 		paginator = Paginator(cnv_list, 50)
 		page = request.GET.get('page')
@@ -688,7 +688,6 @@ def gene_snps_filter(request):
 		cds_fmin = 0
 		cds_fmax = 0
 		pass
-	# chromosome = Feature.objects.values_list('chromosome', flat=True).filter(geneid=gene).filter(featuretype='gene')[0]
 	result_list = SNP.objects.values('library__library_code', 'result_id',
 	                                 'chromosome__chromosome_name', 'snp_id',
 	                                 'snp_position', 'ref_base',

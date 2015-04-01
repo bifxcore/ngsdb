@@ -108,6 +108,9 @@ class CNV(models.Model):
 	window_size = models.IntegerField()
 	cnv_type = models.ForeignKey('CNV_CV')
 
+	class Meta:
+		ordering = ('chromosome', 'start')
+
 
 class CNV_CV(models.Model):
 	cv_id = models.AutoField(primary_key=True)

@@ -91,7 +91,7 @@
                         <th class="text-center">
                             <a href={{ filter_urls.cnv_value }}>CNV
                                 <span class="label glyphicon glyphicon-info-sign" data-toggle="popover" data-placement="top"
-                                    data-content="Vivamus sagittis lacus vel augue laoreet rutrum faucibus."
+                                    data-content="Vivamus sagittis lacus vel augue laoreet rutrum faucibus. Values between 1.75 and 2.25 are considered to be expected diploid values."
                                     title="CNV Information" style="color:#636469; font-size:16px">
                                 </span>
                                 <script>
@@ -109,7 +109,11 @@
                             <td class="text-center">{{ each.start }}</td>
                             <td class="text-center">{{ each.stop }}</td>
                             <td class="text-center">{{ each.coverage }}</td>
-                            <td class="text-center">{{ each.cnv_value }}</td>
+                            {% if each.cnv_value < 1.75 or each.cnv_value > 2.25 %}
+                                <td class="text-center danger">{{ each.cnv_value }}</td>
+                            {% else %}
+                                <td class="text-center">{{ each.cnv_value }}</td>
+                            {% endif %}
                     </tr>
                     {% endfor %}
                     </tbody>
