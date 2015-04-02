@@ -36,42 +36,42 @@
 
     {% for pos in snp_list %}
         {% for key, values in pos.items %}
-        <div class="panel-group" id="accordion">
-            <div class="panel panel-default">
-                <div class="panel-heading"  style="background-color: #616770; color: white; border-color:#616770">
-                    <h4 class="panel-title">
-                        <a data-toggle="collapse" data-parent="#accordion" href="#{{key}}">
-                            {{key}} bp, {{values.aa_pos}} aa in protein <span style="padding-left:68px">{{values.effect|effect_type_title}} effecting {{values.percent_impacted|floatformat:-3}}% of gene</span>
-                        </a>
-                    </h4>
-                </div>
-                <div id={{key}} class="panel-collapse collapse">
-                    <div class="panel-body">
-                        <table class="table table-striped">
-                            <tr>
-                                <th> Library </th>
-                                <th> Ref <span class="glyphicon glyphicon-arrow-right"></span> Alt </th>
-                                <th> CNV Value </th>
-                                <th> Somy Value </th>
-                                <th> Loss of Function?</th>
-                            </tr>
-                            <tr>
-                                {% for lib in libraries %}
-                                    {% if lib in values %}
-                                        <td> {{lib}} </td>
-                                        <td> {{values|keyvalue:lib|keyvalue:'ref'}} <span class="glyphicon glyphicon-arrow-right"></span> {{values|keyvalue:lib|keyvalue:'alt'}} </td>
-                                        <td> {{values|keyvalue:lib|keyvalue:'cnv'|floatformat:2}}</td>
-                                        <td> {{values|keyvalue:lib|keyvalue:'somy'}} </td>
-                                        <td> {{ values|keyvalue:lib|keyvalue:'gain_of_function' }}</td>
-                                    {% endif %}
-                                {% endfor %}
-                            </tr>
-                        </table>
+            <div class="panel-group" id="accordion">
+                <div class="panel panel-default">
+                    <div class="panel-heading"  style="background-color: #616770; color: white; border-color:#616770">
+                        <h4 class="panel-title">
+                            <a data-toggle="collapse" data-parent="#accordion" href="#{{key}}">
+                                {{key}} bp, {{values.aa_pos}} aa in protein <span style="padding-left:68px">{{values.effect|effect_type_title}} effecting {{values.percent_impacted|floatformat:-3}}% of gene</span>
+                            </a>
+                        </h4>
+                    </div>
+                    <div id={{key}} class="panel-collapse collapse">
+                        <div class="panel-body">
+                            <table class="table table-striped">
+                                <tr>
+                                    <th> Library </th>
+                                    <th> Ref <span class="glyphicon glyphicon-arrow-right"></span> Alt </th>
+                                    <th> CNV Value </th>
+                                    <th> Somy Value </th>
+                                    <th> Loss of Function?</th>
+                                </tr>
+                                <tr>
+                                    {% for lib in libraries %}
+                                        {% if lib in values %}
+                                            <td> {{lib}} </td>
+                                            <td> {{values|keyvalue:lib|keyvalue:'ref'}} <span class="glyphicon glyphicon-arrow-right"></span> {{values|keyvalue:lib|keyvalue:'alt'}} </td>
+                                            <td> {{values|keyvalue:lib|keyvalue:'cnv'|floatformat:2}}</td>
+                                            <td> {{values|keyvalue:lib|keyvalue:'somy'}} </td>
+                                            <td> {{ values|keyvalue:lib|keyvalue:'gain_of_function' }}</td>
+                                        {% endif %}
+                                    {% endfor %}
+                                </tr>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-    {% endfor %}
+        {% endfor %}
     {% endfor %}
 </div>
 

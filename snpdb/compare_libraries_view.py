@@ -534,6 +534,8 @@ def gene_snp_summary(request):
 	moderate_ct += count_list_2[2]
 	low_ct += count_list_2[3]
 
+	print snp_list
+	print "rendering"
 	# return render_to_response('snpdb/gene_snp_summary.html', {"gene_id": gene_id,
 	#                                                           "wt": wt,
 	#                                                           "gene_name": product,
@@ -565,6 +567,11 @@ def get_impact_counts_for_gene(gene_id, gene_length, start_pos, snp_list, librar
 	moderate_ct = 0
 	low_ct = 0
 
+	library_codes = Library.objects.values('library_code', 'id').filter(id__in=libraries)
+	lib_codes = {}
+	for lib in library_codes:
+		lib_codes[lib['id']] = {'id': lib['id'], 'library_code': lib['library_code'].encode("UTF8")}
+
 	query = '''SELECT snpdb_effect.snp_id AS id, effect_class, effect_string, snp_position, ref_base, alt_base,
 							   library_id, chromosome_id, quality
 		FROM snpdb_effect, snpdb_snp
@@ -578,14 +585,29 @@ def get_impact_counts_for_gene(gene_id, gene_length, start_pos, snp_list, librar
 		AND effect_string IN ('HIGH', 'MODERATE', 'LOW')
 		AND snpdb_effect.snp_id = snpdb_snp.snp_id ORDER BY snp_position'''.format(','.join(['%s' for x in range(len(libraries))]))
 
+# SELECT snpdb_effect.snp_id, samples_library.id, effect_class, effect_string, snp_position, ref_base, alt_base,
+# 							   library_code, chromosome_id, quality
+# 		FROM snpdb_effect, snpdb_snp, samples_library
+# 		WHERE snpdb_effect.snp_id IN (SELECT DISTINCT snpdb_snp.snp_id AS snps
+#   		FROM snpdb_snp, snpdb_effect, samples_library
+# 		WHERE snpdb_snp.library_id = samples_library.id
+# 		AND samples_library.id IN ({})
+# 		AND effect_string=%s
+# 		AND snpdb_snp.snp_id = snpdb_effect.snp_id
+# 		AND effect_id=66)
+# 		AND effect_id = 64
+# 		AND effect_string IN ('HIGH', 'MODERATE', 'LOW')
+# 		AND snpdb_snp.library_id = samples_library.id
+# 		AND snpdb_effect.snp_id = snpdb_snp.snp_id ORDER BY snp_position'''
+
+
 	params = libraries + [gene_id]
 	qs = Effect.objects.raw(query, params)
 
 	snp_info = {}
 	for q in qs:
 		chrom = q.chromosome_id
-		id = q.library_id
-		library_code = Library.objects.values_list('library_code', flat=True).filter(id=id)[0]
+		library_code = lib_codes[q.library_id].get('library_code')
 		ref = q.ref_base
 		alt = q.alt_base
 		effect_type = q.effect_class
@@ -612,7 +634,6 @@ def get_impact_counts_for_gene(gene_id, gene_length, start_pos, snp_list, librar
 		#todo Add somy values
 		library['somy'] = "SOMY"
 
-
 		if pos in snp_info:
 			snp_info[pos][library_code] = library
 		else:
@@ -633,4 +654,5 @@ def get_impact_counts_for_gene(gene_id, gene_length, start_pos, snp_list, librar
 			snp_list.append(snp_info)
 		elif impact.strip() == "LOW":
 			low_ct += 1
+
 	return [snp_list, high_ct, moderate_ct, low_ct]
