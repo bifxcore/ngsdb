@@ -534,8 +534,20 @@ def gene_snp_summary(request):
 	moderate_ct += count_list_2[2]
 	low_ct += count_list_2[3]
 
-	return render_to_response('snpdb/gene_snp_summary.html', {"gene_id": gene_id,
+	# return render_to_response('snpdb/gene_snp_summary.html', {"gene_id": gene_id,
+	#                                                           "wt": wt,
+	#                                                           "gene_name": product,
+	#                                                           "high_ct": high_ct,
+	#                                                           "moderate_ct": moderate_ct,
+	#                                                           "low_ct": low_ct,
+	#                                                           "snp_list": snp_list,
+	#                                                           "fmin": fmin,
+	#                                                           "fmax": fmax,
+	#                                                           "chrom": chrom,
+	#                                                           }, context_instance=RequestContext(request))
+	return render_to_response('snpdb/gene_summary.html', {"gene_id": gene_id,
 	                                                          "wt": wt,
+	                                                          "libraries": libraries,
 	                                                          "gene_name": product,
 	                                                          "high_ct": high_ct,
 	                                                          "moderate_ct": moderate_ct,
@@ -553,7 +565,7 @@ def get_impact_counts_for_gene(gene_id, gene_length, start_pos, snp_list, librar
 	moderate_ct = 0
 	low_ct = 0
 
-	query = '''SELECT DISTINCT snpdb_effect.snp_id AS id, effect_class, effect_string, snp_position, ref_base, alt_base,
+	query = '''SELECT snpdb_effect.snp_id AS id, effect_class, effect_string, snp_position, ref_base, alt_base,
 							   library_id, chromosome_id, quality
 		FROM snpdb_effect, snpdb_snp
 		WHERE snpdb_effect.snp_id IN (SELECT DISTINCT snpdb_snp.snp_id AS snps
@@ -564,13 +576,16 @@ def get_impact_counts_for_gene(gene_id, gene_length, start_pos, snp_list, librar
 		AND effect_id=66)
 		AND effect_id = 64
 		AND effect_string IN ('HIGH', 'MODERATE', 'LOW')
-		AND snpdb_effect.snp_id = snpdb_snp.snp_id'''.format(','.join(['%s' for x in range(len(libraries))]))
+		AND snpdb_effect.snp_id = snpdb_snp.snp_id ORDER BY snp_position'''.format(','.join(['%s' for x in range(len(libraries))]))
 
 	params = libraries + [gene_id]
 	qs = Effect.objects.raw(query, params)
 
+	snp_info = {}
 	for q in qs:
 		chrom = q.chromosome_id
+		id = q.library_id
+		library_code = Library.objects.values_list('library_code', flat=True).filter(id=id)[0]
 		ref = q.ref_base
 		alt = q.alt_base
 		effect_type = q.effect_class
@@ -585,19 +600,30 @@ def get_impact_counts_for_gene(gene_id, gene_length, start_pos, snp_list, librar
 		else:
 			gain_of_function = "False"
 
-		snp_info = {}
+		library = {}
+		snps = {}
 
-		snp_info['position'] = pos
-		snp_info['ref'] = ref
-		snp_info['alt'] = alt
-		snp_info['chromosome'] = chrom
-		snp_info['gain_of_function'] = gain_of_function
-		snp_info['gene'] = gene_id
-		snp_info['impact'] = impact
-		snp_info['quality'] = quality
-		snp_info['effect'] = effect_type
-		snp_info['aa_pos'] = aa_pos
-		snp_info['percent_impacted'] = percent_impact
+
+		library['ref'] = ref
+		library['alt'] = alt
+		library['gain_of_function'] = gain_of_function
+		library['quality'] = quality
+		library['cnv'] = CNV.objects.values_list('cnv_value', flat=True).filter(library__library_code=library_code, start__lte=pos, stop__gte=pos)[0]
+		#todo Add somy values
+		library['somy'] = "SOMY"
+
+
+		if pos in snp_info:
+			snp_info[pos][library_code] = library
+		else:
+			snps['chromosome'] = chrom
+			snps['gene'] = gene_id
+			snps['impact'] = impact
+			snps['effect'] = effect_type
+			snps['aa_pos'] = aa_pos
+			snps['percent_impacted'] = percent_impact
+			snps[library_code] = library
+			snp_info[pos] = snps
 
 		if impact.strip() == "HIGH":
 			high_ct += 1
@@ -607,5 +633,4 @@ def get_impact_counts_for_gene(gene_id, gene_length, start_pos, snp_list, librar
 			snp_list.append(snp_info)
 		elif impact.strip() == "LOW":
 			low_ct += 1
-
 	return [snp_list, high_ct, moderate_ct, low_ct]

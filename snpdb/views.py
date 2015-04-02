@@ -1081,14 +1081,11 @@ def compare_cnv_libraries(request):
 				cnv_dict[pos] = library_dict
 
 
-		# cnvs = OrderedDict(sorted(cnv_dict.items(), key=attrgetter(order_by, 'chromosome', 'start')))
 
 		cnvs = cnv_dict.items()
 		if order_by == 'cnv':
 			lib =request.GET.get('lib').encode('UTF8')
 			cnvs.sort(key=lambda (k, d): (d[lib][order_by], d['chromosome'], d['start'], ))
-			# print type(cnvs), type(cnv_dict.values())
-			# print cnv_dict.get
 		else:
 			cnvs.sort(key=lambda (k, d): (d[order_by], d['chromosome'], d['start'], ))
 

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+
+{% extends "snpdb/dashboard.html" %}
+{% load static %}
+{% load staticfiles %}
+{% load snp_filters %}
+{% load mathfilters %}
+{% load get_param %}
+
+
+{% block title %}
+    {{gene_id}}
+{% endblock %}
+
+
+{% block bootstrap %}
+
+
+<div class="container-fluid" style="padding-bottom:30px">
+    <div class="panel-group" id="accordion">
+        <div class="panel panel-default">
+            <div class="panel-heading"  style="background-color: #616770; color: white; border-color:#616770">
+                <h4 class="panel-title">
+                    <div style="padding-bottom: 5px">{{gene_id}} {{chrom}}:{{fmin}} - {{fmax}} <a class="pull-right" href="http://tritrypdb.org/tritrypdb/showRecord.do?name=GeneRecordClasses.GeneRecordClass&source_id={{gene_id}}&project_id=TriTrypDB" target=_blank>More info at TriTrypDb</a></div>
+                </h4>
+                <div style="padding-bottom:5px; font-size: 12pt">{{gene_name|effect_type_title}} <span style="font-size: 10pt; padding-left:68px;">#Changes to CDS Length: {{high_ct}}</span>  <span style="font-size: 10pt; padding-left:68px;"> #Non-Synonymous Changes: {{moderate_ct}} </span> <span style="font-size: 10pt; padding-left:68px;">#Synonymous Changes: {{low_ct}}</span></div>
+                <div style="font-size: 10pt; padding-bottom: 5px;">Libraries Queried: {% if wt %}{{wt}}, {% endif %} {{ libraries|joinby:", "}} </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="container-fluid" style="padding-bottom:30px">
+
+    {% for pos in snp_list %}
+        {% for key, values in pos.items %}
+        <div class="panel-group" id="accordion">
+            <div class="panel panel-default">
+                <div class="panel-heading"  style="background-color: #616770; color: white; border-color:#616770">
+                    <h4 class="panel-title">
+                        <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
+                            {{key}} bp, {{values.aa_pos}} aa in protein <span style="padding-left:68px">{{values.effect|effect_type_title}} effecting {{values.percent_impacted|floatformat:-3}}% of gene</span>
+                        </a>
+                    </h4>
+                </div>
+                <div id={{key}} class="panel-collapse collapse">
+                    <div class="panel-body">
+                        <table class="table table-striped">
+                            <tr>
+                                <th> Library </th>
+                                <th> Ref <span class="glyphicon glyphicon-arrow-right"></span> Alt </th>
+                                <th> CNV Value </th>
+                                <th> Somy Value </th>
+                                <th> Loss of Function?</th>
+                            </tr>
+                            <tr>
+                                {% for lib in libraries %}
+                                    {% if lib in values %}
+                                        <td> {{lib}} </td>
+                                        <td> {{values|keyvalue:lib|keyvalue:'ref'}} <span class="glyphicon glyphicon-arrow-right"></span> {{values|keyvalue:lib|keyvalue:'alt'}} </td>
+                                        <td> {{values|keyvalue:lib|keyvalue:'cnv'|floatformat:2}}</td>
+                                        <td> {{values|keyvalue:lib|keyvalue:'somy'}} </td>
+                                        <td> {{ values|keyvalue:lib|keyvalue:'gain_of_function' }}</td>
+                                    {% endif %}
+                                {% endfor %}
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+    {% endfor %}
+</div>
+
+
+{% endblock %}
+
+</html>

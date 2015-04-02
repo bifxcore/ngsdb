@@ -91,7 +91,7 @@
                 </a></td>
 
                 <td class="text-center" style="vertical-align: middle">
-                    {% for y in x.1.gene %}<div><a href="/snpdb/gene-snp-summary?geneid={{ y }}&length={{x.1.gene_length}}&add={{add}}&neg={{neg}}&wt={{x.1.wt_allele}}&genome_id={{genome_id}}">{{ y }}</a></div>{% endfor %}
+                    {% for y in x.1.gene %}<div><a href="/snpdb/gene-snp-summary?geneid={{ y }}&length={{x.1.gene_length}}&add={{add}}&neg={{neg}}&wt={{wt}}&genome_id={{genome_id}}">{{ y }}</a></div>{% endfor %}
                 </td>
                 <td><div>{{ x.1.product|title }}</div></td>
                 <td class="text-center" style="vertical-align: middle">{% for y in x.1.gene_length %}<div>{{ y }}</div>{% endfor %}</td>

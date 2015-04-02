@@ -14,7 +14,7 @@ import os.path, time
 from django.core.files import File
 import subprocess
 
-dbh = psycopg2.connect(host='ngsdb', database='ngsdb03ab', user='ngsdb03', password='ngsdb03')
+dbh = psycopg2.connect(host='ngsdb', database='ngsdb03ac', user='ngsdb03', password='ngsdb03')
 cur = dbh.cursor()
 
 
@@ -140,9 +140,9 @@ def insert_result_option2(result_ids, library_id, genome_id, author_id, analysis
 
 def get_chromosome(chrom, genome_version, genome_name):
 	try:
-		chromosome_name = chrom.split('_')[0]
+		# chromosome_name = chrom.split('_')[0]
 		cur.execute('SELECT chromosome_id FROM "snpdb_chromosome" WHERE chromosome_name = %s AND genome_version = %s AND genome_name_id = %s',
-		            (chromosome_name, genome_version, genome_name))
+		            (chrom, genome_version, genome_name))
 		chromosome_id = cur.fetchone()
 		if chromosome_id is not None:
 			return chromosome_id[0]
@@ -166,10 +166,10 @@ def get_author_id(librarycode):
 		sys.exit(1)
 
 
-def insert_cnv(chromosome, start, stop, cnv_value, library_id, result_id, window_size, coverage):
+def insert_cnv(chromosome, start, stop, cnv_value, library_id, result_id, window_size, coverage, cnv_type_id):
 	try:
-		cur.execute('INSERT INTO "snpdb_cnv" (chromosome_id, start, stop, cnv_value, library_id, result_id, window_size, coverage) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)',
-		            (chromosome, start, stop, cnv_value, library_id, result_id, window_size, coverage))
+		cur.execute('INSERT INTO "snpdb_cnv" (chromosome_id, start, stop, cnv_value, library_id, result_id, window_size, coverage, cnv_type_id) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)',
+		            (chromosome, start, stop, cnv_value, library_id, result_id, window_size, coverage, cnv_type_id))
 	except psycopg2.DatabaseError, e:
 		#If an error occurs during the SELECT, the database will roll back any possible changes to the database.
 		print 'Error %s' % e
@@ -193,6 +193,7 @@ def main():
 
 		# Identifies the librarycode, librarycode, genome_id, and genome version,
 		librarycode = raw_input("Please state the librarycode. ")
+		type_file = raw_input("Submit 1 if file is CNV. Submit 2 if file is Somy")
 		try:
 			cur.execute('SELECT genome_id, organism_id, version FROM "ngsdbview_genome"s',
 			            (librarycode,))
@@ -237,7 +238,7 @@ def main():
 				window_size = int(stop) - int(start) + 1
 
 				chromosome = get_chromosome(chrom, genome_version, organismcode)
-				insert_cnv(chromosome, start, stop, cnv_value, library_id, result_id, window_size, coverage)
+				insert_cnv(chromosome, start, stop, cnv_value, library_id, result_id, window_size, coverage, type_file)
 
 			except ValueError:
 				pass
