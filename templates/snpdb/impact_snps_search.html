@@ -67,7 +67,6 @@
                 <th class="text-center custom-table" id={{each}}>
                     <div><a style="color: #e7e4db" href={{ filter_urls.library__library_code }}>{{each}}</a></div>
                     <div><a style="color: #e7e4db; word-wrap:break-word" href={{ filter_urls.alt_allele }}>Alternate Allele</a></div>
-                    <div><a style="color: #e7e4db; word-wrap:break-word" href={{ filter_urls.alt_allele }}>(CNV Value)</a></div>
                 </th>
             {% endfor %}
             <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.wt_allele }}>Wildtype Base</a></th>
@@ -104,22 +103,42 @@
 
                         {% if lib in neg %}
                             <td class="neg text-center" style="vertical-align: middle" headers={{lib}}>
-                                {% if "Ref" in dict.ref %}
-                                    <div>Ref</div>
-                                {% else %}
-                                    <div>{{ dict.alt|joinby:", " }}</div>
-                                {% endif %}
-                                ({{dict.cnv}})
+                                <div>
+                                    {% if "Ref" in dict.ref %}
+                                        Ref
+                                    {% else %}
+                                        {{ dict.alt|joinby:", " }}
+                                    {% endif %}
+                                    {% if dict.cnv > 2.25 or dict.cnv < 1.75 %}
+                                        <span class="label glyphicon glyphicon-info-sign" data-toggle="popover" data-placement="top"
+                                            data-content="{{lib}} has a CNV value ({{dict.cnv}}) that is not between 1.75 and 2.25, the expected diploid values."
+                                            title="CNV Information" style="color:#636469; font-size:12px">
+                                        </span>
+                                        <script>
+                                            $("[data-toggle=popover]").popover();
+                                        </script>
+                                    {% endif %}
+                                </div>
                             </td>
 
                         {% else %}
                             <td class="add text-center" style="vertical-align: middle" headers={{lib}}>
-                                {% if "Ref" in dict.ref|joinby:", " %}
-                                    <div>Ref</div>
-                                {% else %}
-                                    <div>{{ dict.alt|joinby:", "}}</div>
-                                {% endif %}
-                                ({{dict.cnv}})
+                                <div>
+                                    {% if "Ref" in dict.ref|joinby:", " %}
+                                        Ref
+                                    {% else %}
+                                        {{ dict.alt|joinby:", "}}
+                                    {% endif %}
+                                    {% if dict.cnv > 2.25 or dict.cnv < 1.75 %}
+                                        <span class="label glyphicon glyphicon-info-sign" data-toggle="popover" data-placement="top"
+                                            data-content="{{lib}} has a CNV value ({{dict.cnv}}) that is not between 1.75 and 2.25, the expected diploid values."
+                                            title="CNV Information" style="color:#636469; font-size:12px">
+                                        </span>
+                                        <script>
+                                            $("[data-toggle=popover]").popover();
+                                        </script>
+                                    {% endif %}
+                               </div>
                             </td>
                         {% endif %}
 

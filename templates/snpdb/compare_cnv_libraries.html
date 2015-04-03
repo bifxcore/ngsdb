@@ -67,21 +67,22 @@
                         <th class="text-center" id="start"><a href={{ filter_urls.start }}>Start</a></th>
                         <th class="text-center" id="stop"><a href={{ filter_urls.stop }}>Stop</a></th>
                         <th class="text-center" id="somy"><a href={{ filter_urls.somy }}>Somy Coverage</a></th>
-                        {% for each in library_codes %}
 
+                        {% for each in library_codes %}
                             <th class="text-center">
-                                <div id="{{each}}"><a href={{ filter_urls.library }}>{{each}}</div>
-                                <div id="cnv"><a href={{ filter_urls.cnv }}&lib={{each}}>CNV (Read depth)
+                                <div id="{{each}}"><a href={{ filter_urls.library }}>{{each}}</a></div>
+                                <span id="cnv"><a href={{ filter_urls.cnv }}&lib={{each}}>CNV (Read depth)</a>
                                     <span class="label glyphicon glyphicon-info-sign" data-toggle="popover" data-placement="top"
-                                        data-content="Vivamus sagittis lacus vel augue laoreet rutrum faucibus. Values between 1.75 and 2.25 are considered to be expected diploid values."
+                                        data-content="Copy Number Values represent the ratio of average reads in a chromosomal range to the average overall chromosomal reads. Values between 1.75 and 2.25 are considered to be expected diploid values."
                                         title="CNV Information" style="color:#636469; font-size:12px">
                                     </span>
                                     <script>
                                         $("[data-toggle=popover]").popover();
                                     </script>
-                                </a></div>
+                                </span>
                             </th>
                         {% endfor %}
+
                     </tr>
                     </thead>
                     <tbody>
@@ -90,7 +91,6 @@
                             <td class="text-center" headers="chromosome">{{ each.1.chromosome }}</td>
                             <td class="text-center" headers="start">{{ each.1.start }}</td>
                             <td class="text-center" headers="stop">{{ each.1.stop }}</td>
-                            <td class="text-center" headers="somy">(somy value)</td>
                             {% for x in library_codes %}
                                 {% if each.1|keyvalue:x|keyvalue:'cnv' < 1.75 or each.1|keyvalue:x|keyvalue:'cnv' > 2.25 %}
                                     <td class="text-center danger" headers="{{x}}">{{each.1|keyvalue:x|keyvalue:'cnv'|floatformat:2}} ({{each.1|keyvalue:x|keyvalue:'coverage'|floatformat}})</td>

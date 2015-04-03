@@ -1062,7 +1062,17 @@ def compare_cnv_libraries(request):
 
 	elif library_codes:
 		result_list = CNV.objects.values('chromosome__chromosome_name', 'start', 'stop',
-		                                 'library__library_code', 'coverage', 'cnv_value').filter(library__library_code__in=library_codes)
+		                                 'library__library_code', 'coverage', 'cnv_value').filter(library__library_code__in=library_codes, cnv_type=1)
+
+		somy_list = CNV.objects.values('chromosome__chromosome_name', 'library__library_code',
+		                               'cnv_value').filter(library__library_code__in=library_codes, cnv_type=2)
+
+		somys = {}
+		for each in somy_list:
+			if each['library__library_code'] in somys:
+				somys[each['library__library_code']][each['chromosome__chromosome_name']] = each['cnv_value']
+			else:
+				somys[each['library__library_code']] = {each['chromosome__chromosome_name']: each['cnv_value']}
 
 		cnv_dict = {}
 		#Checks to see if tuples have all libraries present. Inserts blank tuples if not.
@@ -1070,13 +1080,13 @@ def compare_cnv_libraries(request):
 			pos = each['chromosome__chromosome_name'] + '_' + str(each['start'])
 
 			if pos in cnv_dict:
-				library_dict = {'cnv': each['cnv_value'], 'coverage': each['coverage']}
+				library_dict = {'cnv': each['cnv_value'], 'coverage': each['coverage'], 'somy': somys[each['library__library_code']][each['chromosome__chromosome_name']]}
 
 				if each['library__library_code'] not in cnv_dict[pos]:
 					cnv_dict[pos][each['library__library_code'].encode('UTF8')] = library_dict
 
 			else:
-				library_dict = {each['library__library_code'].encode('UTF8'): {'cnv': each['cnv_value'], 'coverage': each['coverage']},
+				library_dict = {each['library__library_code'].encode('UTF8'): {'cnv': each['cnv_value'], 'coverage': each['coverage'],  'somy': somys[each['library__library_code']][each['chromosome__chromosome_name']]},
 				                'start': each['start'], 'stop': each['stop'], 'chromosome': each['chromosome__chromosome_name']}
 				cnv_dict[pos] = library_dict
 
@@ -1134,7 +1144,6 @@ def compare_cnv_libraries(request):
 	                                                               "toolbar_max": toolbar_max,
 	                                                               "toolbar_min": toolbar_min},
 	                          context_instance=RequestContext(request))
-
 
 
 def get_chromosome_size(organismcode):

@@ -6,12 +6,12 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.template import RequestContext
 from utils import build_orderby_urls
 from collections import *
+from math import ceil
 import subprocess
 import datetime
 import os
 import vcf
 import ast
-from math import ceil
 
 
 # Displays the search page to compare two groups of libraries for unique and similar snps.
@@ -57,12 +57,30 @@ def add_snps_from_vcf(vcf_file, libraries, group_libs, snp_dict, wt, impact):
 		hetero = False
 
 
+		genome_id = SNP.objects.values_list('result__genome__genome_id', flat=True).filter(snp_position=pos,
+		                                                                                   chromosome__chromosome_name=chrom,
+		                                                                                   library__library_code__in=libraries)[0]
+
+		try:
+			wt_allele = SNP.objects.filter(chromosome__chromosome_name__startswith=chrom,
+			                               snp_position=pos,
+			                               library__library_code=wt).values_list('alt_base', flat=True)[0]
+		except IndexError:
+			wt_allele = "Ref"
+
+
 		lib_dict = {}
-		for lib in libraries:
-			if lib in group_libs:
-				lib_dict[lib] = {'ref': set(), 'alt': set(), 'effect': set(), 'cnv': CNV.objects.values_list('cnv_value', flat=True).filter(library__library_code=lib, start__lte=pos, stop__gte=pos)[0]}
+		cnvs = CNV.objects.values('cnv_value', 'library__library_code',
+		                          'start', 'stop').distinct().filter(library__library_code__in=libraries,
+		                                                                                  start__lte=pos,
+		                                                                                  stop__gte=pos,
+		                                                                                  chromosome__chromosome_name=chrom)
+
+		for each in cnvs:
+			if each['library__library_code'] in group_libs:
+				lib_dict[each['library__library_code']] = {'ref': set(), 'alt': set(), 'effect': set(), 'cnv': each['cnv_value']}
 			else:
-				lib_dict[lib] = {'ref': set(["Ref"]), 'alt': set(["Ref"]), 'effect': set(["No Effect"]), 'cnv': CNV.objects.values_list('cnv_value', flat=True).filter(library__library_code=lib, start__lte=pos, stop__gte=pos)[0]}
+				lib_dict[each['library__library_code']] = {'ref': set(["Ref"]), 'alt': set(["Ref"]), 'effect': set(["No Effect"]), 'cnv': each['cnv_value']}
 
 		for x in effects:
 			data = x.split('|')
@@ -73,10 +91,6 @@ def add_snps_from_vcf(vcf_file, libraries, group_libs, snp_dict, wt, impact):
 				gene = data[3]
 				genes.add(gene)
 
-				genome_id = SNP.objects.values_list('result__genome__genome_id', flat=True).filter(snp_position=pos,
-				                                                                                   chromosome__chromosome_name=chrom,
-				                                                                                   library__library_code__in=libraries)[0]
-
 				try:
 					product = Feature.objects.values_list('geneproduct', flat=True).filter(geneid=gene,
 					                                                                       featuretype='gene',
@@ -84,28 +98,26 @@ def add_snps_from_vcf(vcf_file, libraries, group_libs, snp_dict, wt, impact):
 				except IndexError:
 					product = gene
 
-				try:
-					wt_allele = SNP.objects.filter(chromosome__chromosome_name__startswith=chrom,
-					                               snp_position=pos,
-					                               library__library_code=wt).values_list('alt_base', flat=True)[0]
-				except IndexError:
-					wt_allele = "Ref"
 
 				try:
-					fmin = Feature.objects.values_list('fmin', flat=True).filter(geneid=gene, featuretype='CDS')[0]
-					fmax = Feature.objects.values_list('fmax', flat=True).filter(geneid=gene, featuretype='CDS')[0]
+					gene_pos = Feature.objects.values('fmin', 'fmax').filter(geneid=gene, featuretype='CDS')[0]
+					fmin = gene_pos['fmin']
+					fmax = gene_pos['fmax']
 				except IndexError:
 					try:
-						fmin = Feature.objects.filter(geneid=gene).filter(featuretype='gene').values_list('fmin', flat=True)[0]
-						fmax = Feature.objects.filter(geneid=gene).filter(featuretype='gene').values_list('fmax', flat=True)[0]
+						gene_pos = Feature.objects.filter(geneid=gene).filter(featuretype='gene').values('fmin', 'fmax')[0]
+						fmin = gene_pos['fmin']
+						fmax = gene_pos['fmax']
 					except IndexError:
 						fmin = 0
 						fmax = 0
 
-				snp['effect'].add(eff)
 				bp_from_start = pos - fmin
 				aa_from_start = int(ceil(bp_from_start/3))
 				gene_length = int(ceil((fmax-fmin)/3))
+
+				snp['effect'].add(eff)
+
 
 				#Adds all alternate and references alleles
 				for lib in group_libs:
@@ -478,8 +490,6 @@ def bcftools_isec(library_path, output_dir, number_collapse):
 		zips = str(each) + '.gz'
 		zip_vcf += ' ' + zips
 
-	print zip_vcf
-
 	p = subprocess.Popen(["""bcftools isec -n=%d -p %s -c some %s""" % (number_collapse, output_dir, zip_vcf)], shell=True, stdout=subprocess.PIPE)
 	p.communicate()
 	p.wait()
@@ -489,13 +499,15 @@ def bcftools_isec(library_path, output_dir, number_collapse):
 def gene_snp_summary(request):
 	gene_id = request.GET.get('geneid').encode("UTF8")
 	gene_length = ast.literal_eval(request.GET.get('length'))[0]
-	wt = request.GET.get('wt')
+	wt = request.GET.get('wt').encode("UTF8")
 	genome_id = request.GET.get('genome_id')
 	group1 = ast.literal_eval(request.GET.get('add'))
 	group2 = ast.literal_eval(request.GET.get('neg'))
 
 	libraries = group1 + group2
-	libraries = [x.encode("UTF8") for x in libraries]
+	if wt:
+		libraries.append(wt)
+	libraries = sorted([x.encode("UTF8") for x in libraries])
 
 	library_id = Library.objects.values_list('id', flat=True).filter(library_code__in=libraries)
 	library_id = [id for id in library_id]
@@ -518,7 +530,7 @@ def gene_snp_summary(request):
 			fmin = 0
 			fmax = 0
 
-	snp_list = []
+	snp_list = {}
 
 	count_list_1 = get_impact_counts_for_gene(gene_id, gene_length, fmin, snp_list, library_id)
 
@@ -534,34 +546,23 @@ def gene_snp_summary(request):
 	moderate_ct += count_list_2[2]
 	low_ct += count_list_2[3]
 
-	print snp_list
-	print "rendering"
-	# return render_to_response('snpdb/gene_snp_summary.html', {"gene_id": gene_id,
-	#                                                           "wt": wt,
-	#                                                           "gene_name": product,
-	#                                                           "high_ct": high_ct,
-	#                                                           "moderate_ct": moderate_ct,
-	#                                                           "low_ct": low_ct,
-	#                                                           "snp_list": snp_list,
-	#                                                           "fmin": fmin,
-	#                                                           "fmax": fmax,
-	#                                                           "chrom": chrom,
-	#                                                           }, context_instance=RequestContext(request))
+	snp_list = OrderedDict(sorted(snp_list.items()))
+
 	return render_to_response('snpdb/gene_summary.html', {"gene_id": gene_id,
-	                                                          "wt": wt,
-	                                                          "libraries": libraries,
-	                                                          "gene_name": product,
-	                                                          "high_ct": high_ct,
-	                                                          "moderate_ct": moderate_ct,
-	                                                          "low_ct": low_ct,
-	                                                          "snp_list": snp_list,
-	                                                          "fmin": fmin,
-	                                                          "fmax": fmax,
-	                                                          "chrom": chrom,
-	                                                          }, context_instance=RequestContext(request))
+	                                                      "wt": wt,
+	                                                      "libraries": libraries,
+	                                                      "gene_name": product,
+	                                                      "high_ct": high_ct,
+	                                                      "moderate_ct": moderate_ct,
+	                                                      "low_ct": low_ct,
+	                                                      "snp_list": snp_list,
+	                                                      "fmin": fmin,
+	                                                      "fmax": fmax,
+	                                                      "chrom": chrom,
+	                                                      }, context_instance=RequestContext(request))
 
 
-def get_impact_counts_for_gene(gene_id, gene_length, start_pos, snp_list, libraries):
+def get_impact_counts_for_gene(gene_id, gene_length, start_pos, snp_info, libraries):
 
 	high_ct = 0
 	moderate_ct = 0
@@ -585,26 +586,12 @@ def get_impact_counts_for_gene(gene_id, gene_length, start_pos, snp_list, librar
 		AND effect_string IN ('HIGH', 'MODERATE', 'LOW')
 		AND snpdb_effect.snp_id = snpdb_snp.snp_id ORDER BY snp_position'''.format(','.join(['%s' for x in range(len(libraries))]))
 
-# SELECT snpdb_effect.snp_id, samples_library.id, effect_class, effect_string, snp_position, ref_base, alt_base,
-# 							   library_code, chromosome_id, quality
-# 		FROM snpdb_effect, snpdb_snp, samples_library
-# 		WHERE snpdb_effect.snp_id IN (SELECT DISTINCT snpdb_snp.snp_id AS snps
-#   		FROM snpdb_snp, snpdb_effect, samples_library
-# 		WHERE snpdb_snp.library_id = samples_library.id
-# 		AND samples_library.id IN ({})
-# 		AND effect_string=%s
-# 		AND snpdb_snp.snp_id = snpdb_effect.snp_id
-# 		AND effect_id=66)
-# 		AND effect_id = 64
-# 		AND effect_string IN ('HIGH', 'MODERATE', 'LOW')
-# 		AND snpdb_snp.library_id = samples_library.id
-# 		AND snpdb_effect.snp_id = snpdb_snp.snp_id ORDER BY snp_position'''
-
-
 	params = libraries + [gene_id]
 	qs = Effect.objects.raw(query, params)
 
-	snp_info = {}
+	# snp_info = {}
+
+	#Iterates through all of the snps found within the gene and queried libraries.
 	for q in qs:
 		chrom = q.chromosome_id
 		library_code = lib_codes[q.library_id].get('library_code')
@@ -625,14 +612,16 @@ def get_impact_counts_for_gene(gene_id, gene_length, start_pos, snp_list, librar
 		library = {}
 		snps = {}
 
-
 		library['ref'] = ref
 		library['alt'] = alt
 		library['gain_of_function'] = gain_of_function
 		library['quality'] = quality
-		library['cnv'] = CNV.objects.values_list('cnv_value', flat=True).filter(library__library_code=library_code, start__lte=pos, stop__gte=pos)[0]
-		#todo Add somy values
-		library['somy'] = "SOMY"
+		library['cnv'] = CNV.objects.values_list('cnv_value', flat=True).filter(library__library_code=library_code,
+		                                                                        start__lte=pos, stop__gte=pos,
+		                                                                        chromosome_id = chrom, cnv_type_id=1)[0]
+
+		library['somy'] = CNV.objects.values_list('cnv_value', flat=True).filter(library__library_code=library_code,
+		                                                                          chromosome_id=chrom, cnv_type_id=2)[0]
 
 		if pos in snp_info:
 			snp_info[pos][library_code] = library
@@ -648,11 +637,9 @@ def get_impact_counts_for_gene(gene_id, gene_length, start_pos, snp_list, librar
 
 		if impact.strip() == "HIGH":
 			high_ct += 1
-			snp_list.append(snp_info)
 		elif impact.strip() == "MODERATE":
 			moderate_ct += 1
-			snp_list.append(snp_info)
 		elif impact.strip() == "LOW":
 			low_ct += 1
 
-	return [snp_list, high_ct, moderate_ct, low_ct]
+	return [snp_info, high_ct, moderate_ct, low_ct]

@@ -25,7 +25,7 @@
                     <div style="padding-bottom: 5px">{{gene_id}} {{chrom}}:{{fmin}} - {{fmax}} <a class="pull-right" href="http://tritrypdb.org/tritrypdb/showRecord.do?name=GeneRecordClasses.GeneRecordClass&source_id={{gene_id}}&project_id=TriTrypDB" target=_blank>More info at TriTrypDb</a></div>
                 </h4>
                 <div style="padding-bottom:5px; font-size: 12pt">{{gene_name|effect_type_title}} <span style="font-size: 10pt; padding-left:68px;">#Changes to CDS Length: {{high_ct}}</span>  <span style="font-size: 10pt; padding-left:68px;"> #Non-Synonymous Changes: {{moderate_ct}} </span> <span style="font-size: 10pt; padding-left:68px;">#Synonymous Changes: {{low_ct}}</span></div>
-                <div style="font-size: 10pt; padding-bottom: 5px;">Libraries Queried: {% if wt %}{{wt}}, {% endif %} {{ libraries|joinby:", "}} </div>
+                <div style="font-size: 10pt; padding-bottom: 5px;">Libraries Queried: {{ libraries|joinby:", "}} </div>
             </div>
         </div>
     </div>
@@ -34,8 +34,7 @@
 
 <div class="container-fluid" style="padding-bottom:30px">
 
-    {% for pos in snp_list %}
-        {% for key, values in pos.items %}
+        {% for key, values in snp_list.items %}
             <div class="panel-group" id="accordion">
                 <div class="panel panel-default">
                     <div class="panel-heading"  style="background-color: #616770; color: white; border-color:#616770">
@@ -51,28 +50,54 @@
                                 <tr>
                                     <th> Library </th>
                                     <th> Ref <span class="glyphicon glyphicon-arrow-right"></span> Alt </th>
-                                    <th> CNV Value </th>
-                                    <th> Somy Value </th>
+                                    <th> CNV Value
+                                        <span class="label glyphicon glyphicon-info-sign" data-toggle="popover" data-placement="top"
+                                            data-content="Copy Number Values represent the ratio of average reads in a chromosomal range to the average overall chromosomal reads. Values between 1.75 and 2.25 are considered to be expected diploid values."
+                                            title="CNV Information" style="color:#636469; font-size:12px">
+                                        </span>
+                                        <script>
+                                            $("[data-toggle=popover]").popover();
+                                        </script>
+                                    </th>
+                                    <th> Somy Value
+                                        <span class="label glyphicon glyphicon-info-sign" data-toggle="popover" data-placement="top"
+                                            data-content="Somy Values represent the ratio of average reads in a chromosome to the average overall genome reads. Values between 1.75 and 2.25 are considered to be expected diploid values."
+                                            title="Somy Information" style="color:#636469; font-size:12px">
+                                        </span>
+                                        <script>
+                                            $("[data-toggle=popover]").popover();
+                                        </script>
+                                    </th>
                                     <th> Loss of Function?</th>
                                 </tr>
-                                <tr>
                                     {% for lib in libraries %}
                                         {% if lib in values %}
-                                            <td> {{lib}} </td>
-                                            <td> {{values|keyvalue:lib|keyvalue:'ref'}} <span class="glyphicon glyphicon-arrow-right"></span> {{values|keyvalue:lib|keyvalue:'alt'}} </td>
-                                            <td> {{values|keyvalue:lib|keyvalue:'cnv'|floatformat:2}}</td>
-                                            <td> {{values|keyvalue:lib|keyvalue:'somy'}} </td>
-                                            <td> {{ values|keyvalue:lib|keyvalue:'gain_of_function' }}</td>
+                                            <tr>
+                                                <td> {{lib}} </td>
+                                                <td> {{values|keyvalue:lib|keyvalue:'ref'}} <span class="glyphicon glyphicon-arrow-right"></span> {{values|keyvalue:lib|keyvalue:'alt'}} </td>
+
+                                                {% if values|keyvalue:lib|keyvalue:'cnv' > 2.25 or values|keyvalue:lib|keyvalue:'cnv' < 1.75 %}
+                                                    <td class="danger"> {{values|keyvalue:lib|keyvalue:'cnv'|floatformat:2}}</td>
+                                                {% else %}
+                                                    <td> {{values|keyvalue:lib|keyvalue:'cnv'|floatformat:2}}</td>
+                                                {% endif %}
+
+                                                {% if values|keyvalue:lib|keyvalue:'somy' > 2.25 or values|keyvalue:lib|keyvalue:'somy' < 1.75 %}
+                                                    <td class="danger"> {{values|keyvalue:lib|keyvalue:'somy'}} </td>
+                                                {% else %}
+                                                    <td> {{values|keyvalue:lib|keyvalue:'somy'}} </td>
+                                                {% endif %}
+
+                                                <td> {{ values|keyvalue:lib|keyvalue:'gain_of_function' }}</td>
                                         {% endif %}
+                                            </tr>
                                     {% endfor %}
-                                </tr>
                             </table>
                         </div>
                     </div>
                 </div>
             </div>
         {% endfor %}
-    {% endfor %}
 </div>
 
 

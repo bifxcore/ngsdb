@@ -1,4 +1,5 @@
 from django import template
+from math import ceil
 
 register = template.Library()
 
@@ -66,3 +67,9 @@ def effect_type_title(title):
 @register.filter
 def joinby(value, arg):
     return arg.join(value)
+
+@register.filter
+def get_aa_pos(pos, fmin):
+	bp_from_start = pos - fmin
+	aa_from_start = int(ceil(bp_from_start/3))
+	return aa_from_start
