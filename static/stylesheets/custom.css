@@ -471,3 +471,11 @@ fieldset[disabled] .btn-panel.active {
 .table > tbody > tr > td.add {
   background-color: #538CEB
 }
+
+.popover-title {
+    color:black;
+}
+
+.popover-content {
+    color:black;
+}

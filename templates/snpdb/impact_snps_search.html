@@ -82,7 +82,16 @@
                 <td class="text-center" style=  "vertical-align: middle">
                     {% for y in x.1.quality %}
                         {% if y < 50 %}
-                            <div>{{ y }} <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span></div>
+                            <div>{{ y }}
+                                <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true" data-toggle="popover" data-placement="top"
+                                    data-content="SNPs with a quality under 50 are consider insignificant."
+                                    title="Quality Information" style="color:#636469; font-size:12px">
+                                </span>
+                            </div>
+
+                                <script>
+                                    $("[data-toggle=popover]").popover();
+                                </script>
                         {% else %}
                             <div>{{ y }}</div>
                         {% endif %}

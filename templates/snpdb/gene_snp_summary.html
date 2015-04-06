@@ -9,7 +9,7 @@
 
 
 {% block title %}
-    {{gene_id}}
+    Gene Summary
 {% endblock %}
 
 
@@ -29,7 +29,7 @@
             <div id="collapseOne" class="panel-collapse collapse in">
                 <div class="panel-body">
                     <div id="collapseOne" class="panel-collapse">
-                        {% for pos in snp_list %}
+                        {% for each in snp_list %}
                             <ul class="list-group">
                                 <li class="list-group-item">{{each.effect|effect_type_title}} at position {{each.position}} (bp)</li>
                                 <li class="list-group-item"><strong>Reference Allele <span class="glyphicon glyphicon-arrow-right"></span>  Alternate Allele:</strong> {{each.ref}} <span class="glyphicon glyphicon-arrow-right"></span> {{each.alt}}</li>

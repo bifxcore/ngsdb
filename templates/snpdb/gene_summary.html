@@ -34,25 +34,38 @@
 
 <div class="container-fluid" style="padding-bottom:30px">
 
+    <table class="table table-condensed table-responsive">
+        <thead>
+            <tr>
+                <th class="text-center text-info"><a href={{ filter_urls.position }}>Position (bp)</a></th>
+                <th class="text-center"><a href={{ filter_urls.impact }}>Impact</a></th>
+                <th class="text-center"><a href={{ filter_urls.position }}>Position (aa)</a></th>
+                <th class="text-center"><a href={{ filter_urls.percent_impacted }}>Percent Gene Affected</a></th>
+                <th class="text-center"><a href={{ filter_urls.more_info }}>More Information</a></th>
+            </tr>
+        </thead>
+
+        <tbody>
+            <tr>
+
         {% for key, values in snp_list.items %}
             {% if values.impact != "LOW" %}
-                <div class="panel-group" id="accordion">
-                    <div class="panel panel-default">
-                        <div class="panel-heading"  style="background-color: #616770; color: white; border-color:#616770">
-                            <h4 class="panel-title">
-                                <a data-toggle="collapse" data-parent="#accordion" href="#{{key}}">
-                                    {{key}} bp, {{values.aa_pos}} aa in protein <span style="padding-left:68px">{{values.effect|joinby:", "|effect_type_title}} effecting {{values.percent_impacted|floatformat:-3}}% of gene</span>
-                                </a>
-                            </h4>
-                        </div>
-                        <div id={{key}} class="panel-collapse collapse">
-                            <div class="panel-body">
+                <td class="text-center">{{ key }}</td>
+                <td class="text-center">{{ values.effect|joinby:", "|effect_type_title }}</td>
+                <td class="text-center">{{ values.aa_pos }}</td>
+                <td class="text-center">{{ values.percent_impacted|floatformat:0 }}%</td>
+                <td class="text-center">
+                    <a class="btn" data-toggle="collapse" href="#{{key}}" aria-expanded="false" aria-controls="{{key}}">
+                        <span class="glyphicon glyphicon-collapse-down" aria-hidden="true"></span>
+                    </a>
+                        <div class="collapse" id={{key}} >
+                            <div class="well">
                                 <table class="table table-striped">
                                     <tr>
                                         <th> Library </th>
                                         <th> Ref <span class="glyphicon glyphicon-arrow-right"></span> Alt </th>
                                         <th> CNV Value
-                                            <span class="label glyphicon glyphicon-info-sign" data-toggle="popover" data-placement="top"
+                                            <span class="label glyphicon glyphicon-infobhn-sign" data-toggle="popover" data-placement="top"
                                                 data-content="Copy Number Values represent the ratio of average reads in a chromosomal range to the average overall chromosomal reads. Values between 1.75 and 2.25 are considered to be expected diploid values."
                                                 title="CNV Information" style="color:#636469; font-size:12px">
                                             </span>
@@ -84,22 +97,24 @@
                                                     {% endif %}
 
                                                     {% if values|keyvalue:lib|keyvalue:'somy' > 2.25 or values|keyvalue:lib|keyvalue:'somy' < 1.75 %}
-                                                        <td class="danger"> {{values|keyvalue:lib|keyvalue:'somy'}} </td>
+                                                        <td class="danger"> {{values|keyvalue:lib|keyvalue:'somy'|floatformat:2}} </td>
                                                     {% else %}
-                                                        <td> {{values|keyvalue:lib|keyvalue:'somy'}} </td>
+                                                        <td> {{values|keyvalue:lib|keyvalue:'somy'|floatformat:2}} </td>
                                                     {% endif %}
 
-                                                    <td> {{ values|keyvalue:lib|keyvalue:'gain_of_function' }}</td>
+                                                    <td> {{ values|keyvalue:lib|keyvalue:'loss_of_function' }}</td>
                                             {% endif %}
                                                 </tr>
                                         {% endfor %}
                                 </table>
                             </div>
                         </div>
-                    </div>
-                </div>
-            {% endif %}
-        {% endfor %}
+                    </td>
+            </tr>
+        {% endif %}
+    {% endfor %}
+                </tbody>
+    </table>
 </div>
 
 

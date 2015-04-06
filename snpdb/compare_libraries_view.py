@@ -178,7 +178,7 @@ def impact_snps(request):
 	wt = request.GET.get('wt')
 	libraries = group1 + group2
 	impact = request.GET.get('impact')
-	order_by = request.GET.get('order_by', 'quality')
+	order_by = request.GET.get('order_by', 'chromosome')
 	s = request.GET.get('s')
 	att = request.GET.get('att')
 	high_ct = request.GET.get('high_ct')
@@ -236,9 +236,9 @@ def impact_snps(request):
 	if order_by == '0':
 		sorted_snp = sorted(test_dict.iteritems())
 	elif order_by == 'quality':
-		sorted_snp = sorted(test_dict.iteritems(), key=lambda (k, v): v[order_by], reverse=True)
+		sorted_snp = sorted(test_dict.iteritems(), key=lambda (k, d): (d['chromosome'], k, ))
 	else:
-		sorted_snp = sorted(test_dict.iteritems(), key=lambda (k, v): v[order_by])
+		sorted_snp = sorted(test_dict.iteritems(), key=lambda (k, d): (d['chromosome'], k, ))
 
 	count = len(snp_dict)
 	paginator = Paginator(sorted_snp, 200)
@@ -536,7 +536,6 @@ def gene_snp_summary(request):
 	low_ct = 0
 
 	snp_list = get_impact_counts_for_gene(gene_id, gene_length, fmin, snp_list, library_id)
-	# snp_list = get_impact_counts_for_gene(gene_id, gene_length, fmin, snp_list, library_id)
 
 	for key in snp_list:
 		impact = snp_list[key]['impact']
@@ -547,10 +546,6 @@ def gene_snp_summary(request):
 			moderate_ct += 1
 		elif impact.strip() == "LOW":
 			low_ct += 1
-
-	# high_ct += count_list_2[1]
-	# moderate_ct += count_list_2[2]
-	# low_ct += count_list_2[3]
 
 	snp_list = OrderedDict(sorted(snp_list.items()))
 
@@ -606,16 +601,16 @@ def get_impact_counts_for_gene(gene_id, gene_length, start_pos, snp_info, librar
 		percent_impact = float((gene_length - float(aa_pos)) / gene_length) * 100
 
 		if len(ref) > len(alt):
-			gain_of_function = "True"
+			loss_of_function = "Yes"
 		else:
-			gain_of_function = "False"
+			loss_of_function = "No"
 
 		library = {}
 		snps = {}
 
 		library['ref'] = ref
 		library['alt'] = alt
-		library['gain_of_function'] = gain_of_function
+		library['loss_of_function'] = loss_of_function
 		library['quality'] = quality
 		library['cnv'] = CNV.objects.values_list('cnv_value', flat=True).filter(library__library_code=library_code,
 		                                                                        start__lte=pos, stop__gte=pos,
