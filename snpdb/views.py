@@ -1069,24 +1069,25 @@ def compare_cnv_libraries(request):
 
 		somys = {}
 		for each in somy_list:
-			if each['library__library_code'] in somys:
-				somys[each['library__library_code']][each['chromosome__chromosome_name']] = each['cnv_value']
+			if each['chromosome__chromosome_name'].encode('UTF8') in somys:
+				somys[each['chromosome__chromosome_name']][each['library__library_code'].encode('UTF8')] = each['cnv_value']
 			else:
-				somys[each['library__library_code']] = {each['chromosome__chromosome_name']: each['cnv_value']}
+				somys[each['chromosome__chromosome_name']] = {each['library__library_code'].encode('UTF8'): each['cnv_value']}
 
 		cnv_dict = {}
+
 		#Checks to see if tuples have all libraries present. Inserts blank tuples if not.
 		for each in result_list:
 			pos = each['chromosome__chromosome_name'] + '_' + str(each['start'])
 
 			if pos in cnv_dict:
-				library_dict = {'cnv': each['cnv_value'], 'coverage': each['coverage'], 'somy': somys[each['library__library_code']][each['chromosome__chromosome_name']]}
+				library_dict = {'cnv': each['cnv_value'], 'coverage': each['coverage'], 'somy': somys[each['chromosome__chromosome_name']][each['library__library_code'].encode('UTF8')]}
 
 				if each['library__library_code'] not in cnv_dict[pos]:
 					cnv_dict[pos][each['library__library_code'].encode('UTF8')] = library_dict
 
 			else:
-				library_dict = {each['library__library_code'].encode('UTF8'): {'cnv': each['cnv_value'], 'coverage': each['coverage'],  'somy': somys[each['library__library_code']][each['chromosome__chromosome_name']]},
+				library_dict = {each['library__library_code'].encode('UTF8'): {'cnv': each['cnv_value'], 'coverage': each['coverage'], 'somy': somys[each['chromosome__chromosome_name']][each['library__library_code'].encode('UTF8')]},
 				                'start': each['start'], 'stop': each['stop'], 'chromosome': each['chromosome__chromosome_name']}
 				cnv_dict[pos] = library_dict
 
@@ -1117,6 +1118,7 @@ def compare_cnv_libraries(request):
 		toolbar_min = max(cnvs.number - 4, 0)
 
 		return render_to_response('snpdb/compare_cnv_libraries.html', {"cnvs": cnvs,
+		                                                               "somys": somys,
 		                                                               "ref_genome": ref_genome,
 		                                                               "library_codes": library_codes,
 		                                                               "filter_urls": filter_urls,

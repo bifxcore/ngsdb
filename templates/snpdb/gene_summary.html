@@ -35,68 +35,70 @@
 <div class="container-fluid" style="padding-bottom:30px">
 
         {% for key, values in snp_list.items %}
-            <div class="panel-group" id="accordion">
-                <div class="panel panel-default">
-                    <div class="panel-heading"  style="background-color: #616770; color: white; border-color:#616770">
-                        <h4 class="panel-title">
-                            <a data-toggle="collapse" data-parent="#accordion" href="#{{key}}">
-                                {{key}} bp, {{values.aa_pos}} aa in protein <span style="padding-left:68px">{{values.effect|effect_type_title}} effecting {{values.percent_impacted|floatformat:-3}}% of gene</span>
-                            </a>
-                        </h4>
-                    </div>
-                    <div id={{key}} class="panel-collapse collapse">
-                        <div class="panel-body">
-                            <table class="table table-striped">
-                                <tr>
-                                    <th> Library </th>
-                                    <th> Ref <span class="glyphicon glyphicon-arrow-right"></span> Alt </th>
-                                    <th> CNV Value
-                                        <span class="label glyphicon glyphicon-info-sign" data-toggle="popover" data-placement="top"
-                                            data-content="Copy Number Values represent the ratio of average reads in a chromosomal range to the average overall chromosomal reads. Values between 1.75 and 2.25 are considered to be expected diploid values."
-                                            title="CNV Information" style="color:#636469; font-size:12px">
-                                        </span>
-                                        <script>
-                                            $("[data-toggle=popover]").popover();
-                                        </script>
-                                    </th>
-                                    <th> Somy Value
-                                        <span class="label glyphicon glyphicon-info-sign" data-toggle="popover" data-placement="top"
-                                            data-content="Somy Values represent the ratio of average reads in a chromosome to the average overall genome reads. Values between 1.75 and 2.25 are considered to be expected diploid values."
-                                            title="Somy Information" style="color:#636469; font-size:12px">
-                                        </span>
-                                        <script>
-                                            $("[data-toggle=popover]").popover();
-                                        </script>
-                                    </th>
-                                    <th> Loss of Function?</th>
-                                </tr>
-                                    {% for lib in libraries %}
-                                        {% if lib in values %}
-                                            <tr>
-                                                <td> {{lib}} </td>
-                                                <td> {{values|keyvalue:lib|keyvalue:'ref'}} <span class="glyphicon glyphicon-arrow-right"></span> {{values|keyvalue:lib|keyvalue:'alt'}} </td>
+            {% if values.impact != "LOW" %}
+                <div class="panel-group" id="accordion">
+                    <div class="panel panel-default">
+                        <div class="panel-heading"  style="background-color: #616770; color: white; border-color:#616770">
+                            <h4 class="panel-title">
+                                <a data-toggle="collapse" data-parent="#accordion" href="#{{key}}">
+                                    {{key}} bp, {{values.aa_pos}} aa in protein <span style="padding-left:68px">{{values.effect|joinby:", "|effect_type_title}} effecting {{values.percent_impacted|floatformat:-3}}% of gene</span>
+                                </a>
+                            </h4>
+                        </div>
+                        <div id={{key}} class="panel-collapse collapse">
+                            <div class="panel-body">
+                                <table class="table table-striped">
+                                    <tr>
+                                        <th> Library </th>
+                                        <th> Ref <span class="glyphicon glyphicon-arrow-right"></span> Alt </th>
+                                        <th> CNV Value
+                                            <span class="label glyphicon glyphicon-info-sign" data-toggle="popover" data-placement="top"
+                                                data-content="Copy Number Values represent the ratio of average reads in a chromosomal range to the average overall chromosomal reads. Values between 1.75 and 2.25 are considered to be expected diploid values."
+                                                title="CNV Information" style="color:#636469; font-size:12px">
+                                            </span>
+                                            <script>
+                                                $("[data-toggle=popover]").popover();
+                                            </script>
+                                        </th>
+                                        <th> Somy Value
+                                            <span class="label glyphicon glyphicon-info-sign" data-toggle="popover" data-placement="top"
+                                                data-content="Somy Values represent the ratio of average reads in a chromosome to the average overall genome reads. Values between 1.75 and 2.25 are considered to be expected diploid values."
+                                                title="Somy Information" style="color:#636469; font-size:12px">
+                                            </span>
+                                            <script>
+                                                $("[data-toggle=popover]").popover();
+                                            </script>
+                                        </th>
+                                        <th> Loss of Function?</th>
+                                    </tr>
+                                        {% for lib in libraries %}
+                                            {% if lib in values %}
+                                                <tr>
+                                                    <td> {{lib}} </td>
+                                                    <td> {{values|keyvalue:lib|keyvalue:'ref'}} <span class="glyphicon glyphicon-arrow-right"></span> {{values|keyvalue:lib|keyvalue:'alt'}} </td>
 
-                                                {% if values|keyvalue:lib|keyvalue:'cnv' > 2.25 or values|keyvalue:lib|keyvalue:'cnv' < 1.75 %}
-                                                    <td class="danger"> {{values|keyvalue:lib|keyvalue:'cnv'|floatformat:2}}</td>
-                                                {% else %}
-                                                    <td> {{values|keyvalue:lib|keyvalue:'cnv'|floatformat:2}}</td>
-                                                {% endif %}
+                                                    {% if values|keyvalue:lib|keyvalue:'cnv' > 2.25 or values|keyvalue:lib|keyvalue:'cnv' < 1.75 %}
+                                                        <td class="danger"> {{values|keyvalue:lib|keyvalue:'cnv'|floatformat:2}}</td>
+                                                    {% else %}
+                                                        <td> {{values|keyvalue:lib|keyvalue:'cnv'|floatformat:2}}</td>
+                                                    {% endif %}
 
-                                                {% if values|keyvalue:lib|keyvalue:'somy' > 2.25 or values|keyvalue:lib|keyvalue:'somy' < 1.75 %}
-                                                    <td class="danger"> {{values|keyvalue:lib|keyvalue:'somy'}} </td>
-                                                {% else %}
-                                                    <td> {{values|keyvalue:lib|keyvalue:'somy'}} </td>
-                                                {% endif %}
+                                                    {% if values|keyvalue:lib|keyvalue:'somy' > 2.25 or values|keyvalue:lib|keyvalue:'somy' < 1.75 %}
+                                                        <td class="danger"> {{values|keyvalue:lib|keyvalue:'somy'}} </td>
+                                                    {% else %}
+                                                        <td> {{values|keyvalue:lib|keyvalue:'somy'}} </td>
+                                                    {% endif %}
 
-                                                <td> {{ values|keyvalue:lib|keyvalue:'gain_of_function' }}</td>
-                                        {% endif %}
-                                            </tr>
-                                    {% endfor %}
-                            </table>
+                                                    <td> {{ values|keyvalue:lib|keyvalue:'gain_of_function' }}</td>
+                                            {% endif %}
+                                                </tr>
+                                        {% endfor %}
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            {% endif %}
         {% endfor %}
 </div>
 

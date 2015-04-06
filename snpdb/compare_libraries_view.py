@@ -531,20 +531,26 @@ def gene_snp_summary(request):
 			fmax = 0
 
 	snp_list = {}
+	high_ct = 0
+	moderate_ct = 0
+	low_ct = 0
 
-	count_list_1 = get_impact_counts_for_gene(gene_id, gene_length, fmin, snp_list, library_id)
+	snp_list = get_impact_counts_for_gene(gene_id, gene_length, fmin, snp_list, library_id)
+	# snp_list = get_impact_counts_for_gene(gene_id, gene_length, fmin, snp_list, library_id)
 
-	snp_list = count_list_1[0]
-	high_ct = count_list_1[1]
-	moderate_ct = count_list_1[2]
-	low_ct = count_list_1[3]
+	for key in snp_list:
+		impact = snp_list[key]['impact']
 
-	count_list_2 = get_impact_counts_for_gene(gene_id, gene_length, fmin, snp_list, library_id)
+		if impact.strip() == "HIGH":
+			high_ct += 1
+		elif impact.strip() == "MODERATE":
+			moderate_ct += 1
+		elif impact.strip() == "LOW":
+			low_ct += 1
 
-	snp_list = count_list_2[0]
-	high_ct += count_list_2[1]
-	moderate_ct += count_list_2[2]
-	low_ct += count_list_2[3]
+	# high_ct += count_list_2[1]
+	# moderate_ct += count_list_2[2]
+	# low_ct += count_list_2[3]
 
 	snp_list = OrderedDict(sorted(snp_list.items()))
 
@@ -563,10 +569,6 @@ def gene_snp_summary(request):
 
 
 def get_impact_counts_for_gene(gene_id, gene_length, start_pos, snp_info, libraries):
-
-	high_ct = 0
-	moderate_ct = 0
-	low_ct = 0
 
 	library_codes = Library.objects.values('library_code', 'id').filter(id__in=libraries)
 	lib_codes = {}
@@ -589,17 +591,16 @@ def get_impact_counts_for_gene(gene_id, gene_length, start_pos, snp_info, librar
 	params = libraries + [gene_id]
 	qs = Effect.objects.raw(query, params)
 
-	# snp_info = {}
 
 	#Iterates through all of the snps found within the gene and queried libraries.
 	for q in qs:
+		impact = q.effect_string
 		chrom = q.chromosome_id
 		library_code = lib_codes[q.library_id].get('library_code')
 		ref = q.ref_base
 		alt = q.alt_base
 		effect_type = q.effect_class
 		quality = q.quality
-		impact = q.effect_string
 		pos = q.snp_position
 		aa_pos = int(math.ceil((pos - start_pos)/float(3)))
 		percent_impact = float((gene_length - float(aa_pos)) / gene_length) * 100
@@ -625,21 +626,15 @@ def get_impact_counts_for_gene(gene_id, gene_length, start_pos, snp_info, librar
 
 		if pos in snp_info:
 			snp_info[pos][library_code] = library
+
 		else:
 			snps['chromosome'] = chrom
 			snps['gene'] = gene_id
 			snps['impact'] = impact
-			snps['effect'] = effect_type
+			snps['effect'] = [effect_type]
 			snps['aa_pos'] = aa_pos
 			snps['percent_impacted'] = percent_impact
 			snps[library_code] = library
 			snp_info[pos] = snps
 
-		if impact.strip() == "HIGH":
-			high_ct += 1
-		elif impact.strip() == "MODERATE":
-			moderate_ct += 1
-		elif impact.strip() == "LOW":
-			low_ct += 1
-
-	return [snp_info, high_ct, moderate_ct, low_ct]
+	return snp_info

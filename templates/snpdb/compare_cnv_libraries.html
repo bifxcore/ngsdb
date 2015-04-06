@@ -91,6 +91,7 @@
                             <td class="text-center" headers="chromosome">{{ each.1.chromosome }}</td>
                             <td class="text-center" headers="start">{{ each.1.start }}</td>
                             <td class="text-center" headers="stop">{{ each.1.stop }}</td>
+                            <td class="text-center" headers="stop">{% for key in somys|keyvalue:each.1.chromosome %} {{key}}: {{somys|keyvalue:each.1.chromosome|keyvalue:key}} {% endfor %}</td>
                             {% for x in library_codes %}
                                 {% if each.1|keyvalue:x|keyvalue:'cnv' < 1.75 or each.1|keyvalue:x|keyvalue:'cnv' > 2.25 %}
                                     <td class="text-center danger" headers="{{x}}">{{each.1|keyvalue:x|keyvalue:'cnv'|floatformat:2}} ({{each.1|keyvalue:x|keyvalue:'coverage'|floatformat}})</td>
