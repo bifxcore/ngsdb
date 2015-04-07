@@ -1,0 +1,97 @@
+{% extends "admin/base_site.html" %}
+{% block bootstrap %}
+<script>
+    $('.collapse').collapse()
+</script>
+{% endblock %}
+{%block content%}
+{% block body %}
+{% load ngsdbview_extras %}
+{% load humanize %}
+
+
+{%  if libraries_by_type  %}
+    <FORM action="." method="post">
+    {% csrf_token %}
+        <TABLE>
+            <TR>
+                <TD>
+                    {{ form.as_table }}
+                </TD>
+                <TD>
+                    <input type="submit"  name="levelTwo" value="Filter" />
+                 </TD>
+            </TR>
+        </TABLE>
+    </FORM>
+
+<div class="panel-heading" style="background-color: #616770; border-color:#616770; overflow: hidden">
+    <a class="collapse" data-toggle="collapse" data-parent="#accordion" href="#LibrariesSection" aria-expanded="true"> <h3 class="panel-title" style="text-align: left">Libraries list for above search:</h3> </a>
+</div>
+<div><br></div> <!-- spacer before data table-->
+<div class="collapse" id="LibrariesSection">
+
+    {% for lib_type, lib_type_data_dict in libraries_by_type.items %}
+        <!-- Libraries list section per library type -->
+        <div class="panel-heading" style="background-color: #F6E3CE; border-color:#F6E3CE; overflow: hidden">
+            <a class="collapse" data-toggle="collapse" data-parent="#accordion" href="#LibrariesSection_{{ forloop.counter }}" aria-expanded="true"> <h3 class="panel-title" style="text-align: left">{{ forloop.counter }}. {{ lib_type }}  Libraries (total: {{ lib_type_data_dict.count }})</h3> </a>
+        </div>
+        <div>There are {{ lib_type_data_dict.count }} {{ lib_type }} libraries. Click section header above to show/hide.</div>
+        <div><br></div> <!-- spacer before data table-->
+        <div class="collapse in" id="LibrariesSection_{{ forloop.counter }}">
+            <!-- Title row -->
+            <TABLE><TR>
+                <TH>Library Code</TH><TH>Sample ID</TH><TH>Collaborator</TH><TH>Organism</TH><TH>Genotype</TH><TH>Lifecycle Stage <br>(Growthphase)</TH><TH>Culture Method</TH><TH>Treatment</TH><TH>Time after <br>Treatment</TH><TH>Sample Details</TH>
+            </TR>
+            {% for lib in lib_type_data_dict %}
+                <!-- experiment table -->
+                    <TR>
+                        <TH> {{ forloop.counter }}.  <a href="/samples/viewlibrary/{{ lib.library_code }}/" target="_blank">{{ lib.library_code }}</a></TH>
+                        <TD><a href="/samples/viewsample/{{ lib.sampleid.sampleid }}/" target="_blank">{{ lib.sampleid.sampleid }}</a></TD>
+                        <!--<TD>{{ lib.sampleid.samplename }}</TD>-->
+                        <TD>{{ lib.collaborator }}</TD>
+                        <TD>{{ lib.sampleid.organism }}</TD>
+                        <TD>{{ lib.sampleid.genotype.genotype }}</TD>
+                        <TD>{{ lib.sampleid.lifestage.lifestage }}({{ lib.sampleid.growthphase.growthphase }})</TD>
+                        <TD>{{ lib.sampleid.culture_method }}</TD>
+                        <TD>{{ lib.sampleid.treatment }}</TD>
+                        <TD>{{ lib.sampleid.time_after_treatment }}</TD>
+
+
+                        <!-- Sample details collapsible -->
+                        <TD>
+                            <a data-toggle="collapse" data-parent="#accordion" href="#RNASampleDetailSectionCollapse1_{{ forloop.counter }}"> Show/Hide</a>
+
+                        <div id="RNASampleDetailSectionCollapse1_{{ forloop.counter }}" class="panel-collapse collapse in" style="height: auto;">
+                        <TABLE>
+                            <TR><TH>Bioanalyzer Data:</TH><TD>{{ lib.sampleid.bioanalyzer_analysis }}</TD></TR>
+                            <TR><TH>Biological replicate of:</TH><TD>{{ lib.sampleid.biological_replicate_of }}</TD></TR>
+                            <TR><TH>Sample Notes:</TH><TD>{{ lib.sampleid.sample_notes }}</TD></TR>
+                        </TABLE>
+                        </div>
+                        </TD>
+                    </TR>
+            {% endfor %}
+            </TABLE>
+        </div>
+
+    {% endfor %}
+</div>
+{% else %}
+<FORM action="." method="post">
+{% csrf_token %}
+    <TABLE>
+        <TR>
+            <TD>
+                {{ form.as_table }}
+            </TD>
+            <TD>
+                <input type="submit"  name="levelOne" value="Submit" />
+                </form>
+            </TD>
+        </TR>
+    </TABLE>
+</FORM>
+{% endif %}
+{% endblock %}
+{% endblock %}

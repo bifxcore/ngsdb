@@ -1,0 +1,120 @@
+{% extends "admin/base_site.html" %}
+{% block bootstrap %}
+<script>
+    $('.collapse').collapse()
+</script>
+{% endblock %}
+{%block content%}
+{% block body %}
+{% load ngsdbview_extras %}
+{% load humanize %}
+
+
+{%  if sample  %}
+
+<div class="panel-heading" style="background-color: #616770; border-color:#616770; overflow: hidden">
+    <a > <h3 class="panel-title" style="text-align: left">Sample ID: {{ sample.sampleid}}</h3> </a>
+</div>
+
+
+<TABLE><TR><TD>
+
+<!-- RNA Samples list section -->
+<div class="panel-heading" style="background-color: #616770; border-color:#616770; overflow: hidden">
+    <a data-toggle="collapse" data-parent="#accordion" href="#SamplesSection"> <h3 class="panel-title" style="text-align: left">Sample</h3> </a>
+</div>
+<div id="SamplesSection">
+    <TABLE>
+        <TR><TH>Sample ID:</TH><TD>{{ sample.sampleid }}</TD></TR>
+        <TR><TH>Sample Name:</TH><TD>{{ sample.samplename }}</TD></TR>
+        <TR><TH>Sample Type:</TH><TD>{{ sample.sampletype }}</TD></TR>
+        <TR><TH>Collaborator:</TH><TD>{{ sample.collaborator }}</TD></TR>
+        <TR><TH>Biosample ID:</TH><TD>{{ sample.biosample }}</TD></TR>
+        <TR><TH>Organism:</TH><TD>{{ sample.organism }}</TD></TR>
+    </TABLE>
+</div>
+<br>
+<div class="panel-heading" style="background-color: #F6E3CE; border-color:#F6E3CE; overflow: hidden">
+    <a data-toggle="collapse" data-parent="#accordion" href="#LibrarySection"> <h3 class="panel-title" style="text-align: left">Libraries constructed from it</h3> </a>
+</div>
+
+<div id="LibrarySection">
+
+    <TABLE>
+        <TH>Library Code</TH><TH>Library Type</TH><TH>Flowcell Number</TH>
+        {% for library in sample_libraryobj_map|hash:sample.sampleid %}
+        <TR><TH>{{ library.library_code }}</TH><TD>{{ library.librarytype }}</TD><TD>{{ library.flowcell_number }}</TD></TR>
+        {% endfor %}
+    </TABLE>
+</div>
+</TD><TD>
+<!-- Samples Source section -->
+<div class="panel-heading" style="background-color: #F6E3CE; border-color:#F6E3CE; overflow: hidden">
+    <a data-toggle="collapse" data-parent="#accordion" href="#SamplesSourceSection"> <h3 class="panel-title" style="text-align: left">Source Information</h3> </a>
+</div>
+<div id="SamplesSourceSection">
+    <TABLE><TR>
+        <TR><TH>Genotype:</TH><TD>{{ sample.genotype }}</TD></TR>
+        <TR><TH>Lifecycle Stage:</TH><TD>{{ sample.lifestage }}</TD></TR>
+        <TR><TH>Growthphase:</TH><TD>{{ sample.growthphase }}</TD></TR>
+        <TR><TH>Phenotype:</TH><TD>{{ sample.phenotype }}</TD></TR>
+        <TR><TH>Is Clonal:</TH><TD>{{ sample.is_clonal }}</TD></TR>
+        <TR><TH>Culture Method:</TH><TD>{{ sample.culture_method }}</TD></TR>
+        <TR><TH>Treatment:</TH><TD>{{ sample.treatment }}</TD></TR>
+        <TR><TH>Time after treatment:</TH><TD>{{ sample.time_after_treatment }}</TD></TR>
+        <TR><TH>Source place:</TH></TH><TD>{{ sample.source }}</TD></TR>
+        <TR><TH>Source Name:</TH><TD>{{ sample.sourcename }}</TD></TR>
+    </TR></TABLE>
+</div>
+</TD><TD>
+
+<!-- Samples Isolation information section -->
+<div class="panel-heading" style="background-color: #F6E3CE; border-color:#F6E3CE; overflow: hidden">
+    <a data-toggle="collapse" data-parent="#accordion" href="#SamplesIsolationSection"> <h3 class="panel-title" style="text-align: left">Sample Isolation information</h3> </a>
+</div>
+<div id="SamplesIsolationSection">
+    <TABLE><TR>
+        <TR><TH>Sample Isolation Method:</TH><TD>{{ sample.isolation_method }}</TD></TR>
+        <TR><TH>Sample Isolated at:</TH><TD>{{ sample.collected_at }}</TD></TR>
+        <TR><TH>Sample Isolated on:</TH><TD>{{ sample.collected_on }}</TD></TR>
+        <TR><TH>Sample Isolated by:</TH><TD>{{ sample.collected_by }}</TD></TR>
+        <TR><TH>Sample Isolated by EmailID:</TH><TD>{{ sample.collected_by_emailid }}</TD></TR>
+        <TR><TH>Bioanalyzer Results:</TH><TD>{{ sample.biosample }}</TD></TR>
+    </TR></TABLE>
+</div>
+</TD><TD>
+
+<!-- Samples Storage information section -->
+<div class="panel-heading" style="background-color: #F6E3CE; border-color:#F6E3CE; overflow: hidden">
+    <a data-toggle="collapse" data-parent="#accordion" href="#SamplesStorageSection"> <h3 class="panel-title" style="text-align: left">Storage Information</h3> </a>
+</div>
+<div id="SamplesStorageSection">
+    <TABLE><TR>
+        <TR><TH>Date Sample Received at Seattle BioMed:</TH><TD>{{ sample.date_received }}</TD></TR>
+        <TR><TH>Sample Concentration:</TH><TD>{{ sample.sample_concentration }} ng/ul</TD></TR>
+        <TR><TH>Sample Volume:</TH><TD>{{ sample.sample_volume }} ul</TD></TR>
+        <TR><TH>Sample quantity:</TH><TD>{{ sample.sample_quantity }} ug</TD></TR>
+        <TR><TH>Parent Sample ID:</TH><TD>{{ sample.parent_sampleid }}</TD></TR>
+        <TR><TH>Dilution level:</TH><TD>{{ sample.sample_dilution }}</TD></TR>
+        <TR><TH>Freezer Location:</TH><TD>{{ sample.freezer_location }}</TD></TR>
+        <TR><TH>Biological replicate of:</TH><TD>{{ sample.biological_replicate_of }}</TD></TR>
+    </TR></TABLE>
+</div>
+</TD></TR></TABLE>
+
+
+<!-- Other information section -->
+<div class="panel-heading" style="background-color: #616770; border-color:#616770; overflow: hidden">
+    <a data-toggle="collapse" data-parent="#accordion" href="#SamplesNotesSection"> <h3 class="panel-title" style="text-align: left">Other information</h3> </a>
+</div>
+<div id="SamplesNotesSection">
+    <TABLE><TR>
+        <TR><TH>Sample Notes:</TH><TD>{{ sample.sample_notes }}</TD></TR>
+        <TR><TH>Person modified this entry last:</TH><TD>{{ sample.author_modified }}</TD></TR>
+    </TR></TABLE>
+</div>
+<div></p></div>
+
+{% endif %}
+{% endblock %}
+{% endblock %}

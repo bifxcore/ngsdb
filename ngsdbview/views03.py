@@ -36,7 +36,6 @@ def GetChoiceValueTuple(queryset, fieldname):
             choice_list.append(tuple([item, item]))
         return tuple(choice_list)
 
-
 class ListExperiemntsForm(forms.Form):
     expttype = forms.ChoiceField(choices=GetChoiceValueTuple(Experiment.objects.all(), 'type'))
     refgenome = forms.ChoiceField(choices=GetChoiceValueTuple(Organism.objects.all(), 'organismcode'))
@@ -77,6 +76,58 @@ def get_libcode_samplename_map(request, libcodes):
 #============================================================================#
 # View  functions
 #============================================================================#
+def ListSamples(request):
+    '''
+    List all loaded Samples. Allow exploration.
+    :param request:
+    :return: all Sample objects; with libraries made from them
+    '''
+
+    kwargs = {}
+    #kwargs['user']=user
+    kwargs['listoflinks']=listoflinks
+    kwargs['title']="Samples List"
+
+
+    if request.method == 'POST':
+        form = ListExperiemntsForm(request.POST) #bound form
+        if form.is_valid():
+            expttype = form.cleaned_data['expttype']
+            refgenome = form.cleaned_data['refgenome']
+            collaboratorLN = form.cleaned_data['collaborator']
+
+            # get experiments
+
+            expts = Experiment.objects.all()
+            if expttype != 'ALL':
+                expts = expts.filter(type=expttype)
+            if refgenome != 'ALL':
+                expts = expts.filter(refgenome__organism__organismcode=refgenome)
+            if collaboratorLN != 'ALL':
+                expts = expts.filter(collaborator__lastname=collaboratorLN)
+
+            expts_RNAseq = expts.filter(type='RNAseq')
+            expts_DNAseq = expts.filter(type='DNAseq')
+            expts_SLseq = expts.filter(type='SL')
+
+            kwargs['experiments']=expts
+            kwargs['expts_RNAseq']=expts_RNAseq
+            kwargs['expts_DNAseq']=expts_DNAseq
+            kwargs['expts_SLseq']=expts_SLseq
+            print expts_RNAseq
+
+            kwargs['form']=form
+        else:
+            kwargs['form']=form
+    else:
+        form = ListExperiemntsForm() #un bound form
+        kwargs['form']=form
+
+
+
+    return render_to_response('ngsdbview/experiment_list.html',kwargs, context_instance=RequestContext(request))
+
+
 def ListExperiments(request):
     '''
     List all loaded experiment. Allow exploration.
@@ -259,3 +310,53 @@ def SNPCompareLibs(request, experimentId):
 
     print kwargs['libcodes']
     return render_to_response('ngsdbview/snp_compare_libraries.html', kwargs, context_instance=RequestContext(request))
+
+
+def ListCollaborators(request):
+    """
+    List all loaded collaborators. Allow exploration.
+    :param request:
+    :return: all collaborator objects;
+    """
+
+    kwargs = {}
+    #kwargs['user']=user
+    kwargs['listoflinks']=listoflinks
+    kwargs['title']="Collaborator List"
+
+    kwargs['collaborators'] = Collaborator.objects.all()
+
+    return render_to_response('ngsdbview/collaborators_list.html',kwargs, context_instance=RequestContext(request))
+
+def ListOrganisms(request):
+    """
+    List all loaded Organisms. Allow exploration.
+    :param request:
+    :return: all Organisms objects;
+    """
+
+    kwargs = {}
+    #kwargs['user']=user
+    kwargs['listoflinks']=listoflinks
+    kwargs['title']="Organisms List"
+
+    kwargs['organisms'] = Organism.objects.all()
+
+    return render_to_response('ngsdbview/organisms_list.html',kwargs, context_instance=RequestContext(request))
+
+
+def ListGenomes(request):
+    """
+    List all loaded Genomes. Allow exploration.
+    :param request:
+    :return: all Genomes objects;
+    """
+
+    kwargs = {}
+    #kwargs['user']=user
+    kwargs['listoflinks']=listoflinks
+    kwargs['title']="Genomes List"
+
+    kwargs['genomes'] = Genome.objects.all()
+
+    return render_to_response('ngsdbview/genomes_list.html',kwargs, context_instance=RequestContext(request))
