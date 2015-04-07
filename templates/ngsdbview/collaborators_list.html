@@ -1,0 +1,27 @@
+{% extends "admin/base_site.html" %}
+{% block bootstrap %}
+<script>
+    $('.collapse').collapse()
+</script>
+{% endblock %}
+{%block content%}
+{% block body %}
+{% load ngsdbview_extras %}
+{% load humanize %}
+
+{%  if collaborators  %}
+    <div class="panel-heading" style="background-color: #616770; border-color:#616770; overflow: hidden">
+        <a data-toggle="collapse" data-parent="#accordion" href="#CollaboratorSection" aria-expanded="false" aria-controls="CollaboratorSection"> <h3 class="panel-title" style="text-align: left">Collaborators List</h3> </a>
+    </div>
+    <div>There are {{ collaborators.count }} Collaborators in the database. Click section header above to show/hide.</div>
+    <div class="collapse " id="CollaboratorSection">
+    <TABLE>
+        <TR><TH>Sl. No.</TH><TH>First Name</TH><TH>Last Name</TH><TH>Affiliation</TH><TH>Email</TH></TR>
+        {% for collaborator in collaborators %}
+            <TR><TD>{{ forloop.counter }}</TD><TD><a href="/admin/ngsdbview/collaborator/{{ collaborator.collaborator_id}}/" target="_blank">{{ collaborator.firstname }}</a></TD><TD>{{ collaborator.lastname }}</TD><TD>{{ collaborator.affiliation }}</TD><TD>{{ collaborator.email }}</TD></TR>
+        {% endfor %}
+    </TABLE>
+    </div>
+{% endif %}
+{% endblock %}
+{% endblock %}
