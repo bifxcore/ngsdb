@@ -1,0 +1,27 @@
+{% extends "admin/base_site.html" %}
+{% block bootstrap %}
+<script>
+    $('.collapse').collapse()
+</script>
+{% endblock %}
+{%block content%}
+{% block body %}
+{% load ngsdbview_extras %}
+{% load humanize %}
+
+{%  if genomes  %}
+   <div class="panel-heading" style="background-color: #616770; border-color:#616770; overflow: hidden">
+        <a data-toggle="collapse" data-parent="#accordion" href="#GenomesSection" aria-expanded="false" aria-controls="CollaboratorSection"> <h3 class="panel-title" style="text-align: left">Genomes List</h3> </a>
+    </div>
+    <div>There are {{ genomes.count }} Genomes loaded into the database. Click section header above to show/hide.</div>
+    <div class="collapse " id="GenomesSection">
+    <TABLE>
+        <TR><TH>Sl. No.</TH><TH>Genome Code</TH><TH>Organis Code</TH><TH>Genome Version</TH><TH>Source of Data</TH><TH>CVS version</TH><TH>CVS Name/Path</TH></TR>
+        {% for genome in genomes %}
+            <TR><TD>{{ forloop.counter }}</TD><TD><a href="/admin/ngsdbview/genome/{{ genome.genome_id}}/" target="_blank">{{ genome.organism.organismcode }}</a></TD><TD>{{ genome.organism.organismcode }}</TD><TD>{{ genome.version }}</TD><TD>{{ genome.source }}</TD><TD>{{ genome.svnrevision }}</TD><TD>{{ genome.svnpath }}</TD></TR>
+        {% endfor %}
+    </TABLE>
+    </div>
+{% endif %}
+{% endblock %}
+{% endblock %}

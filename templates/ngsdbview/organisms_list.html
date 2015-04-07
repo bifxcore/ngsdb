@@ -1,0 +1,27 @@
+{% extends "admin/base_site.html" %}
+{% block bootstrap %}
+<script>
+    $('.collapse').collapse()
+</script>
+{% endblock %}
+{%block content%}
+{% block body %}
+{% load ngsdbview_extras %}
+{% load humanize %}
+
+{%  if organisms  %}
+    <div class="panel-heading" style="background-color: #616770; border-color:#616770; overflow: hidden">
+        <a data-toggle="collapse" data-parent="#accordion" href="#OrganismsSection" aria-expanded="false" aria-controls="CollaboratorSection"> <h3 class="panel-title" style="text-align: left">Organisms List</h3> </a>
+    </div>
+    <div>There are {{ organisms.count }} organisms in the database. Click section header above to show/hide.</div>
+    <div class="collapse " id="OrganismsSection">
+    <TABLE>
+        <TR><TH>Sl. No.</TH><TH>Organism Code</TH><TH>Genus</TH><TH>Species</TH><TH>Strain</TH></TR>
+        {% for organism in organisms %}
+            <TR><TD>{{ forloop.counter }}</TD><TD><a href="/admin/ngsdbview/organism/{{ organism.organism_id}}/" target="_blank">{{ organism.organismcode }}</a></TD><TD>{{ organism.genus }}</TD><TD>{{ organism.species }}</TD><TD>{{ organism.strain }}</TD></TR>
+        {% endfor %}
+    </TABLE>
+    </div>
+{% endif %}
+{% endblock %}
+{% endblock %}
