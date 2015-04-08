@@ -119,7 +119,7 @@ def setsetting():
     """
     Sets the export DJANGO_SETTINGS_MODULE to be something like this =ngsdb03.settings.gramasamy02
     """
-    with shell_env(DJANGO_SETTINGS_MODULE="ngsdb03.settings.gramasamy02"):
+    with shell_env(DJANGO_SETTINGS_MODULE="ngsdb03.settings.ngsdb"):
         yield
 
 @contextmanager
@@ -681,7 +681,7 @@ def deploy():
        git = 'Yes'
        run("%s > last.commit" % "git rev-parse HEAD" if git else "hg id -i")
        with update_changed_requirements():
-            run("git pull origin master" if git else "hg pull && hg up -C")
+            run("git pull origin master --tags" if git else "hg pull && hg up -C")
             run("git stash")
        #manage("collectstatic -v 0 --noinput")
        #manage("syncdb --noinput")

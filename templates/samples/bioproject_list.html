@@ -1,0 +1,27 @@
+{% extends "admin/base_site.html" %}
+{% block bootstrap %}
+<script>
+    $('.collapse').collapse()
+</script>
+{% endblock %}
+{%block content%}
+{% block body %}
+{% load ngsdbview_extras %}
+{% load humanize %}
+
+{%  if bioprojects  %}
+   <div class="panel-heading" style="background-color: #616770; border-color:#616770; overflow: hidden">
+        <a data-toggle="collapse" data-parent="#accordion" href="#BioprojectsSection" aria-expanded="false" aria-controls="CollaboratorSection"> <h3 class="panel-title" style="text-align: left">Bioprojects List</h3> </a>
+    </div>
+    <div>There are {{ bioprojects.count }} Bioprojects in the database. Click section header above to show/hide.</div>
+    <div class="collapse " id="BioprojectsSection">
+    <TABLE>
+        <TR><TH>Sl. No.</TH><TH>Bioproject Code</TH><TH>Organism</TH><TH>Notes</TH></TR>
+        {% for bioproject in bioprojects %}
+            <TR><TD>{{ forloop.counter }}</TD><TD><a href="/admin/samples/bioproject/{{ bioproject.id}}/" target="_blank">{{ bioproject.bioproject_code }}</a></TD><TD>{{ bioproject.organisms }}</TD><TD>{{ bioproject.notes }}</TD></TR>
+        {% endfor %}
+    </TABLE>
+    </div>
+{% endif %}
+{% endblock %}
+{% endblock %}

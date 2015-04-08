@@ -1,0 +1,202 @@
+{% extends "admin/base_site.html" %}
+{% block bootstrap %}
+<script>
+    $('.collapse').collapse()
+</script>
+{% endblock %}
+{%block content%}
+{% block body %}
+{% load ngsdbview_extras %}
+{% load humanize %}
+
+
+{%  if library  %}
+<!-- Library info section -->
+<div class="panel-heading" style="background-color: #616770; border-color:#616770; overflow: hidden">
+    <a data-toggle="collapse" data-parent="#accordion" href="#LibrarySectionMaster"> <h3 class="panel-title" style="text-align: left">Library Code: {{ library.library_code }}</h3> </a>
+</div>
+<div class="collapse" id="LibrarySectionMaster">
+<TABLE><TR>
+    <!-- basic library info section -->
+    <TD>
+    <div class="panel-heading" style="background-color: #996600; border-color:#996600; overflow: hidden">
+    <a data-toggle="collapse" data-parent="#accordion" href="#LibraryBasic"> <h3 class="panel-title" style="text-align: left">Library Basic Info:</h3> </a>
+    </div>
+    <div class="collapse" id="LibraryBasic">
+        <TABLE>
+            <TR><TH>Library Code</TH><TD>{{ library.library_code }}</TD></TR>
+            <TR><TH>Library Author</TH><TD>{{ library.author.firstname }} {{ library.author.lastname }} ({{ library.author.designation }})</TD></TR>
+            <TR><TH>Collaborator</TH><TD>{{ library.collaborator }}</TD></TR>
+            <TR><TH>Bio Project</TH><TD>{{ library.bioproject }}</TD></TR>
+            <TR><TH>Library Type</TH><TD>{{ library.librarytype.type }}</TD></TR>
+            <TR><TH>Template Material</TH><TD>{{ library.template_material }}</TD></TR>
+        </TABLE>
+    </div>
+    </TD>
+    <TD></TD>
+    </TR><TR>
+    <!-- Library construction detail -->
+    <TD>
+    <div class="panel-heading" style="background-color: #F6E3CE; border-color:#F6E3CE; overflow: hidden">
+    <a data-toggle="collapse" data-parent="#accordion" href="#LibraryConstruction"> <h3 class="panel-title" style="text-align: left">Library construction detail:</h3> </a>
+    </div>
+    <div class="collapse" id="LibraryConstruction">
+        <TABLE>
+            <TR><TH>Template Material</TH><TD>{{ library.template_material }}</TD></TR>
+            <TR><TH>Library construction Protocol</TH><TD>{{ library.protocol.protocol_name }} ({{library.protocol.protocol_file}})</TD></TR>
+            <TR><TH>Protocol notes</TH><TD>{{ library.protocol.notes }} </TD></TR>
+            <TR><TH>Library Gel image</TH><TD>{{ library.library_gelimage }}</TD></TR>
+            <TR><TH>Library creation date</TH><TD>{{ library.library_creation_date }}</TD></TR>
+        </TABLE>
+    </div>
+    <div><br></div>
+    <div class="panel-heading" style="background-color: #F6E3CE; border-color:#F6E3CE; overflow: hidden">
+    <a data-toggle="collapse" data-parent="#accordion" href="#AnalysisSuggestion"> <h3 class="panel-title" style="text-align: left">Library analysis suggestions:</h3> </a>
+    </div>
+    <div class="collapse" id="AnalysisSuggestion">
+        <TABLE>
+            <TR><TH>Suggested Genome</TH><TD>{{ library.suggested_reference_genome }}</TD></TR>
+            <TR><TH>Notes for bioinformatician (from libary author/collaborator)</TH><TD>{{ library.note_for_analysis }} </TD></TR>
+        </TABLE>
+    </div>
+    </TD>
+    <!-- Library sequencing detail -->
+    <TD>
+    <div class="panel-heading" style="background-color: #F6E3CE; border-color:#F6E3CE; overflow: hidden">
+    <a data-toggle="collapse" data-parent="#accordion" href="#LibrarySequencing"> <h3 class="panel-title" style="text-align: left">Library sequencing detail:</h3> </a>
+    </div>
+    <div class="collapse" id="LibrarySequencing">
+        <TABLE>
+            <TR><TH>Submitted for sequencing on</TH><TD>{{ library.submitted_for_sequencing_on }}</TD></TR>
+            <TR><TH>Sequence downloaded on</TH><TD>{{ library.sequence_downloaded_on }}</TD></TR>
+            <TR><TH>Flowcell number</TH><TD>{{ library.flowcell_number }} </TD></TR>
+            <TR><TH>Lane number(s)</TH><TD>{{ library.lane_number }}</TD></TR>
+            <TR><TH>Index sequence</TH><TD>{{ library.index_sequence }}</TD></TR>
+            <TR><TH>Fastqfile name(s)</TH><TD>{{ library.fastqfile_name }}</TD></TR>
+            <TR><TH>Read Count</TH><TD>{{ library.fastqfile_readcount }}</TD></TR>
+            <TR><TH>Fastqfile md5sum</TH><TD>{{ library.fastqfile_md5sum }}</TD></TR>
+            <TR><TH>Fastqfile size inbytes</TH><TD>{{ library.fastqfile_size_inbytes }}</TD></TR>
+        </TABLE>
+    </div>
+    </TD>
+    </TR>
+</TABLE>
+</div>
+<!-- Library analysis section -->
+<div><br></div>
+<!-- Samples list section -->
+<div class="panel-heading" style="background-color: #616770; border-color:#616770; overflow: hidden">
+    <a data-toggle="collapse" data-parent="#accordion" href="#AnalysisSectionMaster"> <h3 class="panel-title" style="text-align: left">Data analysis results</h3> </a>
+</div>
+<div class="collapse in" id="AnalysisSectionMaster">
+
+
+</div>
+<div><br></div>
+<!-- Samples list section -->
+<div class="panel-heading" style="background-color: #616770; border-color:#616770; overflow: hidden">
+    <a data-toggle="collapse" data-parent="#accordion" href="#SamplesSectionMaster"> <h3 class="panel-title" style="text-align: left">Sample Info from which this library was constructed</h3> </a>
+</div>
+<div class="collapse in" id="SamplesSectionMaster">
+<TABLE><TR><TD>
+    <div class="panel-heading" style="background-color: #996600; border-color:#996600; overflow: hidden">
+         <a data-toggle="collapse" data-parent="#accordion" href="#SamplesSection"> <h3 class="panel-title" style="text-align: left">Sample</h3> </a>
+    </div>
+    <div id="SamplesSection">
+        <TABLE>
+            <TR><TH>Sample ID:</TH><TD>{{ library.sampleid.sampleid }}</TD></TR>
+            <TR><TH>Sample Name:</TH><TD>{{ library.sampleid.samplename }}</TD></TR>
+            <TR><TH>Sample Type:</TH><TD>{{ library.sampleid.sampletype }}</TD></TR>
+            <TR><TH>Collaborator:</TH><TD>{{ library.sampleid.collaborator }}</TD></TR>
+            <TR><TH>Biosample ID:</TH><TD>{{ library.sampleid.biosample }}</TD></TR>
+            <TR><TH>Organism:</TH><TD>{{ library.sampleid.organism }}</TD></TR>
+        </TABLE>
+    </div>
+    <br>
+
+    </TD><TD>
+    <!-- Samples Source section -->
+    <div class="panel-heading" style="background-color: #F6E3CE; border-color:#F6E3CE; overflow: hidden">
+        <a data-toggle="collapse" data-parent="#accordion" href="#SamplesSourceSection"> <h3 class="panel-title" style="text-align: left">Source Information</h3> </a>
+    </div>
+    <div id="SamplesSourceSection">
+        <TABLE><TR>
+            <TR><TH>Genotype:</TH><TD>{{ library.sampleid.genotype }}</TD></TR>
+            <TR><TH>Lifecycle Stage:</TH><TD>{{ library.sampleid.lifestage }}</TD></TR>
+            <TR><TH>Growthphase:</TH><TD>{{ library.sampleid.growthphase }}</TD></TR>
+            <TR><TH>Phenotype:</TH><TD>{{ library.sampleid.phenotype }}</TD></TR>
+            <TR><TH>Is Clonal:</TH><TD>{{ library.sampleid.is_clonal }}</TD></TR>
+            <TR><TH>Culture Method:</TH><TD>{{ library.sampleid.culture_method }}</TD></TR>
+            <TR><TH>Treatment:</TH><TD>{{ library.sampleid.treatment }}</TD></TR>
+            <TR><TH>Time after treatment:</TH><TD>{{ library.sampleid.time_after_treatment }}</TD></TR>
+            <TR><TH>Source place:</TH></TH><TD>{{ library.sampleid.source }}</TD></TR>
+            <TR><TH>Source Name:</TH><TD>{{ library.sampleid.sourcename }}</TD></TR>
+        </TR></TABLE>
+    </div>
+    </TD><TD>
+
+    <!-- Samples Isolation information section -->
+    <div class="panel-heading" style="background-color: #F6E3CE; border-color:#F6E3CE; overflow: hidden">
+        <a data-toggle="collapse" data-parent="#accordion" href="#SamplesIsolationSection"> <h3 class="panel-title" style="text-align: left">Sample Isolation information</h3> </a>
+    </div>
+    <div id="SamplesIsolationSection">
+        <TABLE><TR>
+            <TR><TH>Sample Isolation Method:</TH><TD>{{ library.sampleid.isolation_method }}</TD></TR>
+            <TR><TH>Sample Isolated at:</TH><TD>{{ library.sampleid.collected_at }}</TD></TR>
+            <TR><TH>Sample Isolated on:</TH><TD>{{ library.sampleid.collected_on }}</TD></TR>
+            <TR><TH>Sample Isolated by:</TH><TD>{{ library.sampleid.collected_by }}</TD></TR>
+            <TR><TH>Sample Isolated by EmailID:</TH><TD>{{ library.sampleid.collected_by_emailid }}</TD></TR>
+            <TR><TH>Bioanalyzer Results:</TH><TD>{{ library.sampleid.biosample }}</TD></TR>
+        </TR></TABLE>
+    </div>
+    </TD><TD>
+
+    <!-- Samples Storage information section -->
+    <div class="panel-heading" style="background-color: #F6E3CE; border-color:#F6E3CE; overflow: hidden">
+        <a data-toggle="collapse" data-parent="#accordion" href="#SamplesStorageSection"> <h3 class="panel-title" style="text-align: left">Storage Information</h3> </a>
+    </div>
+    <div id="SamplesStorageSection">
+        <TABLE><TR>
+            <TR><TH>Date Sample Received at Seattle BioMed:</TH><TD>{{ library.sampleid.date_received }}</TD></TR>
+            <TR><TH>Sample Concentration:</TH><TD>{{ library.sampleid.sample_concentration }} ng/ul</TD></TR>
+            <TR><TH>Sample Volume:</TH><TD>{{ library.sampleid.sample_volume }} ul</TD></TR>
+            <TR><TH>Sample quantity:</TH><TD>{{ library.sampleid.sample_quantity }} ug</TD></TR>
+            <TR><TH>Parent Sample ID:</TH><TD>{{ library.sampleid.parent_sampleid }}</TD></TR>
+            <TR><TH>Dilution level:</TH><TD>{{ library.sampleid.sample_dilution }}</TD></TR>
+            <TR><TH>Freezer Location:</TH><TD>{{ library.sampleid.freezer_location }}</TD></TR>
+            <TR><TH>Biological replicate of:</TH><TD>{{ library.sampleid.biological_replicate_of }}</TD></TR>
+        </TR></TABLE>
+    </div>
+    </TD></TR></TABLE>
+
+
+    <!-- Other information section -->
+    <div class="panel-heading" style="background-color: #F6E3CE; border-color:#F6E3CE; overflow: hidden">
+        <a data-toggle="collapse" data-parent="#accordion" href="#SamplesNotesSection"> <h3 class="panel-title" style="text-align: left">Other information</h3> </a>
+    </div>
+    <div id="SamplesNotesSection">
+        <TABLE><TR>
+            <TR><TH>Sample Notes:</TH><TD>{{ library.sampleid.sample_notes }}</TD></TR>
+            <TR><TH>Person modified this entry last:</TH><TD>{{ library.sampleid.author_modified }}</TD></TR>
+        </TR></TABLE>
+    </div>
+</div>
+
+<!-- List all libraries that are siblings to this one -->
+<div><br></div>
+<div class="panel-heading" style="background-color: #616770; border-color:#616770; overflow: hidden">
+    <a data-toggle="collapse" data-parent="#accordion" href="#LibrarySection"> <h3 class="panel-title" style="text-align: left"> All Libraries constructed from sample this library is derived from</h3> </a>
+</div>
+<div class="collapse in" id="LibrarySection">
+    <TABLE>
+        <TH>Sl. No.</TH><TH>Library Code</TH><TH>Library Type</TH><TH>Flowcell Number</TH>
+        {% for lib in all_sibling_libs %}
+            <TR><TH>{{ forloop.counter }}</TH><TH>{{ lib.library_code }}</TH><TD>{{ lib.librarytype }}</TD><TD>{{ lib.flowcell_number }}</TD></TR>
+        {% endfor %}
+    </TABLE>
+</div>
+    <div></p></div>
+
+{% endif %}
+{% endblock %}
+{% endblock %}

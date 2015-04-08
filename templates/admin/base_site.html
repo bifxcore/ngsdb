@@ -96,20 +96,33 @@
                 {% if user.is_active %}
                 <!-- New Menu starts -->
                 <li class="dropdown">
-                    <a class="dropdown-toggle" data-toggle="dropdown" id="listall"  href="/samples/librarylist/">List All <b class="caret"></b></a>
+                    <a class="dropdown-toggle" data-toggle="dropdown" id="listall"  >List All <b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                        <li class="menu-item"><a href="/samples/samples/">Samples</a></li>
+                        <li class="menu-item"><a href="/samples/libraries/">Libraries</a></li>
+                        <li class="menu-item"><a href="/ngsdbview/experiments/">Experiments</a> </li>
+                        <li class="menu-item"><a href="/ngsdbview/collaborators/">Collaborators</a></li>
+                        <li class="menu-item"><a href="/samples/bioprojects/">Bioprojects</a></li>
+                        <li class="menu-item"><a href="/ngsdbview/organisms/">Organisms</a></li>
+                        <li class="menu-item"><a href="/ngsdbview/genomes/">Genomes</a></li>
+                    </ul>
+                </li>
+                {% if user.is_superuser %}
+               <!-- Editable links if admin -->
+                <li class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown" id="createnew"  href="/samples/librarylist/">Add New/ Edit <b class="caret"></b></a>
                     <ul class="dropdown-menu">
                         <li class="menu-item"><a href="/admin/samples/sample/">Samples</a></li>
                         <li class="menu-item"><a href="/admin/samples/library/">Libraries</a></li>
-                        <li class="menu-item"><a href="/admin/samples/library/">Analyses</a></li>
-                        <li class="menu-item"><a href="/ngsdbview/listexperiments/">Experiments</a> </li>
-                        <li class="menu-item"><a href="/admin/ngsdbview/experiment/">Add Experiments</a></li>
+                        <li class="menu-item"><a href="/admin/ngsdbview/experiment/">Experiments</a></li>
                         <li class="menu-item"><a href="/admin/ngsdbview/collaborator/">Collaborators</a></li>
                         <li class="menu-item"><a href="/admin/samples/bioproject/">Bioprojects</a></li>
                         <li class="menu-item"><a href="/admin/ngsdbview/organism/">Organisms</a></li>
-                        <li class="menu-item"><a href="/admin/samples/genome/">Genomes</a></li>
-                        <li class="menu-item"><a href="/snpdb/snp">SNPs</a></li>
+                        <li class="menu-item"><a href="/admin/ngsdbview/genome/">Genomes</a></li>
                     </ul>
                 </li>
+                {% endif %}
+
                 <li class="dropdown">
                     <a class="dropdown-toggle" data-target="#" data-toggle="dropdown" href="/samples/librarylist/">Query<b class="caret"></b></a>
                     <ul class="dropdown-menu multi-level" role="menu">
@@ -148,24 +161,8 @@
                         </li>
                     </ul>
                 </li>
-                <li class="dropdown">
-                    <a class="dropdown-toggle" data-toggle="dropdown" id="samplesdb"  href="/samples/librarylist/">Samples DB<b class="caret"></b></a>
-                    <ul id="samples" class="dropdown-menu" role="menu">
-                        <li class="dropdown-submenu">
-                            <a href="/samples/librarylist/">List Samples</a>
-                            <ul id="listsamples" class="dropdown-menu" role="menu">
-                                <li><a href="/admin/samples/sample/">Fully Editable</a></li>
-                            </ul>
-                        </li>
-                        <li class="dropdown-submenu">
-                            <a href="/samples/librarylist/">List Libraries</a>
-                            <ul id="listlibraries" class="dropdown-menu" role="menu">
-                                <li><a href="/admin/samples/library/">Fully Editable</a></li>
-                                <li><a href="/samples/librarylist/">Slim Viewonly</a></li>
-                            </ul>
-                        </li>
-                    </ul>
-                </li>
+
+
                 <li class="dropdown">
                     <a class="dropdown-toggle" data-toggle="dropdown" id="sldb"  href="/ngsdbview/listlibraries/">Splice Leader<b class="caret"></b></a>
                     <ul id="sl" class="dropdown-menu" role="menu">

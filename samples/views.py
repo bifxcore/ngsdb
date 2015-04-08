@@ -6,6 +6,22 @@ from ngsdbview.viewtools import *
 from samples.models import *
 from django import forms
 
+def get_libobj_for_sample(request, samples):
+    map = {}
+    for sample in samples:
+        libs = sample.library_set.all()
+        map[sample.sampleid]=libs
+    return map
+
+def GetChoiceValueTuple(queryset, fieldname):
+        values = queryset.values_list(fieldname, flat=True)
+        unique_values = ['ALL']
+        [unique_values.append(item) for item in values if item not in unique_values]
+        choice_list = []
+        for item in unique_values:
+            choice_list.append(tuple([item, item]))
+        return tuple(choice_list)
+
 def author(request):
     table = AuthorTable(Author.objects.all())
     RequestConfig(request, paginate={"per_page": 25}).configure(table)
@@ -13,74 +29,201 @@ def author(request):
     return render(request, "samples/author.html", {"author": table})
 
 
+## Samples
+class ListSamplesForm(forms.Form):
+    sampletype = forms.ChoiceField(choices=GetChoiceValueTuple(Sample.objects.all(), 'sampletype'))
+    organism = forms.ChoiceField(choices=GetChoiceValueTuple(Organism.objects.all(), 'organismcode'))
+    collaborator = forms.ChoiceField(choices=GetChoiceValueTuple(Collaborator.objects.all(), 'lastname'))
 
-def librarylist(request):
-    table = LibraryTable(Library.objects.all())
-    RequestConfig(request).configure(table)
+def ListSamples(request):
+    '''
+    List all loaded Samples. Allow exploration.
+    :param request:
+    :return: all Sample objects; with libraries made from them
+    '''
 
-    return render(request, "samples/librarylist.html", {"librarylist": table})
-
-
-class ListLibForm(forms.Form):
-    """ form for searching libraries loaded into ngsdb """
-    authordesignation = forms.CharField(max_length=20, label='Author Initials', required=False)
-    organismcode = forms.CharField(max_length=20, label='Organism Code', required=False)
-    libcode = forms.CharField(max_length=20, label='Library Code', required=False)
-
-
-def ListLibraries(request, libtype, analysis_status):
-    #gets user and the libraries the user has permission to
-    [user, availlibids] = getlibraries(request)
-    kwargs={}
-    kwargs['title']='List of Libraries:'
+    kwargs = {}
+    #kwargs['user']=user
     kwargs['listoflinks']=listoflinks
-    kwargs['user']=user
+    kwargs['title']="Samples List"
 
-    # # for autocomplete
-    # kwargs['autocomlibcodes'] = constructAutocomplete('libcode', Library.objects.filter(library_id__in=availlibids).values_list('librarycode', flat=True))
-    # orgcodes = Organism.objects.filter(library__library_id__in=availlibids).values_list('organismcode', flat=True)
-    # kwargs['autocomorgcodes'] = constructAutocomplete('organismcode', list(set(orgcodes)))
-    # authors = Author.objects.filter(library__library_id__in=availlibids).values_list('designation', flat=True)
-    # kwargs['autocomdesignation'] = constructAutocomplete('authordesignation', list(set(authors)))
 
-    # Default display
-    # Get all available libs
-    availlibs = Library.objects.filter(id__in=availlibids)
-    # Filter for libtype
-    if libtype != 'all':
-        availlibs = availlibs.filter(librarytype__type=libtype)
-
-    # Filter for analysis_status
-    if analysis_status == 'analysed':
-        pass
-    elif analysis_status == 'all':
-        pass
-    else:
-        pass
-    #todo: add the code once EVERYTHING is linked to Samples.Library
-    kwargs['availlibs']=availlibs
-
-    # filter based on user's input via form
     if request.method == 'POST':
-        form = ListLibForm(request.POST) #bound form
+        form = ListSamplesForm(request.POST) #bound form
         if form.is_valid():
-            if request.POST.get('organismcode'):
-                availlibs = availlibs.filter(organism__organismcode=form.cleaned_data['organismcode'])
-            if request.POST.get('authordesignation'):
-                availlibs = availlibs.filter(author__designation=form.cleaned_data['authordesignation'])
-            if request.POST.get('libcode'):
-                availlibs = availlibs.filter(librarycode=form.cleaned_data['libcode'])
-            kwargs['form']=form
-            kwargs['availlibs']=availlibs
+            sampletype = form.cleaned_data['sampletype']
+            organism = form.cleaned_data['organism']
+            collaboratorLN = form.cleaned_data['collaborator']
 
+            # get experiments
+
+            samples = Sample.objects.all()
+            if sampletype != 'ALL':
+                samples = samples.filter(sampletype=sampletype)
+            if organism != 'ALL':
+                samples = samples.filter(organism__organismcode=organism)
+            if collaboratorLN != 'ALL':
+                samples = samples.filter(collaborator__lastname=collaboratorLN)
+
+            samples_RNA = samples.filter(sampletype='RNA')
+            samples_DNA = samples.filter(sampletype='DNA')
+
+            org_wise = {}
+            # divide RNA samples by organism
+            samples_RNA_org_wise = {}
+            for sample in samples_RNA:
+                samples_RNA_org_wise[sample.organism]=[]
+            for orgcode in samples_RNA_org_wise:
+                samples_RNA_org_wise[orgcode]=samples_RNA.filter(organism=orgcode)
+            kwargs['samples_RNA_org_wise']=samples_RNA_org_wise
+            org_wise['RNA'] = samples_RNA_org_wise
+
+            # divide DNA samples by organism
+            samples_DNA_org_wise = {}
+            for sample in samples_DNA:
+                samples_DNA_org_wise[sample.organism]=[]
+            for orgcode in samples_DNA_org_wise:
+                samples_DNA_org_wise[orgcode]=samples_RNA.filter(organism=orgcode)
+            kwargs['samples_DNA_org_wise']=samples_DNA_org_wise
+            org_wise['DNA'] = samples_DNA_org_wise
+
+            kwargs['org_wize_samples'] = org_wise
+
+            kwargs['sample_libraryobj_map'] = get_libobj_for_sample(request, samples)
+            kwargs['samples']=samples
+            kwargs['samples_RNA']=samples_RNA
+            kwargs['samples_DNA']=samples_DNA
+
+            kwargs['form']=form
         else:
             kwargs['form']=form
     else:
-        form = ListLibForm() #unbound form
+        form = ListSamplesForm() #un bound form
         kwargs['form']=form
-    return render_to_response('ngsdbview/list_libraries.html',kwargs, context_instance=RequestContext(request))
-    #return render_to_response('ngsdbview/list_librariestwo.html',kwargs, context_instance=RequestContext(request))
 
+
+
+    return render_to_response('samples/samples_list.html',kwargs, context_instance=RequestContext(request))
+
+def ViewSample(request, sampleid):
+    '''
+    Detailed view of a sample.
+    :param request: Sample code/sample id
+    :return: Sample object; with libraries (objects) made from them
+    '''
+
+    kwargs = {}
+    #kwargs['user']=user
+    kwargs['listoflinks']=listoflinks
+    kwargs['title']="Samples View"
+
+    samples = Sample.objects.filter(sampleid=sampleid)
+    kwargs['sample_libraryobj_map'] = get_libobj_for_sample(request, samples)
+    kwargs['sample'] = samples[0]
+
+    return render_to_response('samples/samples_view.html',kwargs, context_instance=RequestContext(request))
+
+
+## Libraries
+class ListLibrariesForm(forms.Form):
+    library_type = forms.ChoiceField(choices=GetChoiceValueTuple(Librarytype.objects.all(), 'type'))
+    organism = forms.ChoiceField(choices=GetChoiceValueTuple(Organism.objects.all(), 'organismcode'))
+    collaborator = forms.ChoiceField(choices=GetChoiceValueTuple(Collaborator.objects.all(), 'lastname'))
+    library_author = forms.ChoiceField(choices=GetChoiceValueTuple(Author.objects.all(), 'lastname'))
+
+def ListLibraries(request):
+    '''
+    List all loaded Libraries. Allow exploration.
+    :param request:
+    :return: all Library objects; with samples made from them
+    '''
+
+    kwargs = {}
+    #kwargs['user']=user
+    kwargs['listoflinks']=listoflinks
+    kwargs['title']="Library List"
+
+
+    if request.method == 'POST':
+        form = ListLibrariesForm(request.POST) #bound form
+        if form.is_valid():
+            librarytype = form.cleaned_data['library_type']
+            organism = form.cleaned_data['organism']
+            collaboratorLN = form.cleaned_data['collaborator']
+            libraryauthorLN = form.cleaned_data['library_author']
+
+            # get/filter libraries
+            libs = Library.objects.all()
+            if librarytype != 'ALL':
+                libs = libs.filter(librarytype__type=librarytype)
+            if organism != 'ALL':
+                libs = libs.filter(organism__organismcode=organism)
+            if collaboratorLN != 'ALL':
+                libs = libs.filter(collaborator__lastname=collaboratorLN)
+            if libraryauthorLN != 'ALL':
+                libs = libs.filter(author__lastname=libraryauthorLN)
+
+            kwargs['libraries_all'] = libs
+            # subset libraries by type
+            libraries_by_type = {}
+            libraries_by_type['RNA seq'] = libs.filter(librarytype__type='fragRNA')
+            libraries_by_type['DNA seq'] = libs.filter(librarytype__type='genomic')
+            libraries_by_type['SL-RNA seq']=libs.filter(librarytype__type='SL')
+            libraries_by_type['IP seq'] = libs.filter(librarytype__type='ChIPseq')
+            libraries_by_type['polyA seq'] = libs.filter(librarytype__type='polyA')
+            libraries_by_type['small-RNA seq'] = libs.filter(librarytype__type='smallRNA')
+            libraries_by_type['ChIP seq'] = libs.filter(librarytype__type='ChIPChIP')
+            kwargs['libraries_by_type'] = libraries_by_type
+
+            # Send bound form
+            kwargs['form'] = form
+
+        else:
+            kwargs['form'] = form
+    else:
+        form = ListLibrariesForm() #un bound form
+        kwargs['form'] = form
+
+    return render_to_response('samples/libraries_list.html',kwargs, context_instance=RequestContext(request))
+
+def ViewLibrary(request, librarycode):
+    '''
+    Detailed view of a Library.
+    :param request: Library code/Library id
+    :return: Library object; with sample (objects) it derived from
+    '''
+
+    kwargs = {}
+    #kwargs['user']=user
+    kwargs['listoflinks']=listoflinks
+    kwargs['title']="Library View"
+    kwargs['library'] = Library.objects.get(library_code=librarycode)
+    kwargs['all_sibling_libs'] = Library.objects.get(library_code=librarycode).sampleid.library_set.all()
+    print kwargs['all_sibling_libs']
+
+    print kwargs['library']
+    return render_to_response('samples/library_view.html',kwargs, context_instance=RequestContext(request))
+
+
+## Bioprojects
+def ListBioprojects(request):
+    """
+    List all loaded bioprojects. Allow exploration.
+    :param request:
+    :return: all bioprojects objects;
+    """
+
+    kwargs = {}
+    #kwargs['user']=user
+    kwargs['listoflinks']=listoflinks
+    kwargs['title']="BioProjects List"
+
+    kwargs['bioprojects'] = Bioproject.objects.all()
+
+    return render_to_response('samples/bioproject_list.html',kwargs, context_instance=RequestContext(request))
+
+
+## Reserve Sample/library codes
 """
 Reserve codes for future use
 view: ReserveCode

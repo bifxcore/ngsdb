@@ -1,0 +1,198 @@
+{% extends "admin/base_site.html" %}
+{% block bootstrap %}
+<script>
+    $('.collapse').collapse()
+</script>
+{% endblock %}
+{%block content%}
+{% block body %}
+{% load ngsdbview_extras %}
+{% load humanize %}
+
+{%  if samples  %}
+<FORM action="." method="post">
+{% csrf_token %}
+    <TABLE>
+        <TR>
+            <TD>
+
+                {{ form.as_table }}
+            </TD>
+            <TD>
+                <input type="submit"  name="levelTwo" value="Filter" />
+                </form>
+            </TD>
+        </TR>
+    </TABLE>
+</FORM>
+
+
+
+<!-- RNA Samples list section -->
+<!-- RNA collapsible header -->
+<div class="panel-heading" style="background-color: #616770; border-color:#616770; overflow: hidden">
+    <a data-toggle="collapse" data-parent="#accordion" href="#RNASamplesSection" aria-expanded="false" aria-controls="RNASamplesSection"> <h3 class="panel-title" style="text-align: left">RNA Samples</h3> </a>
+</div>
+<div>There are {{ samples_RNA.count }} RNA samples. Click section header above to show/hide.</div>
+<div class="collapse " id="RNASamplesSection"> <!-- RNA collapsible content -->
+<TABLE border="0" border-color:transparent>
+    <TR>
+        <TD></TD>
+        <TD>
+<!-- split by organism -->
+    {% for org, samples in samples_RNA_org_wise.items %}
+        <div><br></div> <!-- spacer between each organism specific section-->
+        <!-- Orgspecific section collapsible header -->
+        <div class="panel-heading" style="background-color: #F6E3CE; border-color:#F6E3CE; overflow: hidden">
+            <a class="collapse" data-toggle="collapse" data-parent="#accordion" href="#RNASamplesSection_{{ org.organismcode }}" aria-expanded="true"> <h3 class="panel-title" style="text-align: left">{{ forloop.counter }}. Organism : {{ org.organismcode }}</h3> </a>
+        </div>
+        <div>There are {{ samples.count }} samples from this organism. Click section header above to show/hide.</div>
+        <div><br></div> <!-- spacer before data table-->
+        <div class="collapse in"id="RNASamplesSection_{{ org.organismcode}}"> <!-- Orgspecific section collapsible content -->
+            <TABLE>
+                <!-- Title row -->
+                <TR><TH>Sample ID</TH><TH>Sample Name</TH><TH>Libraries <br>derived</TH><TH>Collaborator</TH><TH>Organism</TH><TH>Genotype</TH><TH>Lifecycle Stage <br>(Growthphase)</TH><TH>Culture Method</TH><TH>Treatment</TH><TH>Time after <br>Treatment</TH><TH>Material Details</TH><TH>Sample Details</TH></TR>
+                {% for sample in samples %}
+                <!-- sampels data rows -->
+                <TR>
+                    <TH> {{ forloop.counter }}.  <a href="/samples/viewsample/{{ sample.sampleid }}/" target="_blank">{{ sample.sampleid }}</a></TH>
+                    <TD>{{ sample.samplename }}</TD>
+                    <TD>{% for lib in sample_libraryobj_map|hash:sample.sampleid %}<a href="/samples/viewlibrary/{{ lib.library_code }}/" target="_blank">{{ lib.library_code }}</a>, {% endfor %}</TD>
+                    <TD>{{ sample.collaborator }}</TD>
+                    <TD>{{ sample.organism }}</TD>
+                    <TD>{{ sample.genotype }}</TD>
+                    <TD>{{ sample.lifestage }}({{ sample.growthphase }})</TD>
+                    <TD>{{ sample.culture_method }}</TD>
+                    <TD>{{ sample.treatment }}</TD>
+                    <TD>{{ sample.time_after_treatment }}</TD>
+
+                    <!-- Material Details collapsible -->
+                    <TD>
+                        <a data-toggle="collapse" data-parent="#accordion" href="#RNAMaterialDetailSectionCollapse_{{ org.organismcode }}_{{ forloop.counter }}"> Show/Hide</a>
+
+                    <div id="RNAMaterialDetailSectionCollapse_{{ org.organismcode }}_{{ forloop.counter }}" class="panel-collapse collapse in" style="height: auto;">
+                    <TABLE>
+                        <TR><TH>Freezer Location:</TH><TD>{{ sample.freezer_location }}</TD></TR>
+                        <TR><TH>Label on tube:</TH><TD>{{ sample.label_ontube }}</TD></TR>
+                        <TR><TH>Availability (qty/volume):</TH><TD>{{ sample.sample_quantity }}/{{ sample.sample_volume }}</TD></TR>
+                        <TR><TH>Parent Sample ID/Dilution:</TH><TD>{{ sample.parent_sampleid }}/{{ sample.sample_dilution }}</TD></TR>
+                    </TABLE>
+                    </div>
+                    </TD>
+
+                    <!-- Sample details collapsible -->
+                    <TD>
+                        <a data-toggle="collapse" data-parent="#accordion" href="#RNASampleDetailSectionCollapse_{{ org.organismcode }}_{{ forloop.counter }}"> Show/Hide</a>
+
+                    <div id="RNASampleDetailSectionCollapse_{{ org.organismcode }}_{{ forloop.counter }}" class="panel-collapse collapse in" style="height: auto;">
+                    <TABLE>
+                        <TR><TH>Bioanalyzer Data:</TH><TD>{{ sample.bioanalyzer_analysis }}</TD></TR>
+                        <TR><TH>Biological replicate of:</TH><TD>{{ sample.biological_replicate_of }}</TD></TR>
+                        <TR><TH>Sample Notes:</TH><TD>{{ sample.sample_notes }}</TD></TR>
+                    </TABLE>
+                    </div>
+                    </TD>
+                </TR>
+                {% endfor %}
+            </TABLE>
+        </div>
+    {% endfor %}
+    </TD></TR></TABLE>
+</div> <!-- end of entire RNA section -->
+
+<div><br><br></div> <!-- spacer between RNA and DNA section-->
+
+<!-- DNA Samples list section -->
+<!-- DNA collapsible header -->
+<div class="panel-heading" style="background-color: #616770; border-color:#616770; overflow: hidden">
+    <a data-toggle="collapse" data-parent="#accordion" href="#DNASamplesSection" aria-expanded="false" aria-controls="DNASamplesSection"> <h3 class="panel-title" style="text-align: left">DNA Samples</h3> </a>
+</div>
+<div>There are {{ samples_DNA.count }} DNA samples. Click section header above to show/hide.</div>
+<div class="collapse " id="DNASamplesSection"> <!-- RNA collapsible content -->
+<TABLE border="0" border-color:transparent>
+    <TR>
+        <TD></TD>
+        <TD>
+<!-- split by organism -->
+    {% for org, samples in samples_DNA_org_wise.items %}
+        <div><br></div> <!-- spacer between each organism specific section-->
+        <!-- Orgspecific section collapsible header -->
+         <div class="panel-heading" style="background-color: #F6E3CE; border-color:#F6E3CE; overflow: hidden">
+            <a class="collapse" data-toggle="collapse" data-parent="#accordion" href="#DNASamplesSection_{{ org.organismcode }}" aria-expanded="true"> <h3 class="panel-title" style="text-align: left">{{ forloop.counter }}. Organism : {{ org.organismcode }}</h3> </a>
+        </div>
+        <div>There are {{ samples.count }} samples from this organism. Click section header above to show/hide.</div>
+        <div><br></div> <!-- spacer before data table-->
+        <div class="collapse in"id="DNASamplesSection_{{ org.organismcode}}"> <!-- Orgspecific section collapsible content -->
+             <TABLE>
+                <!-- Title row -->
+                <TR><TH>Sample ID</TH><TH>Sample Name</TH><TH>Libraries <br>derived</TH><TH>Collaborator</TH><TH>Organism</TH><TH>Genotype</TH><TH>Lifecycle Stage <br>(Growthphase)</TH><TH>Culture Method</TH><TH>Treatment</TH><TH>Time after <br>Treatment</TH><TH>Material Details</TH><TH>Sample Details</TH></TR>
+                {% for sample in samples %}
+                <!-- sampels data rows -->
+                <TR>
+                    <TH> {{ forloop.counter }}.  <a href="/samples/viewsample/{{ sample.sampleid }}/" target="_blank">{{ sample.sampleid }}</a></TH>
+                    <TD>{{ sample.samplename }}</TD>
+                    <TD>{% for lib in sample_libraryobj_map|hash:sample.sampleid %}<a href="/samples/viewlibrary/{{ lib.library_code }}/" target="_blank">{{ lib.library_code }}</a>, {% endfor %}</TD>
+                    <TD>{{ sample.collaborator }}</TD>
+                    <TD>{{ sample.organism }}</TD>
+                    <TD>{{ sample.genotype }}</TD>
+                    <TD>{{ sample.lifestage }}({{ sample.growthphase }})</TD>
+                    <TD>{{ sample.culture_method }}</TD>
+                    <TD>{{ sample.treatment }}</TD>
+                    <TD>{{ sample.time_after_treatment }}</TD>
+
+                    <!-- Material Details collapsible -->
+                    <TD>
+                        <a data-toggle="collapse" data-parent="#accordion" href="#DNAMaterialDetailSectionCollapse_{{ org.organismcode }}_{{ forloop.counter }}"> Show/Hide</a>
+
+                    <div id="DNAMaterialDetailSectionCollapse_{{ org.organismcode }}_{{ forloop.counter }}" class="panel-collapse collapse in" style="height: auto;">
+                    <TABLE>
+                        <TR><TH>Freezer Location:</TH><TD>{{ sample.freezer_location }}</TD></TR>
+                        <TR><TH>Label on tube:</TH><TD>{{ sample.label_ontube }}</TD></TR>
+                        <TR><TH>Availability (qty/volume):</TH><TD>{{ sample.sample_quantity }}/{{ sample.sample_volume }}</TD></TR>
+                        <TR><TH>Parent Sample ID/Dilution:</TH><TD>{{ sample.parent_sampleid }}/{{ sample.sample_dilution }}</TD></TR>
+                    </TABLE>
+                    </div>
+                    </TD>
+
+                    <!-- Sample details collapsible -->
+                    <TD>
+                        <a data-toggle="collapse" data-parent="#accordion" href="#DNASampleDetailSectionCollapse_{{ org.organismcode }}_{{ forloop.counter }}"> Show/Hide</a>
+
+                    <div id="DNASampleDetailSectionCollapse_{{ org.organismcode }}_{{ forloop.counter }}" class="panel-collapse collapse in" style="height: auto;">
+                    <TABLE>
+                        <TR><TH>Bioanalyzer Data:</TH><TD>{{ sample.bioanalyzer_analysis }}</TD></TR>
+                        <TR><TH>Biological replicate of:</TH><TD>{{ sample.biological_replicate_of }}</TD></TR>
+                        <TR><TH>Sample Notes:</TH><TD>{{ sample.sample_notes }}</TD></TR>
+                    </TABLE>
+                    </div>
+                    </TD>
+                </TR>
+                {% endfor %}
+            </TABLE>
+        </div>
+    {% endfor %}
+    </TD></TR></TABLE>
+</div> <!-- end of entire DNA section -->
+
+
+
+<!-- display the form if its first time -->
+{% else %}
+<FORM action="." method="post">
+{% csrf_token %}
+    <TABLE>
+        <TR>
+            <TD>
+
+                {{ form.as_table }}
+            </TD>
+            <TD>
+                <input type="submit"  name="levelOne" value="Submit" />
+                </form>
+            </TD>
+        </TR>
+    </TABLE>
+</FORM>
+{% endif %}
+{% endblock %}
+{% endblock %}
