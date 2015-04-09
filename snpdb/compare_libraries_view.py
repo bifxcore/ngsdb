@@ -12,6 +12,8 @@ import datetime
 import os
 import vcf
 import ast
+from ngsdbview.viewtools import *
+from GChartWrapper import *
 
 
 # Displays the search page to compare two groups of libraries for unique and similar snps.
@@ -633,3 +635,45 @@ def get_impact_counts_for_gene(gene_id, gene_length, start_pos, snp_info, librar
 			snp_info[pos] = snps
 
 	return snp_info
+
+
+
+def compare_libraries_somy(request):
+    """
+    Display somy chart(s)
+    :param request: libcodes, referencegenome/resultids
+    :return: all chart objects
+    """
+
+    kwargs = {}
+    #kwargs['user']=user
+    kwargs['listoflinks']=listoflinks
+    kwargs['title']="Comparing Somy"
+
+    libcodes = ['ES041', 'ES042', 'ES043', 'ES044', 'ES045']
+    legendvalues = []
+    for libcode in libcodes:
+        libobj = Library.objects.get(library_code=libcode)
+        legendvalues.append(libobj.library_code+'('+libobj.sampleid.samplename+')')
+
+    somyobjects = CNV.objects.filter(library__library_code__in=libcodes).filter(cnv_type__cvterm='Somy')
+    contignames = []
+    for contig in sorted(list(set(somyobjects.values_list('chromosome__chromosome_name', flat=True)))):
+        contignames.append(re.sub(r'\D+', '', re.sub(r'_.+', '', contig)))
+
+    list_of_somy = []
+    for libcode in libcodes:
+        somy_for_lib = []
+        for somyvalue in somyobjects.filter(library__library_code=libcode).order_by('chromosome__chromosome_name').values_list('cnv_value', flat=True):
+            somy_for_lib.append(somyvalue)
+        list_of_somy.append(somy_for_lib)
+
+    somy_multichr_columnchart = VerticalBarGroup(list_of_somy, encoding="text").bar(4, 0, 7).size(999,200).title("Comparing Somy for Chromosomes between Libraries")
+    somy_multichr_columnchart.scale(0, 5).axes('xyx')
+    somy_multichr_columnchart.axes.label(0, *contignames).axes.label(1, *range(0, 6, 1))
+    somy_multichr_columnchart.axes.label(2, None, 'Chromosome Number', None)
+    somy_multichr_columnchart.color('4d89f9','c6d9fd', 'red', 'green', 'yellow').legend(*legendvalues).legend_pos('t')
+
+    return render_to_response('snpdb/compare_libraries_somy.html', {"list_of_somy":list_of_somy,
+                                                           "somy_multichr_columnchart": somy_multichr_columnchart,},
+                          context_instance=RequestContext(request))

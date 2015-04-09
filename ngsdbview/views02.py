@@ -185,7 +185,7 @@ def getIntervalsForGeneResid(request, geneid, resid, pos):
     return  interval
 
 def CreateAlignstat(request, libcode, resid, returntype):
-    '''get lib size, mapping counts for pie chart'''
+    '''get lib size, mapping counts for chart'''
     libsize = samplelibrary.objects.filter(library_code=libcode).values_list('fastqfile_readcount', flat=True)[0]
     considered_reads = Resultprop.objects.filter(result__result_id=resid).filter(cvterm__name="number_reads_considered_for_alignment").values_list('value', flat=True)[0]
     uniquely_aligned_readcount = Resultprop.objects.filter(result__result_id=resid).filter(cvterm__name="number_reads_aligned_uniquely_to_reference_genome").values_list('value', flat=True)[0]

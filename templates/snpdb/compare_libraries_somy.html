@@ -1,0 +1,18 @@
+{% extends "admin/base_site.html" %}
+{% load render_table from django_tables2 %}
+{% block bootstrap %}
+<script>
+    $('.collapse').collapse()
+</script>
+{% endblock %}
+{%block content%}
+{% block body %}
+{% load ngsdbview_extras %}
+{% load humanize %}
+
+   <img src="{{ somy_multichr_columnchart }}" />
+  <div>
+
+  </div>
+ {% endblock %}
+ {% endblock %}

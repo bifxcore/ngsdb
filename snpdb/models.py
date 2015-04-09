@@ -10,7 +10,6 @@ class Chromosome(models.Model):
 	genome_name = models.ForeignKey('ngsdbview.Organism', to_field='organismcode')
 	genome_version = models.CharField(max_length=50)
 
-
 class Effect(models.Model):
 	snp = models.ForeignKey('SNP')
 	effect = models.ForeignKey('Effect_CV')

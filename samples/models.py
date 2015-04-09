@@ -35,6 +35,8 @@ class Bioproject(models.Model):
     sharepoint_projectcode = models.CharField(blank=True, max_length=12)
     notes = models.TextField(max_length=400, blank=True)
 
+    class Meta:
+        ordering = ['organisms']
     def __unicode__(self):
         return unicode(self.bioproject_code)
 
@@ -155,6 +157,9 @@ class Library(models.Model):
         verbose_name_plural="Libraries"
     def __unicode__(self):
         return unicode(self.library_code)
+    def libcode_samplename(self):
+        if self.libcode_samplename:
+            return "%s+'(+%s+')' "%(self.library_code, self.sampleid.samplename)
 
 def get_libraryfile_upload_destination(instance, filename):
     return "libraryfiles/{id}/{file}".format(id=instance.library.library_code, file=filename)

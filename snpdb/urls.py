@@ -46,4 +46,7 @@ urlpatterns = patterns('',
                       url(r'^contigs', 'snpdb.views.get_chromosome_size'),
                       url(r'^cnv', 'snpdb.views.cnv'),
                       url(r'^$', 'snpdb.views.dashboard'),
+
+                      # Gowthaman's views
+                      url(r'^comparelibs/somy', 'snpdb.compare_libraries_view.compare_libraries_somy'),
                       )

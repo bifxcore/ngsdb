@@ -25,3 +25,13 @@ class LibraryTable(TableReport):
         attrs = {"class": "paleblue"}
 
 
+
+class BioprojectsTable(tables.Table):
+    sharepoint_projectcode = tables.Column(verbose_name="SharePoint ProjectCode")
+    organisms = tables.Column(order_by="organisms")
+    notes = tables.Column(orderable=False)
+
+    class Meta:
+        model = Bioproject
+
+
