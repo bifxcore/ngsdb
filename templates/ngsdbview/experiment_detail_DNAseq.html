@@ -131,11 +131,39 @@
     <a data-toggle="collapse" data-parent="#accordion" href="#analysisLinks"> <h3 class="panel-title" style="text-align: left">Links to analyse DNAseq Data</h3> </a>
 </div>
 <div class="collapse" id="analysisLinks">
-    <TABLE><TR><TD></TD><TD>
-    <div class="panel-heading" style="background-color: #F6E3CE; border-color:#F6E3CE; overflow: hidden">
-        <a data-toggle="collapse" data-parent="#accordion" href="/ngsdbview/analyze/snp/comparelibs/{{ exp.id }}/"> <h3 class="panel-title" style="text-align: left">1. Compare SNPs between two groups of Libraries</h3> </a>
-    </div>
+    <TABLE>
+        <TR><TD></TD>
+        <TD>
+            <div class="panel-heading" style="background-color: #F6E3CE; border-color:#F6E3CE; overflow: hidden">
+                <a href="/ngsdbview/analyze/snp/comparelibs/{{ exp.id }}/"> <h3 class="panel-title" style="text-align: left">1. Compare SNPs between two groups of Libraries</h3> </a>
+            </div>
+        </TD>
+        </TR>
 
+        <TR><TD></TD>
+        <TD>
+            <div class="panel-heading" style="background-color: #F6E3CE; border-color:#F6E3CE; overflow: hidden">
+                <a href="/snpdb/compare-cnv-libraries?ref_genome=LdoBPK&library_codes=ES041&library_codes=ES042&library_codes=ES043&library_codes=ES044&library_codes=ES045"> <h3 class="panel-title" style="text-align: left">2. Compare CNVs between ALL libraries in this experiment </h3> </a>
+            </div>
+        </TD>
+        </TR>
+
+        <TR><TD></TD>
+        <TD>
+            <div class="panel-heading" style="background-color: #F6E3CE; border-color:#F6E3CE; overflow: hidden">
+                <a href="/snpdb/compare-cnv-libraries?ref_genome=LdoBPK"> <h3 class="panel-title" style="text-align: left">3. Compare CNVs between SELECT libraries in this experiment</h3> </a>
+            </div>
+        </TD>
+        </TR>
+
+        <TR><TD></TD>
+        <TD>
+            <div class="panel-heading" style="background-color: #F6E3CE; border-color:#F6E3CE; overflow: hidden">
+                <a  href="/snpdb/comparelibs/somy/"> <h3 class="panel-title" style="text-align: left">4. Compare Somy between two groups of Libraries</h3> </a>
+            </div>
+        </TD>
+        </TR>
+    </TABLE>
 </div>
 
 </TABLE> <!-- table for this page -->
