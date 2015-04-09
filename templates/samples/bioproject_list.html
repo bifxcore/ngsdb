@@ -8,6 +8,7 @@
 {% block body %}
 {% load ngsdbview_extras %}
 {% load humanize %}
+{% load render_table from django_tables2 %}
 
 {%  if bioprojects  %}
    <div class="panel-heading" style="background-color: #616770; border-color:#616770; overflow: hidden">
@@ -15,12 +16,7 @@
     </div>
     <div>There are {{ bioprojects.count }} Bioprojects in the database. Click section header above to show/hide.</div>
     <div class="collapse " id="BioprojectsSection">
-    <TABLE>
-        <TR><TH>Sl. No.</TH><TH>Bioproject Code</TH><TH>Organism</TH><TH>Notes</TH></TR>
-        {% for bioproject in bioprojects %}
-            <TR><TD>{{ forloop.counter }}</TD><TD><a href="/admin/samples/bioproject/{{ bioproject.id}}/" target="_blank">{{ bioproject.bioproject_code }}</a></TD><TD>{{ bioproject.organisms }}</TD><TD>{{ bioproject.notes }}</TD></TR>
-        {% endfor %}
-    </TABLE>
+    {% render_table bioprojects %}
     </div>
 {% endif %}
 {% endblock %}

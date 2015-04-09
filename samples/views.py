@@ -218,9 +218,29 @@ def ListBioprojects(request):
     kwargs['listoflinks']=listoflinks
     kwargs['title']="BioProjects List"
 
+    bioprojects = BioprojectsTable(Bioproject.objects.all())
+    bioprojects.paginate(page=request.GET.get('page', 1), per_page=20)
+    #RequestConfig(request).configure(bioprojects)
+    kwargs['bioprojects'] = bioprojects
+    return render_to_response('samples/bioproject_list.html',kwargs, context_instance=RequestContext(request))
+    #return render(request, 'samples/bioproject_list.html', {'bioprojects': bioprojects})
+
+## Bioprojects via django-table2
+def ListBioprojectsTable2(request):
+    """
+    List all loaded bioprojects. Allow exploration.
+    :param request:
+    :return: all bioprojects objects;
+    """
+
+    kwargs = {}
+    #kwargs['user']=user
+    kwargs['listoflinks']=listoflinks
+    kwargs['title']="BioProjects List"
+
     kwargs['bioprojects'] = Bioproject.objects.all()
 
-    return render_to_response('samples/bioproject_list.html',kwargs, context_instance=RequestContext(request))
+    return render_to_response('samples/bioproject_list_table2.html',kwargs, context_instance=RequestContext(request))
 
 
 ## Reserve Sample/library codes

@@ -32,4 +32,7 @@ urlpatterns = patterns('',
 
                       # Basic Table Views: Currently not accessible to users as the information is not relevant to researchers.
                       url(r'^$', 'snpdb.views.dashboard'),
+
+                      # Gowthaman's views
+                      url(r'^comparelibs/somy', 'snpdb.compare_libraries_view.compare_libraries_somy'),
                       )

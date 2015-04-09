@@ -12,5 +12,6 @@ urlpatterns = patterns('',
     url(r'^viewlibrary/(?P<librarycode>.+)/', 'samples.views.ViewLibrary'),
 
     url(r'^bioprojects/', 'samples.views.ListBioprojects'),
+    url(r'^bioprojectstable2/', 'samples.views.ListBioprojectsTable2'),
 
     )
