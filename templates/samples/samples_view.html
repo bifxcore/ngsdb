@@ -43,7 +43,7 @@
     <TABLE>
         <TH>Library Code</TH><TH>Library Type</TH><TH>Flowcell Number</TH>
         {% for library in sample_libraryobj_map|hash:sample.sampleid %}
-        <TR><TH>{{ library.library_code }}</TH><TD>{{ library.librarytype }}</TD><TD>{{ library.flowcell_number }}</TD></TR>
+        <TR><TH><a href="/samples/viewlibrary/{{ library.library_code }}/" target="_blank">{{ library.library_code }}</a></TH><TD>{{ library.librarytype }}</TD><TD>{{ library.flowcell_number }}</TD></TR>
         {% endfor %}
     </TABLE>
 </div>

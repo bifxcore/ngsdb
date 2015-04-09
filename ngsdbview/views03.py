@@ -233,22 +233,32 @@ def ExperimentDetailDNAseq(request, experimentId):
     kwargs['exp'] = exp
 
     comparisons = Comparison.objects.filter(experiment=exp)
-    regulatedCount = defaultdict(lambda: defaultdict(int))
-    for comparison in comparisons:
-        dic = {}
-        dic['Down Reg-2 Fold']=comparison.diffexpn_set.all().filter(pvalue__lte=0.01, log2foldchange__lte=-1).count()
-        dic['Up Reg-2 Fold']=comparison.diffexpn_set.all().filter(pvalue__lte=0.01, log2foldchange__gte=1).count()
-        dic['Down Reg-4Fold']=comparison.diffexpn_set.all().filter(pvalue__lte=0.01, log2foldchange__lte=-2).count()
-        dic['Up Reg-4 Fold']=comparison.diffexpn_set.all().filter(pvalue__lte=0.01, log2foldchange__gte=2).count()
-        regulatedCount[comparison.compname]=dic
 
     plotFileList = ['MDSfc_plot', 'allvsall_correlation_plot', 'BCV_plot', 'boxplot_normalized', 'boxplot_raw' ]
     plots = {}
     for fileName in  plotFileList:
         plots[fileName]=1
 
-    kwargs['regulatedCount']=regulatedCount
+    #kwargs['regulatedCount']=regulatedCount
     kwargs['plots']=plots
+
+    fastqQcFiles = {}
+    for sample in exp.samples.all():
+        fastqQcFiles[sample] = {}
+        for lib in sample.library_set.all():
+            subcategories = list(set(lib.libraryfile_set.filter(category='fastqqc').values_list('subcategory', flat=True)))
+            for subcategory in subcategories:
+                fastqQcFiles[sample][subcategory] = []
+                for libraryfile in lib.libraryfile_set.filter(category='fastqqc').filter(subcategory=subcategory):
+                    fastqQcFiles[sample][subcategory].append(libraryfile.file.url)
+    print fastqQcFiles
+    kwargs['fastqQcFiles'] = fastqQcFiles
+
+
+
+
+
+
     return render_to_response('ngsdbview/experiment_detail_DNAseq.html',kwargs, context_instance=RequestContext(request))
 
 

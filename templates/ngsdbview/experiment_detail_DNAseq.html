@@ -18,10 +18,11 @@
 <FORM action="/ngsdbview/listexperiments/" method="post">
 {% csrf_token %}
 
+<div class="panel-heading" style="background-color: #616770; border-color:#616770; overflow: hidden">
+    <a data-toggle="collapse" data-parent="#accordion" href="#ExperiemntOverviewSection"> <h3 class="panel-title" style="text-align: left">Experiment: {{ exp.name }}</h3> </a>
+</div>
+<div class="collapse" id="ExperiemntOverviewSection">
 
-<TABLE id="viewtable2">
-    <TR><TH id="tableheader">Experiment: {{ exp.name }} </TH></TR>
-    <TR><TD>
 
     <!-- experiment table -->
         <div>
@@ -29,7 +30,7 @@
             <a data-toggle="collapse" data-parent="#accordion" href="#collapse4"> Overview of Experiment:</a>
             </TH></TR></TABLE>
         </div>
-        <div id="collapse4" class="panel-collapse expand in" style="height: auto;">
+        <div class="collapse" id="collapse4" class="panel-collapse expand in" style="height: auto;">
             <TABLE><TR>
                 <TD> Name:  {{ exp.name }} </TD>
                 <TD>Analysis Version: {{ exp.version }}</TD>
@@ -59,41 +60,82 @@
                     <TR><TD>Included Samples:,</br>(sampleid, </br>lifecyclestage, </br>culture-method, </br>growthphase, </br>treatment, </br>librarycode)</TD>
                         {% for sample in exp.samples.all %}
                         <TD>
-                            {{ sample.sampleid }};  </br>
+                            <a href="/samples/viewsample/{{ sample.sampleid }}/" target="_blank">{{ sample.sampleid }}</a>;  </br>
                             {{ sample.lifestage }}; </br>
                             {{ sample.culture_method }}; </br>
                             {{ sample.growthphase }} </br>
                             {{ sample.treatment }} </br>
                             {% for lib in sample.library_set.all %}
-                                {{ lib.library_code }}
+                                <a href="/samples/viewlibrary/{{ lib.library_code }}/" target="_blank">{{ lib.library_code }}</a>
                             {% endfor %}; </br>
                         </TD>
                         {% endfor %}
                     </TR>
                     <TR><TD></TD></TR>
-                    <TR><TH>Library Read count distribution</TH>
-                    {% for sample in exp.samples.all %}
-                    <TD>
-                        {% for lib in sample.library_set.all %}
-                            {% for libraryfile in lib.libraryfile_set.all %}
-                              <a href="{{ libraryfile.file.url }}"  data-lightbox="exptfiles" data-title="{{ libraryfile.subcategory }}"><img src="{{ libraryfile.file.url }}" height="200" width="200"/></a>
-                            {% endfor %}
-                        {% endfor %}
-                    </TD>
-                    {% endfor %}
-                    </TR>
+
+
                 </TABLE>
             </div>
 
         </div>
 <!-- commenting out in DNAseq section. New stuff will replace it soon -->
+<div><br></div>
+
+<!-- Library Read count distribution section -->
+<div class="panel-heading" style="background-color: #616770; border-color:#616770; overflow: hidden">
+    <a data-toggle="collapse" data-parent="#accordion" href="#LibraryReadCountSection"> <h3 class="panel-title" style="text-align: left">Library Read count distribution</h3> </a>
+</div>
+<div class="collapse in" id="LibraryReadCountSection">
+<TABLE><TR>
+    {% for sample in exp.samples.all %}
+    <TD><TABLE>
+        <TR><TH>{{ sample.sampleid }}({{ sample.samplename }})</TH></TR>
+        {% for subcategory in fastqQcFiles|hash:sample %}
+        <TR>
+            {% for file in fastqQcFiles|hash:sample|hash:subcategory %}
+            {% endfor %}
+        </TR>
+        {% endfor %}
+       </TABLE></TD>
+    {% endfor %}
+
+    </TR></TABLE>
+</div>
+
+<div><br></div>
+<!-- Library Quality  information section -->
+<div class="panel-heading" style="background-color: #616770; border-color:#616770; overflow: hidden">
+    <a data-toggle="collapse" data-parent="#accordion" href="#LibraryQualitySection"> <h3 class="panel-title" style="text-align: left">Library Quality Check</h3> </a>
+</div>
+<div class="collapse in" id="LibraryQualitySection">
+<TABLE><TR>
+    {% for sample in exp.samples.all %}
+    <TD><TABLE>
+        <TR><TH>{{ sample.sampleid }}({{ sample.samplename }})</TH></TR>
+        {% for subcategory in fastqQcFiles|hash:sample %}
+        <TR>
+            {% for file in fastqQcFiles|hash:sample|hash:subcategory %}
+                <TD><a href="{{ file }}"  data-lightbox="exptfiles" data-title="{{ subcategory }}"><img src="{{ file }}" height="200" width="200"/></a></TD>
+            {% endfor %}
+        </TR>
+        {% endfor %}
+       </TABLE></TD>
+    {% endfor %}
+
+    </TR></TABLE>
+</div>
+<div><br></div>
 
 <!-- Link to various (SNP/somy) analyses -->
 <div class="panel-heading" style="background-color: #616770; border-color:#616770; overflow: hidden">
     <a data-toggle="collapse" data-parent="#accordion" href="#analysisLinks"> <h3 class="panel-title" style="text-align: left">Links to analyse DNAseq Data</h3> </a>
 </div>
-<div id="analysisLinks" class="panel-collapse expand in" style="height: auto;">
-    <a href="/ngsdbview/analyze/snp/comparelibs/{{ exp.id }}/" target="_blank">Compare SNPs between two groups of Libraries</a>
+<div class="collapse" id="analysisLinks">
+    <TABLE><TR><TD></TD><TD>
+    <div class="panel-heading" style="background-color: #F6E3CE; border-color:#F6E3CE; overflow: hidden">
+        <a data-toggle="collapse" data-parent="#accordion" href="/ngsdbview/analyze/snp/comparelibs/{{ exp.id }}/"> <h3 class="panel-title" style="text-align: left">1. Compare SNPs between two groups of Libraries</h3> </a>
+    </div>
+
 </div>
 
 </TABLE> <!-- table for this page -->
