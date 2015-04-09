@@ -1,76 +1,86 @@
 <!DOCTYPE html>
 <html lang="en">
 {% extends "snpdb/dashboard.html" %}
-{% load static %}
-{% load staticfiles %}
 {% load columns %}
 
+
 {% block title %}
-    Chromosome and Library Query
+   Chromosome Summary
 {% endblock %}
+
 
 {% block bootstrap %}
 
-<div class="container-fluid">
-	<div class="page-header text-header" style="padding-left:30px; margin-top:10px; padding-bottom:0px">
-    	<h1 class="header" style="padding-bottom:0px;">Chromosome and Library Query</h1>
-	</div>
-</div>
+    <div class="container-fluid">
+        <div class="page-header text-header" style="padding-left:30px; margin-top:10px; padding-bottom:0px">
+            <h1 class="header" style="padding-bottom:0px;">Query Library by Region and Chromosome</h1>
+        </div>
+    </div>
 
-
-<body>
-<div class="container-fluid">
-    <div class="collapse navbar-collapse">
-        <ul class="nav navbar-nav">
-            <form class="form-inline navbar-left" role="form" id='search' action='/snpdb/chromosome-library-snps-summary/search' style="padding-bottom: 30px" method="get">
-                <div class="form-group">
-                    <label class="sr-only" for="library_id">Library</label>
-                    <input type="text" class="form-control" name="lib" placeholder="library code">
+    {% if ref_genome %}
+        <div class="container-fluid" style="padding-bottom:30px">
+            <form id="form1" action="/snpdb/chromosome-library-snp-summary/filter" method="get">
+                <div class="row">
+                    <div class="col">
+                        <div class="panel panel-primary" style="border-color: #616770;">
+                            <div class="panel-heading" style="background-color: #616770; border-color:#616770; overflow: hidden">
+                                <h3 class="panel-title" style="text-align: center">Library to Search</h3>
+                            </div>
+                            <div class="panel-body">
+                                <div class="row">
+                                    {% for group in results|columns:020 %}
+                                        <div class="col">
+                                            {% for lib in group %}
+                                                <div class="col-sm-2">
+                                                    <input type="radio" name="library" value="{{ lib.library_code }}"> {{lib.library_code}}
+                                                </div>
+                                            {% endfor %}
+                                         </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <button class="btn btn-sample" type="submit"  style="margin-left:0px; width:75px; vertical-align:middle; padding: 0px">Search</button>
+                <div class="form-group">
+                    <div class="pull-left">
+                        <button type="submit" class="btn btn-sample btn-xs pull-right" style="margin-left:0px; width:50px; padding:0px">Search</button>
+                    </div>
+                </div>
             </form>
-        </ul>
-    </div>
-</div>
-
-<div class="container-fluid" style="padding-bottom:30px">
-    <div class="form">
-        {% for group in results|columns:12 %}
-            <div class="form-group">
-                {% for obj in group %}
-                    <label class="col-md-1">{{ obj.library_code }}</label>
-                {% endfor %}
-            </div>
-        {% endfor %}
-    </div>
-</div>
-
-</body>
+        </div>
 
 
-{% if results.has_next %}
-<div class="ngsdb pagination">
-    <ul class="ngsdb">
-        {% if results.has_previous %}
-            <li><a href="?page={{  results.previous_page_number }}">&laquo;</a></li>
-        {% else %}
-            <li class="disabled"><a href="#">&laquo;</a></li>
-        {%  endif %}
+    {% else %}
+        <div class="container-fluid" style="padding-bottom:30px">
+            <form id="form3" action="/snpdb/chromosome-library-snp-summary" method="get">
+                <div class="row">
+                    <div class="panel panel-primary" style="border-color: #616770;">
+                        <div class="panel-heading" style="background-color: #616770; border-color:#616770; overflow: hidden">
+                            <h3 class="panel-title" style="text-align: center">Choose a Reference Organism</h3>
+                        </div>
+                        <div class="panel-body">
+                            <div class="form-group">
+                                {% for each in results|columns:5 %}
+                                    <div class="form-vertical">
+                                        {% for organismcode in each %}
+                                            <div class="col-md-2">
+                                                <input type="radio" name="ref_genome" value="{{ organismcode.organismcode }}"> {{organismcode.organismcode}}
+                                             </div>
+                                        {% endfor %}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="pull-left">
+                        <button type="submit" class="btn btn-sample btn-xs pull-right" style="margin-left:0px; width:50px; padding:0px">Search</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    {% endif %}
 
-        {% for page in paginator.page_range %}
-            {% if page <= toolbar_max and page > toolbar_min and page != results.number %}
-                    <li><a href="?page={{  page  }}">{{ page }}</a></li>
-            {% elif page == results.number %}
-                <li class="active"><a href="?page={{  results.number }}">{{ results.number }}</a></li>
-            {% endif %}
-        {% endfor %}
-
-        {% if results.has_next %}
-            <li><a href="?page={{ results.next_page_number }}">&raquo;</a></li>
-        {% endif %}
-    </ul>
-</div>
-{% endif %}
-
-{% endblock %}
-</html>
+{% endblock bootstrap %}

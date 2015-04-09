@@ -1,1 +1,6 @@
-"('INTRON', 15)","('INTERGENIC', 690089)","('DOWNSTREAM', 1189739)","('UPSTREAM', 1210327)"
+effect_class,snp__count
+intergenic region,660525
+non coding exon variant,137
+intragenic variant,5
+upstream gene variant,1176690
+downstream gene variant,1152619
