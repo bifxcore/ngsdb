@@ -10,8 +10,8 @@ dbh = psycopg2.connect(host='ngsdb', database='ngsdb03aa', user='ngsdb03', passw
 cur = dbh.cursor()
 
 path = os.path.join(os.path.abspath(os.path.dirname(__file__)), os.pardir)
-chart_path = os.path.join(path, 'snpdb/gcharts/%s_impact.csv')
-image_path = os.path.join(path, 'snpdb/static/snps_by_%s.png')
+chart_path = os.path.join(path, 'gcharts/%s_impact.csv')
+image_path = os.path.join(path, 'static/snps_by_%s.png')
 # Google Chart Images
 lib_labels = []
 lib_legend = []
@@ -42,30 +42,37 @@ def dump(qs, outfile_path):
 	for obj in qs:
 		val = obj[0]
 		key = obj[1]
-		print val, key
 		values.append(int(val))
 		if key not in keys:
 			keys.append(key)
 	value = dict(zip(keys, values))
-	print value.items()
-	# value = [tuple(values[i:i+2]) for i in range(0, len(values), 2)]
 	writer.writerow(value.items())
-	# for k, v in value.iteritems():
-		# writer.writerow(k, v)
+
 
 
 def main():
 	cur.execute('SELECT count(snp_id), effect_string FROM snpdb_effect WHERE effect_id=1 GROUP BY effect_string')
 	impact = cur.fetchall()
-	# impact = Effect.objects.filter(effect_id=1).values("effect_string").annotate(Count('snp'))
 	dump(impact, chart_path % 'impact')
 	for obj in impact:
 		val = obj[0]
 		key = obj[1]
+
+		if key == "HIGH":
+			new_key = "Changes to CDS Length";
+		elif key == "LOW":
+			new_key = "Synonymous Changes"
+		elif key == "MODERATE":
+			new_key = "Non-Synonymous Changes"
+		else:
+			new_key = "Non-CDS Changes"
+
 		impact_values.append(int(val))
 		if val not in impact_keys:
-			impact_keys.append(key)
+			impact_keys.append(new_key)
+
 	impact_snp_total = int(sum(impact_values))
+
 	for x in impact_values:
 		percentage = float(x)/float(impact_snp_total)*100
 		impact_labels.append(round(percentage,2))
@@ -78,7 +85,6 @@ def main():
 
 	cur.execute('SELECT count(snp_id), effect_class FROM snpdb_effect WHERE effect_id=1 and effect_string=%s GROUP BY effect_class', ('LOW',))
 	low = cur.fetchall()
-	# low = Effect.objects.filter(effect_id=1, effect_string="LOW").values("effect_class").annotate(Count('snp'))
 	dump(low, chart_path % 'low')
 	for obj in low:
 		val = obj[0]
@@ -98,7 +104,6 @@ def main():
 
 	cur.execute('SELECT count(snp_id), effect_class FROM snpdb_effect WHERE effect_id=1 and effect_string=%s GROUP BY effect_class', ('HIGH',))
 	high = cur.fetchall()
-	# high = Effect.objects.filter(effect_id=1, effect_string="HIGH").values("effect_class").annotate(Count('snp'))
 	dump(high, chart_path % 'high')
 	for obj in high:
 		val = obj[0]
@@ -139,7 +144,6 @@ def main():
 
 	cur.execute('SELECT count(snp_id), effect_class FROM snpdb_effect WHERE effect_id=1 and effect_string=%s GROUP BY effect_class', ('MODIFIER',))
 	modifier = cur.fetchall()
-	# modifier = Effect.objects.filter(effect_id=1, effect_string="MODIFIER").values("effect_class").annotate(Count('snp'))
 	dump(modifier, chart_path % 'modifier')
 	for obj in modifier:
 		val = obj[0]
@@ -160,7 +164,6 @@ def main():
 
 	cur.execute('SELECT count(snp_id), samples_library.library_code FROM snpdb_snp, samples_library WHERE snpdb_snp.library_id=samples_library.id GROUP BY samples_library.library_code')
 	lib_count = cur.fetchall()
-	# lib_count = SNP.objects.values("library__library_code").distinct().annotate(Count('snp_id'))
 	lib_snps = []
 	lib_snp_total = 0
 	for obj in lib_count:

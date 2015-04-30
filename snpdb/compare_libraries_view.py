@@ -1,9 +1,7 @@
 __author__ = 'mcobb'
 from snpdb.models import *
 from samples.models import *
-from django.shortcuts import render_to_response
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.template import RequestContext
 from utils import build_orderby_urls
 from collections import *
 from math import ceil
@@ -470,6 +468,7 @@ def compare_isec_search(request):
 	lib_tuple = (dict(lib_high_effects), dict(lib_moderate_effects), dict(lib_low_effects), dict(lib_modifier_effects),
 	             snp_total_counts)
 	lib_effect.append(lib_tuple)
+	lib_total = sum(snp_total_counts)
 
 	return render_to_response('snpdb/compare_libraries_search.html', {"group1": group1,
 	                                                                  "group2": group2,
