@@ -382,7 +382,6 @@ def insert_vcf_file(library_id, result_id, vcf_file, vcf_path):
 	cur.execute('INSERT INTO "snpdb_vcf_files" (vcf_path, library_id, result_id, vcf_md5sum, date_modified, date_uploaded) VALUES (%s, %s, %s, %s, %s, %s) RETURNING "vcf_id"',
 	            (vcf_name, library_id, result_id, vcf_md5sum.hexdigest(), modified_time, upload_time))
 	vcf_id = cur.fetchone()
-	print vcf_id
 	cmd = """cp %s %s"""
 	subprocess.Popen(cmd % (vcf_path, vcf_dir_path), shell=True, stdout=subprocess.PIPE)
 	return vcf_id
@@ -550,6 +549,12 @@ def main():
 
 			# Returns the heterozygosity of each snp.
 			samples = snps.samples
+			# data = samples[0].data
+			# count = 1
+			# for each in data:
+			# 	print count, ": ", each
+			# 	count +=1
+
 			heterozygosity = get_heterozygosity(samples)
 
 			# Returns the chromosome_id for each snp result.

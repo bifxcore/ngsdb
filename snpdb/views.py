@@ -5,6 +5,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.template import RequestContext
 from django.db.models import *
 from django_boolean_sum import BooleanSum
+from django.db import connection
 
 from utils import build_orderby_urls
 from GChartWrapper import *
@@ -698,22 +699,54 @@ def chrom_region_filter(request):
 
 # Dumps a queryset into a csv file.
 def dump(qs, outfile_path):
-	writer = csv.writer(open(outfile_path, 'w'))
 	keys = []
 	values = []
 	for obj in qs:
-		for key, val in obj.items():
-			if isinstance(val, int):
-				values.append(val)
-			else:
-				values.append(val.encode("UTF8").replace('_', ' ').replace('&', ' and ',))
-			if key not in keys:
-				keys.append(key)
-	value = [list(values[i:i+2]) for i in range(0, len(values), 2)]
+		if isinstance(obj, dict):
+			for key, val in obj.items():
+				if isinstance(val, int):
+					values.append(val)
+				else:
+					values.append(val.encode("UTF8").replace('_', ' ').replace('&', ' and ',))
 
+				if key not in keys:
+					keys.append(key)
+			value = [list(values[i:i+2]) for i in range(0, len(values), 2)]
+
+		elif isinstance(obj, tuple):
+
+
+			if obj[1] == "HIGH":
+				val = "Changes to CDS Length"
+			elif obj[1] == "LOW":
+				val = "Synonymous Changes"
+			elif obj[1] == "MODERATE":
+				val = "Non-Synonymous Changes"
+			elif obj[1] == "MODIFIER":
+				val = "Non-CDS Changes"
+			else:
+				val = "n/a"
+			values.append(val)
+
+			if "Impact" not in keys:
+				keys.append("Impact")
+				keys.append("snp_count")
+			if isinstance(obj[0], int) or isinstance(obj[0], long):
+				values.append(obj[0])
+			else:
+				values.append(obj[0].encode("UTF8").replace('_', ' ').replace('&', ' and ',))
+
+			value = [list(values[i:i+2]) for i in range(0, len(values), 2)]
+
+	writer = csv.writer(open(outfile_path, 'w+'))
+
+	print keys, values, value
 	writer.writerow(keys)
 	for each in value:
 		writer.writerow(each)
+
+
+
 	return value
 
 
@@ -731,7 +764,7 @@ def read(filename):
 	return impact_dict
 
 
-# Resizes the flowchart of the snp process. 
+# Resizes the flowchart of the snp process.
 def snpdb_flowchart(request):
 	image = os.path.join(os.path.abspath(settings.MEDIA_URL), 'protocols/snp_flowchart.png')
 	resize_image = os.path.join(os.path.abspath(settings.MEDIA_URL), 'protocols/snp_flowchart_resize.png')
@@ -766,23 +799,31 @@ def save_snp_dashboard_files(chart_path, image_path):
 	modifier_values = []
 	impact_values = []
 
-	high = Effect.objects.filter(effect__effect_name="Annotation_Impact", effect_string="HIGH").values("effect_class").annotate(Count('snp'))
-	high_list = dump(high, chart_path % 'high')
+	# high = Effect.objects.filter(effect__effect_name="Annotation_Impact", effect_string="HIGH").values("effect_class").annotate(Count('snp'))
+	# high_list = dump(high, chart_path % 'high')
+	#
+	# high_snp_total = sum(i[1] for i in high_list)
+	#
+	# for each in high_list:
+	# 	high_labels.append(each[0] + ': ' + str(round(float(each[1])/float(high_snp_total)*100, 2)) + '%')
+	# 	high_values.append(round(float(each[1])/float(high_snp_total)*100, 2))
+	#
+	#
+	# snps_by_high_impact = Pie(high_values).label(*high_values).legend(*high_labels).legend_pos('l').color("919dab", "D2E3F7",
+	#                                                                                                       "658CB9", "88BBF7",
+	#                                                                                                       "666E78").size(800,350)
+	# snps_by_high_impact.image().save(image_path % 'high', 'png')
+	# print "high files saved"
 
-	high_snp_total = sum(i[1] for i in high_list)
+	cursor = connection.cursor()
+	cursor.execute("""SELECT count(snp_id), effect_string
+  				FROM snpdb_effect
+				WHERE effect_id = 64
+				GROUP BY effect_string
+				ORDER BY effect_string""")
 
-	for each in high_list:
-		high_labels.append(each[0] + ': ' + str(round(float(each[1])/float(high_snp_total)*100, 2)) + '%')
-		high_values.append(round(float(each[1])/float(high_snp_total)*100, 2))
+	impact = cursor.fetchall()
 
-
-	snps_by_high_impact = Pie(high_values).label(*high_values).legend(*high_labels).legend_pos('l').color("919dab", "D2E3F7",
-	                                                                                                      "658CB9", "88BBF7",
-	                                                                                                      "666E78").size(800,350)
-	snps_by_high_impact.image().save(image_path % 'high', 'png')
-	print "high files saved"
-
-	impact = Effect.objects.filter(effect__effect_name="Annotation_Impact").values("effect_string").annotate(Count('snp'))
 	impact_list = dump(impact, chart_path % 'impact')
 
 	impact_snp_total = sum(i[1] for i in impact_list)
@@ -793,8 +834,8 @@ def save_snp_dashboard_files(chart_path, image_path):
 
 
 	snps_by_impact = Pie(impact_values).label(*impact_values).legend(*impact_labels).legend_pos('l').color("919dab", "D2E3F7",
-	                                                                                       "658CB9", "88BBF7",
-	                                                                                       "666E78").size(800,350)
+	                                                                                                       "658CB9", "88BBF7",
+	                                                                                                       "666E78").size(800,350)
 	snps_by_impact.image().save(image_path % 'impact', 'png')
 	print "impact files saved"
 
@@ -808,8 +849,8 @@ def save_snp_dashboard_files(chart_path, image_path):
 		low_values.append(round(float(each[1])/float(low_snp_total)*100, 2))
 
 	snps_by_low = Pie(low_values).label(*low_values).legend(*low_labels).legend_pos('l').color("919dab", "D2E3F7",
-	                                                                           "658CB9", "88BBF7",
-	                                                                           "666E78").size(800,350)
+	                                                                                           "658CB9", "88BBF7",
+	                                                                                           "666E78").size(800,350)
 	snps_by_low.image().save(image_path % 'low', 'png')
 	print "low files saved"
 
@@ -823,8 +864,8 @@ def save_snp_dashboard_files(chart_path, image_path):
 		moderate_values.append(round(float(each[1])/float(moderate_snp_total)*100, 2))
 
 	snps_by_moderate = Pie(moderate_values).label(*moderate_values).legend_pos('l').legend(*moderate_labels).color("919dab", "D2E3F7",
-	                                                                                               "658CB9", "88BBF7",
-	                                                                                               "666E78").size(800,350)
+	                                                                                                               "658CB9", "88BBF7",
+	                                                                                                               "666E78").size(800,350)
 	snps_by_moderate.image().save(image_path % 'moderate', 'png')
 	print "moderate files saved"
 
@@ -838,8 +879,8 @@ def save_snp_dashboard_files(chart_path, image_path):
 		modifier_values.append(round(float(each[1])/float(modifier_snp_total)*100, 2))
 
 	snps_by_modifier = Pie(modifier_values).label(*modifier_values).legend_pos('l').legend(*modifier_labels).color("919dab", "D2E3F7",
-	                                                                                               "658CB9", "88BBF7",
-	                                                                                               "666E78").size(800,350)
+	                                                                                                               "658CB9", "88BBF7",
+	                                                                                                               "666E78").size(800,350)
 	snps_by_modifier.image().save(image_path % 'modifier', 'png')
 	print "modifier files saved"
 
@@ -855,8 +896,8 @@ def save_snp_dashboard_files(chart_path, image_path):
 		lib_labels.append(round(percentage, 2))
 
 	snps_by_library = Pie([lib_labels]).label(*lib_labels).legend_pos('l').legend(*lib_legend).color("919dab", "D2E3F7",
-	                                                                                 "658CB9", "88BBF7",
-	                                                                                 "666E78").size(800,350)
+	                                                                                                 "658CB9", "88BBF7",
+	                                                                                                 "666E78").size(800,350)
 	snps_by_library.image()
 	snps_by_library.image().save(image_path % 'library', 'png')
 	print "saved snps_by_library"
@@ -872,8 +913,8 @@ def save_snp_dashboard_files(chart_path, image_path):
 		org_labels.append(round(percentage, 2))
 	org_legend.append(each['result__genome__organism__organismcode'])
 	snps_by_organism = Pie(org_labels).label(*org_labels).legend_pos('l').legend(*org_legend).color("919dab", "D2E3F7",
-	                                                                                "658CB9", "88BBF7",
-	                                                                                "666E78").size(800,350)
+	                                                                                                "658CB9", "88BBF7",
+	                                                                                                "666E78").size(800,350)
 	snps_by_organism.image().save(image_path % 'organism', 'png')
 	print "saved snps_by_organism"
 

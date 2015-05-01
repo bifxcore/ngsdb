@@ -55,21 +55,21 @@
 <div class="container-fluid" style="padding-bottom:30px">
     <table class="table table-condensed" style="word-wrap: break-word; border-color: black; table-layout: fixed;">
         <tr>
-            <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.chromosome }}>Chromosome</a></th>
-            <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.0 }}>Position (bp)</a></th>
-            <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.quality }}>Quality</a></th>
-            <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.gene }}>Impacted Gene</a></th>
-            <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.effect }}>Product Name</a></th>
-            <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.gene_length }}>Gene Length (aa)</a></th>
-            <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.aa }}>Distance from Start Codon (aa)</a></th>
-            <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.ref }}>Reference Base</a></th>
+            <th class="text-center custom-table col-md-1"><a style="color: #e7e4db" href={{ filter_urls.chromosome }}>Chromosome</a></th>
+            <th class="text-center custom-table col-md-1"><a style="color: #e7e4db" href={{ filter_urls.0 }}>Position (bp)</a></th>
+            <th class="text-center custom-table col-md-1"><a style="color: #e7e4db; padding-left:5px; padding-right:5px" href={{ filter_urls.quality }}>Quality</a></th>
+            <th class="text-center custom-table col-md-1"><a style="color: #e7e4db" href={{ filter_urls.gene }}>Impacted Gene</a></th>
+            <th class="text-center custom-table col-md-1"><a style="color: #e7e4db" href={{ filter_urls.effect }}>Product Name</a></th>
+            <th class="text-center custom-table col-md-1"><a style="color: #e7e4db" href={{ filter_urls.gene_length }}>Gene Length (aa)</a></th>
+            <th class="text-center custom-table col-md-1"><a style="color: #e7e4db" href={{ filter_urls.aa }}>Distance from Start Codon (aa)</a></th>
+            <th class="text-center custom-table col-md-1"><a style="color: #e7e4db" href={{ filter_urls.ref }}>Reference Base</a></th>
             {% for each in libraries %}
-                <th class="text-center custom-table" id={{each}}>
+                <th class="text-center custom-table col-md-2" id={{each}}>
                     <div><a style="color: #e7e4db" href={{ filter_urls.library__library_code }}>{{each}}</a></div>
                     <div><a style="color: #e7e4db; word-wrap:break-word" href={{ filter_urls.alt_allele }}>Alternate Allele</a></div>
                 </th>
             {% endfor %}
-            <th class="text-center custom-table"><a style="color: #e7e4db" href={{ filter_urls.wt_allele }}>Wildtype Base</a></th>
+            <th class="text-center custom-table col-md-1"><a style="color: #e7e4db" href={{ filter_urls.wt_allele }}>Wildtype Base</a></th>
         </tr>
 
         <tbody>
@@ -101,7 +101,7 @@
                 <td class="text-center" style="vertical-align: middle">
                     {% for y in x.1.gene %}<div><a href="/snpdb/gene-snp-summary?geneid={{ y }}&length={{x.1.gene_length}}&add={{add}}&neg={{neg}}&wt={{wt}}&genome_id={{genome_id}}">{{ y }}</a></div>{% endfor %}
                 </td>
-                <td><div>{{ x.1.product|title }}</div></td>
+                <td><div>{% for y in x.1.product %}{{ y|title }}{% endfor %}</div></td>
                 <td class="text-center" style="vertical-align: middle">{% for y in x.1.gene_length %}<div>{{ y }}</div>{% endfor %}</td>
                 <td class="text-center" style="vertical-align: middle">{% for y in x.1.aa_from_start %}<div>{{ y }}{% endfor %}</td>
                 <td class="text-center" style="vertical-align: middle">{{ x.1.ref|joinby:", " }}</a></td>

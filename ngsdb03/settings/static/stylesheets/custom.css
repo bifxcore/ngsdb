@@ -392,3 +392,9 @@ fieldset[disabled] .btn-panel.active {
     height:auto;
     display:inline-block;
 }
+
+
+.row-fluid { width: 95%; margin: auto; }
+.span4 { width: 200px; float:left; background: green; }
+.container-fluid { margin-left: 220px; background: orange; }
+div { padding: 10px;}
