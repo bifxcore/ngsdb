@@ -638,6 +638,31 @@ def get_impact_counts_for_gene(gene_id, gene_length, start_pos, snp_info, librar
 
 
 
+def cnv_filter(request):
+    """
+    Let user filter CNV regions with custom cutoff
+    :param request:
+    :return:
+    """
+    kwargs = {'title': "Filter CNV"}
+    # kwargs['user']=user
+    # kwargs['listoflinks']=listoflinks
+    form = CnvFilterForm(request.POST or None)
+    kwargs['form'] = form
+    print(form)
+    if request.method == 'POST':
+        if form.is_clean():
+            librarycode = form.cleaned_data['librarycode']
+            librarycodes = ['ES042', 'ES043', 'ES044']
+            normalrange_mincnv = form.cleaned_data['normalrange_mincnv']
+            normalrange_maxcnv = form.cleaned_data['normalrange_maxcnv']
+
+            cnvs = CNV.objects.filter(library__library_code=librarycode)
+            cnvs_lowerrange = cnvs.filter(cnv_value__lte=normalrange_mincnv)
+            cnvs_upperrange = cnvs.filter(cnv_value__mte=normalrange_maxcnv)
+
+
+
 def compare_libraries_somy(request):
     """
     Display somy chart(s)
