@@ -94,9 +94,9 @@ def add_snps_from_vcf(vcf_file, libraries, group_libs, snp_dict, wt, impact):
 				try:
 					product = Feature.objects.values_list('geneproduct', flat=True).filter(geneid=gene,
 					                                                                       featuretype='gene',
-					                                                                       genome_id=genome_id)[0]
+					                                                                       genome_id=genome_id)[0].encode("UTF8")
 				except IndexError:
-					product = gene
+					product = gene.encode("UTF8")
 
 
 				try:
@@ -138,13 +138,13 @@ def add_snps_from_vcf(vcf_file, libraries, group_libs, snp_dict, wt, impact):
 		#Appends values that are not present in the dictionary
 		else:
 			snp_dict[pos]['quality'].add(qual)
-			snp_dict[pos]['gene'].add(genes)
+			snp_dict[pos]['gene'].update(genes)
 			snp_dict[pos]['impact'].add(impact)
 			snp_dict[pos]['effect'].add(eff)
 			snp_dict[pos]['wt_allele'].add(wt_allele)
-			snp_dict[pos]['product'].add(product)
+			snp_dict[pos]['product'].add(product.encode("UTF8"))
 			snp_dict[pos]['aa_from_start'].add(aa_from_start)
-			snp_dict[pos]['gene_length'].add(gene_length)
+			snp_dict[pos]['gene_length'].append(gene_length)
 
 			if alt not in snp_dict[pos]['alt']:
 				for lib in group_libs:
@@ -271,7 +271,7 @@ def add_values_to_empty_dictionary(snp, record, alt, lib_dict, gene_length, impa
 	snp['gene'] = genes
 	snp['wt_allele'] = {wt}
 	snp['library_alleles'] = dict(lib_dict)
-	snp['product'] = product
+	snp['product'] = {product}
 	snp['aa_from_start'] = {aa_from_start}
 	snp['start'] = fmin
 	snp['stop'] = fmax
