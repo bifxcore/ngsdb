@@ -9,10 +9,31 @@
 {% block body %}
 {% load ngsdbview_extras %}
 {% load humanize %}
+{%  if display_chart  %}
 
    <img src="{{ somy_multichr_columnchart }}" />
-  <div>
 
-  </div>
- {% endblock %}
- {% endblock %}
+{% else %}
+
+<FORM action="/snpdb/comparelibs/somy/{{ exp.id }}/" method="post">
+{% csrf_token %}
+    <TABLE>
+        <TR><TH>Sl. No.</TH><TH>Select</TH><TH>Library Code</TH><TH>Library Name</TH><TH>Collor For the Bar</TH></TR>
+        {% for lib in libs %}
+            <TR><TD>{{ forloop.counter }}</TD><TD><input type="checkbox" name="libcodes" value="{{ lib.library_code }}"></TD><TD>{{ lib.library_code }}</TD><TD>{{ lib.sampleid.samplename }}</TD>
+            {# display dropdown for color #}
+            <TD>
+                <select name="{{ lib.library_code }}">
+                {% for color in colors %}
+                    <option value={{ color }}>{{ color }}</option>
+                {% endfor %}
+                </select>
+            </TD>
+            </TR>
+        {% endfor %}
+    </TABLE>
+<input type="submit"  name="libraryselection" value="Display Somy" />
+</FORM>
+{% endif %}
+{% endblock %}
+{% endblock %}
