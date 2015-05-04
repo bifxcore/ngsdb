@@ -230,8 +230,8 @@ def impact_snps(request):
 			elif att == "gene":
 				cmd = """cat %s | /usr/local/snpEff/scripts/vcfEffOnePerLine.pl | java -jar %s "(ANN[*].IMPACT = '%s') & (ANN[*].GENE = '%s')" | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar extractFields - POS REF ALT CHROM ANN[*].GENE ANN[*].EFFECT QUAL ANN[*].AA"""
 
-			subprocess.call(cmd % (java_jar, result_path_0, impact, output_path_0, s), shell=True, stdout=subprocess.PIPE)
-			subprocess.call(cmd % (java_jar, result_path_1, impact, output_path_1, s), shell=True, stdout=subprocess.PIPE)
+			subprocess.call(cmd % (result_path_0, java_jar,  impact, output_path_0, s), shell=True, stdout=subprocess.PIPE)
+			subprocess.call(cmd % (result_path_1, java_jar, impact, output_path_1, s), shell=True, stdout=subprocess.PIPE)
 
 	snp_dict = defaultdict(dict)
 
