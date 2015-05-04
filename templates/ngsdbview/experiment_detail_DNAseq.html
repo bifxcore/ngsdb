@@ -158,7 +158,7 @@
         <TR><TD></TD>
         <TD>
             <div class="panel-heading" style="background-color: #F6E3CE; border-color:#F6E3CE; overflow: hidden">
-                <a  href="/snpdb/comparelibs/somy/{{ exp.id }}/"> <h3 class="panel-title" style="text-align: left">1. Compare Somy between ALL Libraries of this experiment</h3> </a>
+                <a  href="/snpdb/comparelibs/somy/{{ exp.id }}/"> <h3 class="panel-title" style="text-align: left">1. Compare Somy between SELECT Libraries of this experiment</h3> </a>
             </div>
         </TD>
         </TR>
@@ -166,20 +166,18 @@
         <TR><TD></TD>
         <TD>
             <div class="panel-heading" style="background-color: #F6E3CE; border-color:#F6E3CE; overflow: hidden">
-                <a href="http://localhost:8000/snpdb/comparelibs/cnv/{{ exp.id }}/"><h3 class="panel-title" style="text-align: left">2. Display CNV graph between SELECT libraries in this experiment</h3></a>
+                <a href="/snpdb/comparelibs/cnv/{{ exp.id }}/"><h3 class="panel-title" style="text-align: left">2. Browse CNV graphs of SELECT libraries in this experiment</h3></a>
             </div>
         </TD>
         </TR>
-
         <TR><TD></TD>
         <TD>
             <div class="panel-heading" style="background-color: #F6E3CE; border-color:#F6E3CE; overflow: hidden">
-                <a href="/snpdb/compare-cnv-libraries?ref_genome=LdoBPK&library_codes=ES041&library_codes=ES042&library_codes=ES043&library_codes=ES044&library_codes=ES045"> <h3 class="panel-title" style="text-align: left">3. Compare CNVs between ALL libraries in this experiment </h3> </a>
+                <a href="/snpdb/comparelibs/cnvfilter/{{ exp.id }}/"> <h3 class="panel-title" style="text-align: left">3. Analyze CNVs between two groups of libraries</h3> </a>
             </div>
         </TD>
         </TR>
-
-        <TR><TD></TD>
+            <TD></TD>
         <TD>
             <div class="panel-heading" style="background-color: #F6E3CE; border-color:#F6E3CE; overflow: hidden">
                 <a href="/snpdb/compare-cnv-libraries?ref_genome=LdoBPK"> <h3 class="panel-title" style="text-align: left">4. Compare CNVs between SELECT libraries in this experiment</h3> </a>
