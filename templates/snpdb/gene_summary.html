@@ -88,7 +88,12 @@
                                             {% if lib in values %}
                                                 <tr>
                                                     <td> {{lib}} </td>
-                                                    <td> {{values|keyvalue:lib|keyvalue:'ref'}} <span class="glyphicon glyphicon-arrow-right"></span> {{values|keyvalue:lib|keyvalue:'alt'}} </td>
+
+                                                    {% ifequal values|keyvalue:lib|keyvalue:'ref' values|keyvalue:lib|keyvalue:'alt' %}
+                                                        <td>No SNP</td>
+                                                    {% else %}
+                                                        <td> {{values|keyvalue:lib|keyvalue:'ref'}} <span class="glyphicon glyphicon-arrow-right"></span> {{values|keyvalue:lib|keyvalue:'alt'}} </td>
+                                                    {% endifequal %}
 
                                                     {% if values|keyvalue:lib|keyvalue:'cnv' > 2.25 or values|keyvalue:lib|keyvalue:'cnv' < 1.75 %}
                                                         <td class="danger"> {{values|keyvalue:lib|keyvalue:'cnv'|floatformat:2}}</td>

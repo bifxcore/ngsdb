@@ -74,9 +74,9 @@ def add_snps_from_vcf(vcf_file, libraries, group_libs, snp_dict, wt, impact):
 		lib_dict = {}
 		cnvs = CNV.objects.values('cnv_value', 'library__library_code',
 		                          'start', 'stop').distinct().filter(library__library_code__in=libraries,
-		                                                                                  start__lte=pos,
-		                                                                                  stop__gte=pos,
-		                                                                                  chromosome__chromosome_name=chrom)
+		                                                             start__lte=pos,
+		                                                             stop__gte=pos,
+		                                                             chromosome__chromosome_name=chrom)
 
 		for each in cnvs:
 			if each['library__library_code'] in group_libs:
@@ -454,7 +454,7 @@ def compare_isec_search(request):
 		# Counts the number of snps effected by each impact type. Snp is only counted once for each impact
 		#  i.e. if SNP has two modifying impacts, it is only counted once.
 
-		#Keeps track of the total library counts: [High, Moderate, Low, Modifier, Consistent, Total]
+		#Keeps track of the total library counts: [High, Moderate, Low, Modifier, Total]
 		if sum(impact_counts) > 0:
 			snp_total_counts[4] += 1
 
@@ -470,7 +470,7 @@ def compare_isec_search(request):
 	lib_tuple = (dict(lib_high_effects), dict(lib_moderate_effects), dict(lib_low_effects), dict(lib_modifier_effects),
 	             snp_total_counts)
 	lib_effect.append(lib_tuple)
-	lib_total = sum(snp_total_counts)
+	# lib_total = sum(snp_total_counts)
 
 	return render_to_response('snpdb/compare_libraries_search.html', {"group1": group1,
 	                                                                  "group2": group2,
@@ -538,7 +538,7 @@ def gene_snp_summary(request):
 	moderate_ct = 0
 	low_ct = 0
 
-	snp_list = get_impact_counts_for_gene(gene_id, gene_length, fmin, snp_list, library_id)
+	snp_list = get_impact_counts_for_gene(gene_id, gene_length, fmin, snp_list, library_id, chrom)
 
 	for key in snp_list:
 		impact = snp_list[key]['impact']
@@ -566,15 +566,26 @@ def gene_snp_summary(request):
 	                                                      }, context_instance=RequestContext(request))
 
 
-def get_impact_counts_for_gene(gene_id, gene_length, start_pos, snp_info, libraries):
+def get_impact_counts_for_gene(gene_id, gene_length, start_pos, snp_info, libraries, chrom):
 
 	library_codes = Library.objects.values('library_code', 'id').filter(id__in=libraries)
+	chromosome = Chromosome.objects.values_list('chromosome_id', flat=True).filter(chromosome_name__startswith=chrom)[0]
+
+	somys = {}
 	lib_codes = {}
 	for lib in library_codes:
 		lib_codes[lib['id']] = {'id': lib['id'], 'library_code': lib['library_code'].encode("UTF8")}
+		try:
+			somy = CNV.objects.values_list('cnv_value', flat=True).filter(library__library_code=lib['library_code'],
+			                                                              cnv_type_id=2,
+			                                                              chromosome_id=chromosome)[0]
+		except IndexError:
+			somy = 0
+		somys[lib['library_code'].encode("UTF8")] = somy
+
 
 	query = '''SELECT snpdb_effect.snp_id AS id, effect_class, effect_string, snp_position, ref_base, alt_base,
-							   library_id, chromosome_id, quality
+							   library_id, quality
 		FROM snpdb_effect, snpdb_snp
 		WHERE snpdb_effect.snp_id IN (SELECT DISTINCT snpdb_snp.snp_id AS snps
   		FROM snpdb_snp, snpdb_effect
@@ -589,11 +600,9 @@ def get_impact_counts_for_gene(gene_id, gene_length, start_pos, snp_info, librar
 	params = libraries + [gene_id]
 	qs = Effect.objects.raw(query, params)
 
-
 	#Iterates through all of the snps found within the gene and queried libraries.
 	for q in qs:
 		impact = q.effect_string
-		chrom = q.chromosome_id
 		library_code = lib_codes[q.library_id].get('library_code')
 		ref = q.ref_base
 		alt = q.alt_base
@@ -608,36 +617,88 @@ def get_impact_counts_for_gene(gene_id, gene_length, start_pos, snp_info, librar
 		else:
 			loss_of_function = "No"
 
-		library = {}
 		snps = {}
 
-		library['ref'] = ref
-		library['alt'] = alt
-		library['loss_of_function'] = loss_of_function
-		library['quality'] = quality
-		library['cnv'] = CNV.objects.values_list('cnv_value', flat=True).filter(library__library_code=library_code,
-		                                                                        start__lte=pos, stop__gte=pos,
-		                                                                        chromosome_id = chrom, cnv_type_id=1)[0]
+		#initializes all libraries to WT alleles.
+		for each in library_codes:
+			try:
+				cnv = CNV.objects.values_list('cnv_value', flat=True).filter(library__library_code=each['library_code'],
+				                                                             start__lte=pos, stop__gte=pos,
+				                                                             chromosome_id=chromosome, cnv_type_id=1)[0]
+			except IndexError:
+				cnv = 0
 
-		library['somy'] = CNV.objects.values_list('cnv_value', flat=True).filter(library__library_code=library_code,
-		                                                                          chromosome_id=chrom, cnv_type_id=2)[0]
+			if library_code == each['library_code']:
+				library = {'ref': ref,
+				           'alt': alt,
+				           'loss_of_function': loss_of_function,
+				           'quality': quality,
+				           'cnv': cnv,
+				           'somy': somys[each['library_code']]}
+			else:
+				library = {'ref': ref,
+				           'alt': ref,
+				           'loss_of_function': "None",
+				           'quality': 0,
+				           'cnv': cnv,
+				           'somy': somys[each['library_code']]}
 
-		if pos in snp_info:
-			snp_info[pos][library_code] = library
 
-		else:
-			snps['chromosome'] = chrom
-			snps['gene'] = gene_id
-			snps['impact'] = impact
-			snps['effect'] = [effect_type]
-			snps['aa_pos'] = aa_pos
-			snps['percent_impacted'] = percent_impact
-			snps[library_code] = library
-			snp_info[pos] = snps
+			if pos in snp_info:
+				snp_info[pos][each['library_code']] = library
+
+			else:
+				snps['chromosome'] = chromosome
+				snps['gene'] = gene_id
+				snps['impact'] = impact
+				snps['effect'] = [effect_type]
+				snps['aa_pos'] = aa_pos
+				snps['percent_impacted'] = percent_impact
+				snps[each['library_code']] = library
+				snp_info[pos] = snps
 
 	return snp_info
 
 
+def compare_libraries_somy(request):
+	"""
+	Display somy chart(s)
+	:param request: libcodes, referencegenome/resultids
+	:return: all chart objects
+	"""
+
+	kwargs = {}
+	#kwargs['user']=user
+	kwargs['listoflinks']=listoflinks
+	kwargs['title']="Comparing Somy"
+
+	libcodes = ['ES041', 'ES042', 'ES043', 'ES044', 'ES045']
+	legendvalues = []
+	for libcode in libcodes:
+		libobj = Library.objects.get(library_code=libcode)
+		legendvalues.append(libobj.library_code+'('+libobj.sampleid.samplename+')')
+
+	somyobjects = CNV.objects.filter(library__library_code__in=libcodes).filter(cnv_type__cvterm='Somy')
+	contignames = []
+	for contig in sorted(list(set(somyobjects.values_list('chromosome__chromosome_name', flat=True)))):
+		contignames.append(re.sub(r'\D+', '', re.sub(r'_.+', '', contig)))
+
+	list_of_somy = []
+	for libcode in libcodes:
+		somy_for_lib = []
+		for somyvalue in somyobjects.filter(library__library_code=libcode).order_by('chromosome__chromosome_name').values_list('cnv_value', flat=True):
+			somy_for_lib.append(somyvalue)
+		list_of_somy.append(somy_for_lib)
+
+	somy_multichr_columnchart = VerticalBarGroup(list_of_somy, encoding="text").bar(4, 0, 7).size(999,200).title("Comparing Somy for Chromosomes between Libraries")
+	somy_multichr_columnchart.scale(0, 5).axes('xyx')
+	somy_multichr_columnchart.axes.label(0, *contignames).axes.label(1, *range(0, 6, 1))
+	somy_multichr_columnchart.axes.label(2, None, 'Chromosome Number', None)
+	somy_multichr_columnchart.color('4d89f9','c6d9fd', 'red', 'green', 'yellow').legend(*legendvalues).legend_pos('t')
+
+	return render_to_response('snpdb/compare_libraries_somy.html', {"list_of_somy":list_of_somy,
+	                                                                "somy_multichr_columnchart": somy_multichr_columnchart,},
+	                          context_instance=RequestContext(request))
 
 def cnv_filter(request):
     """
