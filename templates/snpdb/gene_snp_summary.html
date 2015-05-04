@@ -32,7 +32,13 @@
                         {% for each in snp_list %}
                             <ul class="list-group">
                                 <li class="list-group-item">{{each.effect|effect_type_title}} at position {{each.position}} (bp)</li>
-                                <li class="list-group-item"><strong>Reference Allele <span class="glyphicon glyphicon-arrow-right"></span>  Alternate Allele:</strong> {{each.ref}} <span class="glyphicon glyphicon-arrow-right"></span> {{each.alt}}</li>
+
+                                {% ifequal each.ref each.alt %}
+                                    <li class="list-group-item">No SNP</li>
+                                {% else %}
+                                    <li class="list-group-item"><strong>Reference Allele <span class="glyphicon glyphicon-arrow-right"></span>  Alternate Allele:</strong> {{each.ref}} <span class="glyphicon glyphicon-arrow-right"></span> {{each.alt}}</li>
+                                {% endifequal %}
+
                                 <li class="list-group-item">{{each.percent_impacted|floatformat:-4}}% of Gene Effected </li>
 
                                 {% if each.gain_of_function == "True" %}
