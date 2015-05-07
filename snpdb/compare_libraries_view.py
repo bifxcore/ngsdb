@@ -343,6 +343,8 @@ def compare_isec_search(request):
 			group1_isec = os.path.join(path, "group1.vcf")
 			bcftools_isec(group1_path, path, len(group1_path))
 
+			os.rename(os.path.join(path, "0000.vcf"), group1_isec)
+
 			try:
 				subprocess.check_call(['bgzip', group1_isec])
 				subprocess.check_call(['tabix', '-p', 'vcf', '-f', '%s.gz' % group1_isec])

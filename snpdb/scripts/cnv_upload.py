@@ -6,20 +6,15 @@
 #-------------------------------------------------------------------------------------------
 import psycopg2
 import sys
-import re
-import vcf
 import datetime
-import hashlib
-import os.path, time
-from django.core.files import File
-import subprocess
+
 
 dbh = psycopg2.connect(host='ngsdb', database='ngsdb03ac', user='ngsdb03', password='ngsdb03')
 cur = dbh.cursor()
 
 
 # Identifies the organism_id from the Library table.
-def get_organism_id(genome_id, genome_version):
+def get_organism_id(genome_id):
 	try:
 		cur.execute('SELECT organism_id FROM "ngsdbview_genome" WHERE genome_id = %s',
 		            (genome_id,))
@@ -61,7 +56,7 @@ def get_library_id(librarycode):
 		print "Error in Library id", e
 
 
-def get_result(library_id, genome_id, author_id, analysis_path):
+def get_result(library_id, genome_id, author_id, analysis_path, type_file):
 	timepoint = datetime.datetime.now()
 	try:
 		cur.execute('SELECT result_id FROM "ngsdbview_result_libraries" WHERE library_id = %s', (library_id,))
@@ -70,7 +65,8 @@ def get_result(library_id, genome_id, author_id, analysis_path):
 		tup_result = ()
 		for each in result_ids:
 			tup_result = tup_result + (each[0],)
-		cur.execute('SELECT result_id FROM "ngsdbview_result" WHERE result_id IN %s AND result_type_cv_id = 3', (tup_result,))
+
+		cur.execute('SELECT result_id FROM "ngsdbview_result" WHERE result_id IN %s AND result_type_cv_id = %s', (tup_result, type_file))
 		cnv_results = cur.fetchall()
 
 
@@ -84,7 +80,7 @@ def get_result(library_id, genome_id, author_id, analysis_path):
 			if user_opt == 1:
 				sys.exit("You have quit the program. CNV_Results were not uploaded into the database.")
 			elif user_opt == 2:
-				result_id = insert_result_option2(result_ids, library_id, genome_id, author_id, analysis_path, timepoint)
+				result_id = insert_result_option2(result_ids, library_id, genome_id, author_id, analysis_path, timepoint, type_file)
 				dbh.commit()
 				return result_id
 			elif user_opt == 3:
@@ -114,7 +110,7 @@ def get_result(library_id, genome_id, author_id, analysis_path):
 
 # Called from insert results to handle the second option chosen by the user.
 # Manually deletes any entries connected with the snp in a cascade of events. Can be time consuming.
-def insert_result_option2(result_ids, library_id, genome_id, author_id, analysis_path, timepoint):
+def insert_result_option2(result_ids, library_id, genome_id, author_id, analysis_path, timepoint, type_file):
 	notes = ''
 	try:
 		for result in result_ids:
@@ -125,7 +121,7 @@ def insert_result_option2(result_ids, library_id, genome_id, author_id, analysis
 			cur.execute('DELETE FROM "ngsdbview_result_libraries" WHERE result_id = %s AND library_id = %s', (result_to_delete, library_id,))
 			dbh.commit()
 		cur.execute('INSERT INTO "ngsdbview_result" (genome_id, author_id, analysisPath, notes, is_current, is_obsolete, time_data_loaded, result_type_cv_id) VALUES (%s, %s, %s, %s, %s, %s, %s, %s) RETURNING result_id',
-		            (genome_id, author_id, analysis_path, notes, True, False, timepoint, 3))
+		            (genome_id, author_id, analysis_path, notes, True, False, timepoint, type_file))
 		new_result_id = cur.fetchone()[0]
 		cur.execute('INSERT INTO "ngsdbview_result_libraries" (result_id, library_id) VALUES (%s, %s) RETURNING result_id',
 		            (new_result_id, library_id))
@@ -175,6 +171,7 @@ def insert_cnv(chromosome, start, stop, cnv_value, library_id, result_id, window
 		print 'Error %s' % e
 		dbh.rollback()
 		sys.exit(1)
+
 	dbh.commit()
 
 def main():
@@ -194,6 +191,13 @@ def main():
 		# Identifies the librarycode, librarycode, genome_id, and genome version,
 		librarycode = raw_input("Please state the librarycode. ")
 		type_file = raw_input("Submit 1 if file is CNV. Submit 2 if file is Somy")
+
+		if int(type_file) == 1:
+			result_type = 3
+		elif int(type_file) == 2:
+			result_type = 4
+
+
 		try:
 			cur.execute('SELECT genome_id, organism_id, version FROM "ngsdbview_genome"s',
 			            (librarycode,))
@@ -214,34 +218,36 @@ def main():
 		genome_version = raw_input("Please state the genome version. ")
 		analysis_path = raw_input("Please provide the full analysis path. ")
 
-		organism_id = get_organism_id(genome_id, genome_version)
+		organism_id = get_organism_id(genome_id)
 		organismcode = get_organismcode(organism_id)
+
 
 		library_id = get_library_id(librarycode)
 
 		# Collects the author_id from the Library table.
 		author_id = get_author_id(librarycode)
 
-		result_id = get_result(library_id, genome_id, author_id, analysis_path)
-
-
+		result_id = get_result(library_id, genome_id, author_id, analysis_path, result_type)
 
 		#Reads each line of file.
 		for line in f:
-			cnv = line.split()
-			chrom = cnv[0]
-			try:
-				start = int(cnv[1])
-				stop = int(cnv[2])
-				cnv_value = cnv[4]
-				coverage = cnv[3]
-				window_size = int(stop) - int(start) + 1
+			if line.startswith("Chr"):
+				continue
+			else:
+				cnv = line.split()
+				chrom = cnv[0]
+				try:
+					start = int(cnv[1])
+					stop = int(cnv[2])
+					cnv_value = cnv[4]
+					coverage = cnv[3]
+					window_size = int(stop) - int(start) + 1
 
-				chromosome = get_chromosome(chrom, genome_version, organismcode)
-				insert_cnv(chromosome, start, stop, cnv_value, library_id, result_id, window_size, coverage, type_file)
-
-			except ValueError:
-				pass
+					chromosome = get_chromosome(chrom, genome_version, organismcode)
+					insert_cnv(chromosome, start, stop, cnv_value, library_id, result_id, window_size, coverage, int(type_file))
+				except ValueError:
+					print "Line was not added", line
+					continue
 
 
 
