@@ -14,7 +14,7 @@ from ngsdbview.viewtools import *
 from GChartWrapper import *
 from collections import defaultdict
 import numpy
-import time
+from django.conf import settings
 
 # Displays the search page to compare two groups of libraries for unique and similar snps.
 def compare_libs(request):
@@ -195,37 +195,43 @@ def impact_snps(request):
 	output_path_0 = os.path.join(analysis_path, '%s_impact_0000.vcf' % impact)
 	output_path_1 = os.path.join(analysis_path, '%s_impact_0001.vcf' % impact)
 
+	java_jar = settings.SNPEFF_JAR_PATH
+	print java_jar
+
 	#If output file has not been created
 	if not os.path.isfile(output_path_1):
 
 		#If no specific sort is required
 		if not s:
-			cmd = """cat %s| java -jar /usr/local/snpEff/SnpSift.jar filter "( ANN[*].IMPACT = '%s')" > %s """
-			subprocess.call(cmd % (result_path_0, impact, output_path_0), shell=True, stdout=subprocess.PIPE)
-			subprocess.call(cmd % (result_path_1, impact, output_path_1), shell=True, stdout=subprocess.PIPE)
+			cmd = """cat %s| java -jar %s "( ANN[*].IMPACT = '%s')" > %s """
+
+			subprocess.call(cmd % (result_path_0, java_jar, impact, output_path_0), shell=True, stdout=subprocess.PIPE)
+			subprocess.call(cmd % (result_path_1, java_jar, impact, output_path_1), shell=True, stdout=subprocess.PIPE)
 
 		#Sorts results by specified value
 		else:
+
+			print "In else statement"
 			if att == "0":
 				s = int(s)
-				cmd = """cat %s | /usr/local/snpEff/scripts/vcfEffOnePerLine.pl | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar filter "(ANN[*].IMPACT = '%s') & (POS = %d)" | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar extractFields - POS REF ALT CHROM ANN[*].GENE ANN[*].EFFECT QUAL ANN[*].AA"""
+				cmd = """cat %s | /usr/local/snpEff/scripts/vcfEffOnePerLine.pl | java -jar %s "(ANN[*].IMPACT = '%s') & (POS = %d)" """
 			elif att == "ref":
-				cmd = """cat %s | /usr/local/snpEff/scripts/vcfEffOnePerLine.pl | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar filter "(ANN[*].IMPACT = '%s') & (REF = '%s')" | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar extractFields - POS REF ALT CHROM ANN[*].GENE ANN[*].EFFECT QUAL ANN[*].AA"""
+				cmd = """cat %s | /usr/local/snpEff/scripts/vcfEffOnePerLine.pl | java -jar %s "(ANN[*].IMPACT = '%s') & (REF = '%s')" """
 			elif att == "alt":
-				cmd = """cat %s | /usr/local/snpEff/scripts/vcfEffOnePerLine.pl | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar filter "(ANN[*].IMPACT = '%s') & (ALT = '%s')" | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar extractFields - POS REF ALT CHROM ANN[*].GENE ANN[*].EFFECT QUAL ANN[*].AA"""
+				cmd = """cat %s | /usr/local/snpEff/scripts/vcfEffOnePerLine.pl | java -jar %s "(ANN[*].IMPACT = '%s') & (ALT = '%s')" """
 			elif att == "quality":
 				s = int(s)
-				cmd = """cat %s | /usr/local/snpEff/scripts/vcfEffOnePerLine.pl | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar filter "(ANN[*].IMPACT = '%s') & (QUAL = %d)" | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar extractFields - POS REF ALT CHROM ANN[*].GENE ANN[*].EFFECT QUAL ANN[*].AA"""
+				cmd = """cat %s | /usr/local/snpEff/scripts/vcfEffOnePerLine.pl | java -jar %s "(ANN[*].IMPACT = '%s') & (QUAL = %d)" """
 			elif att == "chromosome":
-				cmd = """cat %s | /usr/local/snpEff/scripts/vcfEffOnePerLine.pl | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar filter "(ANN[*].IMPACT = '%s') & (CHROM =~ '%s')" | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar extractFields - POS REF ALT CHROM ANN[*].GENE ANN[*].EFFECT QUAL ANN[*].AA"""
+				cmd = """cat %s | /usr/local/snpEff/scripts/vcfEffOnePerLine.pl | java -jar %s "(ANN[*].IMPACT = '%s') & (CHROM =~ '%s')" """
 			elif att == "impact":
 				s = s.replace(' ', '_').upper()
-				cmd = """cat %s | /usr/local/snpEff/scripts/vcfEffOnePerLine.pl | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar filter "(ANN[*].IMPACT = '%s') & (ANN[*].EFFECT = '%s')" | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar extractFields - POS REF ALT CHROM ANN[*].GENE ANN[*].EFFECT QUAL ANN[*].AA"""
+				cmd = """cat %s | /usr/local/snpEff/scripts/vcfEffOnePerLine.pl | java -jar %s "(ANN[*].IMPACT = '%s') & (ANN[*].EFFECT = '%s')" """
 			elif att == "gene":
-				cmd = """cat %s | /usr/local/snpEff/scripts/vcfEffOnePerLine.pl | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar filter "(ANN[*].IMPACT = '%s') & (ANN[*].GENE = '%s')" | java -jar /usr/local/Cellar/snpeff/3.6c/libexec/SnpSift.jar extractFields - POS REF ALT CHROM ANN[*].GENE ANN[*].EFFECT QUAL ANN[*].AA"""
+				cmd = """cat %s | /usr/local/snpEff/scripts/vcfEffOnePerLine.pl | java -jar %s "(ANN[*].IMPACT = '%s') & (ANN[*].GENE = '%s')" """
 
-			subprocess.call(cmd % (result_path_0, impact, output_path_0, s), shell=True, stdout=subprocess.PIPE)
-			subprocess.call(cmd % (result_path_1, impact, output_path_1, s), shell=True, stdout=subprocess.PIPE)
+			subprocess.call(cmd % (result_path_0, java_jar,  impact, output_path_0, s), shell=True, stdout=subprocess.PIPE)
+			subprocess.call(cmd % (result_path_1, java_jar, impact, output_path_1, s), shell=True, stdout=subprocess.PIPE)
 
 	snp_dict = defaultdict(dict)
 
@@ -984,7 +990,7 @@ def find_cnv_diff_create_images(request, full_masterdict, cnvcutoff):
             #cnv_diff = math.sqrt(cnv_diff * cnv_diff)
             if cnv_diff > float(cnvcutoff):
                 is_diff = 'YES'
-            print "%s, %s" %(pos, is_diff)
+
             alllib_cnvvalues = []
             if is_diff == 'YES':
                 section += 1
@@ -994,7 +1000,7 @@ def find_cnv_diff_create_images(request, full_masterdict, cnvcutoff):
                 slice_end = pos + 3
                 alllib_cnvvalues.append(group1_summary_cnvs[slice_start:slice_end])
                 alllib_cnvvalues.append(group2_summary_cnvs[slice_start:slice_end])
-                print alllib_cnvvalues
+
                 labels = []
                 for label in range(slice_start, slice_end, 2):
                     labels.append(label)
