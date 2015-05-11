@@ -346,25 +346,24 @@ def compare_isec_search(request):
 
 		#Creates a string of all zipped file in group1 and runs bcftools isec on files in group1
 		if len(group1_path) > 1:
-			group1_isec = os.path.join(path, "group1.vcf")
-			bcftools_isec(group1_path, path, len(group1_path))
-
-			os.rename(os.path.join(path, "0000.vcf"), group1_isec)
+			group1_folder = os.path.join(path, "%s" % '_'.join(group1))
+			group1_isec = os.path.join(group1_folder, "0000.vcf")
+			bcftools_isec(group1_path, group1_folder, len(group1_path))
 
 			try:
 				subprocess.check_call(['bgzip', group1_isec])
 				subprocess.check_call(['tabix', '-p', 'vcf', '-f', '%s.gz' % group1_isec])
 			except IOError:
 				pass
+
 		else:
 			group1_isec = group1_path[0]
 
 		#Creates a string of all zipped file in group1 and runs bcftools isec on files in group2
 		if len(group2_path) > 1:
-			group2_isec = os.path.join(path, "group2.vcf")
-			bcftools_isec(group2_path, path, len(group2_path))
-
-			os.rename(os.path.join(path, "0000.vcf"), group2_isec)
+			group2_folder = os.path.join(path, "%s" % '_'.join(group2))
+			group2_isec = os.path.join(group2_folder, "0000.vcf")
+			bcftools_isec(group2_path, group2_folder, len(group2_path))
 
 			try:
 				subprocess.check_call(['bgzip', group2_isec])

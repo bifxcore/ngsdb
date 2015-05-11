@@ -19,7 +19,7 @@ Compare Across Libraries
 <div class="container-fluid">
     <div class="page-header text-header" style="padding-left:30px; margin-top:10px; padding-bottom:0px">
         <h1 class="header" style="padding-bottom:0px;">Difference Between Libraries</h1>
-        <h2 class="header" style="padding-top:5px">There are {{lib_total_counts.4}} SNPs different in {% for object in group1 %} {{object}} {% endfor %} and {% for object in group2 %} {{object}} {% endfor %}.</h2>
+        <h2 class="header" style="padding-top:5px">There are {{lib_total_counts.4}} SNPs different in {{group1|joinby:", "}} and {{group2|joinby:", "}}.</h2>
 
     </div>
 </div>
@@ -152,17 +152,17 @@ Compare Across Libraries
             {% for x in lib_effect %}
                 <div class="panel panel-primary" style="border-color: #616770;">
                     <div class="panel-heading" style="background-color: #616770; border-color:#616770; overflow: hidden">
-                        <form id="form4" class="form-inline" action="/snpdb/impact-snps/search" method="get">
+                        <form id="form3" class="form-inline" action="/snpdb/impact-snps/search" method="get">
                             <div class="form-group">
                                 <h3 class="panel-title">Non-CDS Changes</h3>
                             </div>
-                            <div class="form-group pull-right">
+                             <div class="form-group pull-right">
                                 <div class="checkbox">
                                     <label>
                                         Only displays consistent results in groups
                                     </label>
                                 </div>
-                                <button type="submit" class="btn btn-default btn-xs pull-right" style="margin-left:0px; width:50px; padding:0px">View</button>
+                                <button type="submit" class="btn btn-default btn-xs pull-right" style="margin-left:10px; width:50px; padding:0px">View</button>
                                 <input type="hidden" name="analysis_path" value="{{analysis_path}}" />
                                 <input type="hidden" name="impact" value="MODIFIER" />
                                 <input type="hidden" name="add" value="{{group1}}" />
@@ -219,9 +219,9 @@ Compare Across Libraries
             </div>
         </div>
         <div class="panel panel-default">
-            <div class="panel-heading" style="background-color: #616770; color: white">
+            <div class="panel-heading"  style="background-color: #616770; color: white; border-color:#616770">
                 <h4 class="panel-title">
-                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
                         Non-Synonymous Changes
                     </a>
                 </h4>
