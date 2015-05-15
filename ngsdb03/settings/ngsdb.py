@@ -8,6 +8,7 @@ DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 EMAIL_HOST = "localhost"
 EMAIL_PORT = 1025
+
 SNPEFF_JAR_PATH = "/opt/depot/snpEFF/SnpSift.jar filter"
 
 

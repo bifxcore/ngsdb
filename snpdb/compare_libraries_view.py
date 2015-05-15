@@ -708,480 +708,491 @@ def compare_libraries_somy(request):
 	                          context_instance=RequestContext(request))
 
 def cnv_filter(request):
-    """
-    Let user filter CNV regions with custom cutoff
-    :param request:
-    :return:
-    """
-    kwargs = {'title': "Filter CNV"}
-    # kwargs['user']=user
-    # kwargs['listoflinks']=listoflinks
-    form = CnvFilterForm(request.POST or None)
-    kwargs['form'] = form
-    print(form)
-    if request.method == 'POST':
-        if form.is_clean():
-            librarycode = form.cleaned_data['librarycode']
-            librarycodes = ['ES042', 'ES043', 'ES044']
-            normalrange_mincnv = form.cleaned_data['normalrange_mincnv']
-            normalrange_maxcnv = form.cleaned_data['normalrange_maxcnv']
+	"""
+	Let user filter CNV regions with custom cutoff
+	:param request:
+	:return:
+	"""
+	kwargs = {'title': "Filter CNV"}
+	# kwargs['user']=user
+	# kwargs['listoflinks']=listoflinks
+	form = CnvFilterForm(request.POST or None)
+	kwargs['form'] = form
+	print(form)
+	if request.method == 'POST':
+		if form.is_clean():
+			librarycode = form.cleaned_data['librarycode']
+			librarycodes = ['ES042', 'ES043', 'ES044']
+			normalrange_mincnv = form.cleaned_data['normalrange_mincnv']
+			normalrange_maxcnv = form.cleaned_data['normalrange_maxcnv']
 
-            cnvs = CNV.objects.filter(library__library_code=librarycode)
-            cnvs_lowerrange = cnvs.filter(cnv_value__lte=normalrange_mincnv)
-            cnvs_upperrange = cnvs.filter(cnv_value__mte=normalrange_maxcnv)
+			cnvs = CNV.objects.filter(library__library_code=librarycode)
+			cnvs_lowerrange = cnvs.filter(cnv_value__lte=normalrange_mincnv)
+			cnvs_upperrange = cnvs.filter(cnv_value__mte=normalrange_maxcnv)
 
 
 
 def compare_libraries_somy(request, experimentId):
-    """
-    Display somy chart(s)
-    :param request: libcodes, referencegenome/resultids
-    :return: all chart objects
-    """
+	"""
+	Display somy chart(s)
+	:param request: libcodes, referencegenome/resultids
+	:return: all chart objects
+	"""
 
-    kwargs = {}
-    #kwargs['user']=user
-    kwargs['listoflinks']=listoflinks
-    kwargs['title']="Comparing Somy"
+	kwargs = {}
+	#kwargs['user']=user
+	kwargs['listoflinks']=listoflinks
+	kwargs['title']="Comparing Somy"
 
-    if request.method == 'POST':
+	if request.method == 'POST':
 
-        libcodes = request.POST.getlist('libcodes', '')
-        colors = []
-        colorstr = ''
-        for libcode in libcodes:
-            colors.append(request.POST.get(libcode, ''))
-            colorstr += "'" + request.POST.get(libcode, '') + "',"
-        print libcodes
-        print colors
+		libcodes = request.POST.getlist('libcodes', '')
+		colors = []
+		colorstr = ''
+		for libcode in libcodes:
+			colors.append(request.POST.get(libcode, ''))
+			colorstr += "'" + request.POST.get(libcode, '') + "',"
 
-        legendvalues = []
-        for libcode in libcodes:
-            libobj = Library.objects.get(library_code=libcode)
-            legendvalues.append(libobj.library_code+'('+libobj.sampleid.samplename+')')
 
-        somyobjects = CNV.objects.filter(library__library_code__in=libcodes).filter(cnv_type__cvterm='Somy')
-        contignames = []
-        for contig in sorted(list(set(somyobjects.values_list('chromosome__chromosome_name', flat=True)))):
-            contignames.append(re.sub(r'\D+', '', re.sub(r'_.+', '', contig)))
+		legendvalues = []
+		for libcode in libcodes:
+			libobj = Library.objects.get(library_code=libcode)
+			legendvalues.append(libobj.library_code+'('+libobj.sampleid.samplename+')')
 
-        list_of_somy = []
-        for libcode in libcodes:
-            somy_for_lib = []
-            for somyvalue in somyobjects.filter(library__library_code=libcode).order_by('chromosome__chromosome_name').values_list('cnv_value', flat=True):
-                somy_for_lib.append(somyvalue)
-            list_of_somy.append(somy_for_lib)
+		somyobjects = CNV.objects.filter(library__library_code__in=libcodes).filter(cnv_type__cvterm='Somy')
+		contignames = []
+		for contig in sorted(list(set(somyobjects.values_list('chromosome__chromosome_name', flat=True)))):
+			contignames.append(re.sub(r'\D+', '', re.sub(r'_.+', '', contig)))
 
-        somy_multichr_columnchart = VerticalBarGroup(list_of_somy, encoding="text").bar(4, 0, 7).size(1000, 300).title("Comparing Somy for Chromosomes between Libraries")
-        somy_multichr_columnchart.scale(0, 5).axes('xyx')
-        somy_multichr_columnchart.axes.label(0, *contignames).axes.label(1, *range(0, 6, 1))
-        somy_multichr_columnchart.axes.label(2, None, 'Chromosome Number', None)
-        somy_multichr_columnchart.color(*colors).legend(*legendvalues).legend_pos('t')
-        kwargs['list_of_somy'] = list_of_somy
-        kwargs['somy_multichr_columnchart'] = somy_multichr_columnchart
-        kwargs['display_chart']='yes'
+		list_of_somy = []
+		for libcode in libcodes:
+			somy_for_lib = []
+			for somyvalue in somyobjects.filter(library__library_code=libcode).order_by('chromosome__chromosome_name').values_list('cnv_value', flat=True):
+				somy_for_lib.append(somyvalue)
+			list_of_somy.append(somy_for_lib)
 
-    else:
-        exp = Experiment.objects.get(id=experimentId)
-        kwargs['exp'] = exp
-        libs = []
-        for sample in exp.samples.all():
-            for lib in sample.library_set.all():
-                libs.append(lib)
-        print libs
-        kwargs['libs'] = libs
-        kwargs['display_form'] = 'yes'
-        kwargs['colors'] = ['blue', 'orange', 'red', 'green', 'yellow', 'purple', 'pink', 'black', 'gray', 'cyan', 'white']
+		somy_multichr_columnchart = VerticalBarGroup(list_of_somy, encoding="text").bar(3, 1, 7).size(1000, 300).title("Comparing Somy for Chromosomes between Libraries")
+		somy_multichr_columnchart.scale(0, 5).axes('xyx')
+		somy_multichr_columnchart.axes.label(0, *contignames).axes.label(1, *range(0, 6, 1))
+		somy_multichr_columnchart.axes.label(2, None, 'Chromosome Number', None)
+		somy_multichr_columnchart.color(*colors).legend(*legendvalues).legend_pos('t')
+		kwargs['list_of_somy'] = list_of_somy
+		kwargs['somy_multichr_columnchart'] = somy_multichr_columnchart
+		kwargs['display_chart']='yes'
 
-    return render_to_response('snpdb/compare_libraries_somy.html', kwargs, context_instance=RequestContext(request))
+	else:
+		exp = Experiment.objects.get(id=experimentId)
+		kwargs['exp'] = exp
+		libs = []
+		for sample in exp.samples.all():
+			for lib in sample.library_set.all():
+				libs.append(lib)
+		print libs
+		kwargs['libs'] = libs
+		kwargs['display_form'] = 'yes'
+		kwargs['colors'] = ['blue', 'orange', 'red', 'green', 'yellow', 'purple', 'pink', 'black', 'gray', 'cyan', 'white']
+
+	return render_to_response('snpdb/compare_libraries_somy.html', kwargs, context_instance=RequestContext(request))
 
 
 def compare_libraries_cnv(request, experimentId):
-    """
-    Display CNV chart(s)
-    :param request: libcodes, referencegenome/resultids
-    :return: all chart objects
-    """
+	"""
+	Display CNV chart(s)
+	:param request: libcodes, referencegenome/resultids
+	:return: all chart objects
+	"""
 
-    kwargs = {'listoflinks': listoflinks, 'title': "Comparing CNVs"}
-    #kwargs['user']=user
+	kwargs = {'listoflinks': listoflinks, 'title': "Comparing CNVs"}
+	#kwargs['user']=user
 
-    if request.method == 'POST':
-        # get params from form
-        libcodes = request.POST.getlist('libcodes', '')
-        colors = []
-        linestyles = []
-        for libcode in libcodes:
-            colors.append(request.POST.get(libcode, ''))
-            linestyles.append(request.POST.get('linetype_'+libcode, ''))
+	if request.method == 'POST':
+		# get params from form
+		libcodes = request.POST.getlist('libcodes', '')
+		# print libcodes
+		colors = []
+		linestyles = []
+		for libcode in libcodes:
+			colors.append(request.POST.get(libcode, ''))
+			linestyles.append(request.POST.get('linetype_'+libcode, ''))
 
-        # prepare legands [not displayed yet]
-        # // TODO: display common legend on page somewhere. not per plot
-        legendvalues = []
-        for libcode in libcodes:
-            libobj = Library.objects.get(library_code=libcode)
-            legendvalues.append(libobj.library_code+'('+libobj.sampleid.samplename+')')
+		# prepare legands [not displayed yet]
+		# // TODO: display common legend on page somewhere. not per plot
+		legendvalues = []
+		for libcode in libcodes:
+			libobj = Library.objects.get(library_code=libcode)
+			legendvalues.append(libobj.library_code+'('+libobj.sampleid.samplename+')')
 
-        # get chromosome list
-        chromosomes =  list(set(CNV.objects.filter(library__library_code__in=libcodes).filter(cnv_type__cvterm='CNV').values_list("chromosome__chromosome_name", flat=True)))
-        chromosomes.sort()
+		# get chromosome list
+		chromosomes =  list(set(CNV.objects.filter(library__library_code__in=libcodes).filter(cnv_type__cvterm='CNV').values_list("chromosome__chromosome_name", flat=True)))
+		chromosomes.sort()
 
-        # read in cnv values for each chromosome; for selected set of libraries
-        masterdict = defaultdict(str)
-        for chromosome in chromosomes:
-            chrdict = defaultdict(str)
-            for libcode in libcodes:
-                cnvvalues = []
-                for cnvobject in CNV.objects.filter(library__library_code=libcode).filter(cnv_type__cvterm='CNV').filter(chromosome__chromosome_name=chromosome):
-                    cnvvalues.append(cnvobject.cnv_value)
-                chrdict[libcode] = cnvvalues
-            masterdict[chromosome] = chrdict
+		# read in cnv values for each chromosome; for selected set of libraries
+		masterdict = defaultdict(str)
+		for chromosome in chromosomes:
+			chrdict = defaultdict(str)
+			for libcode in libcodes:
+				cnvvalues = []
+				for cnvobject in CNV.objects.filter(library__library_code=libcode).filter(cnv_type__cvterm='CNV').filter(chromosome__chromosome_name=chromosome):
+					cnvvalues.append(cnvobject.cnv_value)
+				chrdict[libcode] = cnvvalues
+			masterdict[chromosome] = chrdict
 
-        #prepare charts
-        charts = defaultdict(str)
+		#prepare charts
+		charts = defaultdict(str)
 
-        #set window size for each picture
-        windowsize = request.POST.get('windowsize', '')
-        windowsize = int(windowsize)
-        #find out #sections for each chr
-        chrsections = {}
-        for chromosome in chromosomes:
-            for libcode, cnvvalues in masterdict[chromosome].items():
-                chrsections[chromosome] = int(math.floor(len(cnvvalues) / windowsize))
+		#set window size for each picture
+		windowsize = request.POST.get('windowsize', '')
+		windowsize = int(windowsize)
+		#find out #sections for each chr
+		chrsections = {}
+		for chromosome in chromosomes:
+			for libcode, cnvvalues in masterdict[chromosome].items():
+				chrsections[chromosome] = int(math.floor(len(cnvvalues) / windowsize))
 
-        for chromosome in chromosomes:
-            chrchartlets = {}
+		for chromosome in chromosomes:
+			chrchartlets = {}
 
-            for section in range(1, chrsections[chromosome]):
-                slice_start = (section - 1 ) * windowsize + 1
-                slice_end = section * windowsize
-                alllib_cnvvalues = []
-                for libcode, cnvvalues in masterdict[chromosome].items():
-                    alllib_cnvvalues.append(cnvvalues[slice_start:slice_end])
-                labels = []
-                for label in range(slice_start, slice_end, 5):
-                    labels.append(label)
-                labels.append(slice_end)
+			max_cnv_value = 4
+			for libcode, cnv_values in masterdict[chromosome].items():
+				if max(cnv_values) > max_cnv_value:
+					max_cnv_value = max(cnv_values)
 
-                cnv_linechart = Line(
-                    alllib_cnvvalues, encoding="text"
-                )
-                cnv_linechart.color(*colors)
-                cnv_linechart.scale(0, 4).axes('xyx')
-                cnv_linechart.axes.label(0, *labels)
-                cnv_linechart.grid(1, 25)
-                cnv_linechart.axes.label(1, *range(0, 5, 1))
-                cnv_linechart.axes.label(2, None, 'Base pair in 1000s', None)
-                #set line style
-                for linestyle in linestyles:
-                    if linestyle == 'solid':
-                        cnv_linechart.line(2, 4, 0)
-                    elif linestyle == 'dotted':
-                        cnv_linechart.line(2, 1, 1)
-                    elif linestyle == 'dashed':
-                        cnv_linechart.line(2, 4, 4)
+			for section in range(1, chrsections[chromosome] + 1):
+				slice_start = (section - 1) * windowsize + 1
+				slice_end = section * windowsize
+				alllib_cnvvalues = []
 
-                cnv_linechart.size(1000, 200)
-                chrchartlets[section] = cnv_linechart
-            # dont forget the leftover data
-            section = chrsections[chromosome] + 1
-            slice_start = (section - 1 ) * windowsize + 1
-            slice_end = -1
-            alllib_cnvvalues = []
-            for libcode, cnvvalues in masterdict[chromosome].items():
-                alllib_cnvvalues.append(cnvvalues[slice_start:slice_end])
 
-            labels = []
-            for label in range(slice_start, slice_start+len(alllib_cnvvalues[0]), 5):
-                labels.append(label)
+				for lib in libcodes:
+					cnvvalues = masterdict[chromosome][lib]
+					alllib_cnvvalues.append(cnvvalues[slice_start:slice_end])
 
-            cnv_linechart = Line(
-                alllib_cnvvalues, encoding="text"
-            )
-            cnv_linechart.color(*colors)
-            cnv_linechart.scale(0, 4).axes('xyx')
-            cnv_linechart.axes.label(0, *labels)
-            cnv_linechart.grid(1, 25)
-            cnv_linechart.axes.label(1, *range(0, 5, 1))
-            cnv_linechart.axes.label(2, None, 'Base pair in 1000s', None)
-            #set line style
-            for linestyle in linestyles:
-                if linestyle == 'solid':
-                    cnv_linechart.line(2, 4, 0)
-                elif linestyle == 'dotted':
-                    cnv_linechart.line(2, 1, 1)
-                elif linestyle == 'dashed':
-                    cnv_linechart.line(2, 4, 4)
+				labels = []
+				for label in range(slice_start, slice_end, 5):
+					labels.append(label)
+				labels.append(slice_end)
 
-            chart_length = (1000 / windowsize) * len(alllib_cnvvalues[0])
-            cnv_linechart.size(chart_length, 200)
-            chrchartlets[section] = cnv_linechart
+				cnv_linechart = Line(
+					alllib_cnvvalues, encoding="text"
+				)
+				cnv_linechart.color(*colors)
+				cnv_linechart.scale(0, max_cnv_value+2).axes('xyx')
+				cnv_linechart.axes.label(0, *labels)
+				cnv_linechart.grid(1, 25)
+				cnv_linechart.axes.label(1, *range(0, int(ceil(max_cnv_value+2)), int(ceil(max_cnv_value/4))))
+				cnv_linechart.axes.label(2, None, 'Base pair in 1000s', None)
+				#set line style
+				for linestyle in linestyles:
+					if linestyle == 'solid':
+						cnv_linechart.line(2, 4, 0)
+					elif linestyle == 'dotted':
+						cnv_linechart.line(2, 1, 1)
+					elif linestyle == 'dashed':
+						cnv_linechart.line(2, 4, 4)
 
-            charts[chromosome] = chrchartlets
+				cnv_linechart.size(1000, 200)
+				chrchartlets[section] = cnv_linechart
+			# dont forget the leftover data
+			section = chrsections[chromosome] + 1
+			slice_start = (section - 1 ) * windowsize + 1
+			slice_end = -1
+			alllib_cnvvalues = []
+			for lib in libcodes:
+				cnvvalues = masterdict[chromosome][lib]
+				alllib_cnvvalues.append(cnvvalues[slice_start:slice_end])
 
-        kwargs['charts'] = charts
-        kwargs['display_chart']='yes'
+			labels = []
+			for label in range(slice_start, slice_start+len(alllib_cnvvalues[0]), 5):
+				labels.append(label)
 
-    else:
-        exp = Experiment.objects.get(id=experimentId)
-        kwargs['exp'] = exp
-        libs = []
-        for sample in exp.samples.all():
-            for lib in sample.library_set.all():
-                libs.append(lib)
-        print libs
-        kwargs['libs'] = libs
-        kwargs['display_form'] = 'yes'
-        kwargs['colors'] = ['blue', 'orange', 'red', 'green', 'yellow', 'purple', 'pink', 'black', 'gray', 'cyan', 'white']
-        kwargs['linestyles'] = ['solid', 'dotted', 'dashed']
-        kwargs['windowsize'] = 100
-        kwargs['mincutoff'] = 0.75
+			cnv_linechart = Line(
+				alllib_cnvvalues, encoding="text"
+			)
+			cnv_linechart.color(*colors)
+			cnv_linechart.scale(0, max_cnv_value+2).axes('xyx')
+			cnv_linechart.axes.label(0, *labels)
+			cnv_linechart.grid(1, 25)
+			cnv_linechart.axes.label(1, *range(0, int(ceil(max_cnv_value+2)), int(ceil(max_cnv_value/4))))
+			cnv_linechart.axes.label(2, None, 'Base pair in 1000s', None)
+			#set line style
+			for linestyle in linestyles:
+				if linestyle == 'solid':
+					cnv_linechart.line(2, 4, 0)
+				elif linestyle == 'dotted':
+					cnv_linechart.line(2, 1, 1)
+				elif linestyle == 'dashed':
+					cnv_linechart.line(2, 4, 4)
 
-    return render_to_response('snpdb/compare_libraries_cnv.html', kwargs, context_instance=RequestContext(request))
+			chart_length = (1000 / windowsize) * len(alllib_cnvvalues[0])
+			cnv_linechart.size(chart_length, 200)
+			chrchartlets[section] = cnv_linechart
+
+			charts[chromosome] = chrchartlets
+
+		kwargs['charts'] = charts
+		kwargs['display_chart']='yes'
+
+	else:
+		exp = Experiment.objects.get(id=experimentId)
+		kwargs['exp'] = exp
+		libs = []
+		for sample in exp.samples.all():
+			for lib in sample.library_set.all():
+				libs.append(lib)
+		print libs
+		kwargs['libs'] = libs
+		kwargs['display_form'] = 'yes'
+		kwargs['colors'] = ['blue', 'orange', 'red', 'green', 'yellow', 'purple', 'pink', 'black', 'gray', 'cyan', 'white']
+		kwargs['linestyles'] = ['solid', 'dotted', 'dashed']
+		kwargs['windowsize'] = 100
+		kwargs['mincutoff'] = 0.75
+
+	return render_to_response('snpdb/compare_libraries_cnv.html', kwargs, context_instance=RequestContext(request))
 
 
 def create_chrwise_libwise_cnvdict(request, chromosomes, libcodes):
-    masterdict = defaultdict(str)
-    for chromosome in chromosomes:
-        chrdict = defaultdict(str)
-        for libcode in libcodes:
-            cnvvalues = []
-            for cnvobject in CNV.objects.filter(library__library_code=libcode).filter(cnv_type__cvterm='CNV').filter(chromosome__chromosome_name=chromosome):
-                cnvvalues.append(cnvobject.cnv_value)
-            chrdict[libcode] = cnvvalues
-        masterdict[chromosome] = chrdict
-    return masterdict
+	masterdict = defaultdict(str)
+	for chromosome in chromosomes:
+		chrdict = defaultdict(str)
+		for libcode in libcodes:
+			cnvvalues = []
+			for cnvobject in CNV.objects.filter(library__library_code=libcode).filter(cnv_type__cvterm='CNV').filter(chromosome__chromosome_name=chromosome):
+				cnvvalues.append(cnvobject.cnv_value)
+			chrdict[libcode] = cnvvalues
+		masterdict[chromosome] = chrdict
+	return masterdict
 
 
 def add_group_summary_track(request, masterdict, summary_mode):
-    new_masterdict = defaultdict(str)
-    for chromosome, chrleveldict in masterdict.items():
-        # find chr length
-        libcodes = chrleveldict.keys()
-        chrlen = len(chrleveldict[libcodes[0]])
-        # loop thru chr and create chr level group summary
-        chrwise_summary = []
-        for pos in range(0, chrlen - 1):
-            svnvalues = []
-            for libcode in libcodes:
-                svnvalues.append(chrleveldict[libcode][pos])
-            pos_summary_mean   = numpy.mean(svnvalues)
-            pos_summary_median = numpy.median(svnvalues)
-            if summary_mode == 'Mean':
-                chrwise_summary.append(pos_summary_mean)
-            if summary_mode == 'Median':
-                chrwise_summary.append(pos_summary_median)
-        new_masterdict[chromosome]=chrwise_summary
-    return new_masterdict
+	new_masterdict = defaultdict(str)
+	for chromosome, chrleveldict in masterdict.items():
+		# find chr length
+		libcodes = chrleveldict.keys()
+		chrlen = len(chrleveldict[libcodes[0]])
+		# loop thru chr and create chr level group summary
+		chrwise_summary = []
+		for pos in range(0, chrlen - 1):
+			svnvalues = []
+			for libcode in libcodes:
+				svnvalues.append(chrleveldict[libcode][pos])
+			pos_summary_mean   = numpy.mean(svnvalues)
+			pos_summary_median = numpy.median(svnvalues)
+			if summary_mode == 'Mean':
+				chrwise_summary.append(pos_summary_mean)
+			if summary_mode == 'Median':
+				chrwise_summary.append(pos_summary_median)
+		new_masterdict[chromosome]=chrwise_summary
+	return new_masterdict
 
 
-def find_cnv_diff_create_images(request, full_masterdict, cnvcutoff):
-    charts = defaultdict(str)
-    chromosomes = full_masterdict.keys()
-    for chromosome in chromosomes:
-        chrchartlets = {}
-        group1_summary_cnvs = full_masterdict[chromosome]['group1']['summary']
-        group2_summary_cnvs = full_masterdict[chromosome]['group2']['summary']
-        section = 0
-        for pos in range(0, len(group1_summary_cnvs)-1):
-            is_diff = 'NO'
-            cnv_diff = group1_summary_cnvs[pos] - group2_summary_cnvs[pos]
-            #cnv_diff = math.sqrt(cnv_diff * cnv_diff)
-            if cnv_diff > float(cnvcutoff):
-                is_diff = 'YES'
+def find_cnv_diff_create_images(request, full_masterdict, cnvcutoff, colors):
+	charts = defaultdict(str)
+	chromosomes = full_masterdict.keys()
+	for chromosome in chromosomes:
+		chrchartlets = {}
+		group1_summary_cnvs = full_masterdict[chromosome]['group1']['summary']
+		group2_summary_cnvs = full_masterdict[chromosome]['group2']['summary']
+		section = 0
+		for pos in range(0, len(group1_summary_cnvs)-1):
+			is_diff = 'NO'
+			cnv_diff = group1_summary_cnvs[pos] - group2_summary_cnvs[pos]
+			#cnv_diff = math.sqrt(cnv_diff * cnv_diff)
+			if abs(cnv_diff) > float(cnvcutoff):
+				is_diff = 'YES'
 
-            alllib_cnvvalues = []
-            if is_diff == 'YES':
-                section += 1
-                slice_start = pos - 2
-                if slice_start < 0:
-                    slice_start = 0
-                slice_end = pos + 3
-                alllib_cnvvalues.append(group1_summary_cnvs[slice_start:slice_end])
-                alllib_cnvvalues.append(group2_summary_cnvs[slice_start:slice_end])
+			alllib_cnvvalues = []
+			if is_diff == 'YES':
+				max_x_axis = max(group1_summary_cnvs[pos], group2_summary_cnvs[pos], 2) + 2
+				section += 1
+				slice_start = pos - 2
+				if slice_start < 0:
+					slice_start = 0
+				slice_end = pos + 3
+				alllib_cnvvalues.append(group1_summary_cnvs[slice_start:slice_end])
+				alllib_cnvvalues.append(group2_summary_cnvs[slice_start:slice_end])
 
-                labels = []
-                for label in range(slice_start, slice_end, 2):
-                    labels.append(label)
-                labels.append(slice_end)
-                cnv_linechart = Line(alllib_cnvvalues, encoding="text" )
-                cnv_linechart.color('blue', 'green')
-                cnv_linechart.scale(0, 4).axes('xyx')
-                cnv_linechart.axes.label(0, *labels)
-                cnv_linechart.grid(1, 5)
-                cnv_linechart.axes.label(1, *range(0, 5, 1))
-                cnv_linechart.axes.label(2, None, 'Base pair in 1000s', None)
-                cnv_linechart.size(200, 200)
-                chrchartlets[section] = cnv_linechart
-                print cnv_linechart
-        charts[chromosome] = chrchartlets
-    return charts
+				labels = []
+				for label in range(slice_start, slice_end, 2):
+					labels.append(label)
+				labels.append(slice_end)
+				cnv_linechart = Line(alllib_cnvvalues, encoding="text" )
+				cnv_linechart.color(colors[0], colors[1])
+				cnv_linechart.scale(0, max_x_axis).axes('xyx')
+				cnv_linechart.axes.label(0, *labels)
+				cnv_linechart.grid(1, 5)
+				cnv_linechart.axes.label(1, *range(0, int(ceil(max_x_axis)+2), int(max_x_axis/4)))
+				cnv_linechart.axes.label(2, None, 'Base pair in 1000s', None)
+				cnv_linechart.size(200, 200)
+				chrchartlets[section] = cnv_linechart
+				# print cnv_linechart
+		charts[chromosome] = chrchartlets
+	return charts
 
 
 def compare_libraries_cnv_filter(request, experimentId):
-    """
-    Display CNV chart(s)
-    :param request: libcodes, referencegenome/resultids
-    :return: all chart objects
-    """
+	"""
+	Display CNV chart(s)
+	:param request: libcodes, referencegenome/resultids
+	:return: all chart objects
+	"""
 
-    kwargs = {'listoflinks': listoflinks, 'title': "Comparing CNVs"}
-    #kwargs['user']=user
+	kwargs = {'listoflinks': listoflinks, 'title': "Comparing CNVs"}
+	#kwargs['user']=user
 
-    if request.method == 'POST':
-        # get params from form
-        group1_libcodes = request.POST.getlist('group1_libcodes', '')
-        group2_libcodes = request.POST.getlist('group2_libcodes', '')
-        group1_color = request.POST.get('group1_color', '')
-        group2_color = request.POST.get('group2_color', '')
-        group1_style = request.POST.get('group1_style', '')
-        group2_style = request.POST.get('group2_style', '')
-        summary_mode = request.POST.get('summary_mode')
-        cnvcutoff = request.POST.get('cnvcutoff', '')
-        colors = [group1_color, group2_color]
-        linestyles = [group1_style, group2_style]
-        print colors
-        print linestyles
-        print cnvcutoff
+	if request.method == 'POST':
+		# get params from form
+		group1_libcodes = request.POST.getlist('group1_libcodes', '')
+		group2_libcodes = request.POST.getlist('group2_libcodes', '')
+		group1_color = request.POST.get('group1_color', '')
+		group2_color = request.POST.get('group2_color', '')
+		group1_style = request.POST.get('group1_style', '')
+		group2_style = request.POST.get('group2_style', '')
+		summary_mode = request.POST.get('summary_mode')
+		cnvcutoff = request.POST.get('cnvcutoff', '')
+		colors = [group1_color, group2_color]
+		linestyles = [group1_style, group2_style]
+		print colors
+		print linestyles
+		print cnvcutoff
 
-        for libcode in group1_libcodes:
-            colors.append(request.POST.get(libcode, ''))
-            linestyles.append(request.POST.get('linetype_'+libcode, ''))
+		for libcode in group1_libcodes:
+			colors.append(request.POST.get(libcode, ''))
+			linestyles.append(request.POST.get('linetype_'+libcode, ''))
 
-        # prepare legands [not displayed yet]
-        # // TODO: display common legend on page somewhere. not per plot
+		# prepare legands [not displayed yet]
+		# // TODO: display common legend on page somewhere. not per plot
 
-        # get chromosome list
-        chromosomes = list(set(CNV.objects.filter(library__library_code__in=group1_libcodes).filter(cnv_type__cvterm='CNV').values_list("chromosome__chromosome_name", flat=True)))
-        chromosomes.sort()
+		# get chromosome list
+		chromosomes = list(set(CNV.objects.filter(library__library_code__in=group1_libcodes).filter(cnv_type__cvterm='CNV').values_list("chromosome__chromosome_name", flat=True)))
+		chromosomes.sort()
 
-        # read in cnv values for each chromosome; for selected set of libraries
-        group1_masterdict = create_chrwise_libwise_cnvdict(request, chromosomes, group1_libcodes)
-        group2_masterdict = create_chrwise_libwise_cnvdict(request, chromosomes, group2_libcodes)
-        group1_summarydict = add_group_summary_track(request, group1_masterdict, summary_mode)
-        group2_summarydict = add_group_summary_track(request, group2_masterdict, summary_mode)
+		# read in cnv values for each chromosome; for selected set of libraries
+		group1_masterdict = create_chrwise_libwise_cnvdict(request, chromosomes, group1_libcodes)
+		group2_masterdict = create_chrwise_libwise_cnvdict(request, chromosomes, group2_libcodes)
+		group1_summarydict = add_group_summary_track(request, group1_masterdict, summary_mode)
+		group2_summarydict = add_group_summary_track(request, group2_masterdict, summary_mode)
 
-        # Build a master master dict with all indiviudal cnvs and summarized cnvs
-        # structure of this will be. full_master{chromosome}{group1|group2}{libcode(s)|summary}=[cnv values]
-        full_masterdict = defaultdict(dict)
-        for chromosome in chromosomes:
-            #add group 1
-            group1dict = defaultdict(str)
-            group1dict['summary'] = group1_summarydict[chromosome]
-            for libcode, cnvvalues in group1_masterdict[chromosome].items():
-                group1dict[libcode] = cnvvalues
-            full_masterdict[chromosome]['group1'] = group1dict
-            #add group 2
-            group2dict = defaultdict(str)
-            group2dict['summary'] = group2_summarydict[chromosome]
-            for libcode, cnvvalues in group2_masterdict[chromosome].items():
-                group2dict[libcode] = cnvvalues
-            full_masterdict[chromosome]['group2'] = group2dict
+		# Build a master master dict with all indiviudal cnvs and summarized cnvs
+		# structure of this will be. full_master{chromosome}{group1|group2}{libcode(s)|summary}=[cnv values]
+		full_masterdict = defaultdict(dict)
+		for chromosome in chromosomes:
+			#add group 1
+			group1dict = defaultdict(str)
+			group1dict['summary'] = group1_summarydict[chromosome]
+			for libcode, cnvvalues in group1_masterdict[chromosome].items():
+				group1dict[libcode] = cnvvalues
+			full_masterdict[chromosome]['group1'] = group1dict
+			#add group 2
+			group2dict = defaultdict(str)
+			group2dict['summary'] = group2_summarydict[chromosome]
+			for libcode, cnvvalues in group2_masterdict[chromosome].items():
+				group2dict[libcode] = cnvvalues
+			full_masterdict[chromosome]['group2'] = group2dict
 
-        #prepare charts
-        charts = defaultdict(str)
+		#prepare charts
+		charts = defaultdict(str)
 
-        #set window size for each picture
-        windowsize = request.POST.get('windowsize', '')
-        windowsize = int(windowsize)
-        #find out #sections for each chr
-        chrsections = {}
-        for chromosome in chromosomes:
-            for libcode, cnvvalues in group1_masterdict[chromosome].items():
-                chrsections[chromosome] = int(math.floor(len(cnvvalues) / windowsize))
+		#set window size for each picture
+		windowsize = request.POST.get('windowsize', '')
+		windowsize = int(windowsize)
+		#find out #sections for each chr
+		chrsections = {}
+		for chromosome in chromosomes:
+			for libcode, cnvvalues in group1_masterdict[chromosome].items():
+				chrsections[chromosome] = int(math.floor(len(cnvvalues) / windowsize))
 
-        # Create chart for each section of the chromosome if filter cnvvalue is set to Zero
-        if cnvcutoff == "0":
-            for chromosome in chromosomes:
-                chrchartlets = {}
+		# Create chart for each section of the chromosome if filter cnvvalue is set to Zero
+		if cnvcutoff == "0":
+			for chromosome in chromosomes:
+				chrchartlets = {}
 
-                for section in range(1, chrsections[chromosome]):
-                    slice_start = (section - 1) * windowsize + 1
-                    slice_end = section * windowsize
-                    alllib_cnvvalues = []
-                    for group, libcodedict in full_masterdict[chromosome].items():
-                        for libcode, cnvvalues in libcodedict.items():
-                            if libcode == 'summary':
-                                alllib_cnvvalues.append(cnvvalues[slice_start:slice_end])
-                        labels = []
-                        for label in range(slice_start, slice_end, 5):
-                            labels.append(label)
-                        labels.append(slice_end)
+				for section in range(1, chrsections[chromosome]):
+					slice_start = (section - 1) * windowsize + 1
+					slice_end = section * windowsize
+					alllib_cnvvalues = []
+					for group, libcodedict in full_masterdict[chromosome].items():
+						for libcode, cnvvalues in libcodedict.items():
+							if libcode == 'summary':
+								alllib_cnvvalues.append(cnvvalues[slice_start:slice_end])
+						labels = []
+						for label in range(slice_start, slice_end, 5):
+							labels.append(label)
+						labels.append(slice_end)
 
-                    cnv_linechart = Line( alllib_cnvvalues, encoding="text" )
-                    cnv_linechart.color('blue', 'green')
-                    cnv_linechart.scale(0, 4).axes('xyx')
-                    cnv_linechart.axes.label(0, *labels)
-                    cnv_linechart.grid(1, 25)
-                    cnv_linechart.axes.label(1, *range(0, 5, 1))
-                    cnv_linechart.axes.label(2, None, 'Base pair in 1000s', None)
-                    #set line style
-                    for linestyle in linestyles:
-                        if linestyle == 'solid':
-                            cnv_linechart.line(2, 4, 0)
-                        elif linestyle == 'dotted':
-                            cnv_linechart.line(2, 1, 1)
-                        elif linestyle == 'dashed':
-                            cnv_linechart.line(2, 4, 4)
+					cnv_linechart = Line( alllib_cnvvalues, encoding="text" )
+					cnv_linechart.color(colors[0], colors[1])
+					cnv_linechart.scale(0, 4).axes('xyx')
+					cnv_linechart.axes.label(0, *labels)
+					cnv_linechart.grid(1, 25)
+					cnv_linechart.axes.label(1, *range(0, 5, 1))
+					cnv_linechart.axes.label(2, None, 'Base pair in 1000s', None)
+					#set line style
+					for linestyle in linestyles:
+						if linestyle == 'solid':
+							cnv_linechart.line(2, 4, 0)
+						elif linestyle == 'dotted':
+							cnv_linechart.line(2, 1, 1)
+						elif linestyle == 'dashed':
+							cnv_linechart.line(2, 4, 4)
 
-                    cnv_linechart.size(1000, 200)
-                    chrchartlets[section] = cnv_linechart
-                # # dont forget the leftover data
-                section = chrsections[chromosome] + 1
-                slice_start = (section - 1 ) * windowsize + 1
-                slice_end = -1
-                alllib_cnvvalues = []
-                for group, libcodedict in full_masterdict[chromosome].items():
-                    for libcode, cnvvalues in libcodedict.items():
-                            if libcode == 'summary':
-                                alllib_cnvvalues.append(cnvvalues[slice_start:slice_end])
-                    labels = []
-                    for label in range(slice_start, slice_start+len(alllib_cnvvalues[0]), 5):
-                        labels.append(label)
+					cnv_linechart.size(1000, 200)
+					chrchartlets[section] = cnv_linechart
+				# # dont forget the leftover data
+				section = chrsections[chromosome] + 1
+				slice_start = (section - 1 ) * windowsize + 1
+				slice_end = -1
+				alllib_cnvvalues = []
+				for group, libcodedict in full_masterdict[chromosome].items():
+					for libcode, cnvvalues in libcodedict.items():
+						if libcode == 'summary':
+							alllib_cnvvalues.append(cnvvalues[slice_start:slice_end])
+					labels = []
+					for label in range(slice_start, slice_start+len(alllib_cnvvalues[0]), 5):
+						labels.append(label)
 
-                    cnv_linechart = Line( alllib_cnvvalues, encoding="text" )
+					cnv_linechart = Line( alllib_cnvvalues, encoding="text" )
 
-                    cnv_linechart.color('blue', 'green')
-                    cnv_linechart.scale(0, 4).axes('xyx')
-                    cnv_linechart.axes.label(0, *labels)
-                    cnv_linechart.grid(1, 25)
-                    cnv_linechart.axes.label(1, *range(0, 5, 1))
-                    cnv_linechart.axes.label(2, None, 'Base pair in 1000s', None)
-                    #set line style
-                    for linestyle in linestyles:
-                        if linestyle == 'solid':
-                            cnv_linechart.line(2, 4, 0)
-                        elif linestyle == 'dotted':
-                            cnv_linechart.line(2, 1, 1)
-                        elif linestyle == 'dashed':
-                            cnv_linechart.line(2, 4, 4)
+					cnv_linechart.color(colors[0], colors[1])
+					cnv_linechart.scale(0, 4).axes('xyx')
+					cnv_linechart.axes.label(0, *labels)
+					cnv_linechart.grid(1, 25)
+					cnv_linechart.axes.label(1, *range(0, 5, 1))
+					cnv_linechart.axes.label(2, None, 'Base pair in 1000s', None)
+					#set line style
+					for linestyle in linestyles:
+						if linestyle == 'solid':
+							cnv_linechart.line(2, 4, 0)
+						elif linestyle == 'dotted':
+							cnv_linechart.line(2, 1, 1)
+						elif linestyle == 'dashed':
+							cnv_linechart.line(2, 4, 4)
 
-                    chart_length = (1000 / windowsize) * len(alllib_cnvvalues[0])
-                    cnv_linechart.size(chart_length, 200)
-                    chrchartlets[section] = cnv_linechart
+					chart_length = (1000 / windowsize) * len(alllib_cnvvalues[0])
+					cnv_linechart.size(chart_length, 200)
+					chrchartlets[section] = cnv_linechart
 
-                    charts[chromosome] = chrchartlets
-        else:
-            # cnvcut off is not zero
-            charts = find_cnv_diff_create_images(request, full_masterdict, cnvcutoff)
+					charts[chromosome] = chrchartlets
+		else:
+			# cnvcut off is not zero
+			charts = find_cnv_diff_create_images(request, full_masterdict, cnvcutoff, colors)
 
-        kwargs['charts'] = charts
-        kwargs['display_chart']='yes'
+		kwargs['charts'] = charts
+		kwargs['display_chart']='yes'
 
-    else:
-        exp = Experiment.objects.get(id=experimentId)
-        kwargs['exp'] = exp
-        libs = []
-        for sample in exp.samples.all():
-            for lib in sample.library_set.all():
-                libs.append(lib)
-        print libs
-        kwargs['libs'] = libs
-        kwargs['display_form'] = 'yes'
-        kwargs['colors'] = ['blue', 'orange', 'red', 'green', 'yellow', 'purple', 'pink', 'black', 'gray', 'cyan', 'white']
-        kwargs['linestyles'] = ['solid', 'dotted', 'dashed']
-        kwargs['modes'] = ['Median', 'Mean']
-        kwargs['windowsize'] = 100
-        kwargs['cnvcutoff'] =  0.75
+	else:
+		exp = Experiment.objects.get(id=experimentId)
+		kwargs['exp'] = exp
+		libs = []
+		for sample in exp.samples.all():
+			for lib in sample.library_set.all():
+				libs.append(lib)
+		print libs
+		kwargs['libs'] = libs
+		kwargs['display_form'] = 'yes'
+		kwargs['colors'] = ['blue', 'orange', 'red', 'green', 'yellow', 'purple', 'pink', 'black', 'gray', 'cyan', 'white']
+		kwargs['linestyles'] = ['solid', 'dotted', 'dashed']
+		kwargs['modes'] = ['Median', 'Mean']
+		kwargs['windowsize'] = 100
+		kwargs['cnvcutoff'] =  0.75
 
-    return render_to_response('snpdb/compare_libraries_cnv_filter.html', kwargs, context_instance=RequestContext(request))
+	return render_to_response('snpdb/compare_libraries_cnv_filter.html', kwargs, context_instance=RequestContext(request))
