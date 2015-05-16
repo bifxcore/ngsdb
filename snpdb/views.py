@@ -799,21 +799,21 @@ def save_snp_dashboard_files(chart_path, image_path):
 	modifier_values = []
 	impact_values = []
 
-	# high = Effect.objects.filter(effect__effect_name="Annotation_Impact", effect_string="HIGH").values("effect_class").annotate(Count('snp'))
-	# high_list = dump(high, chart_path % 'high')
-	#
-	# high_snp_total = sum(i[1] for i in high_list)
-	#
-	# for each in high_list:
-	# 	high_labels.append(each[0] + ': ' + str(round(float(each[1])/float(high_snp_total)*100, 2)) + '%')
-	# 	high_values.append(round(float(each[1])/float(high_snp_total)*100, 2))
-	#
-	#
-	# snps_by_high_impact = Pie(high_values).label(*high_values).legend(*high_labels).legend_pos('l').color("919dab", "D2E3F7",
-	#                                                                                                       "658CB9", "88BBF7",
-	#                                                                                                       "666E78").size(800,350)
-	# snps_by_high_impact.image().save(image_path % 'high', 'png')
-	# print "high files saved"
+	high = Effect.objects.filter(effect__effect_name="Annotation_Impact", effect_string="HIGH").values("effect_class").annotate(Count('snp'))
+	high_list = dump(high, chart_path % 'high')
+
+	high_snp_total = sum(i[1] for i in high_list)
+
+	for each in high_list:
+		high_labels.append(each[0] + ': ' + str(round(float(each[1])/float(high_snp_total)*100, 2)) + '%')
+		high_values.append(round(float(each[1])/float(high_snp_total)*100, 2))
+
+
+	snps_by_high_impact = Pie(high_values).label(*high_values).legend(*high_labels).legend_pos('l').color("919dab", "D2E3F7",
+	                                                                                                      "658CB9", "88BBF7",
+	                                                                                                      "666E78").size(800,350)
+	snps_by_high_impact.image().save(image_path % 'high', 'png')
+	print "high files saved"
 
 	cursor = connection.cursor()
 	cursor.execute("""SELECT count(snp_id), effect_string

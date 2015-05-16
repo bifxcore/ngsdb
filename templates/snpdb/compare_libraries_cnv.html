@@ -33,7 +33,7 @@
 <FORM action="/snpdb/comparelibs/cnv/{{ exp.id }}/" method="post">
 {% csrf_token %}
     <TABLE>
-        <TR><TH>Sl. No.</TH><TH>Select</TH><TH>Library Code</TH><TH>Library Name</TH><TH>Collor For the Bar</TH></TR>
+        <TR><TH>Sl. No.</TH><TH>Select</TH><TH>Library Code</TH><TH>Library Name</TH><TH>Color For the Bar</TH></TR>
         {% for lib in libs %}
             <TR><TD>{{ forloop.counter }}</TD><TD><input type="checkbox" name="libcodes" value="{{ lib.library_code }}"></TD><TD>{{ lib.library_code }}</TD><TD>{{ lib.sampleid.samplename }}</TD>
             {# display dropdown for color #}
@@ -58,11 +58,11 @@
     <TABLE><TR><TD>
         Number of datapoints to plot in a horizontal picture: <input type="text" name="windowsize" value="{{windowsize}}">
         </TD></TR><TR><TD>
-        More the points (value) messier picture will be. 100 is optimal.
-        Very few points, many pictures.
+        More points (value), the messier the picture will be. 100 is optimal.
+        Very few points will result in many pictures.
 
     </TD></TR></TABLE>
-<input type="submit"  name="libraryselection" value="Display Somy" />
+<input type="submit"  name="libraryselection" value="Display CNV" />
 </FORM>
 {% endif %}
 {% endblock %}

@@ -18,7 +18,7 @@
 <FORM action="/snpdb/comparelibs/somy/{{ exp.id }}/" method="post">
 {% csrf_token %}
     <TABLE>
-        <TR><TH>Sl. No.</TH><TH>Select</TH><TH>Library Code</TH><TH>Library Name</TH><TH>Collor For the Bar</TH></TR>
+        <TR><TH>Sl. No.</TH><TH>Select</TH><TH>Library Code</TH><TH>Library Name</TH><TH>Color For the Bar</TH></TR>
         {% for lib in libs %}
             <TR><TD>{{ forloop.counter }}</TD><TD><input type="checkbox" name="libcodes" value="{{ lib.library_code }}"></TD><TD>{{ lib.library_code }}</TD><TD>{{ lib.sampleid.samplename }}</TD>
             {# display dropdown for color #}
