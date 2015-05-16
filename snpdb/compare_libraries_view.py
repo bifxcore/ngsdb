@@ -195,6 +195,7 @@ def impact_snps(request):
 	output_path_0 = os.path.join(analysis_path, '%s_impact_0000.vcf' % impact)
 	output_path_1 = os.path.join(analysis_path, '%s_impact_0001.vcf' % impact)
 
+	print settings.MEDIA_URL
 	java_jar = settings.SNPEFF_JAR_PATH
 	print java_jar
 
