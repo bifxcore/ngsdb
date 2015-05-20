@@ -33,7 +33,7 @@
 
                                     <div class="form-vertical">
                                         {% for libcode in libcodes %}
-                                            <div class="col-sm-2">
+                                            <div class="col-sm-4">
                                                 <input type="radio" name="wt" value="{{ libcode }}"> {{libcode}} ({{ libcode_name_map|hash:libcode }})
                                             </div>
                                         {% endfor %}
@@ -53,7 +53,7 @@
 
                                     <div class="form-vertical">
                                         {% for libcode in libcodes %}
-                                            <div class="col-sm-2">
+                                            <div class="col-sm-4">
                                                 <input type="checkbox" name="check1" value="{{ libcode }}"> {{libcode}} ({{ libcode_name_map|hash:libcode }})
                                             </div>
                                         {% endfor %}
@@ -73,7 +73,7 @@
 
                                     <div class="form-vertical">
                                         {% for libcode in libcodes %}
-                                            <div class="col-sm-2">
+                                            <div class="col-sm-4">
                                                 <input type="checkbox" name="check2" value="{{ libcode }}"> {{ libcode }} ({{ libcode_name_map|hash:libcode }})
                                             </div>
                                         {% endfor %}

@@ -808,7 +808,7 @@ def compare_libraries_cnv(request, experimentId):
 	if request.method == 'POST':
 		# get params from form
 		libcodes = request.POST.getlist('libcodes', '')
-		# print libcodes
+		print libcodes
 		colors = []
 		linestyles = []
 		for libcode in libcodes:
@@ -876,7 +876,7 @@ def compare_libraries_cnv(request, experimentId):
 					alllib_cnvvalues, encoding="text"
 				)
 				cnv_linechart.color(*colors)
-				cnv_linechart.scale(0, max_cnv_value+2).axes('xyx')
+				cnv_linechart.scale(0, int(ceil(max_cnv_value+2))).axes('xyx')
 				cnv_linechart.axes.label(0, *labels)
 				cnv_linechart.grid(1, 25)
 				cnv_linechart.axes.label(1, *range(0, int(ceil(max_cnv_value+2)), int(ceil(max_cnv_value/4))))
@@ -892,6 +892,7 @@ def compare_libraries_cnv(request, experimentId):
 
 				cnv_linechart.size(1000, 200)
 				chrchartlets[section] = cnv_linechart
+
 			# dont forget the leftover data
 			section = chrsections[chromosome] + 1
 			slice_start = (section - 1 ) * windowsize + 1
@@ -911,7 +912,7 @@ def compare_libraries_cnv(request, experimentId):
 			cnv_linechart.color(*colors)
 			cnv_linechart.scale(0, max_cnv_value+2).axes('xyx')
 			cnv_linechart.axes.label(0, *labels)
-			cnv_linechart.grid(1, 25)
+			# cnv_linechart.grid(1, 25)
 			cnv_linechart.axes.label(1, *range(0, int(ceil(max_cnv_value+2)), int(ceil(max_cnv_value/4))))
 			cnv_linechart.axes.label(2, None, 'Base pair in 1000s', None)
 			#set line style
@@ -922,6 +923,7 @@ def compare_libraries_cnv(request, experimentId):
 					cnv_linechart.line(2, 1, 1)
 				elif linestyle == 'dashed':
 					cnv_linechart.line(2, 4, 4)
+
 
 			chart_length = (1000 / windowsize) * len(alllib_cnvvalues[0])
 			cnv_linechart.size(chart_length, 200)

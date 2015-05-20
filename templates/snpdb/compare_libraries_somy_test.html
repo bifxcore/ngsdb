@@ -1,0 +1,54 @@
+{% extends "admin/base_site.html" %}
+{% load render_table from django_tables2 %}
+{% block bootstrap %}
+<script>
+    $('.collapse').collapse()
+</script>
+{% endblock %}
+{%block content%}
+{% block body %}
+{% load ngsdbview_extras %}
+{% load humanize %}
+
+<script type="text/javascript" src="http://kozea.github.com/pygal.js/javascripts/svg.jquery.js"></script>
+<script type="text/javascript" src="http://kozea.github.com/pygal.js/javascripts/pygal-tooltips.js"></script>
+
+{% if display_form %}
+
+<FORM action="/snpdb/comparelibs/somy/{{ exp.id }}/" method="post">
+{% csrf_token %}
+    <TABLE>
+        <TR><TH>Sl. No.</TH><TH>Select</TH><TH>Library Code</TH><TH>Library Name</TH><TH>Color For the Bar</TH></TR>
+        {% for lib in libs %}
+            <TR><TD>{{ forloop.counter }}</TD><TD><input type="checkbox" name="libcodes" value="{{ lib.library_code }}"></TD><TD>{{ lib.library_code }}</TD><TD>{{ lib.sampleid.samplename }}</TD>
+            {# display dropdown for color #}
+            <TD>
+                <select name="{{ lib.library_code }}">
+                {% for color in colors %}
+                    <option value={{ color }}>{{ color }}</option>
+                {% endfor %}
+                </select>
+            </TD>
+            </TR>
+        {% endfor %}
+    </TABLE>
+<input type="submit"  name="libraryselection" value="Display Somy" />
+</FORM>
+
+{% else %}
+    <div class="container-fluid">
+        <div class="page-header text-header" style="padding-left:30px; margin-top:10px; padding-bottom:0px">
+            <h1 class="header" style="padding-bottom:0px;">Somy Graph</h1>
+        </div>
+    </div>
+
+    <body>
+        <div class="container-fluid">
+            {{ chart.render | safe }}
+        </div>
+    </body>
+{% endif %}
+
+
+{% endblock %}
+{% endblock %}
