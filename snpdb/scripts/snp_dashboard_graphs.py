@@ -6,7 +6,7 @@ import os
 import psycopg2
 import csv
 
-dbh = psycopg2.connect(host='ngsdb', database='ngsdb03aa', user='ngsdb03', password='ngsdb03')
+dbh = psycopg2.connect(host='ngsdb', database='ngsdb03ac', user='ngsdb03', password='ngsdb03')
 cur = dbh.cursor()
 
 path = os.path.join(os.path.abspath(os.path.dirname(__file__)), os.pardir)

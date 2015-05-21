@@ -715,7 +715,6 @@ def dump(qs, outfile_path):
 
 		elif isinstance(obj, tuple):
 
-
 			if obj[1] == "HIGH":
 				val = "Changes to CDS Length"
 			elif obj[1] == "LOW":
@@ -740,12 +739,9 @@ def dump(qs, outfile_path):
 
 	writer = csv.writer(open(outfile_path, 'w+'))
 
-	print keys, values, value
 	writer.writerow(keys)
 	for each in value:
 		writer.writerow(each)
-
-
 
 	return value
 
@@ -823,7 +819,6 @@ def save_snp_dashboard_files(chart_path, image_path):
 				ORDER BY effect_string""")
 
 	impact = cursor.fetchall()
-
 	impact_list = dump(impact, chart_path % 'impact')
 
 	impact_snp_total = sum(i[1] for i in impact_list)

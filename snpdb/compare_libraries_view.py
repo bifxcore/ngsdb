@@ -123,15 +123,18 @@ def add_snps_from_vcf(vcf_file, libraries, group_libs, snp_dict, wt, impact):
 
 				#Adds all alternate and references alleles
 				for lib in group_libs:
+					libs = lib.encode("ASCII")
+					print lib, libs, lib_dict
+
 					if record.genotype(sample).gt_type == 1:
 						hetero = True
 
 					if hetero:
-						lib_dict[lib]['alt'].update([alt, "Ref"])
+						lib_dict[libs]['alt'].update([alt, "Ref"])
 
 					elif alt:
-						lib_dict[lib]['alt'].update([alt])
-						lib_dict[lib]['effect'] = set([eff])
+						lib_dict[libs]['alt'].update([alt])
+						lib_dict[libs]['effect'] = set([eff])
 
 		if pos not in snp_dict:
 			snp = add_values_to_empty_dictionary(snp, record, alt, lib_dict, gene_length, impact, genes, wt_allele, product, aa_from_start, fmin, fmax)
