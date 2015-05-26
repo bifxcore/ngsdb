@@ -116,7 +116,6 @@ def compare_gene_lib_results(request):
 	# order_by = request.GET.get('order_by', 'library__library_code')
 	gene_string = request.GET.get('s')
 	genes = gene_string.split()
-	# genome_id = request.GET.get('genome')
 	library_data = request.GET.getlist('check')
 
 	library = []

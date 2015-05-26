@@ -808,7 +808,6 @@ def compare_libraries_cnv(request, experimentId):
 	if request.method == 'POST':
 		# get params from form
 		libcodes = request.POST.getlist('libcodes', '')
-		print libcodes
 		colors = []
 		linestyles = []
 		for libcode in libcodes:
@@ -1029,6 +1028,7 @@ def find_cnv_diff_create_images(request, full_masterdict, cnvcutoff, colors):
 				# print cnv_linechart
 		charts[chromosome] = chrchartlets
 	return charts
+
 
 
 def compare_libraries_cnv_filter(request, experimentId):

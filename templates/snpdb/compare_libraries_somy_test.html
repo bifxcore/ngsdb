@@ -5,13 +5,16 @@
     $('.collapse').collapse()
 </script>
 {% endblock %}
+
 {%block content%}
+
 {% block body %}
+
 {% load ngsdbview_extras %}
 {% load humanize %}
 
-<script type="text/javascript" src="http://kozea.github.com/pygal.js/javascripts/svg.jquery.js"></script>
-<script type="text/javascript" src="http://kozea.github.com/pygal.js/javascripts/pygal-tooltips.js"></script>
+<link rel="stylesheet" href="http://cdn.pydata.org/bokeh/release/bokeh-0.9.0.min.css" type="text/css">
+<script src="http://cdn.pydata.org/bokeh/release/bokeh-0.9.0.min.js"></script>
 
 {% if display_form %}
 
@@ -36,6 +39,7 @@
 </FORM>
 
 {% else %}
+
     <div class="container-fluid">
         <div class="page-header text-header" style="padding-left:30px; margin-top:10px; padding-bottom:0px">
             <h1 class="header" style="padding-bottom:0px;">Somy Graph</h1>
@@ -43,9 +47,11 @@
     </div>
 
     <body>
-        <div class="container-fluid">
-            {{ chart.render | safe }}
-        </div>
+    <div class="container-fluid">
+        {{ script | safe }}
+        {{ div | safe }}
+    </div>
+
     </body>
 {% endif %}
 
