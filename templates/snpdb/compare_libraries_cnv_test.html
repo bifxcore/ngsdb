@@ -13,6 +13,8 @@
 <link rel="stylesheet" href="http://cdn.pydata.org/bokeh/release/bokeh-0.9.0.min.css" type="text/css">
 <script src="http://cdn.pydata.org/bokeh/release/bokeh-0.9.0.min.js"></script>
 
+
+
 {%  if charts  %}
         {% for chromosome, values in charts.items %}
         <div type="container-fluid">
@@ -35,9 +37,20 @@
             </div>
         {% endfor %}
         </div>
+
 {% else %}
 
-<FORM action="/snpdb/comparelibs/cnv/{{ exp.id }}/" method="post">
+        <script>
+function atleast_onecheckbox(e) {
+  if ($("input[name=libcodes]:checked").length === 0) {
+      e.preventDefault();
+      alert('Please choose the libraries you would like to compare against');
+      return false;
+  }
+}
+</script>
+
+<FORM action="/snpdb/comparelibs/cnv/{{ exp.id }}/" method="post"  onsubmit="return atleast_onecheckbox(event)">
 {% csrf_token %}
     <TABLE>
         <TR><TH>Sl. No.</TH><TH>Select</TH><TH>Library Code</TH><TH>Library Name</TH><TH>Color For the Bar</TH></TR>

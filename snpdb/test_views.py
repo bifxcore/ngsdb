@@ -145,196 +145,6 @@ def compare_libraries_cnv(request, experimentId):
 	return render_to_response('snpdb/compare_libraries_cnv_test.html', kwargs, context_instance=RequestContext(request))
 
 
-# def compare_libraries_cnv_filter(request, experimentId):
-# 	"""
-# 	Display CNV chart(s)
-# 	:param request: libcodes, referencegenome/resultids
-# 	:return: all chart objects
-# 	"""
-#
-# 	kwargs = {'listoflinks': listoflinks, 'title': "Comparing CNVs"}
-# 	#kwargs['user']=user
-#
-# 	if request.method == 'POST':
-# 		# get params from form
-# 		group1_libcodes = request.POST.getlist('group1_libcodes', '')
-# 		group2_libcodes = request.POST.getlist('group2_libcodes', '')
-# 		group1_color = request.POST.get('group1_color', '')
-# 		group2_color = request.POST.get('group2_color', '')
-# 		group1_style = request.POST.get('group1_style', '')
-# 		group2_style = request.POST.get('group2_style', '')
-# 		summary_mode = request.POST.get('summary_mode')
-# 		cnvcutoff = request.POST.get('cnvcutoff', '')
-# 		colors = [group1_color, group2_color]
-# 		linestyles = [group1_style, group2_style]
-#
-# 		# get linestyles for graph
-# 		for libcode in group1_libcodes:
-# 			colors.append(request.POST.get(libcode, ''))
-# 			linestyles.append(request.POST.get('linetype_'+libcode, ''))
-#
-# 		# get chromosome list
-# 		chromosomes = list(set(CNV.objects.filter(library__library_code__in=group1_libcodes).filter(cnv_type__cvterm='CNV').values_list("chromosome__chromosome_name", flat=True).order_by("chromosome__chromosome_name")))
-#
-# 		chrdict = defaultdict(dict)
-# 		for chromosome in chromosomes:
-# 			cnv_values = []
-#
-# 			#Collect group1 CNV values
-# 			if summary_mode == "Mean":
-# 				for cnvobject in CNV.objects.values('start', 'stop').annotate(Avg('cnv_value')).filter(library__library_code__in=group1_libcodes).filter(cnv_type__cvterm="CNV").filter(chromosome__chromosome_name=chromosome).order_by("start"):
-# 					cnv_values.append([cnvobject['start'], cnvobject['stop'], cnvobject['cnv_value__avg']])
-# 				chrdict[chromosome]['group1'] = cnv_values
-#
-# 			if summary_mode == "Median":
-# 				pos = {}
-# 				for cnvobject in CNV.objects.values('start', 'stop', 'cnv_value').filter(library__library_code__in=group1_libcodes).filter(cnv_type__cvterm="CNV").filter(chromosome__chromosome_name=chromosome).order_by("start"):
-# 					key = str(cnvobject['start']) + ":" + str(cnvobject['stop'])
-#
-# 					if key in pos:
-# 						pos[key].append(cnvobject['cnv_value'])
-# 					else:
-# 						pos[key] = [cnvobject['cnv_value']]
-# 				positions = OrderedDict(sorted(pos.items()))
-#
-# 				keys = list(positions.keys())
-# 				values = list(positions.values())
-# 				for x in range(0, len(values)):
-# 					start = int(keys[x].split(":")[0])
-# 					stop = int(keys[x].split(":")[1])
-#
-# 					cnv_values.append([start, stop, numpy.median(values[x])])
-#
-# 				chrdict[chromosome]['group1'] = cnv_values
-#
-# 			#Collect group2 CNV values
-# 			cnv_values = []
-# 			if summary_mode == "Mean":
-# 				for cnvobject in CNV.objects.values('start', 'stop').annotate(Avg('cnv_value')).filter(library__library_code__in=group2_libcodes).filter(cnv_type__cvterm="CNV").filter(chromosome__chromosome_name=chromosome).order_by("start"):
-# 					cnv_values.append([cnvobject['start'], cnvobject['stop'], cnvobject['cnv_value__avg']])
-# 				chrdict[chromosome]['group2'] = cnv_values
-#
-# 			if summary_mode == "Median":
-# 				pos = {}
-# 				for cnvobject in CNV.objects.values('start', 'stop', 'cnv_value').filter(library__library_code__in=group2_libcodes).filter(cnv_type__cvterm="CNV").filter(chromosome__chromosome_name=chromosome).order_by("start"):
-# 					key = str(cnvobject['start']) + ":" + str(cnvobject['stop'])
-#
-# 					if key in pos:
-# 						pos[key].append(cnvobject['cnv_value'])
-# 					else:
-# 						pos[key] = [cnvobject['cnv_value']]
-# 				positions = OrderedDict(sorted(pos.items()))
-#
-# 				keys = list(positions.keys())
-# 				values = list(positions.values())
-# 				for x in range(0, len(values)):
-# 					start = int(keys[x].split(":")[0])
-# 					stop = int(keys[x].split(":")[1])
-#
-# 					cnv_values.append([start, stop, numpy.median(values[x])])
-#
-# 				chrdict[chromosome]['group2'] = sorted(cnv_values, key=lambda y: y[0])
-#
-# 		graphs = {}
-# 		num_graphs = 0
-# 		graph_positions = []
-# 		group1 = []
-# 		group2 = []
-# 		horizontal_plots = []
-#
-# 		for chromosome in chrdict.keys():
-# 			group1_cnvs = chrdict[chromosome]['group1']
-# 			group2_cnvs = chrdict[chromosome]['group2']
-#
-# 			for x in range(0, len(group1_cnvs)):
-# 				cnv_diff = group1_cnvs[x][2] - group2_cnvs[x][2]
-# 				if abs(cnv_diff) > float(cnvcutoff):
-# 					graph_positions.append(group1_cnvs[x][0])
-# 					group1.append(group1_cnvs[x][2])
-# 					group2.append(group2_cnvs[x][2])
-#
-# 				else:
-# 					if len(graph_positions) > 0:
-#
-# 						graph = figure(x_axis_label='Position (bp)', y_axis_label='CNV Values',
-# 						               plot_height=500, plot_width=1000, toolbar_location="left")
-#
-# 						graph.line(x=graph_positions, y=group1, legend=", ".join(group1_libcodes), line_color=group1_color, line_dash=group1_style, line_width=2)
-# 						graph.xaxis[0].formatter = NumeralTickFormatter(format="0")
-# 						graph.circle(x=graph_positions, y=group1, fill_color=group1_color, size=4, color=group1_color)
-#
-# 						graph.line(x=graph_positions, y=group2, legend=", ".join(group2_libcodes), line_color=group2_color, line_dash=group2_style, line_width=2)
-# 						graph.xaxis[0].formatter = NumeralTickFormatter(format="0")
-# 						graph.circle(x=graph_positions, y=group2, fill_color=group2_color, size=4, color=group2_color)
-#
-# 						script, div = components(graph)
-#
-# 						num_graphs += 1
-# 						horizontal_plots.append(graph)
-#
-# 						if chromosome in graphs:
-# 							graphs[chromosome].append([script, div])
-# 						else:
-# 							graphs[chromosome] = [[script, div]]
-#
-#
-# 						graph_positions = []
-# 						group1 = []
-# 						group2 = []
-#
-# 			# graphs[chromosome] = hplot(horizontal_plots)
-# 					# else:
-#
-# 					# for i in range(-5, 5):
-# 					# 	if 0 < i+x < len(group1_cnvs):
-# 					# 		graph_positions.append(group1_cnvs[i+x][0])
-# 					# 		group1.append(group1_cnvs[i+x][2])
-# 					# 		group2.append(group2_cnvs[i+x][2])
-# 					# print graph_positions, group1
-# # tools=[HoverTool(tooltips = [("position", "@x"), ("CNV Value", "@y")]),
-# # 			                    PreviewSaveTool()],
-# # 					graph = figure(x_axis_label='Position (bp)', y_axis_label='CNV Values',
-# # 			                plot_height=500, plot_width=1000, toolbar_location="left")
-# #
-# # 					graph.line(x=graph_positions, y=group1, legend=", ".join(group1_libcodes), line_color=group1_color, line_dash=group1_style, line_width=2)
-# # 					graph.xaxis[0].formatter = NumeralTickFormatter(format="0")
-# # 					graph.circle(x=graph_positions, y=group1, fill_color=group1_color, size=4, color=group1_color)
-# #
-# # 					graph.line(x=graph_positions, y=group2, legend=", ".join(group2_libcodes), line_color=group2_color, line_dash=group2_style, line_width=2)
-# # 					graph.xaxis[0].formatter = NumeralTickFormatter(format="0")
-# # 					graph.circle(x=graph_positions, y=group2, fill_color=group2_color, size=4, color=group2_color)
-# #
-# # 					script, div = components(graph)
-#
-#
-# 					# num_graphs += 1
-# 					# if chromosome in graphs:
-# 					# 	graphs[chromosome].append([script, div])
-# 					# else:
-# 					# 	graphs[chromosome] = [[script, div]]
-# 		graph = OrderedDict(sorted(graphs.items()))
-# 		print num_graphs
-# 		kwargs['charts'] = graph
-# 		kwargs['display_chart']='yes'
-#
-#  	else:
-# 		exp = Experiment.objects.get(id=experimentId)
-# 		kwargs['exp'] = exp
-# 		libs = []
-# 		for sample in exp.samples.all():
-# 			for lib in sample.library_set.all():
-# 				libs.append(lib)
-# 		kwargs['libs'] = libs
-# 		kwargs['display_form'] = 'yes'
-# 		kwargs['colors'] = ['blue', 'orange', 'red', 'green', 'yellow', 'purple', 'pink', 'black', 'gray', 'cyan', 'white']
-# 		kwargs['linestyles'] = ['solid', 'dotted', 'dashed']
-# 		kwargs['modes'] = ['Median', 'Mean']
-# 		kwargs['windowsize'] = 100
-# 		kwargs['cnvcutoff'] =  0.75
-#
-# 	return render_to_response('snpdb/compare_libraries_cnv_filter_test.html', kwargs, context_instance=RequestContext(request))
-
-
 def compare_libraries_cnv_filter(request, experimentId):
 	"""
 	Display CNV chart(s)
@@ -505,7 +315,7 @@ def compare_libraries_cnv_filter(request, experimentId):
 		kwargs['colors'] = ['blue', 'orange', 'red', 'green', 'yellow', 'purple', 'pink', 'black', 'gray', 'cyan', 'white']
 		kwargs['linestyles'] = ['solid', 'dotted', 'dashed']
 		kwargs['modes'] = ['Median', 'Mean']
-		kwargs['windowsize'] = 100
+		kwargs['windowsize'] = 200
 		kwargs['cnvcutoff'] =  0.75
 
 	return render_to_response('snpdb/compare_libraries_cnv_filter_test.html', kwargs, context_instance=RequestContext(request))
@@ -575,7 +385,7 @@ def find_cnv_diff_create_images(request, full_masterdict, cnvcutoff, colors, lin
 				labels.append(slice_end)
 
 				graph = figure(x_axis_label='Position (bp)', y_axis_label='CNV Values',
-			                plot_height=200, plot_width=400, toolbar_location=None)
+			                plot_height=200, plot_width=400, toolbar_location=None, tools='')
 
 				graph.line(x=labels, y=group1_summary_cnvs[slice_start:slice_end], line_color=colors[0], line_dash=linestyle[0], line_width=2)
 				graph.xaxis[0].formatter = NumeralTickFormatter(format="0")

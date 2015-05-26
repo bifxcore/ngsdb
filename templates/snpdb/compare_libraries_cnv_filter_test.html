@@ -13,10 +13,30 @@
 <link rel="stylesheet" href="http://cdn.pydata.org/bokeh/release/bokeh-0.9.0.min.css" type="text/css">
 <script src="http://cdn.pydata.org/bokeh/release/bokeh-0.9.0.min.js"></script>
 
+<script>
+    $('.collapse').on('show', function () {
+    var $this = $(this);
+    if($this.attr('data-href'))
+    {
+        $this.html($.getJSON($this.attr('data-href'),function(data){
+            $this.html(data.html);
+            $this.removeAttr('style');
+        }));
+    }
+    })
+</script>
+
+<script>
+    $('.panel').on('hidden.bs.collapse', function (e) {
+        alert('Event fired on #' + e.currentTarget.id);
+    })
+</script>
+
+
 {% if charts %}
     {% for chromosome in charts %}
         <div type="container-fluid">
-            <div class="panel panel-default">
+            <div class="panel panel-default" id="accordion">
                 <div class="panel-heading" style="background-color: #F6E3CE; border-color:#F6E3CE;">
                     <h3 class="panel-title" style="text-align: left">
                         <a data-toggle="collapse" data-parent="#accordion" href="#collapse_{{chromosome}}">
@@ -38,10 +58,21 @@
             </div>
     {% endfor %}
         </div>
+
+
+
 {% else %}
+<script>
+function atleast_onecheckbox(e) {
+  if ($("input[name=group1_libcodes]:checked").length === 0 | $("input[name=group2_libcodes]:checked").length === 0 ) {
+      e.preventDefault();
+      alert('Please choose the libraries you would like to compare against');
+      return false;
+  }
+}
+</script>
 
-
-<FORM action="/snpdb/comparelibs/cnvfilter/{{ exp.id }}/" method="post">
+<FORM action="/snpdb/comparelibs/cnvfilter/{{ exp.id }}/" method="post" onsubmit="return atleast_onecheckbox(event)">
 {% csrf_token %}
 <TABLE> <TR><TD> <!-- start of group table -->
     <div class="panel-heading" style="background-color: #F6E3CE; border-color:#F6E3CE; overflow: hidden">
