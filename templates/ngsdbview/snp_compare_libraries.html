@@ -9,19 +9,28 @@
 {% block body %}
 {% load ngsdbview_extras %}
 {% load humanize %}
+{% load columns %}
 
 <!-- for autocompletion -->
 <!-- end for autocompletion -->
 
 {%  if libcodes  %}
 
+<script>
+function atleast_onecheckbox(e) {
+  if ($("input[name=check1]:checked").length === 0 | $("input[name=check2]:checked").length === 0 ) {
+      e.preventDefault();
+      alert('Please choose the libraries you would like to compare against');
+      return false;
+  }
+}
+</script>
 
 {% csrf_token %}
 
 
     <div class="container-fluid" style="padding-bottom:30px">
-        <form id="form2" action="/snpdb/compare-libs/search" method="get">
-
+        <form id="form2" action="/snpdb/compare-libs/search" method="get" onsubmit="return atleast_onecheckbox(event)">
             <div class="row">
                 <div class="col-md-4">
                     <div class="panel panel-primary" style="border-color: #616770;">
@@ -30,15 +39,13 @@
                         </div>
                         <div class="panel-body">
                             <div class="form-group">
-
-                                    <div class="form-vertical">
-                                        {% for libcode in libcodes %}
-                                            <div class="col-sm-4">
-                                                <input type="radio" name="wt" value="{{ libcode }}"> {{libcode}} ({{ libcode_name_map|hash:libcode }})
-                                            </div>
-                                        {% endfor %}
-                                     </div>
-
+                                <div class="form-vertical">
+                                    {% for libcode in libcodes %}
+                                        <div class="col-md-6">
+                                            <input type="radio" name="wt" value="{{ libcode }}"> {{libcode}} ({{ libcode_name_map|hash:libcode }})
+                                        </div>
+                                    {% endfor %}
+                                 </div>
                             </div>
                         </div>
                     </div>
@@ -50,15 +57,13 @@
                         </div>
                         <div class="panel-body">
                             <div class="form-group">
-
-                                    <div class="form-vertical">
-                                        {% for libcode in libcodes %}
-                                            <div class="col-sm-4">
-                                                <input type="checkbox" name="check1" value="{{ libcode }}"> {{libcode}} ({{ libcode_name_map|hash:libcode }})
-                                            </div>
-                                        {% endfor %}
-                                     </div>
-
+                                <div class="form-vertical">
+                                    {% for libcode in libcodes %}
+                                        <div class="col-md-6">
+                                            <input type="checkbox" name="check1" value="{{ libcode }}"> {{libcode}} ({{ libcode_name_map|hash:libcode }})
+                                        </div>
+                                    {% endfor %}
+                                 </div>
                             </div>
                         </div>
                     </div>
@@ -70,15 +75,13 @@
                         </div>
                         <div class="panel-body">
                             <div class="form-group">
-
-                                    <div class="form-vertical">
-                                        {% for libcode in libcodes %}
-                                            <div class="col-sm-4">
-                                                <input type="checkbox" name="check2" value="{{ libcode }}"> {{ libcode }} ({{ libcode_name_map|hash:libcode }})
-                                            </div>
-                                        {% endfor %}
-                                     </div>
-
+                                <div class="form-vertical">
+                                    {% for libcode in libcodes %}
+                                        <div class="col-md-6">
+                                            <input type="checkbox" name="check2" value="{{ libcode }}"> {{ libcode }} ({{ libcode_name_map|hash:libcode }})
+                                        </div>
+                                    {% endfor %}
+                                 </div>
                             </div>
                         </div>
                     </div>

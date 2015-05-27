@@ -640,7 +640,7 @@ def chrom_region_filter(request):
 	start = request.GET.get('from')
 	stop = request.GET.get('to')
 	chrom = request.GET.get('chrom')
-	full_chrom = request.GET.get('full_chrom')
+	full_chrom = request.GET.get('fullchrom')
 
 
 	title = "SNP Region Summary"

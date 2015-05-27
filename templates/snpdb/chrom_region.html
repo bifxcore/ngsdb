@@ -18,8 +18,20 @@
 </div>
 
 {% if ref_genome %}
+
+
+<script>
+function atleast_onecheckbox(e) {
+  if ($("input[name=library]:checked").length === 0) {
+      e.preventDefault();
+      alert('Please choose the library you would like to compare');
+      return false;
+  }
+}
+</script>
+
     <div class="container-fluid" style="padding-bottom:30px">
-        <form id="form1" action="/snpdb/chrom-region/search" method="get">
+        <form id="form1" action="/snpdb/chrom-region/search" method="get" onsubmit="return atleast_onecheckbox(event)">
             <div class="row">
                 <div class="col">
                     <div class="panel panel-primary" style="border-color: #616770;">
@@ -50,8 +62,31 @@
         </form>
     </div>
 {% elif chromosome %}
+
+<script>
+function atleast_onecheckbox(e) {
+  if ($("input[name=chrom]:checked").length === 0) {
+      e.preventDefault();
+      alert('Please choose the chromosome you would like to query');
+      return false;
+  }
+//
+  if ($("input[name=to]").val().length === 0 && !$("input[name=fullchrom]").prop('checked')){
+      e.preventDefault();
+      alert('Please identify the start position you would like to query or check the box to indicate the full chromosome.');
+      return false;
+  }
+  if ($("input[name=from]").val().length === 0 && !$("input[name=fullchrom]").prop('checked')) {
+      e.preventDefault();
+      alert('Please identify the stop position you would like to query');
+      return false;
+  }
+}
+</script>
+
+
     <div class="container-fluid" style="padding-bottom:30px">
-        <form id="form2" action="/snpdb/chrom-region-filter" method="get">
+        <form id="form2" action="/snpdb/chrom-region-filter" method="get" onsubmit="return atleast_onecheckbox(event)">
             <div class="row">
                 <div class="collapse navbar-collapse navbar-ex1-collapse">
                    <ul class="nav navbar-nav">
@@ -65,7 +100,10 @@
                                <label class="sr-only" for="to">To bp</label>
                                <input type="text" class="form-control" name="to" placeholder="To bp">
                            </div>
-                           <label class="checkbox-inline"><input type="checkbox" name="full-chrom" value="full-chrom">Full Chromosome</label>
+                           <div class="checkbox">
+                               <label>
+                               <input type="checkbox" name="fullchrom" value="fullchrom">Full Chromosome</label>
+                           </div>
                            <button class="btn btn-sample" type="submit"  style="margin-left:0px; width:75px; vertical-align:middle; padding: 0px">Search</button>
                        </div>
                    </ul>
@@ -96,8 +134,20 @@
 
 
 {% else %}
+
+<script>
+function atleast_onecheckbox(e) {
+  if ($("input[name=ref_genome]:checked").length === 0) {
+      e.preventDefault();
+      alert('Please choose the organism you would like to compare');
+      return false;
+  }
+}
+</script>
+
+
     <div class="container-fluid" style="padding-bottom:30px">
-        <form id="form3" action="/snpdb/chrom-region" method="get">
+        <form id="form3" action="/snpdb/chrom-region" method="get" onsubmit="return atleast_onecheckbox(event)">
             <div class="row">
                 <div class="panel panel-primary" style="border-color: #616770;">
                     <div class="panel-heading" style="background-color: #616770; border-color:#616770; overflow: hidden">
