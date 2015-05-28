@@ -1,58 +1,46 @@
 {% extends "admin/base_site.html" %}
 {% load render_table from django_tables2 %}
+
 {% block bootstrap %}
-<script>
-    $('.collapse').collapse()
-</script>
 {% endblock %}
+
 {%block content%}
 {% block body %}
 {% load ngsdbview_extras %}
 {% load humanize %}
 
-<link rel="stylesheet" href="http://cdn.pydata.org/bokeh/release/bokeh-0.9.0.min.css" type="text/css">
-<script src="http://cdn.pydata.org/bokeh/release/bokeh-0.9.0.min.js"></script>
-
-<script>
-    $('.collapse').on('show', function () {
-    var $this = $(this);
-    if($this.attr('data-href'))
-    {
-        $this.html($.getJSON($this.attr('data-href'),function(data){
-            $this.html(data.html);
-            $this.removeAttr('style');
-        }));
-    }
-    })
-</script>
-
-<script>
-    $('.panel').on('hidden.bs.collapse', function (e) {
-        alert('Event fired on #' + e.currentTarget.id);
-    })
-</script>
 
 
-{% if charts %}
-    {% for chromosome in charts %}
+{% if accordion %}
+
+    <script>
+       $( document ).ready(function() {
+           $('.panel').on('show.bs.collapse', function (e) {
+               var chromosome = $(this).find(".collapse").attr("id");
+               alert('Event fired on #' + chromosome);
+               $.ajax({
+                   url:"/snpdb/comparelibs/cnvfilter/{{ exp.id }}/",
+                   type: "POST",
+                   data: {chromosome: chromosome, libs: '{{libs}}', colors: '{{colors}}', linestyles: '{{linestyles}}', mode: '{{mode}}', windowsize: '{{windowsize}}', cnvcutoff: '{{cnvcutoff}}'}
+               }).done(function() {
+                    alert('Event finished on #' + chromosome);
+               });
+           });
+       });
+    </script>
+
+
+    {% for chromosome in chromosomes %}
         <div type="container-fluid">
-            <div class="panel panel-default" id="accordion">
-                <div class="panel-heading" style="background-color: #F6E3CE; border-color:#F6E3CE;">
+            <div class="panel panel-primary" style="border-color: #616770;" id="panel">
+                <div class="panel-heading" data-toggle="collapse" data-praent="#accordion" href="#{{chromosome}}" id="heading_{{chromosome}}" style="background-color: #616770; border-color:#616770; overflow: hidden">
                     <h3 class="panel-title" style="text-align: left">
-                        <a data-toggle="collapse" data-parent="#accordion" href="#collapse_{{chromosome}}">
-                            {{ forloop.counter }}. Chromosome: {{ chromosome }}
-                        </a>
+                        <a> {{ forloop.counter }}. Chromosome: {{ chromosome }} </a>
                     </h3>
                 </div>
-                <div id="collapse_{{chromosome}}" class="panel-collapse collapse">
+                <div class="panel-collapse collapse" id="{{chromosome}}" aria-labelledby="heading_{{chromosome}}">
                     <div class="panel-body">
-                        {% for section in charts|hash:chromosome %}
-                            {% for x in charts|hash:chromosome|hash:section %}
-                                <div class="container-fluid" style="padding-bottom: 10px"  ui-if="article.isOpen">
-                                    {{ x | safe }}
-                                </div>
-                            {% endfor %}
-                        {% endfor %}
+                        "Loading..."
                     </div>
                 </div>
             </div>
@@ -64,7 +52,7 @@
 {% else %}
 <script>
 function atleast_onecheckbox(e) {
-  if ($("input[name=group1_libcodes]:checked").length === 0 | $("input[name=group2_libcodes]:checked").length === 0 ) {
+  if ($("input[name=group1_libcodes]:checked").length === 0 | $("input[name=group2_libcodes]:checked").length === 0) {
       e.preventDefault();
       alert('Please choose the libraries you would like to compare against');
       return false;
