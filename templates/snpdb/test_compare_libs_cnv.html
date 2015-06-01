@@ -13,153 +13,212 @@
 
 {% if accordion %}
 
-    <script>
-       $( document ).ready(function() {
-           $('.panel').on('show.bs.collapse', function (e) {
-               var chromosome = $(this).find(".collapse").attr("id");
-               alert('Event fired on #' + chromosome);
-               $.ajax({
-                   url:"/snpdb/comparelibs/cnvfilter/{{ exp.id }}/",
-                   type: "POST",
-                   data: {chromosome: chromosome, libs: '{{libs}}', colors: '{{colors}}', linestyles: '{{linestyles}}', mode: '{{mode}}', windowsize: '{{windowsize}}', cnvcutoff: '{{cnvcutoff}}'}
-               }).done(function() {
-                    alert('Event finished on #' + chromosome);
-               });
-           });
-       });
-    </script>
+<script>
+    $( document ).ready(function() {
+        $('.panel').on('show.bs.collapse', function (e) {
+            event.preventDefault();
+            var chromosome = $(this).find(".collapse").attr("id");
+
+            console.log("Created Request")
+            create_graph(chromosome);
+        });
+    });
+</script>
+
+<script>
+    function create_graph(chromosome) {
+        console.log("Create graph is working");
+        var csrftoken = getCookie('csrftoken');
+        var json_dump = "{{ json_dump | safe }}";
+
+        $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
+            }
+        });
 
 
-    {% for chromosome in chromosomes %}
-        <div type="container-fluid">
-            <div class="panel panel-primary" style="border-color: #616770;" id="panel">
-                <div class="panel-heading" data-toggle="collapse" data-praent="#accordion" href="#{{chromosome}}" id="heading_{{chromosome}}" style="background-color: #616770; border-color:#616770; overflow: hidden">
-                    <h3 class="panel-title" style="text-align: left">
-                        <a> {{ forloop.counter }}. Chromosome: {{ chromosome }} </a>
-                    </h3>
-                </div>
-                <div class="panel-collapse collapse" id="{{chromosome}}" aria-labelledby="heading_{{chromosome}}">
-                    <div class="panel-body">
-                        "Loading..."
-                    </div>
-                </div>
-            </div>
-    {% endfor %}
+        $.ajax({
+            url: "/snpdb/create-graphs",
+            type: "POST",
+            dataType: 'json',
+            xhrFields: {
+                withCredentials: true
+            },
+            data: {json_dump: json_dump},
+//            data: {chromosome: chromosome, group1_libs: '{{group1_libs}}', group2_libs: '{{group2_libs}}', colors: '{{colors}}', linestyles: '{{linestyles}}', mode: '{{mode}}', windowsize: '{{windowsize}}', cnvcutoff: '{{cnvcutoff}}'},
+            error: function() {
+                $('#info').html('<p>An error has occurred </p>')
+            }
+        }).done(function() {
+            alert('Event finished on #' + chromosome);
+        });
+    };
+</script>
+
+
+<script>
+    function csrfSafeMethod(method) {
+    // these HTTP methods do not require CSRF protection
+    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+    };
+</script>
+
+
+<script>
+    function getCookie(name) {
+    var cookieValue = null;
+    if (document.cookie && document.cookie != '') {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+            var cookie = jQuery.trim(cookies[i]);
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+    }
+</script>
+
+
+
+{% for chromosome in chromosomes %}
+<div type="container-fluid">
+    <div class="panel panel-primary" style="border-color: #616770;" id="panel">
+        <div class="panel-heading" data-toggle="collapse" data-praent="#accordion" href="#{{chromosome}}" id="heading_{{chromosome}}" style="background-color: #616770; border-color:#616770; overflow: hidden">
+            <h3 class="panel-title" style="text-align: left">
+                <a> {{ forloop.counter }}. Chromosome: {{ chromosome }} </a>
+            </h3>
         </div>
-
+        <div class="panel-collapse collapse" id="{{chromosome}}" aria-labelledby="heading_{{chromosome}}">
+            <div class="panel-body">
+                "Loading..."
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
 
 
 {% else %}
+
+
 <script>
-function atleast_onecheckbox(e) {
-  if ($("input[name=group1_libcodes]:checked").length === 0 | $("input[name=group2_libcodes]:checked").length === 0) {
-      e.preventDefault();
-      alert('Please choose the libraries you would like to compare against');
-      return false;
-  }
-}
+    function atleast_onecheckbox(e) {
+        if ($("input[name=group1_libcodes]:checked").length === 0 | $("input[name=group2_libcodes]:checked").length === 0) {
+            e.preventDefault();
+            alert('Please choose the libraries you would like to compare against');
+            return false;
+        }
+    }
 </script>
 
 <FORM action="/snpdb/comparelibs/cnvfilter/{{ exp.id }}/" method="post" onsubmit="return atleast_onecheckbox(event)">
-{% csrf_token %}
-<TABLE> <TR><TD> <!-- start of group table -->
-    <div class="panel-heading" style="background-color: #F6E3CE; border-color:#F6E3CE; overflow: hidden">
-        <a class="collapse" data-toggle="collapse" data-parent="#accordion" href="#CNVsection_{{ chromosome }}" aria-expanded="true"> <h3 class="panel-title" style="text-align: left"> Group 1</h3> </a>
-    </div>
-    <TABLE>
-        <TR><TH>Sl. No.</TH><TH>Include</TH><TH>Library Code</TH><TH>Library Name</TH><!--<TH>Collor For the Bar</TH>--></TR>
-        {% for lib in libs %}
+    <input type="hidden" name="exp" value="{{exp.id}}" />
+    {% csrf_token %}
+    <TABLE> <TR><TD> <!-- start of group table -->
+        <div class="panel-heading" style="background-color: #F6E3CE; border-color:#F6E3CE; overflow: hidden">
+            <a class="collapse" data-toggle="collapse" data-parent="#accordion" href="#CNVsection_{{ chromosome }}" aria-expanded="true"> <h3 class="panel-title" style="text-align: left"> Group 1</h3> </a>
+        </div>
+        <TABLE>
+            <TR><TH>Sl. No.</TH><TH>Include</TH><TH>Library Code</TH><TH>Library Name</TH><!--<TH>Collor For the Bar</TH>--></TR>
+            {% for lib in libs %}
             <TR>
                 <TD>{{ forloop.counter }}</TD><TD><input type="checkbox" name="group1_libcodes" value="{{ lib.library_code }}"></TD><TD>{{ lib.library_code }}</TD><TD>{{ lib.sampleid.samplename }}</TD>
             </TR>
-        {% endfor %}
+            {% endfor %}
         </TABLE>
         <TABLE>
-        <TR><TD></TD></TR>
-        <TR>
-        {# display dropdown for color #}
-        <TD>Color :</TD>
-        <TD>
-            <select name="group1_color">
-            {% for color in colors %}
-                <option value={{ color }}>{{ color }}</option>
-            {% endfor %}
-            </select>
-        </TD>
-        </TR><TR>
-        <TD>Line Style :</TD>
-        <TD>
-            <select name="group1_style">
-            {% for style in linestyles %}
-                <option value={{ style }} >{{ style }}</option>
-            {% endfor %}
-            </select>
-        </TD>
+            <TR><TD></TD></TR>
+            <TR>
+                {# display dropdown for color #}
+                <TD>Color :</TD>
+                <TD>
+                    <select name="group1_color">
+                        {% for color in colors %}
+                        <option value={{ color }}>{{ color }}</option>
+                        {% endfor %}
+                    </select>
+                </TD>
+            </TR><TR>
+            <TD>Line Style :</TD>
+            <TD>
+                <select name="group1_style">
+                    {% for style in linestyles %}
+                    <option value={{ style }} >{{ style }}</option>
+                    {% endfor %}
+                </select>
+            </TD>
         </TR>
-        </TR>
-    </TABLE>
+            </TR>
+        </TABLE>
 
     </TD><TD>
-     <div class="panel-heading" style="background-color: #F6E3CE; border-color:#F6E3CE; overflow: hidden">
-                     <a class="collapse" data-toggle="collapse" data-parent="#accordion" href="#CNVsection_{{ chromosome }}" aria-expanded="true"> <h3 class="panel-title" style="text-align: left"> Group 2</h3> </a>
-    </div>
-    <TABLE>
-        <TR><TH>Sl. No.</TH><TH>Include</TH><TH>Library Code</TH><TH>Library Name</TH><!--<TH>Collor For the Bar</TH>--></TR>
-        {% for lib in libs %}
+        <div class="panel-heading" style="background-color: #F6E3CE; border-color:#F6E3CE; overflow: hidden">
+            <a class="collapse" data-toggle="collapse" data-parent="#accordion" href="#CNVsection_{{ chromosome }}" aria-expanded="true"> <h3 class="panel-title" style="text-align: left"> Group 2</h3> </a>
+        </div>
+        <TABLE>
+            <TR><TH>Sl. No.</TH><TH>Include</TH><TH>Library Code</TH><TH>Library Name</TH><!--<TH>Collor For the Bar</TH>--></TR>
+            {% for lib in libs %}
             <TR>
                 <TD>{{ forloop.counter }}</TD><TD><input type="checkbox" name="group2_libcodes" value="{{ lib.library_code }}"></TD><TD>{{ lib.library_code }}</TD><TD>{{ lib.sampleid.samplename }}</TD>
             </TR>
-        {% endfor %}
+            {% endfor %}
         </TABLE>
         <TABLE>
-        <TR><TD></TD></TR>
-        <TR>
-        {# display dropdown for color #}
-        <TD>Color :</TD>
-        <TD>
-            <select name="group2_color">
-            {% for color in colors %}
-                <option value={{ color }}>{{ color }}</option>
-            {% endfor %}
-            </select>
-        </TD>
-        </TR><TR>
-        <TD>Line Style :</TD>
-        <TD>
-            <select name="group2_style">
-            {% for style in linestyles %}
-                <option value={{ style }} >{{ style }}</option>
-            {% endfor %}
-            </select>
-        </TD>
+            <TR><TD></TD></TR>
+            <TR>
+                {# display dropdown for color #}
+                <TD>Color :</TD>
+                <TD>
+                    <select name="group2_color">
+                        {% for color in colors %}
+                        <option value={{ color }}>{{ color }}</option>
+                        {% endfor %}
+                    </select>
+                </TD>
+            </TR><TR>
+            <TD>Line Style :</TD>
+            <TD>
+                <select name="group2_style">
+                    {% for style in linestyles %}
+                    <option value={{ style }} >{{ style }}</option>
+                    {% endfor %}
+                </select>
+            </TD>
         </TR>
-        </TR>
-    </TABLE>
-</TD></TR></TABLE> <!-- end of group table -->
+            </TR>
+        </TABLE>
+    </TD></TR></TABLE> <!-- end of group table -->
     <TABLE>
-    <TR>
-        <TD>Data Summarizing Mode :</TD>
-        <TD>
-            <select name="summary_mode">
-            {% for mode in modes %}
-                <option value={{ mode }} >{{ mode }}</option>
-            {% endfor %}
-            </select>
-        </TD>
+        <TR>
+            <TD>Data Summarizing Mode :</TD>
+            <TD>
+                <select name="summary_mode">
+                    {% for mode in modes %}
+                    <option value={{ mode }} >{{ mode }}</option>
+                    {% endfor %}
+                </select>
+            </TD>
         </TR>
     </TABLE>
     <TABLE><TR><TD>
         Minimum CNV value difference between groups: <input type="number" max="10" min="0" step="any" name="cnvcutoff" value="{{ cnvcutoff }}">
-        </TD><TR><TD>Set it to Zero to browse entire chromosome manually</TD></TR>
-    </TD></TR></TABLE>
+    </TD><TR><TD>Set it to Zero to browse entire chromosome manually</TD></TR>
+        </TD></TR></TABLE>
 
     <TABLE><TR><TD>
         Number of datapoints to plot in a horizontal picture: <input type="text" name="windowsize" value="{{windowsize}}">
-        </TD></TR><TR><TD>
+    </TD></TR><TR><TD>
         More the points (value) messier picture will be. 100 is optimal.
         Very few points, many pictures.
     </TD></TR></TABLE>
-<input type="submit"  name="libraryselection" value="Display CNV" />
+    <input type="submit"  name="libraryselection" value="Display CNV" />
 </FORM>
 {% endif %}
 {% endblock %}

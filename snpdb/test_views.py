@@ -4,7 +4,7 @@ from samples.models import *
 from ngsdbview.viewtools import *
 from collections import defaultdict, OrderedDict
 import numpy
-
+import json
 from bokeh.charts import Bar
 from bokeh.embed import components
 from bokeh.plotting import figure
@@ -145,13 +145,89 @@ def compare_libraries_cnv(request, experimentId):
 	return render_to_response('snpdb/compare_libraries_cnv_test.html', kwargs, context_instance=RequestContext(request))
 
 
+def create_cnv_graphs(request):
+	json = request.POST.get('json_dump')
+
+	print json
+
+	group1_libs = request.POST.getlist('group1_libs', '')[0]
+	group2_libs = request.POST.getlist('group2_libs', '')[0]
+	colors = request.POST.getlist('colors', '')[0]
+	styles = request.POST.getlist('linestyles', '')[0]
+
+	# group1_libcodes = libcodes[0]
+	# group2_libcodes = libcodes[1]
+	# group1_color = colors[0]
+	# group2_color = colors[1]
+	#
+	# group1_style = styles[0]
+	# group2_style = styles[1]
+
+	summary_mode = request.POST.get('summary_mode')
+	cnvcutoff = request.POST.get('cnvcutoff', '')
+
+	chromosome = request.POST.get('chromosome')
+
+	print type(group1_libs.encode('utf8'))
+
+	print chromosome, group1_libs.encode('utf8'), group2_libs, colors, styles, summary_mode, cnvcutoff
+
+	# for libcode in group1_libcodes:
+	# 	colors.append(request.POST.get(libcode, ''))
+	# 	styles.append(request.POST.get('linetype_'+libcode, ''))
+
+	# prepare legands [not displayed yet]
+	# // TODO: display common legend on page somewhere. not per plot
+
+	# get chromosome list
+	chromosomes = list(set(CNV.objects.filter(library__library_code__in=group1_libcodes).filter(cnv_type__cvterm='CNV').values_list("chromosome__chromosome_name", flat=True)))
+	chromosomes.sort()
+
+	# read in cnv values for each chromosome; for selected set of libraries
+	group1_masterdict = create_chrwise_libwise_cnvdict(request, chromosomes, group1_libcodes)
+	group2_masterdict = create_chrwise_libwise_cnvdict(request, chromosomes, group2_libcodes)
+	group1_summarydict = add_group_summary_track(request, group1_masterdict, summary_mode)
+	group2_summarydict = add_group_summary_track(request, group2_masterdict, summary_mode)
+
+	# Build a master master dict with all indiviudal cnvs and summarized cnvs
+	# structure of this will be. full_master{chromosome}{group1|group2}{libcode(s)|summary}=[cnv values]
+	full_masterdict = defaultdict(dict)
+	for chromosome in chromosomes:
+		#add group 1
+		group1dict = defaultdict(str)
+		group1dict['summary'] = group1_summarydict[chromosome]
+		for libcode, cnvvalues in group1_masterdict[chromosome].items():
+			group1dict[libcode] = cnvvalues
+		full_masterdict[chromosome]['group1'] = group1dict
+		#add group 2
+		group2dict = defaultdict(str)
+		group2dict['summary'] = group2_summarydict[chromosome]
+		for libcode, cnvvalues in group2_masterdict[chromosome].items():
+			group2dict[libcode] = cnvvalues
+		full_masterdict[chromosome]['group2'] = group2dict
+
+	#prepare charts
+	charts = defaultdict(str)
+
+	#set window size for each picture
+	windowsize = request.POST.get('windowsize', '')
+	windowsize = int(windowsize)
+	#find out #sections for each chr
+	chrsections = {}
+	for chromosome in chromosomes:
+		for libcode, cnvvalues in group1_masterdict[chromosome].items():
+			chrsections[chromosome] = int(math.floor(len(cnvvalues) / windowsize))
+
+	charts = find_cnv_diff_create_images(request, full_masterdict, cnvcutoff, colors, styles, group1_libcodes, group2_libcodes)
+
+	kwargs['charts'] = charts
+	kwargs['display_chart']='yes'
 
 
 def test_compare_libs_cnv(request, experimentId):
 	kwargs = {'listoflinks': listoflinks, 'title': "Comparing CNVs"}
 	#kwargs['user']=user
 
-	print "In right view"
 
 	if request.method == 'POST':
 		# get params from form
@@ -162,7 +238,7 @@ def test_compare_libs_cnv(request, experimentId):
 		group1_style = request.POST.get('group1_style', '')
 		group2_style = request.POST.get('group2_style', '')
 		summary_mode = request.POST.get('summary_mode')
-		exp = request.POST.get('exp_id')
+		exp = request.POST.get('exp')
 		cnvcutoff = request.POST.get('cnvcutoff', '')
 		colors = [group1_color, group2_color]
 		linestyles = [group1_style, group2_style]
@@ -175,7 +251,8 @@ def test_compare_libs_cnv(request, experimentId):
 		chromosomes = list(set(CNV.objects.filter(library__library_code__in=group1_libcodes).filter(cnv_type__cvterm='CNV').values_list("chromosome__chromosome_name", flat=True)))
 		chromosomes.sort()
 
-		kwargs['libs'] = [group1_libs, group2_libs]
+		kwargs['group1_libs'] = group1_libs
+		kwargs['group2_libs'] = group2_libs
 		kwargs['colors'] = colors
 		kwargs['linestyles'] = linestyles
 		kwargs['mode'] = summary_mode
@@ -183,79 +260,7 @@ def test_compare_libs_cnv(request, experimentId):
 		kwargs['cnvcutoff'] =  cnvcutoff
 		kwargs['accordion'] = "True"
 		kwargs['chromosomes'] = chromosomes
-		kwargs['exp'] = exp
-
-
-	elif request.is_ajax():
-		print "Got ajax request"
-
-		libcodes = request.POST.getlist('libs', '')
-		colors = request.POST.getlist('colors', '')
-		styles = request.POST.getlist('linestyles', '')
-
-		group1_libcodes = libcodes[0]
-		group2_libcodes = libcodes[1]
-		group1_color = colors[0]
-		group2_color = colors[1]
-
-		group1_style = styles[0]
-		group2_style = styles[1]
-
-		summary_mode = request.POST.get('summary_mode')
-		cnvcutoff = request.POST.get('cnvcutoff', '')
-
-
-		for libcode in group1_libcodes:
-			colors.append(request.POST.get(libcode, ''))
-			styles.append(request.POST.get('linetype_'+libcode, ''))
-
-		# prepare legands [not displayed yet]
-		# // TODO: display common legend on page somewhere. not per plot
-
-		# get chromosome list
-		chromosomes = list(set(CNV.objects.filter(library__library_code__in=group1_libcodes).filter(cnv_type__cvterm='CNV').values_list("chromosome__chromosome_name", flat=True)))
-		chromosomes.sort()
-
-		# read in cnv values for each chromosome; for selected set of libraries
-		group1_masterdict = create_chrwise_libwise_cnvdict(request, chromosomes, group1_libcodes)
-		group2_masterdict = create_chrwise_libwise_cnvdict(request, chromosomes, group2_libcodes)
-		group1_summarydict = add_group_summary_track(request, group1_masterdict, summary_mode)
-		group2_summarydict = add_group_summary_track(request, group2_masterdict, summary_mode)
-
-		# Build a master master dict with all indiviudal cnvs and summarized cnvs
-		# structure of this will be. full_master{chromosome}{group1|group2}{libcode(s)|summary}=[cnv values]
-		full_masterdict = defaultdict(dict)
-		for chromosome in chromosomes:
-			#add group 1
-			group1dict = defaultdict(str)
-			group1dict['summary'] = group1_summarydict[chromosome]
-			for libcode, cnvvalues in group1_masterdict[chromosome].items():
-				group1dict[libcode] = cnvvalues
-			full_masterdict[chromosome]['group1'] = group1dict
-			#add group 2
-			group2dict = defaultdict(str)
-			group2dict['summary'] = group2_summarydict[chromosome]
-			for libcode, cnvvalues in group2_masterdict[chromosome].items():
-				group2dict[libcode] = cnvvalues
-			full_masterdict[chromosome]['group2'] = group2dict
-
-		#prepare charts
-		charts = defaultdict(str)
-
-		#set window size for each picture
-		windowsize = request.POST.get('windowsize', '')
-		windowsize = int(windowsize)
-		#find out #sections for each chr
-		chrsections = {}
-		for chromosome in chromosomes:
-			for libcode, cnvvalues in group1_masterdict[chromosome].items():
-				chrsections[chromosome] = int(math.floor(len(cnvvalues) / windowsize))
-
-		charts = find_cnv_diff_create_images(request, full_masterdict, cnvcutoff, colors, styles, group1_libcodes, group2_libcodes)
-
-		kwargs['charts'] = charts
-		kwargs['display_chart']='yes'
-
+		kwargs['exp_id'] = exp
 
 	else:
 		exp = Experiment.objects.get(id=experimentId)
