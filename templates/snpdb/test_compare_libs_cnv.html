@@ -13,13 +13,15 @@
 
 {% if accordion %}
 
+<link rel="stylesheet" href="http://cdn.pydata.org/bokeh/release/bokeh-0.8.2.min.css" type="text/css">
+<script src="http://cdn.pydata.org/bokeh/release/bokeh-0.8.2.min.js"></script>
+
+        
 <script>
     $( document ).ready(function() {
         $('.panel').on('show.bs.collapse', function (e) {
             event.preventDefault();
             var chromosome = $(this).find(".collapse").attr("id");
-
-            console.log("Created Request")
             create_graph(chromosome);
         });
     });
@@ -27,9 +29,11 @@
 
 <script>
     function create_graph(chromosome) {
-        console.log("Create graph is working");
         var csrftoken = getCookie('csrftoken');
-        var json_dump = "{{ json_dump | safe }}";
+        var colors = JSON.parse('{{colors | safe}}');
+        var linestyles = JSON.parse('{{linestyles | safe}}');
+        var lib1 = JSON.parse('{{group1_libs | safe}}');
+        var lib2 = JSON.parse('{{group2_libs | safe}}');
 
         $.ajaxSetup({
             beforeSend: function(xhr, settings) {
@@ -39,23 +43,35 @@
             }
         });
 
-
         $.ajax({
             url: "/snpdb/create-graphs",
             type: "POST",
-            dataType: 'json',
             xhrFields: {
                 withCredentials: true
             },
-            data: {json_dump: json_dump},
-//            data: {chromosome: chromosome, group1_libs: '{{group1_libs}}', group2_libs: '{{group2_libs}}', colors: '{{colors}}', linestyles: '{{linestyles}}', mode: '{{mode}}', windowsize: '{{windowsize}}', cnvcutoff: '{{cnvcutoff}}'},
+            data: JSON.stringify({chromosome: chromosome, group1_libs: lib1, group2_libs: lib2, colors: colors, linestyles: linestyles, mode: '{{mode}}', windowsize: '{{windowsize}}', cnvcutoff: '{{cnvcutoff}}'}),
             error: function() {
-                $('#info').html('<p>An error has occurred </p>')
+                $('.panel-body').html('<p>An error has occurred </p>')
+            },
+            success: function(result) {
+                var data = JSON.parse(result);
+
+                if (jQuery.isEmptyObject(data)) {
+                    $(".panel-body").html('<h2>There are no differences on this chromosome. </h2>')
+                } else {
+                    var header = "";
+                    $.map(data, function (value, key) {
+                        header = header + '<div class="container-fluid" style="padding-bottom: 10px" ui-if="article.isOpen">';
+                        $.each(value, function (index, val) {
+                            header = header + val;
+                        });
+                        header = header + '</div>';
+                    });
+                    $(".panel-body").html(header);
+                }
             }
-        }).done(function() {
-            alert('Event finished on #' + chromosome);
-        });
-    };
+        })
+    }
 </script>
 
 
@@ -63,13 +79,14 @@
     function csrfSafeMethod(method) {
     // these HTTP methods do not require CSRF protection
     return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-    };
+    }
 </script>
 
 
 <script>
     function getCookie(name) {
     var cookieValue = null;
+
     if (document.cookie && document.cookie != '') {
         var cookies = document.cookie.split(';');
         for (var i = 0; i < cookies.length; i++) {
@@ -97,7 +114,7 @@
         </div>
         <div class="panel-collapse collapse" id="{{chromosome}}" aria-labelledby="heading_{{chromosome}}">
             <div class="panel-body">
-                "Loading..."
+
             </div>
         </div>
     </div>
@@ -105,8 +122,8 @@
 </div>
 
 
-{% else %}
 
+{% else %}
 
 <script>
     function atleast_onecheckbox(e) {
@@ -126,7 +143,7 @@
             <a class="collapse" data-toggle="collapse" data-parent="#accordion" href="#CNVsection_{{ chromosome }}" aria-expanded="true"> <h3 class="panel-title" style="text-align: left"> Group 1</h3> </a>
         </div>
         <TABLE>
-            <TR><TH>Sl. No.</TH><TH>Include</TH><TH>Library Code</TH><TH>Library Name</TH><!--<TH>Collor For the Bar</TH>--></TR>
+            <TR><TH>Sl. No.</TH><TH>Include</TH><TH>Library Code</TH><TH>Library Name</TH><!--<TH>Color For the Bar</TH>--></TR>
             {% for lib in libs %}
             <TR>
                 <TD>{{ forloop.counter }}</TD><TD><input type="checkbox" name="group1_libcodes" value="{{ lib.library_code }}"></TD><TD>{{ lib.library_code }}</TD><TD>{{ lib.sampleid.samplename }}</TD>

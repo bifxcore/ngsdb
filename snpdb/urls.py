@@ -34,8 +34,8 @@ urlpatterns = patterns('',
                       url(r'^$', 'snpdb.views.dashboard'),
 
                       # Gowthaman's views
-                      url(r'^comparelibs/somy/(?P<experimentId>.+)/', 'snpdb.test_views.compare_libraries_somy'),
-                      url(r'^comparelibs/cnv/(?P<experimentId>.+)/', 'snpdb.test_views.compare_libraries_cnv'),
-                      url(r'^comparelibs/cnvfilter/(?P<experimentId>.+)/', 'snpdb.test_views.test_compare_libs_cnv'),
-                      url(r'^create-graphs', 'snpdb.test_views.create_cnv_graphs'),
+                      url(r'^comparelibs/somy/(?P<experimentId>.+)/', 'snpdb.compare_libraries_view.compare_libraries_somy'),
+                      url(r'^comparelibs/cnv/(?P<experimentId>.+)/', 'snpdb.compare_libraries_view.compare_libraries_cnv'),
+                      url(r'^comparelibs/cnvfilter/(?P<experimentId>.+)/', 'snpdb.compare_libraries_view.compare_libs_cnv'),
+                      url(r'^create-graphs', 'snpdb.compare_libraries_view.create_cnv_graphs'),
                       )

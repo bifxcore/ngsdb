@@ -5,17 +5,31 @@
     $('.collapse').collapse()
 </script>
 {% endblock %}
+
 {%block content%}
+
 {% block body %}
+
 {% load ngsdbview_extras %}
 {% load humanize %}
-{%  if display_chart  %}
 
-   <img src="{{ somy_multichr_columnchart }}" />
+<link rel="stylesheet" href="http://cdn.pydata.org/bokeh/release/bokeh-0.8.2.min.css" type="text/css">
+<script src="http://cdn.pydata.org/bokeh/release/bokeh-0.8.2.min.js"></script>
 
-{% else %}
+{% if display_form %}
 
-<FORM action="/snpdb/comparelibs/somy/{{ exp.id }}/" method="post">
+
+<script>
+function atleast_onecheckbox(e) {
+  if ($("input[name=libcodes]:checked").length === 0) {
+      e.preventDefault();
+      alert('Please choose the libraries you would like to compare against');
+      return false;
+  }
+}
+</script>
+
+<FORM action="/snpdb/comparelibs/somy/{{ exp.id }}/" method="post" onsubmit="return atleast_onecheckbox(event)">
 {% csrf_token %}
     <TABLE>
         <TR><TH>Sl. No.</TH><TH>Select</TH><TH>Library Code</TH><TH>Library Name</TH><TH>Color For the Bar</TH></TR>
@@ -34,6 +48,24 @@
     </TABLE>
 <input type="submit"  name="libraryselection" value="Display Somy" />
 </FORM>
+
+{% else %}
+
+    <div class="container-fluid">
+        <div class="page-header text-header" style="padding-left:30px; margin-top:10px; padding-bottom:0px">
+            <h1 class="header" style="padding-bottom:0px;">Somy Graph</h1>
+        </div>
+    </div>
+
+    <body>
+    <div class="container-fluid">
+        {{ script | safe }}
+        {{ div | safe }}
+    </div>
+
+    </body>
 {% endif %}
+
+
 {% endblock %}
 {% endblock %}

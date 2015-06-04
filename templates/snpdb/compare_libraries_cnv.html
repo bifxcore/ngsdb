@@ -9,28 +9,48 @@
 {% block body %}
 {% load ngsdbview_extras %}
 {% load humanize %}
+
+<link rel="stylesheet" href="http://cdn.pydata.org/bokeh/release/bokeh-0.9.0.min.css" type="text/css">
+<script src="http://cdn.pydata.org/bokeh/release/bokeh-0.9.0.min.js"></script>
+
+
+
 {%  if charts  %}
-    <TABLE>
-        {% for chromosome in charts %}
-            <TR><TD>
-                <div class="panel-heading" style="background-color: #F6E3CE; border-color:#F6E3CE; overflow: hidden">
-                     <a class="collapse" data-toggle="collapse" data-parent="#accordion" href="#CNVsection_{{ chromosome }}" aria-expanded="true"> <h3 class="panel-title" style="text-align: left">{{ forloop.counter }}. Chromosome : {{ chromosome }}</h3> </a>
+        {% for chromosome, values in charts.items %}
+        <div type="container-fluid">
+            <div class="panel panel-default">
+                <div class="panel-heading" style="background-color: #F6E3CE; border-color:#F6E3CE;">
+                    <h3 class="panel-title" style="text-align: left">
+                        <a data-toggle="collapse" data-parent="#accordion" href="#collapse_{{chromosome}}">
+                            {{ forloop.counter }}. Chromosome: {{ chromosome }}
+                        </a>
+                    </h3>
                 </div>
-                <div class="collapse in"id="CNVsection_{{ chromosome }}"> <!-- Orgspecific section collapsible content -->
-                    <TABLE>
-                        {% for section in charts|hash:chromosome %}
-                        <TR>
-                            <img src="{{ charts|hash:chromosome|hash:section }}">
-                        </TR>
-                        {% endfor %}
-                    </TABLE>
+                <div id="collapse_{{chromosome}}" class="panel-collapse collapse">
+                    <div class="panel-body">
+                        <div class="container-fluid">
+                            {{ values.0 | safe }}
+                            {{ values.1 | safe }}
+                        </div>
+                    </div>
                 </div>
-            </TD></TR>
+            </div>
         {% endfor %}
-    </TABLE
+        </div>
+
 {% else %}
 
-<FORM action="/snpdb/comparelibs/cnv/{{ exp.id }}/" method="post">
+<script>
+function atleast_onecheckbox(e) {
+  if ($("input[name=libcodes]:checked").length === 0) {
+      e.preventDefault();
+      alert('Please choose the libraries you would like to compare against');
+      return false;
+  }
+}
+</script>
+
+<FORM action="/snpdb/comparelibs/cnv/{{ exp.id }}/" method="post"  onsubmit="return atleast_onecheckbox(event)">
 {% csrf_token %}
     <TABLE>
         <TR><TH>Sl. No.</TH><TH>Select</TH><TH>Library Code</TH><TH>Library Name</TH><TH>Color For the Bar</TH></TR>
@@ -55,13 +75,6 @@
         {% endfor %}
         <TR><TD></TD></TR>
     </TABLE>
-    <TABLE><TR><TD>
-        Number of datapoints to plot in a horizontal picture: <input type="text" name="windowsize" value="{{windowsize}}">
-        </TD></TR><TR><TD>
-        More points (value), the messier the picture will be. 100 is optimal.
-        Very few points will result in many pictures.
-
-    </TD></TR></TABLE>
 <input type="submit"  name="libraryselection" value="Display CNV" />
 </FORM>
 {% endif %}
