@@ -1,44 +1,134 @@
 {% extends "admin/base_site.html" %}
 {% load render_table from django_tables2 %}
-{% block bootstrap %}
-<script>
-    $('.collapse').collapse()
-</script>
+
+{% block title %}
+    CNV Results
 {% endblock %}
+
+{% block bootstrap %}
+{% endblock %}
+
 {%block content%}
 {% block body %}
 {% load ngsdbview_extras %}
 {% load humanize %}
 
+
+
+{% if charts %}
+
 <link rel="stylesheet" href="http://cdn.pydata.org/bokeh/release/bokeh-0.9.0.min.css" type="text/css">
-<script src="http://cdn.pydata.org/bokeh/release/bokeh-0.9.0.min.js"></script>
+<script src="http://cdn.pydata.org/bokeh/release/bokeh-0.8.2.min.js"></script>
 
 
+<script>
+    $( document ).ready(function() {
+        $('.panel').on('show.bs.collapse', function (e) {
+            event.preventDefault();
+            console.log("In function");
+            var chromosome = $(this).find(".collapse").attr("id");
+            create_graph(chromosome);
+        });
+    });
+</script>
 
-{%  if charts  %}
-        {% for chromosome, values in charts.items %}
-        <div type="container-fluid">
-            <div class="panel panel-default">
-                <div class="panel-heading" style="background-color: #F6E3CE; border-color:#F6E3CE;">
-                    <h3 class="panel-title" style="text-align: left">
-                        <a data-toggle="collapse" data-parent="#accordion" href="#collapse_{{chromosome}}">
-                            {{ forloop.counter }}. Chromosome: {{ chromosome }}
-                        </a>
-                    </h3>
-                </div>
-                <div id="collapse_{{chromosome}}" class="panel-collapse collapse">
-                    <div class="panel-body">
-                        <div class="container-fluid">
-                            {{ values.0 | safe }}
-                            {{ values.1 | safe }}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        {% endfor %}
+<script>
+    function create_graph(chromosome) {
+        console.log("In create graph");
+        var csrftoken = getCookie('csrftoken');
+        var colors = JSON.parse('{{colors | safe}}');
+        var linestyles = JSON.parse('{{linestyles | safe}}');
+        var libcodes = JSON.parse('{{libcodes | safe}}');
+        var panel = '#panel_' + chromosome
+
+        $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
+            }
+        });
+
+        $.ajax({
+            url: "/snpdb/create-graphs-cnv",
+            type: "POST",
+            xhrFields: {
+                withCredentials: true
+            },
+            data: JSON.stringify({chromosome: chromosome, libcodes: libcodes, colors: colors, linestyles: linestyles, cnvcutoff: '{{cnvcutoff}}', exp_id: '{{exp_id}}'}),
+            error: function() {
+                $(panel).html('<p>An error has occurred </p>')
+            },
+            success: function(result) {
+                var data = JSON.parse(result);
+
+                if (jQuery.isEmptyObject(data)) {
+                    $(panel).html('<h2>There are no differences on this chromosome. </h2>')
+                } else {
+                    var header = "";
+                    $.map(data, function (value, key) {
+                        header = header + '<div class="container-fluid" style="padding-bottom: 10px" ui-if="article.isOpen">';
+                        $.each(value, function (index, val) {
+                            header = header + val;
+                        });
+                        header = header + '</div>';
+                    });
+                    $(panel).html(header);
+                }
+            }
+        })
+    }
+</script>
+
+
+<script>
+    function csrfSafeMethod(method) {
+    // these HTTP methods do not require CSRF protection
+    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+    }
+</script>
+
+
+<script>
+    function getCookie(name) {
+    var cookieValue = null;
+
+    if (document.cookie && document.cookie != '') {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+            var cookie = jQuery.trim(cookies[i]);
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+    }
+</script>
+
+{% for chromosome in chromosomes %}
+<div type="container-fluid">
+    <div class="panel panel-primary" style="border-color: #616770;" id="panel">
+        <div class="panel-heading" data-toggle="collapse" data-praent="#accordion" href="#{{chromosome}}" id="heading_{{chromosome}}" style="background-color: #616770; border-color:#616770; overflow: hidden">
+            <h3 class="panel-title" style="text-align: left">
+                <a> {{ forloop.counter }}. Chromosome: {{ chromosome }} </a>
+            </h3>
         </div>
+        <div class="panel-collapse collapse" id="{{chromosome}}" aria-labelledby="heading_{{chromosome}}">
+            <div class="panel-body" id="panel_{{chromosome}}">
+
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+
 
 {% else %}
+
 
 <script>
 function atleast_onecheckbox(e) {

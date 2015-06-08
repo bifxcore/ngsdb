@@ -28,6 +28,7 @@ urlpatterns = patterns('',
 
                       #CNV Views
                       url(r'^compare-cnv-libraries', 'snpdb.cnv_views.compare_cnv_libraries'),
+                      # url(r'^compare-cnv-libraries', 'snpdb.cnv_views.compare_libraries_cnv_graphs'),
 
 
                       # Basic Table Views: Currently not accessible to users as the information is not relevant to researchers.
@@ -37,5 +38,7 @@ urlpatterns = patterns('',
                       url(r'^comparelibs/somy/(?P<experimentId>.+)/', 'snpdb.compare_libraries_view.compare_libraries_somy'),
                       url(r'^comparelibs/cnv/(?P<experimentId>.+)/', 'snpdb.compare_libraries_view.compare_libraries_cnv'),
                       url(r'^comparelibs/cnvfilter/(?P<experimentId>.+)/', 'snpdb.compare_libraries_view.compare_libs_cnv'),
+                      url(r'^create-graphs-cnv', 'snpdb.compare_libraries_view.compare_libraries_cnv_graphs'),
+
                       url(r'^create-graphs', 'snpdb.compare_libraries_view.create_cnv_graphs'),
                       )

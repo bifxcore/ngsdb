@@ -1,6 +1,7 @@
 __author__ = 'mcobb'
 from snpdb.models import *
 from samples.models import *
+from django.db.models import Q
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from utils import build_orderby_urls
 from collections import *
@@ -17,7 +18,8 @@ from django.conf import settings
 from bokeh.charts import Bar
 from bokeh.embed import components
 from bokeh.plotting import figure
-from bokeh.models import NumeralTickFormatter, HoverTool, BoxZoomTool, ResetTool, PanTool, PreviewSaveTool
+from bokeh.models import NumeralTickFormatter, HoverTool, BoxZoomTool, ResetTool, PanTool, PreviewSaveTool, Range1d, glyphs
+from bokeh.models.glyphs import Text
 import json
 
 
@@ -740,6 +742,46 @@ def compare_libraries_somy(request, experimentId):
 	return render_to_response('snpdb/compare_libraries_somy.html', kwargs, context_instance=RequestContext(request))
 
 
+def compare_libraries_cnv_graphs(request):
+	data = json.loads(request.body)
+
+	colors = data['colors']
+	libcodes = data['libcodes']
+	chromosome = data['chromosome']
+	linestyles = data['linestyles']
+
+	charts = {}
+
+	graph = figure(x_axis_label='Position (bp)', y_axis_label='CNV Values', title=chromosome,
+	               tools=[BoxZoomTool(), PanTool(), HoverTool(tooltips = [("position", "@x"), ("CNV Value", "@y")]),
+	                      ResetTool(), PreviewSaveTool()], plot_height=800, plot_width=1300, toolbar_location="left")
+
+	max_cnv = 0
+
+	for x in range(0, len(libcodes)):
+		cnvvalues = []
+		positions = []
+
+		for cnvobject in CNV.objects.filter(library__library_code=libcodes[x]).filter(cnv_type__cvterm='CNV').filter(chromosome__chromosome_name=chromosome):
+			cnvvalues.append(cnvobject.cnv_value)
+			positions.append(cnvobject.stop)
+
+		graph.line(x=positions, y=cnvvalues, legend=libcodes[x], line_color=colors[x], line_dash=linestyles[x], line_width=2)
+		graph.xaxis[0].formatter = NumeralTickFormatter(format="0")
+		graph.circle(x=positions, y=cnvvalues, fill_color=colors[x], size=4, color=colors[x])
+
+		graph.x_range = Range1d(0, positions[-1])
+
+		max_cnv = max(max_cnv, max(cnvvalues))
+
+	graph.y_range = Range1d(0, max_cnv+5)
+
+	script, div = components(graph)
+	charts[chromosome] = [script, div]
+
+	return HttpResponse(json.dumps(charts))
+
+
 def compare_libraries_cnv(request, experimentId):
 	"""
 	Display CNV chart(s)
@@ -747,8 +789,7 @@ def compare_libraries_cnv(request, experimentId):
 	:return: all chart objects
 	"""
 
-	kwargs = {'listoflinks': listoflinks, 'title': "Comparing CNVs"}
-	#kwargs['user']=user
+	# kwargs = {'listoflinks': listoflinks, 'title': "Comparing CNVs"}
 
 	if request.method == 'POST':
 		# get params from form
@@ -761,49 +802,35 @@ def compare_libraries_cnv(request, experimentId):
 
 		# get chromosome list
 		chromosomes =  list(set(CNV.objects.filter(library__library_code__in=libcodes).filter(cnv_type__cvterm='CNV').order_by("chromosome__chromosome_name").values_list("chromosome__chromosome_name", flat=True)))
+		chromosomes.sort()
 
-		graphs = {}
 
-		# read in cnv values for each chromosome; for selected set of libraries
-		for chromosome in chromosomes:
-			graph = figure(x_axis_label='Position (bp)', y_axis_label='CNV Values',
-			               tools=[BoxZoomTool(), PanTool(), HoverTool(tooltips = [("position", "@x"), ("CNV Value", "@y")]),
-			                      ResetTool(), PreviewSaveTool()], plot_height=800, plot_width=1300, toolbar_location="left")
-			for x in range(0, len(libcodes)):
-				cnvvalues = []
-				positions = []
+		return render_to_response('snpdb/compare_libraries_cnv.html', {'libcodes': json.dumps(libcodes),
+		                                                                'colors': json.dumps(colors),
+		                                                                'linestyles': json.dumps(linestyles),
+		                                                                'charts': "True",
+		                                                                'chromosomes': chromosomes,
+		                                                                'exp_id': experimentId}, context_instance=RequestContext(request))
 
-				for cnvobject in CNV.objects.filter(library__library_code=libcodes[x]).filter(cnv_type__cvterm='CNV').filter(chromosome__chromosome_name=chromosome):
-					cnvvalues.append(cnvobject.cnv_value)
-					positions.append(cnvobject.stop)
-
-				graph.line(x=positions, y=cnvvalues, legend=libcodes[x], line_color=colors[x], line_dash=linestyles[x], line_width=2)
-				graph.xaxis[0].formatter = NumeralTickFormatter(format="0")
-				graph.circle(x=positions, y=cnvvalues, fill_color=colors[x], size=4, color=colors[x])
-
-			script, div = components(graph)
-			graphs[chromosome] = [script, div]
-
-		graph = OrderedDict(sorted(graphs.items()))
-
-		kwargs['charts'] = graph
-		kwargs['display_chart']='yes'
 
 	else:
 		exp = Experiment.objects.get(id=experimentId)
-		kwargs['exp'] = exp
+
+		print "Exp: ", exp
+
 		libs = []
 		for sample in exp.samples.all():
 			for lib in sample.library_set.all():
 				libs.append(lib)
-		kwargs['libs'] = libs
-		kwargs['display_form'] = 'yes'
-		kwargs['colors'] = ['blue', 'orange', 'red', 'green', 'yellow', 'purple', 'pink', 'black', 'gray', 'cyan', 'white']
-		kwargs['linestyles'] = ['solid', 'dotted', 'dashed']
-		kwargs['windowsize'] = 100
-		kwargs['mincutoff'] = 0.75
 
-	return render_to_response('snpdb/compare_libraries_cnv.html', kwargs, context_instance=RequestContext(request))
+	return render_to_response('snpdb/compare_libraries_cnv.html', {'libs': libs,
+	                                                                'exp': exp,
+	                                                                'exp_id': experimentId,
+	                                                                'colors': ['blue', 'orange', 'red', 'green', 'yellow', 'purple', 'pink', 'black', 'gray', 'cyan', 'white'],
+	                                                                'linestyles': ['solid', 'dotted', 'dashed'],
+	                                                                'modes': ['Median', 'Mean'],
+	                                                                'windowsize': 100,
+	                                                                'cnvcutoff': 0.75}, context_instance=RequestContext(request))
 
 
 def create_cnv_graphs(request):
@@ -956,6 +983,8 @@ def find_cnv_diff_create_images_chrom(request, full_masterdict, cnvcutoff, color
 
 		alllib_cnvvalues = []
 		if is_diff == 'YES':
+
+
 			section += 1
 			slice_start = pos - 2
 			if slice_start < 0:
@@ -966,15 +995,21 @@ def find_cnv_diff_create_images_chrom(request, full_masterdict, cnvcutoff, color
 
 			labels = []
 			for label in range(slice_start, slice_end, 2):
-				labels.append(label)
-			labels.append(slice_end)
+				labels.append(label * 1000)
+			labels.append(slice_end * 1000)
+
+			try:
+				gene = Feature.objects.values('geneid', 'fmin', 'fmax').filter(Q(featuretype='gene'), Q(chromosome=chromosome), Q(fmin__range=(labels[0], labels[-1])) | Q(fmax__range=(labels[0], labels[-1])))
+			except ObjectDoesNotExist:
+				print "There is no gene in this region"
+
+			title = chromosome + ": " + str(labels[0]) + " - " + str(labels[-1])
 
 			group1_y = group1_summary_cnvs[slice_start:slice_end]
 			group2_y = group2_summary_cnvs[slice_start:slice_end]
 
-			graph = figure(x_axis_label='Position (bp)', y_axis_label='CNV Values',
-		                plot_height=400, plot_width=800, toolbar_location=None, tools='hover',
-		                x_range=(labels[0], labels[-1]), y_range=(0, max(max(group1_y), max(group2_y))+10))
+			graph = figure(x_axis_label='Position (bp)', y_axis_label='CNV Values', title=title,
+		                plot_height=400, plot_width=800, toolbar_location=None, tools='hover')
 
 			hover = graph.select(dict(type=HoverTool))
 			hover.tooltips = [("Position", "@x"), ("CNV Value", "@y")]
@@ -984,9 +1019,32 @@ def find_cnv_diff_create_images_chrom(request, full_masterdict, cnvcutoff, color
 			graph.xaxis[0].formatter = NumeralTickFormatter(format="0")
 			graph.circle(x=labels, y=group1_y, fill_color=colors[0], size=6, color=colors[0])
 
+
+			min_x = labels[0]
+			max_x = labels[-1]
+			min_y = -5
+
+			if gene:
+				for i in range(0, len(gene)):
+					left = min(gene[i]['fmin'], labels[0])
+					right = max(gene[i]['fmax'], labels[-1])
+
+					min_x = min(left, min_x)
+					max_x = max(right, max_x)
+					min_y = min(min_y, 1.5-i)
+
+					x_pos = numpy.mean([left, right])
+					graph.quad(top=[-1 - i], bottom=[-2 - i], left=[left], right=[right], fill_color="#87CEEB", line_color="black")
+					glyph = Text(x=x_pos, y=-1.5 - i, text=[gene[i]['geneid']], text_baseline='middle', text_align='center', text_color='black', text_font_size="9pt", text_font_style="bold")
+					graph.add_glyph(glyph)
+
+
 			graph.line(x=labels, y=group2_y, line_color=colors[1], line_dash=linestyle[1], line_width=3, legend=', '.join(group2_libcodes))
 			graph.xaxis[0].formatter = NumeralTickFormatter(format="0")
 			graph.circle(x=labels, y=group2_y, fill_color=colors[1], size=6, color=colors[1])
+
+			graph.x_range = Range1d(min_x, max_x)
+			graph.y_range = Range1d(min_y, max(max(group1_y), max(group2_y))+10)
 
 			script, div = components(graph)
 			charts[section] = [script, div]
