@@ -1,0 +1,258 @@
+{% extends "admin/base_site.html" %}
+{% load render_table from django_tables2 %}
+
+{% block title %}
+   Compare CNV
+{% endblock %}
+
+{% block bootstrap %}
+{% endblock %}
+
+{%block content%}
+{% block body %}
+{% load ngsdbview_extras %}
+{% load humanize %}
+
+
+
+{% if accordion %}
+
+<link rel="stylesheet" href="http://cdn.pydata.org/bokeh/release/bokeh-0.8.2.min.css" type="text/css">
+<script src="http://cdn.pydata.org/bokeh/release/bokeh-0.8.2.min.js"></script>
+
+        
+<script>
+    $( document ).ready(function() {
+        $('.panel').on('show.bs.collapse', function (e) {
+            event.preventDefault();
+            var chromosome = $(this).find(".collapse").attr("id");
+            var loader = '#loading-indicator-' + chromosome;
+            $(document).ajaxSend(function () {
+                $(loader).show();
+            }).ajaxStop(function () {
+                $(loader).hide();
+            });
+
+            create_graph(chromosome);
+        });
+    });
+</script>
+
+
+<script>
+    function create_graph(chromosome) {
+        var csrftoken = getCookie('csrftoken');
+        var colors = JSON.parse('{{colors | safe}}');
+        var linestyles = JSON.parse('{{linestyles | safe}}');
+        var lib1 = JSON.parse('{{group1_libs | safe}}');
+        var lib2 = JSON.parse('{{group2_libs | safe}}');
+        var panel = '#panel_' + chromosome;
+
+        $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
+            }
+        });
+
+
+        $.ajax({
+            url: "/snpdb/create-graphs",
+            type: "POST",
+            xhrFields: {
+                withCredentials: true
+            },
+            data: JSON.stringify({chromosome: chromosome, group1_libs: lib1, group2_libs: lib2, colors: colors, linestyles: linestyles, mode: '{{mode}}', windowsize: '{{windowsize}}', cnvcutoff: '{{cnvcutoff}}'}),
+
+            error: function() {
+                $(panel).html('<p>An error has occurred </p>')
+            },
+            success: function(result) {
+                var data = JSON.parse(result);
+
+                if (jQuery.isEmptyObject(data)) {
+                    $(panel).html('<h2>There are no differences on this chromosome. </h2>')
+                } else {
+                    var header = "";
+                    $.map(data, function (value, key) {
+                        header = header + '<div class="container-fluid" style="padding-bottom: 10px" ui-if="article.isOpen">';
+                        $.each(value, function (index, val) {
+                            header = header + val;
+                        });
+                        header = header + '</div>';
+                    });
+                    $(panel).html(header);
+                }
+            }
+        });
+        console.log("Request finished")
+    }
+</script>
+
+
+<script>
+    function csrfSafeMethod(method) {
+    // these HTTP methods do not require CSRF protection
+    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+    }
+</script>
+
+
+<script>
+    function getCookie(name) {
+    var cookieValue = null;
+
+    if (document.cookie && document.cookie != '') {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+            var cookie = jQuery.trim(cookies[i]);
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+    }
+</script>
+
+
+
+{% for chromosome in chromosomes %}
+<div type="container-fluid">
+    <div class="panel panel-primary" style="border-color: #616770;" id="panel">
+        <div class="panel-heading" data-toggle="collapse" data-praent="#accordion" href="#{{chromosome}}" id="heading_{{chromosome}}" style="background-color: #616770; border-color:#616770; overflow: hidden">
+            <h3 class="panel-title" style="text-align: left">
+                <a> {{ forloop.counter }}. Chromosome: {{ chromosome }} </a>
+            </h3>
+        </div>
+        <div class="panel-collapse collapse" id="{{chromosome}}" aria-labelledby="heading_{{chromosome}}">
+            <div class="panel-body" id="panel_{{chromosome}}">
+                <img src="/static/img/ajax-loader.gif" id="loading-indicator-{{chromosome}}" style="display:none" class="img-responsive center-block" />
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+
+
+{% else %}
+
+<script>
+    function atleast_onecheckbox(e) {
+        if ($("input[name=group1_libcodes]:checked").length === 0 | $("input[name=group2_libcodes]:checked").length === 0) {
+            e.preventDefault();
+            alert('Please choose the libraries you would like to compare against');
+            return false;
+        }
+    }
+</script>
+
+<FORM action="/snpdb/comparelibs/cnvfilter/{{ exp.id }}/" method="post" onsubmit="return atleast_onecheckbox(event)">
+    <input type="hidden" name="exp" value="{{exp.id}}" />
+    {% csrf_token %}
+    <TABLE> <TR><TD> <!-- start of group table -->
+        <div class="panel-heading" style="background-color: #F6E3CE; border-color:#F6E3CE; overflow: hidden">
+            <a class="collapse" data-toggle="collapse" data-parent="#accordion" href="#CNVsection_{{ chromosome }}" aria-expanded="true"> <h3 class="panel-title" style="text-align: left"> Group 1</h3> </a>
+        </div>
+        <TABLE>
+            <TR><TH>Sl. No.</TH><TH>Include</TH><TH>Library Code</TH><TH>Library Name</TH><!--<TH>Color For the Bar</TH>--></TR>
+            {% for lib in libs %}
+            <TR>
+                <TD>{{ forloop.counter }}</TD><TD><input type="checkbox" name="group1_libcodes" value="{{ lib.library_code }}"></TD><TD>{{ lib.library_code }}</TD><TD>{{ lib.sampleid.samplename }}</TD>
+            </TR>
+            {% endfor %}
+        </TABLE>
+        <TABLE>
+            <TR><TD></TD></TR>
+            <TR>
+                {# display dropdown for color #}
+                <TD>Color :</TD>
+                <TD>
+                    <select name="group1_color">
+                        {% for color in colors %}
+                        <option value={{ color }}>{{ color }}</option>
+                        {% endfor %}
+                    </select>
+                </TD>
+            </TR><TR>
+            <TD>Line Style :</TD>
+            <TD>
+                <select name="group1_style">
+                    {% for style in linestyles %}
+                    <option value={{ style }} >{{ style }}</option>
+                    {% endfor %}
+                </select>
+            </TD>
+        </TR>
+            </TR>
+        </TABLE>
+
+    </TD><TD>
+        <div class="panel-heading" style="background-color: #F6E3CE; border-color:#F6E3CE; overflow: hidden">
+            <a class="collapse" data-toggle="collapse" data-parent="#accordion" href="#CNVsection_{{ chromosome }}" aria-expanded="true"> <h3 class="panel-title" style="text-align: left"> Group 2</h3> </a>
+        </div>
+        <TABLE>
+            <TR><TH>Sl. No.</TH><TH>Include</TH><TH>Library Code</TH><TH>Library Name</TH><!--<TH>Collor For the Bar</TH>--></TR>
+            {% for lib in libs %}
+            <TR>
+                <TD>{{ forloop.counter }}</TD><TD><input type="checkbox" name="group2_libcodes" value="{{ lib.library_code }}"></TD><TD>{{ lib.library_code }}</TD><TD>{{ lib.sampleid.samplename }}</TD>
+            </TR>
+            {% endfor %}
+        </TABLE>
+        <TABLE>
+            <TR><TD></TD></TR>
+            <TR>
+                {# display dropdown for color #}
+                <TD>Color :</TD>
+                <TD>
+                    <select name="group2_color">
+                        {% for color in colors %}
+                        <option value={{ color }}>{{ color }}</option>
+                        {% endfor %}
+                    </select>
+                </TD>
+            </TR><TR>
+            <TD>Line Style :</TD>
+            <TD>
+                <select name="group2_style">
+                    {% for style in linestyles %}
+                    <option value={{ style }} >{{ style }}</option>
+                    {% endfor %}
+                </select>
+            </TD>
+        </TR>
+            </TR>
+        </TABLE>
+    </TD></TR></TABLE> <!-- end of group table -->
+    <TABLE>
+        <TR>
+            <TD>Data Summarizing Mode :</TD>
+            <TD>
+                <select name="summary_mode">
+                    {% for mode in modes %}
+                    <option value={{ mode }} >{{ mode }}</option>
+                    {% endfor %}
+                </select>
+            </TD>
+        </TR>
+    </TABLE>
+    <TABLE><TR><TD>
+        Minimum CNV value difference between groups: <input type="number" max="10" min="0" step="any" name="cnvcutoff" value="{{ cnvcutoff }}">
+    </TD><TR><TD>Set it to Zero to browse entire chromosome manually</TD></TR>
+        </TD></TR></TABLE>
+
+    <TABLE><TR><TD>
+        Number of datapoints to plot in a horizontal picture: <input type="text" name="windowsize" value="{{windowsize}}">
+    </TD></TR><TR><TD>
+        More the points (value) messier picture will be. 100 is optimal.
+        Very few points, many pictures.
+    </TD></TR></TABLE>
+    <input type="submit"  name="libraryselection" value="Display CNV" />
+</FORM>
+{% endif %}
+{% endblock %}
+{% endblock %}

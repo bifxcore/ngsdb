@@ -23,4 +23,5 @@ PyVCF==0.6.7
 numpy==1.9.0
 PyYAML==3.11
 http://effbot.org/downloads/Imaging-1.1.7.tar.gz
-
+pygal==1.7.0
+webcolors==1.5

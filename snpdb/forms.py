@@ -6,7 +6,3 @@ class CnvFilterForm(forms.Form):
     librarycode = forms.CharField()
     normalrange_mincnv = forms.FloatField()
     normalrange_maxcnv = forms.FloatField()
-
-
-class SomyFilterForm(forms.Form):
-    

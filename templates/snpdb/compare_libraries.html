@@ -23,8 +23,19 @@
 
 
 {% if ref_genome %}
+
+<script>
+function atleast_onecheckbox(e) {
+  if ($("input[name=check1]:checked").length === 0 | $("input[name=check2]:checked").length === 0 ) {
+      e.preventDefault();
+      alert('Please choose the libraries you would like to compare against');
+      return false;
+  }
+}
+</script>
+
     <div class="container-fluid" style="padding-bottom:30px">
-        <form id="form2" action="/snpdb/compare-libs/search" method="get">
+        <form id="form2" action="/snpdb/compare-libs/search" method="get"  onsubmit="return atleast_onecheckbox(event)">
             <div class="row">
                 <div class="col-md-6">
                     <div class="panel panel-primary" style="border-color: #616770;">
@@ -99,8 +110,18 @@
 
 
 {% else %}
+<script>
+function atleast_onecheckbox(e) {
+  if ($("input[name=ref_genome]:checked").length === 0) {
+      e.preventDefault();
+      alert('Please choose the organism you would like to compare');
+      return false;
+  }
+}
+</script>
+
     <div class="container-fluid" style="padding-bottom:30px">
-        <form id="form3" action="/snpdb/compare-libs" method="get">
+        <form id="form3" action="/snpdb/compare-libs" method="get"  onsubmit="return atleast_onecheckbox(event)">
                 <div class="panel panel-primary" style="border-color: #616770;">
                     <div class="panel-heading" style="background-color: #616770; border-color:#616770; overflow: hidden">
                         <h3 class="panel-title" style="text-align: center">Choose a Reference Organism</h3>

@@ -1,36 +1,152 @@
 {% extends "admin/base_site.html" %}
 {% load render_table from django_tables2 %}
-{% block bootstrap %}
-<script>
-    $('.collapse').collapse()
-</script>
+
+{% block title %}
+    CNV Results
 {% endblock %}
+
+{% block bootstrap %}
+{% endblock %}
+
 {%block content%}
 {% block body %}
 {% load ngsdbview_extras %}
 {% load humanize %}
-{%  if charts  %}
-    <TABLE>
-        {% for chromosome in charts %}
-            <TR><TD>
-                <div class="panel-heading" style="background-color: #F6E3CE; border-color:#F6E3CE; overflow: hidden">
-                     <a class="collapse" data-toggle="collapse" data-parent="#accordion" href="#CNVsection_{{ chromosome }}" aria-expanded="true"> <h3 class="panel-title" style="text-align: left">{{ forloop.counter }}. Chromosome : {{ chromosome }}</h3> </a>
-                </div>
-                <div class="collapse in"id="CNVsection_{{ chromosome }}"> <!-- Orgspecific section collapsible content -->
-                    <TABLE>
-                        {% for section in charts|hash:chromosome %}
-                        <TR>
-                            <img src="{{ charts|hash:chromosome|hash:section }}">
-                        </TR>
-                        {% endfor %}
-                    </TABLE>
-                </div>
-            </TD></TR>
-        {% endfor %}
-    </TABLE
+
+
+
+{% if charts %}
+
+<link rel="stylesheet" href="http://cdn.pydata.org/bokeh/release/bokeh-0.8.2.min.css" type="text/css">
+<script src="http://cdn.pydata.org/bokeh/release/bokeh-0.8.2.min.js"></script>
+
+
+<script>
+    $( document ).ready(function() {
+        $('.panel').on('show.bs.collapse', function (e) {
+            event.preventDefault();
+            var chromosome = $(this).find(".collapse").attr("id");
+            var loader = '#loading-indicator-' + chromosome;
+            $(document).ajaxSend(function () {
+                $(loader).show();
+            }).ajaxStop(function () {
+                $(loader).hide();
+            });
+
+            create_graph(chromosome);
+        });
+    });
+</script>
+
+<script>
+    function create_graph(chromosome) {
+        console.log("In create graph");
+        var csrftoken = getCookie('csrftoken');
+        var colors = JSON.parse('{{colors | safe}}');
+        var linestyles = JSON.parse('{{linestyles | safe}}');
+        var libcodes = JSON.parse('{{libcodes | safe}}');
+        var panel = '#panel_' + chromosome;
+
+        $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
+            }
+        });
+
+        $.ajax({
+            url: "/snpdb/create-graphs-cnv",
+            type: "POST",
+            xhrFields: {
+                withCredentials: true
+            },
+            data: JSON.stringify({chromosome: chromosome, libcodes: libcodes, colors: colors, linestyles: linestyles, cnvcutoff: '{{cnvcutoff}}', exp_id: '{{exp_id}}'}),
+            error: function() {
+                $(panel).html('<p>An error has occurred </p>')
+            },
+            success: function(result) {
+                var data = JSON.parse(result);
+
+                if (jQuery.isEmptyObject(data)) {
+                    $(panel).html('<h2>There are no differences on this chromosome. </h2>')
+                } else {
+                    var header = "";
+                    $.map(data, function (value, key) {
+                        header = header + '<div class="container-fluid" style="padding-bottom: 10px" ui-if="article.isOpen">';
+                        $.each(value, function (index, val) {
+                            header = header + val;
+                        });
+                        header = header + '</div>';
+                    });
+                    $(panel).html(header);
+                }
+            }
+        })
+    }
+</script>
+
+
+<script>
+    function csrfSafeMethod(method) {
+    // these HTTP methods do not require CSRF protection
+    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+    }
+</script>
+
+
+<script>
+    function getCookie(name) {
+    var cookieValue = null;
+
+    if (document.cookie && document.cookie != '') {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+            var cookie = jQuery.trim(cookies[i]);
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+    }
+</script>
+
+{% for chromosome in chromosomes %}
+<div type="container-fluid">
+    <div class="panel panel-primary" style="border-color: #616770;" id="panel">
+        <div class="panel-heading" data-toggle="collapse" data-praent="#accordion" href="#{{chromosome}}" id="heading_{{chromosome}}" style="background-color: #616770; border-color:#616770; overflow: hidden">
+            <h3 class="panel-title" style="text-align: left">
+                <a> {{ forloop.counter }}. Chromosome: {{ chromosome }} </a>
+            </h3>
+        </div>
+        <div class="panel-collapse collapse" id="{{chromosome}}" aria-labelledby="heading_{{chromosome}}">
+            <div class="panel-body" id="panel_{{chromosome}}">
+                <img src="/static/img/ajax-loader.gif" id="loading-indicator-{{chromosome}}" style="display:none" class="img-responsive center-block" />
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+
+
 {% else %}
 
-<FORM action="/snpdb/comparelibs/cnv/{{ exp.id }}/" method="post">
+
+<script>
+function atleast_onecheckbox(e) {
+  if ($("input[name=libcodes]:checked").length === 0) {
+      e.preventDefault();
+      alert('Please choose the libraries you would like to compare against');
+      return false;
+  }
+}
+</script>
+
+<FORM action="/snpdb/comparelibs/cnv/{{ exp.id }}/" method="post"  onsubmit="return atleast_onecheckbox(event)">
 {% csrf_token %}
     <TABLE>
         <TR><TH>Sl. No.</TH><TH>Select</TH><TH>Library Code</TH><TH>Library Name</TH><TH>Color For the Bar</TH></TR>
@@ -55,13 +171,6 @@
         {% endfor %}
         <TR><TD></TD></TR>
     </TABLE>
-    <TABLE><TR><TD>
-        Number of datapoints to plot in a horizontal picture: <input type="text" name="windowsize" value="{{windowsize}}">
-        </TD></TR><TR><TD>
-        More points (value), the messier the picture will be. 100 is optimal.
-        Very few points will result in many pictures.
-
-    </TD></TR></TABLE>
 <input type="submit"  name="libraryselection" value="Display CNV" />
 </FORM>
 {% endif %}
