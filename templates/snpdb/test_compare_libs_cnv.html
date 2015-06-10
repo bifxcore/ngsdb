@@ -26,10 +26,18 @@
         $('.panel').on('show.bs.collapse', function (e) {
             event.preventDefault();
             var chromosome = $(this).find(".collapse").attr("id");
+            var loader = '#loading-indicator-' + chromosome;
+            $(document).ajaxSend(function () {
+                $(loader).show();
+            }).ajaxStop(function () {
+                $(loader).hide();
+            });
+
             create_graph(chromosome);
         });
     });
 </script>
+
 
 <script>
     function create_graph(chromosome) {
@@ -38,7 +46,8 @@
         var linestyles = JSON.parse('{{linestyles | safe}}');
         var lib1 = JSON.parse('{{group1_libs | safe}}');
         var lib2 = JSON.parse('{{group2_libs | safe}}');
-        var panel = '#panel_' + chromosome
+        var panel = '#panel_' + chromosome;
+
         $.ajaxSetup({
             beforeSend: function(xhr, settings) {
                 if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
@@ -47,6 +56,7 @@
             }
         });
 
+
         $.ajax({
             url: "/snpdb/create-graphs",
             type: "POST",
@@ -54,6 +64,7 @@
                 withCredentials: true
             },
             data: JSON.stringify({chromosome: chromosome, group1_libs: lib1, group2_libs: lib2, colors: colors, linestyles: linestyles, mode: '{{mode}}', windowsize: '{{windowsize}}', cnvcutoff: '{{cnvcutoff}}'}),
+
             error: function() {
                 $(panel).html('<p>An error has occurred </p>')
             },
@@ -74,7 +85,8 @@
                     $(panel).html(header);
                 }
             }
-        })
+        });
+        console.log("Request finished")
     }
 </script>
 
@@ -118,7 +130,7 @@
         </div>
         <div class="panel-collapse collapse" id="{{chromosome}}" aria-labelledby="heading_{{chromosome}}">
             <div class="panel-body" id="panel_{{chromosome}}">
-
+                <img src="/static/img/ajax-loader.gif" id="loading-indicator-{{chromosome}}" style="display:none" class="img-responsive center-block" />
             </div>
         </div>
     </div>

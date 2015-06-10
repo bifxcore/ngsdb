@@ -972,82 +972,113 @@ def find_cnv_diff_create_images_chrom(request, full_masterdict, cnvcutoff, color
 
 	group1_summary_cnvs = full_masterdict[chromosome]['group1']['summary']
 	group2_summary_cnvs = full_masterdict[chromosome]['group2']['summary']
-	section = 0
 
-	for pos in range(0, len(group1_summary_cnvs)-1):
-		is_diff = 'NO'
-		cnv_diff = group1_summary_cnvs[pos] - group2_summary_cnvs[pos]
+	index = 0
+	end_pos = len(group1_summary_cnvs)-1
+
+	alllib_cnvvalues = []
+	cur_pos = []
+	while index < end_pos:
+		cnv_diff = group1_summary_cnvs[index] - group2_summary_cnvs[index]
 
 		if abs(cnv_diff) > float(cnvcutoff):
-			is_diff = 'YES'
+			cur_pos.append(index)
+			index += 1
 
-		alllib_cnvvalues = []
-		if is_diff == 'YES':
+		elif len(cur_pos) > 0:
 
+			flank_dif = False
+			for x in range(index, index + 3):
+				temp_cnv_dif = group1_summary_cnvs[x] - group2_summary_cnvs[x]
 
-			section += 1
-			slice_start = pos - 2
-			if slice_start < 0:
-				slice_start = 0
-			slice_end = pos + 3
-			alllib_cnvvalues.append(group1_summary_cnvs[slice_start:slice_end])
-			alllib_cnvvalues.append(group2_summary_cnvs[slice_start:slice_end])
+				if abs(temp_cnv_dif) > float(cnvcutoff):
+					flank_dif=True
 
-			labels = []
-			for label in range(slice_start, slice_end, 2):
-				labels.append(label * 1000)
-			labels.append(slice_end * 1000)
+			if flank_dif:
+				print "extending: ", cur_pos
+				cur_pos.extend(range(index, index+4))
+				print cur_pos
+				index += 3
 
-			try:
-				gene = Feature.objects.values('geneid', 'fmin', 'fmax').filter(Q(featuretype='gene'), Q(chromosome=chromosome), Q(fmin__range=(labels[0], labels[-1])) | Q(fmax__range=(labels[0], labels[-1])))
-			except ObjectDoesNotExist:
-				print "There is no gene in this region"
-
-			title = chromosome + ": " + str(labels[0]) + " - " + str(labels[-1])
-
-			group1_y = group1_summary_cnvs[slice_start:slice_end]
-			group2_y = group2_summary_cnvs[slice_start:slice_end]
-
-			graph = figure(x_axis_label='Position (bp)', y_axis_label='CNV Values', title=title,
-		                plot_height=400, plot_width=800, toolbar_location=None, tools='hover')
-
-			hover = graph.select(dict(type=HoverTool))
-			hover.tooltips = [("Position", "@x"), ("CNV Value", "@y")]
+			else:
+				print "No difference: ", cur_pos
+				slice_start = cur_pos[0]
+				if slice_start < 0:
+					slice_start = 0
+				slice_end = index
+				if slice_end > end_pos:
+					slice_end = end_pos
 
 
-			graph.line(x=labels, y=group1_y, line_color=colors[0], line_dash=linestyle[0], line_width=3, legend=', '.join(group1_libcodes))
-			graph.xaxis[0].formatter = NumeralTickFormatter(format="0")
-			graph.circle(x=labels, y=group1_y, fill_color=colors[0], size=6, color=colors[0])
+				alllib_cnvvalues.append(group1_summary_cnvs[slice_start:slice_end])
+				alllib_cnvvalues.append(group2_summary_cnvs[slice_start:slice_end])
+
+				labels = []
+				for label in range(slice_start, slice_end, 2):
+					labels.append(label * 1000)
+				labels.append(slice_end * 1000)
 
 
-			min_x = labels[0]
-			max_x = labels[-1]
-			min_y = -5
+				labels = []
+				for label in range(slice_start, slice_end, 2):
+					labels.append(label * 1000)
+				labels.append(slice_end * 1000)
 
-			if gene:
-				for i in range(0, len(gene)):
-					left = min(gene[i]['fmin'], labels[0])
-					right = max(gene[i]['fmax'], labels[-1])
+				try:
+					gene = Feature.objects.values('geneid', 'fmin', 'fmax').filter(Q(featuretype='gene'), Q(chromosome=chromosome), Q(fmin__range=(labels[0], labels[-1])) | Q(fmax__range=(labels[0], labels[-1])))
+				except ObjectDoesNotExist:
+					print "There is no gene in this region"
 
-					min_x = min(left, min_x)
-					max_x = max(right, max_x)
-					min_y = min(min_y, 1.5-i)
+				title = chromosome + ": " + str(labels[0]) + " - " + str(labels[-1])
 
-					x_pos = numpy.mean([left, right])
-					graph.quad(top=[-1 - i], bottom=[-2 - i], left=[left], right=[right], fill_color="#87CEEB", line_color="black")
-					glyph = Text(x=x_pos, y=-1.5 - i, text=[gene[i]['geneid']], text_baseline='middle', text_align='center', text_color='black', text_font_size="9pt", text_font_style="bold")
-					graph.add_glyph(glyph)
+				group1_y = group1_summary_cnvs[slice_start:slice_end]
+				group2_y = group2_summary_cnvs[slice_start:slice_end]
+
+				graph = figure(x_axis_label='Position (bp)', y_axis_label='CNV Values', title=title,
+			                plot_height=400, plot_width=800, toolbar_location=None, tools='hover')
+
+				hover = graph.select(dict(type=HoverTool))
+				hover.tooltips = [("Position", "@x"), ("CNV Value", "@y")]
 
 
-			graph.line(x=labels, y=group2_y, line_color=colors[1], line_dash=linestyle[1], line_width=3, legend=', '.join(group2_libcodes))
-			graph.xaxis[0].formatter = NumeralTickFormatter(format="0")
-			graph.circle(x=labels, y=group2_y, fill_color=colors[1], size=6, color=colors[1])
+				graph.line(x=labels, y=group1_y, line_color=colors[0], line_dash=linestyle[0], line_width=3, legend=', '.join(group1_libcodes))
+				graph.xaxis[0].formatter = NumeralTickFormatter(format="0")
+				graph.circle(x=labels, y=group1_y, fill_color=colors[0], size=6, color=colors[0])
 
-			graph.x_range = Range1d(min_x, max_x)
-			graph.y_range = Range1d(min_y, max(max(group1_y), max(group2_y))+10)
 
-			script, div = components(graph)
-			charts[section] = [script, div]
+				min_x = labels[0]
+				max_x = labels[-1]
+				min_y = -5
+
+				if gene:
+					for i in range(0, len(gene)):
+						left = min(gene[i]['fmin'], labels[0])
+						right = max(gene[i]['fmax'], labels[-1])
+
+						min_x = min(left-500, min_x)
+						max_x = max(right+500, max_x)
+						min_y = min(min_y, 1.5-i)
+
+						x_pos = numpy.mean([left, right])
+						graph.quad(top=[-1 - i], bottom=[-2 - i], left=[left], right=[right], fill_color="#87CEEB", line_color="black")
+						glyph = Text(x=x_pos, y=-1.5 - i, text=[gene[i]['geneid']], text_baseline='middle', text_align='center', text_color='black', text_font_size="9pt", text_font_style="bold")
+						graph.add_glyph(glyph)
+
+
+				graph.line(x=labels, y=group2_y, line_color=colors[1], line_dash=linestyle[1], line_width=3, legend=', '.join(group2_libcodes))
+				graph.xaxis[0].formatter = NumeralTickFormatter(format="0")
+				graph.circle(x=labels, y=group2_y, fill_color=colors[1], size=6, color=colors[1])
+
+				graph.x_range = Range1d(min_x, max_x)
+				graph.y_range = Range1d(min_y, max(max(group1_y), max(group2_y))+10)
+
+				script, div = components(graph)
+				charts[index] = [script, div]
+
+				index += 3
+				cur_pos = []
+		else:
+			index += 1
 
 	charts = remove_empty_keys(charts)
 	charts = OrderedDict(sorted(charts.items()))
