@@ -25,8 +25,14 @@
     $( document ).ready(function() {
         $('.panel').on('show.bs.collapse', function (e) {
             event.preventDefault();
-            console.log("In function");
             var chromosome = $(this).find(".collapse").attr("id");
+            var loader = '#loading-indicator-' + chromosome;
+            $(document).ajaxSend(function () {
+                $(loader).show();
+            }).ajaxStop(function () {
+                $(loader).hide();
+            });
+
             create_graph(chromosome);
         });
     });
@@ -118,7 +124,7 @@
         </div>
         <div class="panel-collapse collapse" id="{{chromosome}}" aria-labelledby="heading_{{chromosome}}">
             <div class="panel-body" id="panel_{{chromosome}}">
-
+                <img src="/static/img/ajax-loader.gif" id="loading-indicator-{{chromosome}}" style="display:none" class="img-responsive center-block" />
             </div>
         </div>
     </div>

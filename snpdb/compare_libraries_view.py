@@ -995,13 +995,11 @@ def find_cnv_diff_create_images_chrom(request, full_masterdict, cnvcutoff, color
 					flank_dif=True
 
 			if flank_dif:
-				print "extending: ", cur_pos
 				cur_pos.extend(range(index, index+4))
 				print cur_pos
 				index += 3
 
 			else:
-				print "No difference: ", cur_pos
 				slice_start = cur_pos[0]
 				if slice_start < 0:
 					slice_start = 0
